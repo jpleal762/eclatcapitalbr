@@ -25,8 +25,8 @@ export const KPI_WEIGHTS: Record<string, number> = {
   "Parceiros Tri": 2,
   "Primeira Reunião": 1,
   "Diversificada ( ROA>1,5)": 1,
-  "Habilitação": 1,
-  "Ativação": 1,
+  "Habilitacao": 1,
+  "Ativacao": 1,
 };
 
 // ============= KPI CATEGORIES FOR GAUGES =============
@@ -39,8 +39,8 @@ export const KPI_CATEGORIES = [
   { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
   { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true },
   { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true },
-  { category: "Habilitação", label: "Habilitação", isCurrency: false },
-  { category: "Ativação", label: "Ativação", isCurrency: false },
+  { category: "Habilitacao", label: "Habilitação", isCurrency: false },
+  { category: "Ativacao", label: "Ativação", isCurrency: false },
 ];
 
 export function parseXLSXFile(buffer: ArrayBuffer): KPIRecord[] {
