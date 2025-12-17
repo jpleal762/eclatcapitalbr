@@ -83,9 +83,9 @@ const Index = () => {
               <AssessorChart data={dashboardData.assessorPerformance} />
             </div>
 
-            {/* KPI Gauges Grid */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {dashboardData.gaugeKPIs.slice(0, 4).map((kpi, index) => (
+            {/* KPI Gauges Row 1 - Graphs 1, 2, 3 */}
+            <div className="grid gap-4 lg:grid-cols-3">
+              {dashboardData.gaugeKPIs.slice(0, 3).map((kpi, index) => (
                 <GaugeChart
                   key={index}
                   label={kpi.label}
@@ -99,18 +99,34 @@ const Index = () => {
               ))}
             </div>
 
-            {/* Additional KPI Gauges */}
-            <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-              {dashboardData.gaugeKPIs.slice(4).map((kpi, index) => (
+            {/* KPI Gauges Row 2 - Graph 4 */}
+            <div className="grid gap-4 lg:grid-cols-3">
+              {dashboardData.gaugeKPIs.slice(3, 6).map((kpi, index) => (
                 <GaugeChart
-                  key={`extra-${index}`}
+                  key={`row2-${index}`}
                   label={kpi.label}
                   value={kpi.value}
                   target={kpi.target}
                   percentage={kpi.percentage}
                   isCurrency={kpi.isCurrency}
                   warning={kpi.warning}
-                  size="sm"
+                  size="lg"
+                />
+              ))}
+            </div>
+
+            {/* KPI Gauges Row 3 - Remaining graphs */}
+            <div className="grid gap-4 lg:grid-cols-3">
+              {dashboardData.gaugeKPIs.slice(6).map((kpi, index) => (
+                <GaugeChart
+                  key={`row3-${index}`}
+                  label={kpi.label}
+                  value={kpi.value}
+                  target={kpi.target}
+                  percentage={kpi.percentage}
+                  isCurrency={kpi.isCurrency}
+                  warning={kpi.warning}
+                  size="lg"
                 />
               ))}
             </div>
