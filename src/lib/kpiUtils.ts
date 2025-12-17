@@ -1,6 +1,23 @@
 import { KPIRecord, ProcessedKPI, DashboardData, GaugeKPI, AssessorPerformance, MetaSemanal } from "@/types/kpi";
 import * as XLSX from "xlsx";
 
+// ============= EXCLUSION LIST (EDITABLE) =============
+// Categories to exclude from all dashboard outputs (auxiliary calculation rows)
+export const EXCLUDED_CATEGORIES = [
+  "PJ até 5 milhões",
+  "PJ até 50 milhões",
+  "PJ até 500 milhões",
+  // Add new auxiliary categories here as needed
+];
+
+// ============= STATUS TYPES =============
+export const STATUS_TYPES = {
+  PLANEJADO_MENSAL: "Planejado Mês",
+  PLANEJADO_SEMANAL: "Planejado Semanal",
+  REALIZADO: "Realizado",
+  PLANEJADO_GERAL: "Planejado Geral",
+} as const;
+
 export function parseXLSXFile(buffer: ArrayBuffer): KPIRecord[] {
   const workbook = XLSX.read(buffer, { type: "array" });
   const sheetName = workbook.SheetNames[0];
@@ -9,13 +26,28 @@ export function parseXLSXFile(buffer: ArrayBuffer): KPIRecord[] {
   return data;
 }
 
+// Filter out auxiliary rows that should not appear in the dashboard
+export function filterAuxiliaryRows(data: KPIRecord[]): KPIRecord[] {
+  return data.filter(row => 
+    !EXCLUDED_CATEGORIES.includes(row.Categorias)
+  );
+}
+
+// Get the column key (Categorias or Categoria)
+function getCategoryKey(record: KPIRecord): string {
+  return record.Categorias || (record as any).Categoria || "";
+}
+
 export function processKPIData(records: KPIRecord[]): ProcessedKPI[] {
-  return records.map((record) => {
+  // Apply exclusion filter first
+  const filteredRecords = filterAuxiliaryRows(records);
+  
+  return filteredRecords.map((record) => {
     const monthlyData: { month: string; value: number }[] = [];
     let total = 0;
 
     Object.entries(record).forEach(([key, value]) => {
-      if (!["Assessor", "Categorias", "Status"].includes(key)) {
+      if (!["Assessor", "Categorias", "Categoria", "Status"].includes(key)) {
         const numValue = typeof value === "number" ? value : parseFloat(String(value)) || 0;
         if (numValue > 0) {
           monthlyData.push({ month: key, value: numValue });
@@ -26,7 +58,7 @@ export function processKPIData(records: KPIRecord[]): ProcessedKPI[] {
 
     return {
       assessor: record.Assessor,
-      category: record.Categorias,
+      category: getCategoryKey(record),
       status: record.Status,
       monthlyData,
       total,
@@ -96,25 +128,55 @@ export function calculateIdealRhythm(): number {
   return Math.round((elapsed / totalDays) * 100);
 }
 
+// ============= DIMENSION FILTERING HELPERS =============
+
+// Filter data by Status - NEVER mix different Status values
+export function filterByStatus(data: ProcessedKPI[], statusType: string): ProcessedKPI[] {
+  return data.filter(d => {
+    const status = d.status.toLowerCase();
+    const searchType = statusType.toLowerCase();
+    return status.includes(searchType) || status === searchType;
+  });
+}
+
+// Filter data by Category
+export function filterByCategory(data: ProcessedKPI[], category: string): ProcessedKPI[] {
+  return data.filter(d => d.category === category);
+}
+
+// Filter data by Assessor
+export function filterByAssessor(data: ProcessedKPI[], assessor: string): ProcessedKPI[] {
+  return data.filter(d => d.assessor === assessor);
+}
+
+// Get value for a specific month from records
+export function getMonthValue(records: ProcessedKPI[], month: string): number {
+  return records.reduce((sum, r) => {
+    const monthData = r.monthlyData.find(m => m.month === month);
+    return sum + (monthData?.value || 0);
+  }, 0);
+}
+
+// Check if status is "Planejado" type
+function isPlannedStatus(status: string): boolean {
+  const s = status.toLowerCase();
+  return s.includes("planejado") || s.includes("meta") || s.includes("planned");
+}
+
+// Check if status is "Realizado" type
+function isRealizedStatus(status: string): boolean {
+  const s = status.toLowerCase();
+  return s.includes("realizado") || s.includes("realized") || s.includes("real.");
+}
+
 export function processDashboardData(data: ProcessedKPI[], selectedMonth: string): DashboardData {
   const filteredData = selectedMonth === "all" 
     ? data 
     : data.filter(d => d.monthlyData.some(m => m.month === selectedMonth));
 
-  // Calculate ICM Geral (average performance)
-  const plannedData = filteredData.filter(d => 
-    d.status.toLowerCase().includes("planejado") || d.status.toLowerCase().includes("planned") || d.status.toLowerCase().includes("meta")
-  );
-  const realizedData = filteredData.filter(d => 
-    d.status.toLowerCase().includes("realizado") || d.status.toLowerCase().includes("realized") || d.status.toLowerCase().includes("real")
-  );
-
-  const getMonthValue = (records: ProcessedKPI[], month: string) => {
-    return records.reduce((sum, r) => {
-      const monthData = r.monthlyData.find(m => m.month === month);
-      return sum + (monthData?.value || 0);
-    }, 0);
-  };
+  // IMPORTANT: Separate Status types - NEVER mix them
+  const plannedData = filteredData.filter(d => isPlannedStatus(d.status));
+  const realizedData = filteredData.filter(d => isRealizedStatus(d.status));
 
   const totalPlanned = selectedMonth !== "all" 
     ? getMonthValue(plannedData, selectedMonth)
@@ -128,21 +190,23 @@ export function processDashboardData(data: ProcessedKPI[], selectedMonth: string
   const ritmoIdeal = calculateIdealRhythm();
   const diasUteisRestantes = getWorkingDaysRemaining();
 
-  // Group by category for meta semanal
+  // Group by category for meta semanal - using ONLY realized data
   const categories = [...new Set(filteredData.map(d => d.category))];
   const metaSemanal: MetaSemanal[] = categories.slice(0, 6).map(cat => {
-    const catData = realizedData.filter(d => d.category === cat);
+    // Filter by Category first, then aggregate
+    const catData = filterByCategory(realizedData, cat);
     const total = selectedMonth !== "all"
       ? getMonthValue(catData, selectedMonth)
       : catData.reduce((sum, d) => sum + d.total, 0);
     return { label: cat, value: total };
   });
 
-  // Assessor performance
+  // Assessor performance - separate calculations for each Status type
   const assessors = [...new Set(filteredData.map(d => d.assessor))];
   const assessorPerformance: AssessorPerformance[] = assessors.slice(0, 6).map(assessor => {
-    const assessorPlanned = plannedData.filter(d => d.assessor === assessor);
-    const assessorRealized = realizedData.filter(d => d.assessor === assessor);
+    // Filter by Assessor first, then by Status
+    const assessorPlanned = filterByAssessor(plannedData, assessor);
+    const assessorRealized = filterByAssessor(realizedData, assessor);
     
     const planned = selectedMonth !== "all"
       ? getMonthValue(assessorPlanned, selectedMonth)
@@ -159,10 +223,11 @@ export function processDashboardData(data: ProcessedKPI[], selectedMonth: string
     };
   }).sort((a, b) => b.geralPercentage - a.geralPercentage);
 
-  // Create gauge KPIs from categories
+  // Create gauge KPIs from categories - separate planned and realized
   const gaugeKPIs: GaugeKPI[] = categories.slice(0, 6).map(cat => {
-    const catPlanned = plannedData.filter(d => d.category === cat);
-    const catRealized = realizedData.filter(d => d.category === cat);
+    // Filter by Category, then by Status type
+    const catPlanned = filterByCategory(plannedData, cat);
+    const catRealized = filterByCategory(realizedData, cat);
     
     const target = selectedMonth !== "all"
       ? getMonthValue(catPlanned, selectedMonth)
