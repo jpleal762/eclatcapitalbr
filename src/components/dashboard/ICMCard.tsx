@@ -115,7 +115,19 @@ export function ICMCard({
       {/* Progress bars */}
       <div className="mt-6 space-y-3">
         <ProgressBar label="Ritmo Ideal" percentage={ritmoIdeal} color="primary" />
-        <ProgressBar label="ICM Geral" percentage={icmGeral} color="muted" />
+        {/* ICM Geral em barra amarela */}
+        <div className="space-y-1">
+          <div className="flex justify-between text-sm">
+            <span className="font-medium text-foreground">ICM Geral</span>
+            <span className="font-bold text-foreground">{icmGeral}%</span>
+          </div>
+          <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
+            <div 
+              className="h-full rounded-full bg-yellow-500 transition-all duration-500"
+              style={{ width: `${Math.min(icmGeral, 100)}%` }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Performance indicator */}
