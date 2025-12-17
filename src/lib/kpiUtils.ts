@@ -23,7 +23,7 @@ export const KPI_WEIGHTS: Record<string, number> = {
   "Captação net": 2,
   "Receita": 2,
   "Parceiros Tri": 2,
-  "Primeira Reuniao": 1,
+  "Primeira reuniao": 1,
   "Diversificada ( ROA>1,5)": 1,
   "Habilitacao": 1,
   "Ativacao": 1,
@@ -34,7 +34,7 @@ export const KPI_WEIGHTS: Record<string, number> = {
 export const KPI_CATEGORIES = [
   { category: "Captação net", label: "Captação NET", isCurrency: true },
   { category: "Receita", label: "Receita", isCurrency: true, isSpecial: true, targetCategories: ["PJ1 XP Mês", "PJ2 XP Mês"] },
-  { category: "Primeira Reuniao", label: "Primeiras Reuniões", isCurrency: false },
+  { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
   { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: false },
   { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
   { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true, isSpecial: true, actualCategory: "PJ1 XP" },
@@ -166,7 +166,78 @@ function isBrazilianHoliday(date: Date): boolean {
   );
 }
 
-export function getWorkingDaysRemaining(currentDate: Date = new Date()): number {
+// Parse month string like "jan/25" to Date
+function parseMonthString(monthStr: string): Date | null {
+  if (!monthStr || monthStr === "all") return null;
+  const parts = monthStr.toLowerCase().split("/");
+  if (parts.length !== 2) return null;
+  
+  const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const monthIndex = monthNames.indexOf(parts[0]);
+  if (monthIndex === -1) return null;
+  
+  let year = parseInt(parts[1]);
+  if (year < 100) year += 2000; // Convert "25" to 2025
+  
+  return new Date(year, monthIndex, 1);
+}
+
+// Get total business days in a specific month
+export function getTotalBusinessDaysInMonth(monthStr: string): number {
+  const date = parseMonthString(monthStr);
+  if (!date) {
+    // Default to current month
+    const now = new Date();
+    return getTotalBusinessDaysInMonthDate(now);
+  }
+  return getTotalBusinessDaysInMonthDate(date);
+}
+
+function getTotalBusinessDaysInMonthDate(date: Date): number {
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  
+  let businessDays = 0;
+  let current = new Date(firstDay);
+  
+  while (current <= lastDay) {
+    const dayOfWeek = current.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isBrazilianHoliday(current)) {
+      businessDays++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  
+  return businessDays;
+}
+
+// Get remaining business days for a specific month
+export function getWorkingDaysRemaining(monthStr: string): number {
+  const targetDate = parseMonthString(monthStr);
+  const now = new Date();
+  
+  if (!targetDate) {
+    // Default: current month remaining days
+    return getWorkingDaysRemainingFromDate(now);
+  }
+  
+  // If selected month is in the past, return 0
+  if (targetDate.getFullYear() < now.getFullYear() || 
+      (targetDate.getFullYear() === now.getFullYear() && targetDate.getMonth() < now.getMonth())) {
+    return 0;
+  }
+  
+  // If selected month is in the future, return total days in that month
+  if (targetDate.getFullYear() > now.getFullYear() || 
+      (targetDate.getFullYear() === now.getFullYear() && targetDate.getMonth() > now.getMonth())) {
+    return getTotalBusinessDaysInMonthDate(targetDate);
+  }
+  
+  // Current month - calculate remaining from today
+  return getWorkingDaysRemainingFromDate(now);
+}
+
+function getWorkingDaysRemainingFromDate(currentDate: Date): number {
   const today = new Date(currentDate);
   const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
   
@@ -185,7 +256,32 @@ export function getWorkingDaysRemaining(currentDate: Date = new Date()): number 
   return businessDays;
 }
 
-export function getElapsedBusinessDays(currentDate: Date = new Date()): number {
+// Get elapsed business days for a specific month
+export function getElapsedBusinessDays(monthStr: string): number {
+  const targetDate = parseMonthString(monthStr);
+  const now = new Date();
+  
+  if (!targetDate) {
+    return getElapsedBusinessDaysFromDate(now);
+  }
+  
+  // If selected month is in the past, return total days (100% elapsed)
+  if (targetDate.getFullYear() < now.getFullYear() || 
+      (targetDate.getFullYear() === now.getFullYear() && targetDate.getMonth() < now.getMonth())) {
+    return getTotalBusinessDaysInMonthDate(targetDate);
+  }
+  
+  // If selected month is in the future, return 0 (nothing elapsed)
+  if (targetDate.getFullYear() > now.getFullYear() || 
+      (targetDate.getFullYear() === now.getFullYear() && targetDate.getMonth() > now.getMonth())) {
+    return 0;
+  }
+  
+  // Current month - calculate elapsed from start to today
+  return getElapsedBusinessDaysFromDate(now);
+}
+
+function getElapsedBusinessDaysFromDate(currentDate: Date): number {
   const today = new Date(currentDate);
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   
@@ -203,13 +299,10 @@ export function getElapsedBusinessDays(currentDate: Date = new Date()): number {
   return businessDays;
 }
 
-export function getTotalBusinessDaysInMonth(date: Date = new Date()): number {
-  return getElapsedBusinessDays(date) + getWorkingDaysRemaining(date);
-}
-
-export function calculateIdealRhythm(currentDate: Date = new Date()): number {
-  const totalDays = getTotalBusinessDaysInMonth(currentDate);
-  const elapsed = getElapsedBusinessDays(currentDate);
+// Calculate ideal rhythm as percentage of elapsed business days
+export function calculateIdealRhythm(monthStr: string): number {
+  const totalDays = getTotalBusinessDaysInMonth(monthStr);
+  const elapsed = getElapsedBusinessDays(monthStr);
   return totalDays > 0 ? Math.round((elapsed / totalDays) * 100) : 0;
 }
 
@@ -279,9 +372,9 @@ export function calculateICMGeral(data: ProcessedKPI[], month: string): number {
   return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
 }
 
-export function calculateICMRitmo(data: ProcessedKPI[], month: string, currentDate: Date = new Date()): number {
-  const totalBusinessDays = getTotalBusinessDaysInMonth(currentDate);
-  const elapsedBusinessDays = getElapsedBusinessDays(currentDate);
+export function calculateICMRitmo(data: ProcessedKPI[], month: string): number {
+  const totalBusinessDays = getTotalBusinessDaysInMonth(month);
+  const elapsedBusinessDays = getElapsedBusinessDays(month);
   const paceRatio = totalBusinessDays > 0 ? elapsedBusinessDays / totalBusinessDays : 0;
 
   let weightedSum = 0;
@@ -314,11 +407,11 @@ export function processDashboardData(
   selectedAssessor: string = "all"
 ): DashboardData {
   const filteredByAssessor = filterByAssessor(data, selectedAssessor);
-  const currentDate = new Date();
   
   const icmGeral = calculateICMGeral(filteredByAssessor, selectedMonth);
-  const ritmoIdeal = calculateICMRitmo(filteredByAssessor, selectedMonth, currentDate);
-  const diasUteisRestantes = getWorkingDaysRemaining(currentDate);
+  // Ritmo Ideal = percentage of elapsed business days in the selected month
+  const ritmoIdeal = calculateIdealRhythm(selectedMonth);
+  const diasUteisRestantes = getWorkingDaysRemaining(selectedMonth);
 
   // Meta Semanal - Using Planejado Semana status
   const metaSemanal: MetaSemanal[] = KPI_CATEGORIES.slice(0, 6).map(kpi => {
