@@ -1,8 +1,9 @@
 import { useCallback, useState } from "react";
-import { Upload, FileJson, AlertCircle, Check, RefreshCw } from "lucide-react";
+import { Upload, FileSpreadsheet, AlertCircle, Check, RefreshCw } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { KPIRecord } from "@/types/kpi";
+import { parseXLSXFile } from "@/lib/kpiUtils";
 
 interface FileUploadProps {
   onDataLoaded: (data: KPIRecord[]) => void;
@@ -21,17 +22,28 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
       setSuccess(false);
       setFileName(file.name);
 
-      if (!file.name.endsWith(".json")) {
-        setError("Por favor, envie um arquivo JSON.");
+      const isXLSX = file.name.endsWith(".xlsx") || file.name.endsWith(".xls");
+      const isJSON = file.name.endsWith(".json");
+
+      if (!isXLSX && !isJSON) {
+        setError("Por favor, envie um arquivo XLSX ou JSON.");
         return;
       }
 
       const reader = new FileReader();
+      
       reader.onload = (e) => {
         try {
-          const content = e.target?.result as string;
-          const data = JSON.parse(content);
-          const records = Array.isArray(data) ? data : [data];
+          let records: KPIRecord[];
+
+          if (isXLSX) {
+            const buffer = e.target?.result as ArrayBuffer;
+            records = parseXLSXFile(buffer);
+          } else {
+            const content = e.target?.result as string;
+            const data = JSON.parse(content);
+            records = Array.isArray(data) ? data : [data];
+          }
 
           if (records.length === 0) {
             setError("O arquivo está vazio.");
@@ -46,12 +58,17 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
 
           setSuccess(true);
           onDataLoaded(records);
-        } catch {
-          setError("Erro ao processar o arquivo JSON. Verifique o formato.");
+        } catch (err) {
+          console.error(err);
+          setError("Erro ao processar o arquivo. Verifique o formato.");
         }
       };
 
-      reader.readAsText(file);
+      if (isXLSX) {
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.readAsText(file);
+      }
     },
     [onDataLoaded]
   );
@@ -79,7 +96,7 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
       <label className="cursor-pointer">
         <input
           type="file"
-          accept=".json"
+          accept=".xlsx,.xls,.json"
           className="hidden"
           onChange={handleFileInput}
         />
@@ -95,14 +112,14 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
 
   return (
     <Card
-      className={`relative overflow-hidden border-2 border-dashed transition-all duration-300 ${
+      className={`relative overflow-hidden border-2 border-dashed transition-all duration-300 shadow-card ${
         isDragOver
-          ? "border-primary bg-primary/5"
+          ? "border-primary bg-primary/10"
           : success
-          ? "border-success bg-success/5"
+          ? "border-success bg-success/10"
           : error
-          ? "border-destructive bg-destructive/5"
-          : "border-border hover:border-primary/50"
+          ? "border-destructive bg-destructive/10"
+          : "border-border hover:border-primary/50 bg-card"
       }`}
       onDragOver={(e) => {
         e.preventDefault();
@@ -126,7 +143,7 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
           ) : error ? (
             <AlertCircle className="h-8 w-8" />
           ) : isDragOver ? (
-            <FileJson className="h-8 w-8" />
+            <FileSpreadsheet className="h-8 w-8" />
           ) : (
             <Upload className="h-8 w-8" />
           )}
@@ -145,7 +162,7 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
               ? `Arquivo: ${fileName}`
               : error
               ? error
-              : "Arraste e solte seu arquivo JSON aqui, ou clique para selecionar"}
+              : "Arraste e solte seu arquivo XLSX ou JSON aqui, ou clique para selecionar"}
           </p>
         </div>
 
@@ -153,11 +170,11 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
           <label>
             <input
               type="file"
-              accept=".json"
+              accept=".xlsx,.xls,.json"
               className="hidden"
               onChange={handleFileInput}
             />
-            <Button variant="outline" className="cursor-pointer" asChild>
+            <Button className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90" asChild>
               <span>Selecionar arquivo</span>
             </Button>
           </label>
@@ -167,11 +184,11 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
           <label>
             <input
               type="file"
-              accept=".json"
+              accept=".xlsx,.xls,.json"
               className="hidden"
               onChange={handleFileInput}
             />
-            <Button variant="ghost" size="sm" className="cursor-pointer" asChild>
+            <Button variant="outline" size="sm" className="cursor-pointer" asChild>
               <span>Carregar outro arquivo</span>
             </Button>
           </label>
