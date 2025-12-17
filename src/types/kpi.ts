@@ -15,14 +15,37 @@ export interface ProcessedKPI {
 
 export interface DashboardFilters {
   assessor: string;
-  category: string;
-  status: string;
+  month: string;
 }
 
-export interface SummaryStats {
-  totalAssessors: number;
-  totalCategories: number;
-  totalPlanned: number;
-  totalRealized: number;
-  avgPerformance: number;
+export interface GaugeKPI {
+  label: string;
+  value: number;
+  target: number;
+  percentage: number;
+  isCurrency?: boolean;
+  unit?: string;
+  warning?: boolean;
+}
+
+export interface AssessorPerformance {
+  name: string;
+  geralPercentage: number;
+  semanaPercentage: number;
+}
+
+export interface MetaSemanal {
+  label: string;
+  value: number | string;
+}
+
+export interface DashboardData {
+  icmGeral: number;
+  ritmoIdeal: number;
+  diasUteisRestantes: number;
+  metaSemanalReal: number;
+  metaSemanal: MetaSemanal[];
+  assessorPerformance: AssessorPerformance[];
+  gaugeKPIs: GaugeKPI[];
+  headBruno: GaugeKPI[];
 }
