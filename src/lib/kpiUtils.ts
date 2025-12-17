@@ -30,15 +30,17 @@ export const KPI_WEIGHTS: Record<string, number> = {
 };
 
 // ============= KPI CATEGORIES FOR GAUGES =============
+// Note: Receita is special - target comes from PJ1 XP Mês + PJ2 XP Mês
 export const KPI_CATEGORIES = [
   { category: "Captação net", label: "Captação NET", isCurrency: true },
-  { category: "Receita", label: "Receita", isCurrency: true },
+  { category: "Receita", label: "Receita", isCurrency: true, isSpecial: true, targetCategories: ["PJ1 XP Mês", "PJ2 XP Mês"] },
   { category: "Primeira Reunião", label: "Primeira Reunião", isCurrency: false },
   { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: false },
-  { category: "Parceiros Tri", label: "Parceiros Tri", isCurrency: false },
+  { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
+  { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true },
+  { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true },
   { category: "Habilitação", label: "Habilitação", isCurrency: false },
   { category: "Ativação", label: "Ativação", isCurrency: false },
-  { category: "Carteira", label: "Carteira", isCurrency: true },
 ];
 
 export function parseXLSXFile(buffer: ArrayBuffer): KPIRecord[] {
@@ -343,17 +345,39 @@ export function processDashboardData(
 
   // Gauge KPIs
   const gaugeKPIs: GaugeKPI[] = KPI_CATEGORIES.map(kpi => {
-    const catData = filterByCategory(filteredByAssessor, kpi.category);
-    const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
-    const realizedData = catData.filter(d => isRealizedStatus(d.status));
+    let target: number;
+    let value: number;
 
-    const target = selectedMonth !== "all" 
-      ? getMonthValue(plannedData, selectedMonth)
-      : plannedData.reduce((s, d) => s + d.total, 0);
-    
-    const value = selectedMonth !== "all"
-      ? getMonthValue(realizedData, selectedMonth)
-      : realizedData.reduce((s, d) => s + d.total, 0);
+    // Special case for Receita: target comes from PJ1 XP Mês + PJ2 XP Mês
+    if ((kpi as any).isSpecial && (kpi as any).targetCategories) {
+      const targetCategories = (kpi as any).targetCategories as string[];
+      target = targetCategories.reduce((sum, cat) => {
+        const catData = filterByCategory(filteredByAssessor, cat);
+        const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+        return sum + (selectedMonth !== "all" 
+          ? getMonthValue(plannedData, selectedMonth)
+          : plannedData.reduce((s, d) => s + d.total, 0));
+      }, 0);
+
+      // Actual comes from Receita category
+      const realizedData = filterByCategory(filteredByAssessor, kpi.category).filter(d => isRealizedStatus(d.status));
+      value = selectedMonth !== "all"
+        ? getMonthValue(realizedData, selectedMonth)
+        : realizedData.reduce((s, d) => s + d.total, 0);
+    } else {
+      // Standard case: target and actual from same category
+      const catData = filterByCategory(filteredByAssessor, kpi.category);
+      const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+      const realizedData = catData.filter(d => isRealizedStatus(d.status));
+
+      target = selectedMonth !== "all" 
+        ? getMonthValue(plannedData, selectedMonth)
+        : plannedData.reduce((s, d) => s + d.total, 0);
+      
+      value = selectedMonth !== "all"
+        ? getMonthValue(realizedData, selectedMonth)
+        : realizedData.reduce((s, d) => s + d.total, 0);
+    }
 
     const percentage = target > 0 ? Math.round((value / target) * 100) : 0;
 

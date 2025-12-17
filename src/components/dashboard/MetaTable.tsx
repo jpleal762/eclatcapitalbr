@@ -9,8 +9,6 @@ interface MetaTableProps {
 }
 
 export function MetaTable({ data, realPercentage, selectedAssessor }: MetaTableProps) {
-  const total = data.reduce((sum, item) => sum + (typeof item.value === 'number' ? item.value : 0), 0);
-
   return (
     <Card className="p-6 shadow-card">
       <div className="flex items-center justify-between mb-4">
@@ -44,14 +42,6 @@ export function MetaTable({ data, realPercentage, selectedAssessor }: MetaTableP
               </tr>
             ))}
           </tbody>
-          <tfoot>
-            <tr className="bg-muted/30">
-              <td className="py-2.5 text-sm font-semibold text-foreground">TOTAL</td>
-              <td className="py-2.5 text-sm text-right font-bold text-primary">
-                {formatNumber(total, true)}
-              </td>
-            </tr>
-          </tfoot>
         </table>
       </div>
 
