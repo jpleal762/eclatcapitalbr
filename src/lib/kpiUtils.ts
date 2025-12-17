@@ -445,9 +445,19 @@ export function processDashboardData(
     return { label: item.label, value };
   });
 
-  // Calculate metaSemanalPercentage: sum of Planejado Semana / sum of Planejado Mês for same KPIs
-  const sumPlannedWeek = metaSemanalCategories.reduce((sum, item) => {
-    const catData = filterByCategory(filteredByAssessor, item.category);
+  // Calculate metaSemanalPercentage: sum of Planejado Semana (6 KPIs) / sum of Planejado Mês (8 KPIs)
+  // Weekly categories (6): Habilitacao, Ativacao, Captacao net, Diversificada ( ROA>1,5), Receita, Primeira Reuniao
+  const weeklyCategories = [
+    "Habilitacao",
+    "Ativacao",
+    "Captacao net",
+    "Diversificada ( ROA>1,5)",
+    "Receita",
+    "Primeira Reuniao"
+  ];
+
+  const sumPlannedWeek = weeklyCategories.reduce((sum, category) => {
+    const catData = filterByCategory(filteredByAssessor, category);
     const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
     const value = selectedMonth !== "all" 
       ? getMonthValue(weeklyPlanned, selectedMonth)
@@ -455,8 +465,20 @@ export function processDashboardData(
     return sum + value;
   }, 0);
 
-  const sumPlannedMonth = metaSemanalCategories.reduce((sum, item) => {
-    const catData = filterByCategory(filteredByAssessor, item.category);
+  // Monthly categories (8): Same 6 + PJ1 XP Mes, PJ2 XP Mes, Parceiros Tri
+  const monthlyCategories = [
+    "Habilitacao",
+    "Ativacao",
+    "Captacao net",
+    "Diversificada ( ROA>1,5)",
+    "PJ1 XP Mes",
+    "PJ2 XP Mes",
+    "Parceiros Tri",
+    "Primeira Reuniao"
+  ];
+
+  const sumPlannedMonth = monthlyCategories.reduce((sum, category) => {
+    const catData = filterByCategory(filteredByAssessor, category);
     const monthlyPlanned = catData.filter(d => isPlannedMonthStatus(d.status));
     const value = selectedMonth !== "all" 
       ? getMonthValue(monthlyPlanned, selectedMonth)
