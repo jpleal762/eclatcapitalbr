@@ -413,14 +413,23 @@ export function processDashboardData(
   const ritmoIdeal = calculateIdealRhythm(selectedMonth);
   const diasUteisRestantes = getWorkingDaysRemaining(selectedMonth);
 
-  // Meta Semanal - Using Planejado Semana status
-  const metaSemanal: MetaSemanal[] = KPI_CATEGORIES.slice(0, 6).map(kpi => {
-    const catData = filterByCategory(filteredByAssessor, kpi.category);
+  // Meta Semanal - Categorias específicas com Planejado Semana na ordem correta
+  const metaSemanalCategories = [
+    { category: "Habilitacao", label: "Habilitação" },
+    { category: "Ativacao", label: "Ativação" },
+    { category: "Captação net", label: "Captação NET" },
+    { category: "Diversificada ( ROA>1,5)", label: "Diversificada (ROA>1,5)" },
+    { category: "Receita", label: "Receita" },
+    { category: "Primeira reuniao", label: "Primeiras Reuniões" },
+  ];
+  
+  const metaSemanal: MetaSemanal[] = metaSemanalCategories.map(item => {
+    const catData = filterByCategory(filteredByAssessor, item.category);
     const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
     const value = selectedMonth !== "all" 
       ? getMonthValue(weeklyPlanned, selectedMonth)
       : weeklyPlanned.reduce((s, d) => s + d.total, 0);
-    return { label: kpi.label, value };
+    return { label: item.label, value };
   });
 
   // Assessor Performance - Always show all assessors (ignores filter)
