@@ -27,9 +27,9 @@ export function GaugeChart({
   const angle = (clampedPercentage / 100) * 180;
   
   const sizeConfig = {
-    sm: { width: 120, height: 70, strokeWidth: 8, fontSize: "text-lg", labelSize: "text-xs" },
-    md: { width: 160, height: 90, strokeWidth: 10, fontSize: "text-2xl", labelSize: "text-sm" },
-    lg: { width: 200, height: 110, strokeWidth: 12, fontSize: "text-4xl", labelSize: "text-base" },
+    sm: { width: 120, height: 70, strokeWidth: 8, fontSize: "text-sm", labelSize: "text-xs" },
+    md: { width: 160, height: 90, strokeWidth: 10, fontSize: "text-base", labelSize: "text-xs" },
+    lg: { width: 200, height: 110, strokeWidth: 12, fontSize: "text-xl", labelSize: "text-sm" },
   };
 
   const config = sizeConfig[size];
