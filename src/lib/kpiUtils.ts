@@ -19,14 +19,18 @@ export const STATUS_TYPES = {
 } as const;
 
 // ============= KPI WEIGHTS FOR ICM CALCULATION =============
+// ICM = média ponderada dos gráficos 1, 2, 3, 4, 5, 8, 9
+// Gráficos 1 (Captação NET), 2 (Receita), 5 (Parceiros Tri) = peso 2
+// Gráficos 3 (Primeira reunião), 4 (Diversificada), 8 (Habilitação), 9 (Ativação) = peso 1
+// Exclui gráficos 6 (PJ1 XP) e 7 (PJ2 XP)
 export const KPI_WEIGHTS: Record<string, number> = {
-  "Captação net": 2,
-  "Receita": 2,
-  "Parceiros Tri": 2,
-  "Primeira reuniao": 1,
-  "Diversificada ( ROA>1,5)": 1,
-  "Habilitacao": 1,
-  "Ativacao": 1,
+  "Captação net": 2,           // Graph 1 - peso 2
+  "Receita": 2,                // Graph 2 - peso 2
+  "Primeira reuniao": 1,       // Graph 3 - peso 1
+  "Diversificada ( ROA>1,5)": 1, // Graph 4 - peso 1
+  "Parceiros Tri": 2,          // Graph 5 - peso 2
+  "Habilitacao": 1,            // Graph 8 - peso 1
+  "Ativacao": 1,               // Graph 9 - peso 1
 };
 
 // ============= KPI CATEGORIES FOR GAUGES =============
