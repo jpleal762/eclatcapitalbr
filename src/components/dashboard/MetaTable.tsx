@@ -6,9 +6,10 @@ interface MetaTableProps {
   data: MetaSemanal[];
   realPercentage: number;
   selectedAssessor?: string;
+  weekToMonthPercentage?: number;
 }
 
-export function MetaTable({ data, realPercentage, selectedAssessor }: MetaTableProps) {
+export function MetaTable({ data, realPercentage, selectedAssessor, weekToMonthPercentage }: MetaTableProps) {
   return (
     <Card className="p-6 shadow-card">
       <div className="flex items-center justify-between mb-4">
@@ -45,7 +46,10 @@ export function MetaTable({ data, realPercentage, selectedAssessor }: MetaTableP
         </table>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-border text-center">
+      <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
+        <span className="text-sm font-semibold text-primary">
+          {weekToMonthPercentage !== undefined ? `${weekToMonthPercentage}%` : "-"}
+        </span>
         <p className="text-xs text-muted-foreground italic">
           {selectedAssessor && selectedAssessor !== "all" 
             ? `Metas individuais de ${selectedAssessor.split(" ")[0]}`

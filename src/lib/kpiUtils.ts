@@ -445,6 +445,29 @@ export function processDashboardData(
     return { label: item.label, value };
   });
 
+  // Calculate metaSemanalPercentage: sum of Planejado Semana / sum of Planejado Mês for same KPIs
+  const sumPlannedWeek = metaSemanalCategories.reduce((sum, item) => {
+    const catData = filterByCategory(filteredByAssessor, item.category);
+    const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
+    const value = selectedMonth !== "all" 
+      ? getMonthValue(weeklyPlanned, selectedMonth)
+      : weeklyPlanned.reduce((s, d) => s + d.total, 0);
+    return sum + value;
+  }, 0);
+
+  const sumPlannedMonth = metaSemanalCategories.reduce((sum, item) => {
+    const catData = filterByCategory(filteredByAssessor, item.category);
+    const monthlyPlanned = catData.filter(d => isPlannedMonthStatus(d.status));
+    const value = selectedMonth !== "all" 
+      ? getMonthValue(monthlyPlanned, selectedMonth)
+      : monthlyPlanned.reduce((s, d) => s + d.total, 0);
+    return sum + value;
+  }, 0);
+
+  const metaSemanalPercentage = sumPlannedMonth > 0 
+    ? Math.round((sumPlannedWeek / sumPlannedMonth) * 100) 
+    : 0;
+
   // Assessor Performance - Always show all assessors (ignores filter)
   const allAssessors = [...new Set(data.map(d => d.assessor))];
   const assessorPerformance: AssessorPerformance[] = allAssessors.map(assessor => {
@@ -531,6 +554,7 @@ export function processDashboardData(
     diasUteisRestantes,
     metaSemanalReal: icmGeral,
     metaSemanal,
+    metaSemanalPercentage,
     assessorPerformance,
     gaugeKPIs,
     headBruno: gaugeKPIs.slice(0, 2),

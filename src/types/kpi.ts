@@ -46,6 +46,7 @@ export interface DashboardData {
   diasUteisRestantes: number;
   metaSemanalReal: number;
   metaSemanal: MetaSemanal[];
+  metaSemanalPercentage: number;
   assessorPerformance: AssessorPerformance[];
   gaugeKPIs: GaugeKPI[];
   headBruno: GaugeKPI[];

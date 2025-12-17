@@ -79,6 +79,7 @@ const Index = () => {
                 data={dashboardData.metaSemanal}
                 realPercentage={dashboardData.metaSemanalReal}
                 selectedAssessor={filters.assessor}
+                weekToMonthPercentage={dashboardData.metaSemanalPercentage}
               />
               <AssessorChart data={dashboardData.assessorPerformance} />
             </div>
