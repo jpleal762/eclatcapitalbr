@@ -23,6 +23,9 @@ export const STATUS_TYPES = {
 // Gráficos 1 (Captação NET), 2 (Receita), 5 (Parceiros Tri) = peso 2
 // Gráficos 3 (Primeira reunião), 4 (Diversificada), 8 (Habilitação), 9 (Ativação) = peso 1
 // Exclui gráficos 6 (PJ1 XP) e 7 (PJ2 XP)
+// CRITICAL: Cap individual KPI percentages at 120% before weighted average
+export const ICM_PERCENTAGE_CAP = 120;
+
 export const KPI_WEIGHTS: Record<string, number> = {
   "Captação net": 2,           // Graph 1 - peso 2
   "Receita": 2,                // Graph 2 - peso 2
@@ -354,6 +357,7 @@ export function getMonthValue(records: ProcessedKPI[], month: string): number {
 }
 
 // ============= ICM CALCULATIONS =============
+// CRITICAL: Cap individual KPI percentages at 120% before weighted average
 export function calculateICMGeral(data: ProcessedKPI[], month: string): number {
   let weightedSum = 0;
   let totalWeight = 0;
@@ -367,8 +371,10 @@ export function calculateICMGeral(data: ProcessedKPI[], month: string): number {
     const actual = month !== "all" ? getMonthValue(realizedData, month) : realizedData.reduce((s, d) => s + d.total, 0);
 
     if (target > 0) {
-      const achievementPct = (actual / target) * 100;
-      weightedSum += achievementPct * weight;
+      const rawAchievementPct = (actual / target) * 100;
+      // ⚠️ CRITICAL: Cap at 120% before adding to weighted sum
+      const cappedPct = Math.min(rawAchievementPct, ICM_PERCENTAGE_CAP);
+      weightedSum += cappedPct * weight;
       totalWeight += weight;
     }
   });
@@ -376,6 +382,7 @@ export function calculateICMGeral(data: ProcessedKPI[], month: string): number {
   return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
 }
 
+// CRITICAL: Cap individual KPI percentages at 120% before weighted average
 export function calculateICMRitmo(data: ProcessedKPI[], month: string): number {
   const totalBusinessDays = getTotalBusinessDaysInMonth(month);
   const elapsedBusinessDays = getElapsedBusinessDays(month);
@@ -395,8 +402,10 @@ export function calculateICMRitmo(data: ProcessedKPI[], month: string): number {
     const expectedAtPace = target * paceRatio;
 
     if (expectedAtPace > 0) {
-      const paceAchievementPct = (actual / expectedAtPace) * 100;
-      weightedSum += paceAchievementPct * weight;
+      const rawPaceAchievementPct = (actual / expectedAtPace) * 100;
+      // ⚠️ CRITICAL: Cap at 120% before adding to weighted sum
+      const cappedPct = Math.min(rawPaceAchievementPct, ICM_PERCENTAGE_CAP);
+      weightedSum += cappedPct * weight;
       totalWeight += weight;
     }
   });
