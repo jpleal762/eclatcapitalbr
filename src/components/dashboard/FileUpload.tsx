@@ -1,0 +1,182 @@
+import { useCallback, useState } from "react";
+import { Upload, FileJson, AlertCircle, Check, RefreshCw } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { KPIRecord } from "@/types/kpi";
+
+interface FileUploadProps {
+  onDataLoaded: (data: KPIRecord[]) => void;
+  compact?: boolean;
+}
+
+export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+
+  const processFile = useCallback(
+    (file: File) => {
+      setError(null);
+      setSuccess(false);
+      setFileName(file.name);
+
+      if (!file.name.endsWith(".json")) {
+        setError("Por favor, envie um arquivo JSON.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          const data = JSON.parse(content);
+          const records = Array.isArray(data) ? data : [data];
+
+          if (records.length === 0) {
+            setError("O arquivo está vazio.");
+            return;
+          }
+
+          const firstRecord = records[0];
+          if (!firstRecord.Assessor || !firstRecord.Categorias || !firstRecord.Status) {
+            setError("Estrutura de dados inválida. Campos obrigatórios: Assessor, Categorias, Status");
+            return;
+          }
+
+          setSuccess(true);
+          onDataLoaded(records);
+        } catch {
+          setError("Erro ao processar o arquivo JSON. Verifique o formato.");
+        }
+      };
+
+      reader.readAsText(file);
+    },
+    [onDataLoaded]
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      const file = e.dataTransfer.files[0];
+      if (file) processFile(file);
+    },
+    [processFile]
+  );
+
+  const handleFileInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) processFile(file);
+    },
+    [processFile]
+  );
+
+  if (compact) {
+    return (
+      <label className="cursor-pointer">
+        <input
+          type="file"
+          accept=".json"
+          className="hidden"
+          onChange={handleFileInput}
+        />
+        <Button variant="outline" size="sm" className="gap-2" asChild>
+          <span>
+            <RefreshCw className="h-4 w-4" />
+            Atualizar dados
+          </span>
+        </Button>
+      </label>
+    );
+  }
+
+  return (
+    <Card
+      className={`relative overflow-hidden border-2 border-dashed transition-all duration-300 ${
+        isDragOver
+          ? "border-primary bg-primary/5"
+          : success
+          ? "border-success bg-success/5"
+          : error
+          ? "border-destructive bg-destructive/5"
+          : "border-border hover:border-primary/50"
+      }`}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setIsDragOver(true);
+      }}
+      onDragLeave={() => setIsDragOver(false)}
+      onDrop={handleDrop}
+    >
+      <div className="flex flex-col items-center justify-center gap-4 p-8 text-center">
+        <div
+          className={`rounded-full p-4 transition-colors ${
+            success
+              ? "bg-success/20 text-success"
+              : error
+              ? "bg-destructive/20 text-destructive"
+              : "bg-primary/20 text-primary"
+          }`}
+        >
+          {success ? (
+            <Check className="h-8 w-8" />
+          ) : error ? (
+            <AlertCircle className="h-8 w-8" />
+          ) : isDragOver ? (
+            <FileJson className="h-8 w-8" />
+          ) : (
+            <Upload className="h-8 w-8" />
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">
+            {success
+              ? "Dados carregados com sucesso!"
+              : error
+              ? "Erro no upload"
+              : "Carregar dados KPI"}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {success && fileName
+              ? `Arquivo: ${fileName}`
+              : error
+              ? error
+              : "Arraste e solte seu arquivo JSON aqui, ou clique para selecionar"}
+          </p>
+        </div>
+
+        {!success && (
+          <label>
+            <input
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={handleFileInput}
+            />
+            <Button variant="outline" className="cursor-pointer" asChild>
+              <span>Selecionar arquivo</span>
+            </Button>
+          </label>
+        )}
+
+        {success && (
+          <label>
+            <input
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={handleFileInput}
+            />
+            <Button variant="ghost" size="sm" className="cursor-pointer" asChild>
+              <span>Carregar outro arquivo</span>
+            </Button>
+          </label>
+        )}
+      </div>
+    </Card>
+  );
+}
