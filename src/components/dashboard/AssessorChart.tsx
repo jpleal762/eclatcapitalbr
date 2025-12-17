@@ -6,54 +6,65 @@ interface AssessorChartProps {
 }
 
 export function AssessorChart({ data }: AssessorChartProps) {
-  const maxPercentage = Math.max(...data.map(d => Math.max(d.geralPercentage, d.semanaPercentage)), 100);
+  const getMedalEmoji = (index: number): string => {
+    if (index === 0) return "🥇";
+    if (index === 1) return "🥈";
+    if (index === 2) return "🥉";
+    return "";
+  };
+
+  const getBarColor = (percentage: number): string => {
+    if (percentage >= 90) return "bg-green-500";
+    if (percentage >= 70) return "bg-primary";
+    if (percentage >= 50) return "bg-yellow-500";
+    return "bg-destructive";
+  };
 
   return (
-    <Card className="p-4 shadow-card">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-foreground">ICM Geral por Assessor</h3>
-        <div className="flex items-center gap-4 text-xs">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-primary" />
-            <span className="text-muted-foreground">% Geral</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-chart-dark" />
-            <span className="text-muted-foreground">% Semana Acumulado</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        {data.map((assessor, index) => (
-          <div key={index} className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground w-24 truncate">
-                {assessor.name}
-              </span>
-              <div className="flex-1 relative">
-                {/* Geral bar */}
-                <div className="h-4 bg-muted rounded overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded transition-all duration-500"
-                    style={{ width: `${(assessor.geralPercentage / maxPercentage) * 100}%` }}
-                  />
-                </div>
-                {/* Semana bar (overlay) */}
+    <Card className="p-6 shadow-card">
+      <h3 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
+        <span>🏆</span> Ranking ICM% por Assessor
+      </h3>
+      
+      <div className="space-y-3 max-h-[280px] overflow-y-auto pr-2">
+        {data.slice(0, 10).map((assessor, index) => (
+          <div 
+            key={assessor.name} 
+            className={`flex items-center gap-3 p-2.5 rounded-lg transition-all hover:translate-x-1 ${
+              index < 3 ? 'bg-muted/50' : 'bg-background'
+            }`}
+          >
+            <div className="w-8 text-center font-bold text-lg">
+              {getMedalEmoji(index) || `#${index + 1}`}
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">{assessor.name}</p>
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden mt-1">
                 <div 
-                  className="absolute top-0 left-0 h-4"
-                  style={{ width: `${(assessor.semanaPercentage / maxPercentage) * 100}%` }}
-                >
-                  <div className="h-full bg-chart-dark rounded opacity-80" />
-                </div>
+                  className={`h-full rounded-full transition-all duration-500 ${getBarColor(assessor.geralPercentage)}`}
+                  style={{ width: `${Math.min(assessor.geralPercentage, 100)}%` }}
+                />
               </div>
-              <div className="flex gap-2 w-20 justify-end">
-                <span className="text-xs font-medium text-primary">{assessor.geralPercentage}%</span>
-                <span className="text-xs font-medium text-muted-foreground">{assessor.semanaPercentage}%</span>
-              </div>
+            </div>
+            
+            <div className="text-right">
+              <span className={`text-lg font-bold ${
+                assessor.geralPercentage >= 90 ? 'text-green-600' :
+                assessor.geralPercentage >= 70 ? 'text-primary' :
+                assessor.geralPercentage >= 50 ? 'text-yellow-600' : 'text-destructive'
+              }`}>
+                {assessor.geralPercentage}%
+              </span>
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-4 pt-3 border-t border-border text-center">
+        <p className="text-xs text-muted-foreground italic">
+          Ranking de todos os assessores para o mês selecionado
+        </p>
       </div>
     </Card>
   );

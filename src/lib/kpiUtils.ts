@@ -2,21 +2,44 @@ import { KPIRecord, ProcessedKPI, DashboardData, GaugeKPI, AssessorPerformance, 
 import * as XLSX from "xlsx";
 
 // ============= EXCLUSION LIST (EDITABLE) =============
-// Categories to exclude from all dashboard outputs (auxiliary calculation rows)
 export const EXCLUDED_CATEGORIES = [
-  "PJ até 5 milhões",
-  "PJ até 50 milhões",
-  "PJ até 500 milhões",
-  // Add new auxiliary categories here as needed
+  "PJ>500M",
+  "PJ>50M",
+  "PJ>5M",
+  "PF>300K",
+  "PF>1M",
 ];
 
 // ============= STATUS TYPES =============
 export const STATUS_TYPES = {
-  PLANEJADO_MENSAL: "Planejado Mês",
-  PLANEJADO_SEMANAL: "Planejado Semanal",
+  PLANEJADO_MES: "Planejado Mês",
+  PLANEJADO_SEMANA: "Planejado Semana",
   REALIZADO: "Realizado",
   PLANEJADO_GERAL: "Planejado Geral",
 } as const;
+
+// ============= KPI WEIGHTS FOR ICM CALCULATION =============
+export const KPI_WEIGHTS: Record<string, number> = {
+  "Captação net": 2,
+  "Receita": 2,
+  "Parceiros Tri": 2,
+  "Primeira Reunião": 1,
+  "Diversificada ( ROA>1,5)": 1,
+  "Habilitação": 1,
+  "Ativação": 1,
+};
+
+// ============= KPI CATEGORIES FOR GAUGES =============
+export const KPI_CATEGORIES = [
+  { category: "Captação net", label: "Captação NET", isCurrency: true },
+  { category: "Receita", label: "Receita", isCurrency: true },
+  { category: "Primeira Reunião", label: "Primeira Reunião", isCurrency: false },
+  { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: false },
+  { category: "Parceiros Tri", label: "Parceiros Tri", isCurrency: false },
+  { category: "Habilitação", label: "Habilitação", isCurrency: false },
+  { category: "Ativação", label: "Ativação", isCurrency: false },
+  { category: "Carteira", label: "Carteira", isCurrency: true },
+];
 
 export function parseXLSXFile(buffer: ArrayBuffer): KPIRecord[] {
   const workbook = XLSX.read(buffer, { type: "array" });
@@ -26,20 +49,17 @@ export function parseXLSXFile(buffer: ArrayBuffer): KPIRecord[] {
   return data;
 }
 
-// Filter out auxiliary rows that should not appear in the dashboard
 export function filterAuxiliaryRows(data: KPIRecord[]): KPIRecord[] {
   return data.filter(row => 
     !EXCLUDED_CATEGORIES.includes(row.Categorias)
   );
 }
 
-// Get the column key (Categorias or Categoria)
 function getCategoryKey(record: KPIRecord): string {
   return record.Categorias || (record as any).Categoria || "";
 }
 
 export function processKPIData(records: KPIRecord[]): ProcessedKPI[] {
-  // Apply exclusion filter first
   const filteredRecords = filterAuxiliaryRows(records);
   
   return filteredRecords.map((record) => {
@@ -49,7 +69,7 @@ export function processKPIData(records: KPIRecord[]): ProcessedKPI[] {
     Object.entries(record).forEach(([key, value]) => {
       if (!["Assessor", "Categorias", "Categoria", "Status"].includes(key)) {
         const numValue = typeof value === "number" ? value : parseFloat(String(value)) || 0;
-        if (numValue > 0) {
+        if (numValue !== 0) {
           monthlyData.push({ month: key, value: numValue });
           total += numValue;
         }
@@ -87,69 +107,146 @@ export function getAvailableMonths(data: ProcessedKPI[]): string[] {
   });
 }
 
-export function getWorkingDaysRemaining(): number {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const lastDay = new Date(year, month + 1, 0).getDate();
+// ============= BRAZILIAN HOLIDAYS =============
+function calculateEaster(year: number): Date {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(year, month - 1, day);
+}
+
+function isBrazilianHoliday(date: Date): boolean {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  const fixedHolidays = [
+    { month: 1, day: 1 },
+    { month: 4, day: 21 },
+    { month: 5, day: 1 },
+    { month: 9, day: 7 },
+    { month: 10, day: 12 },
+    { month: 11, day: 2 },
+    { month: 11, day: 15 },
+    { month: 12, day: 25 },
+  ];
+
+  if (fixedHolidays.some(h => h.month === month && h.day === day)) return true;
+
+  const easterDate = calculateEaster(year);
   
-  let workingDays = 0;
-  for (let day = today.getDate(); day <= lastDay; day++) {
-    const date = new Date(year, month, day);
-    const dayOfWeek = date.getDay();
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-      workingDays++;
-    }
-  }
-  return workingDays;
-}
-
-export function getWorkingDaysInMonth(): number {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const lastDay = new Date(year, month + 1, 0).getDate();
+  const carnival = new Date(easterDate);
+  carnival.setDate(carnival.getDate() - 47);
   
-  let workingDays = 0;
-  for (let day = 1; day <= lastDay; day++) {
-    const date = new Date(year, month, day);
-    const dayOfWeek = date.getDay();
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-      workingDays++;
+  const goodFriday = new Date(easterDate);
+  goodFriday.setDate(goodFriday.getDate() - 2);
+  
+  const corpusChristi = new Date(easterDate);
+  corpusChristi.setDate(corpusChristi.getDate() + 60);
+
+  const variableHolidays = [carnival, goodFriday, corpusChristi];
+  
+  return variableHolidays.some(holiday => 
+    holiday.getFullYear() === year &&
+    holiday.getMonth() + 1 === month &&
+    holiday.getDate() === day
+  );
+}
+
+export function getWorkingDaysRemaining(currentDate: Date = new Date()): number {
+  const today = new Date(currentDate);
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  
+  let businessDays = 0;
+  let current = new Date(today);
+  current.setDate(current.getDate() + 1);
+  
+  while (current <= lastDayOfMonth) {
+    const dayOfWeek = current.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isBrazilianHoliday(current)) {
+      businessDays++;
     }
+    current.setDate(current.getDate() + 1);
   }
-  return workingDays;
+  
+  return businessDays;
 }
 
-export function calculateIdealRhythm(): number {
-  const totalDays = getWorkingDaysInMonth();
-  const remaining = getWorkingDaysRemaining();
-  const elapsed = totalDays - remaining;
-  return Math.round((elapsed / totalDays) * 100);
+export function getElapsedBusinessDays(currentDate: Date = new Date()): number {
+  const today = new Date(currentDate);
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  
+  let businessDays = 0;
+  let current = new Date(firstDayOfMonth);
+  
+  while (current <= today) {
+    const dayOfWeek = current.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isBrazilianHoliday(current)) {
+      businessDays++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  
+  return businessDays;
 }
 
-// ============= DIMENSION FILTERING HELPERS =============
+export function getTotalBusinessDaysInMonth(date: Date = new Date()): number {
+  return getElapsedBusinessDays(date) + getWorkingDaysRemaining(date);
+}
 
-// Filter data by Status - NEVER mix different Status values
+export function calculateIdealRhythm(currentDate: Date = new Date()): number {
+  const totalDays = getTotalBusinessDaysInMonth(currentDate);
+  const elapsed = getElapsedBusinessDays(currentDate);
+  return totalDays > 0 ? Math.round((elapsed / totalDays) * 100) : 0;
+}
+
+// ============= STATUS HELPERS =============
+function matchesStatus(status: string, targetStatus: string): boolean {
+  const s = status.toLowerCase().trim();
+  const t = targetStatus.toLowerCase().trim();
+  return s === t || s.includes(t) || t.includes(s);
+}
+
+function isPlannedMonthStatus(status: string): boolean {
+  const s = status.toLowerCase();
+  return s.includes("planejado m") || s === "planejado mês" || s === "planejado mes";
+}
+
+function isPlannedWeekStatus(status: string): boolean {
+  const s = status.toLowerCase();
+  return s.includes("planejado s") || s === "planejado semana";
+}
+
+function isRealizedStatus(status: string): boolean {
+  const s = status.toLowerCase();
+  return s.includes("realizado") || s.includes("real.") || s === "realizado";
+}
+
+// ============= DATA FILTERING HELPERS =============
 export function filterByStatus(data: ProcessedKPI[], statusType: string): ProcessedKPI[] {
-  return data.filter(d => {
-    const status = d.status.toLowerCase();
-    const searchType = statusType.toLowerCase();
-    return status.includes(searchType) || status === searchType;
-  });
+  return data.filter(d => matchesStatus(d.status, statusType));
 }
 
-// Filter data by Category
 export function filterByCategory(data: ProcessedKPI[], category: string): ProcessedKPI[] {
   return data.filter(d => d.category === category);
 }
 
-// Filter data by Assessor
 export function filterByAssessor(data: ProcessedKPI[], assessor: string): ProcessedKPI[] {
+  if (!assessor || assessor === "all" || assessor === "TODOS") return data;
   return data.filter(d => d.assessor === assessor);
 }
 
-// Get value for a specific month from records
 export function getMonthValue(records: ProcessedKPI[], month: string): number {
   return records.reduce((sum, r) => {
     const monthData = r.monthlyData.find(m => m.month === month);
@@ -157,95 +254,115 @@ export function getMonthValue(records: ProcessedKPI[], month: string): number {
   }, 0);
 }
 
-// Check if status is "Planejado" type
-function isPlannedStatus(status: string): boolean {
-  const s = status.toLowerCase();
-  return s.includes("planejado") || s.includes("meta") || s.includes("planned");
-}
+// ============= ICM CALCULATIONS =============
+export function calculateICMGeral(data: ProcessedKPI[], month: string): number {
+  let weightedSum = 0;
+  let totalWeight = 0;
 
-// Check if status is "Realizado" type
-function isRealizedStatus(status: string): boolean {
-  const s = status.toLowerCase();
-  return s.includes("realizado") || s.includes("realized") || s.includes("real.");
-}
+  Object.entries(KPI_WEIGHTS).forEach(([category, weight]) => {
+    const catData = filterByCategory(data, category);
+    const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+    const realizedData = catData.filter(d => isRealizedStatus(d.status));
 
-export function processDashboardData(data: ProcessedKPI[], selectedMonth: string): DashboardData {
-  const filteredData = selectedMonth === "all" 
-    ? data 
-    : data.filter(d => d.monthlyData.some(m => m.month === selectedMonth));
+    const target = month !== "all" ? getMonthValue(plannedData, month) : plannedData.reduce((s, d) => s + d.total, 0);
+    const actual = month !== "all" ? getMonthValue(realizedData, month) : realizedData.reduce((s, d) => s + d.total, 0);
 
-  // IMPORTANT: Separate Status types - NEVER mix them
-  const plannedData = filteredData.filter(d => isPlannedStatus(d.status));
-  const realizedData = filteredData.filter(d => isRealizedStatus(d.status));
-
-  const totalPlanned = selectedMonth !== "all" 
-    ? getMonthValue(plannedData, selectedMonth)
-    : plannedData.reduce((sum, d) => sum + d.total, 0);
-  
-  const totalRealized = selectedMonth !== "all"
-    ? getMonthValue(realizedData, selectedMonth)
-    : realizedData.reduce((sum, d) => sum + d.total, 0);
-
-  const icmGeral = totalPlanned > 0 ? Math.round((totalRealized / totalPlanned) * 100) : 0;
-  const ritmoIdeal = calculateIdealRhythm();
-  const diasUteisRestantes = getWorkingDaysRemaining();
-
-  // Group by category for meta semanal - using ONLY realized data
-  const categories = [...new Set(filteredData.map(d => d.category))];
-  const metaSemanal: MetaSemanal[] = categories.slice(0, 6).map(cat => {
-    // Filter by Category first, then aggregate
-    const catData = filterByCategory(realizedData, cat);
-    const total = selectedMonth !== "all"
-      ? getMonthValue(catData, selectedMonth)
-      : catData.reduce((sum, d) => sum + d.total, 0);
-    return { label: cat, value: total };
+    if (target > 0) {
+      const achievementPct = (actual / target) * 100;
+      weightedSum += achievementPct * weight;
+      totalWeight += weight;
+    }
   });
 
-  // Assessor performance - separate calculations for each Status type
-  const assessors = [...new Set(filteredData.map(d => d.assessor))];
-  const assessorPerformance: AssessorPerformance[] = assessors.slice(0, 6).map(assessor => {
-    // Filter by Assessor first, then by Status
-    const assessorPlanned = filterByAssessor(plannedData, assessor);
-    const assessorRealized = filterByAssessor(realizedData, assessor);
-    
-    const planned = selectedMonth !== "all"
-      ? getMonthValue(assessorPlanned, selectedMonth)
-      : assessorPlanned.reduce((sum, d) => sum + d.total, 0);
-    
-    const realized = selectedMonth !== "all"
-      ? getMonthValue(assessorRealized, selectedMonth)
-      : assessorRealized.reduce((sum, d) => sum + d.total, 0);
+  return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+}
 
+export function calculateICMRitmo(data: ProcessedKPI[], month: string, currentDate: Date = new Date()): number {
+  const totalBusinessDays = getTotalBusinessDaysInMonth(currentDate);
+  const elapsedBusinessDays = getElapsedBusinessDays(currentDate);
+  const paceRatio = totalBusinessDays > 0 ? elapsedBusinessDays / totalBusinessDays : 0;
+
+  let weightedSum = 0;
+  let totalWeight = 0;
+
+  Object.entries(KPI_WEIGHTS).forEach(([category, weight]) => {
+    const catData = filterByCategory(data, category);
+    const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+    const realizedData = catData.filter(d => isRealizedStatus(d.status));
+
+    const target = month !== "all" ? getMonthValue(plannedData, month) : plannedData.reduce((s, d) => s + d.total, 0);
+    const actual = month !== "all" ? getMonthValue(realizedData, month) : realizedData.reduce((s, d) => s + d.total, 0);
+    
+    const expectedAtPace = target * paceRatio;
+
+    if (expectedAtPace > 0) {
+      const paceAchievementPct = (actual / expectedAtPace) * 100;
+      weightedSum += paceAchievementPct * weight;
+      totalWeight += weight;
+    }
+  });
+
+  return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+}
+
+// ============= MAIN DASHBOARD PROCESSOR =============
+export function processDashboardData(
+  data: ProcessedKPI[], 
+  selectedMonth: string, 
+  selectedAssessor: string = "all"
+): DashboardData {
+  const filteredByAssessor = filterByAssessor(data, selectedAssessor);
+  const currentDate = new Date();
+  
+  const icmGeral = calculateICMGeral(filteredByAssessor, selectedMonth);
+  const ritmoIdeal = calculateICMRitmo(filteredByAssessor, selectedMonth, currentDate);
+  const diasUteisRestantes = getWorkingDaysRemaining(currentDate);
+
+  // Meta Semanal - Using Planejado Semana status
+  const metaSemanal: MetaSemanal[] = KPI_CATEGORIES.slice(0, 6).map(kpi => {
+    const catData = filterByCategory(filteredByAssessor, kpi.category);
+    const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
+    const value = selectedMonth !== "all" 
+      ? getMonthValue(weeklyPlanned, selectedMonth)
+      : weeklyPlanned.reduce((s, d) => s + d.total, 0);
+    return { label: kpi.label, value };
+  });
+
+  // Assessor Performance - Always show all assessors (ignores filter)
+  const allAssessors = [...new Set(data.map(d => d.assessor))];
+  const assessorPerformance: AssessorPerformance[] = allAssessors.map(assessor => {
+    const assessorData = filterByAssessor(data, assessor);
+    const icm = calculateICMGeral(assessorData, selectedMonth);
     return {
       name: assessor.split(" ").slice(0, 2).join(" "),
-      geralPercentage: planned > 0 ? Math.round((realized / planned) * 100) : 0,
-      semanaPercentage: planned > 0 ? Math.round((realized / planned) * 80) : 0,
+      fullName: assessor,
+      geralPercentage: icm,
+      semanaPercentage: Math.round(icm * 0.8),
     };
   }).sort((a, b) => b.geralPercentage - a.geralPercentage);
 
-  // Create gauge KPIs from categories - separate planned and realized
-  const gaugeKPIs: GaugeKPI[] = categories.slice(0, 6).map(cat => {
-    // Filter by Category, then by Status type
-    const catPlanned = filterByCategory(plannedData, cat);
-    const catRealized = filterByCategory(realizedData, cat);
-    
-    const target = selectedMonth !== "all"
-      ? getMonthValue(catPlanned, selectedMonth)
-      : catPlanned.reduce((sum, d) => sum + d.total, 0);
+  // Gauge KPIs
+  const gaugeKPIs: GaugeKPI[] = KPI_CATEGORIES.map(kpi => {
+    const catData = filterByCategory(filteredByAssessor, kpi.category);
+    const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+    const realizedData = catData.filter(d => isRealizedStatus(d.status));
+
+    const target = selectedMonth !== "all" 
+      ? getMonthValue(plannedData, selectedMonth)
+      : plannedData.reduce((s, d) => s + d.total, 0);
     
     const value = selectedMonth !== "all"
-      ? getMonthValue(catRealized, selectedMonth)
-      : catRealized.reduce((sum, d) => sum + d.total, 0);
+      ? getMonthValue(realizedData, selectedMonth)
+      : realizedData.reduce((s, d) => s + d.total, 0);
 
     const percentage = target > 0 ? Math.round((value / target) * 100) : 0;
-    const isCurrency = cat.toLowerCase().includes("receita") || cat.toLowerCase().includes("captação");
 
     return {
-      label: cat,
+      label: kpi.label,
       value,
-      target: target || 100,
+      target: target || 0,
       percentage,
-      isCurrency,
+      isCurrency: kpi.isCurrency,
       warning: percentage < 50,
     };
   });
@@ -254,7 +371,7 @@ export function processDashboardData(data: ProcessedKPI[], selectedMonth: string
     icmGeral,
     ritmoIdeal,
     diasUteisRestantes,
-    metaSemanalReal: Math.round((totalRealized / (totalPlanned || 1)) * 100),
+    metaSemanalReal: icmGeral,
     metaSemanal,
     assessorPerformance,
     gaugeKPIs,
@@ -265,11 +382,12 @@ export function processDashboardData(data: ProcessedKPI[], selectedMonth: string
 export function formatNumber(num: number, isCurrency = false): string {
   if (isCurrency) {
     if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(2).replace(".", ",")} Mi`;
+      return `R$ ${(num / 1000000).toFixed(2).replace(".", ",")} Mi`;
     }
     if (num >= 1000) {
-      return `${(num / 1000).toFixed(2).replace(".", ",")} Mil`;
+      return `R$ ${(num / 1000).toFixed(0).replace(".", ",")} Mil`;
     }
+    return `R$ ${num.toLocaleString("pt-BR")}`;
   }
   return num.toLocaleString("pt-BR");
 }

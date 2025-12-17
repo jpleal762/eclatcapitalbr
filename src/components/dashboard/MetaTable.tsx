@@ -5,38 +5,62 @@ import { formatNumber } from "@/lib/kpiUtils";
 interface MetaTableProps {
   data: MetaSemanal[];
   realPercentage: number;
-  headName?: string;
+  selectedAssessor?: string;
 }
 
-export function MetaTable({ data, realPercentage, headName = "Head Bruno" }: MetaTableProps) {
+export function MetaTable({ data, realPercentage, selectedAssessor }: MetaTableProps) {
+  const total = data.reduce((sum, item) => sum + (typeof item.value === 'number' ? item.value : 0), 0);
+
   return (
-    <Card className="p-4 shadow-card">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-foreground">Meta Semanal</h3>
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-sm">Real</span>
-          <span className="text-2xl font-bold text-primary">{realPercentage}%</span>
-        </div>
+    <Card className="p-6 shadow-card">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-foreground">Metas Semanais</h3>
+        {selectedAssessor && selectedAssessor !== "all" && (
+          <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+            {selectedAssessor.split(" ").slice(0, 2).join(" ")}
+          </span>
+        )}
+      </div>
+      
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="text-left py-2 text-sm font-medium text-muted-foreground">KPI</th>
+              <th className="text-right py-2 text-sm font-medium text-muted-foreground">Meta Semanal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item, index) => (
+              <tr key={index} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+                <td className="py-2.5 text-sm text-foreground">{item.label}</td>
+                <td className="py-2.5 text-sm text-right font-medium text-primary">
+                  {typeof item.value === 'number' 
+                    ? (item.label.toLowerCase().includes('receita') || item.label.toLowerCase().includes('captação')
+                        ? formatNumber(item.value, true)
+                        : formatNumber(item.value))
+                    : item.value}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="bg-muted/30">
+              <td className="py-2.5 text-sm font-semibold text-foreground">TOTAL</td>
+              <td className="py-2.5 text-sm text-right font-bold text-primary">
+                {formatNumber(total, true)}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
 
-      <div className="space-y-2">
-        {data.map((item, index) => (
-          <div key={index} className="flex justify-between items-center py-1 border-b border-border last:border-0">
-            <span className="text-sm text-muted-foreground">{item.label}</span>
-            <span className="text-sm font-semibold text-foreground">
-              {typeof item.value === "number" ? formatNumber(item.value) : item.value}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-3 pt-3 border-t border-border flex justify-between items-center">
-        <span className="text-xs text-muted-foreground">*% Planejado do mês</span>
-        <span className="text-xs font-medium">{Math.round(realPercentage * 0.88)}%</span>
-      </div>
-
-      <div className="mt-2 text-right">
-        <span className="text-xs text-muted-foreground italic">{headName}</span>
+      <div className="mt-4 pt-3 border-t border-border text-center">
+        <p className="text-xs text-muted-foreground italic">
+          {selectedAssessor && selectedAssessor !== "all" 
+            ? `Metas individuais de ${selectedAssessor.split(" ")[0]}`
+            : "Valores consolidados do escritório"}
+        </p>
       </div>
     </Card>
   );

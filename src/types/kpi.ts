@@ -30,6 +30,7 @@ export interface GaugeKPI {
 
 export interface AssessorPerformance {
   name: string;
+  fullName?: string;
   geralPercentage: number;
   semanaPercentage: number;
 }
