@@ -23,7 +23,7 @@ export function AssessorChart({ data }: AssessorChartProps) {
   return (
     <Card className="p-6 shadow-card">
       <h3 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
-        <span>🏆</span> Ranking ICM% por Assessor
+        <span>🏆</span> ICM% por Assessor
       </h3>
       
       <div className="space-y-3 max-h-[280px] overflow-y-auto pr-2">
