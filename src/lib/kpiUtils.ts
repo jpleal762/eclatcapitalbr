@@ -42,7 +42,7 @@ export const KPI_CATEGORIES = [
   { category: "Captação net", label: "Captação NET", isCurrency: true },
   { category: "Receita", label: "Receita", isCurrency: true, isSpecial: true, targetCategories: ["PJ1 XP Mês", "PJ2 XP Mês"] },
   { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: false },
+  { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
   { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
   { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true, isSpecial: true, actualCategory: "PJ1 XP" },
   { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, isSpecial: true, actualCategory: "PJ2 XP" },
