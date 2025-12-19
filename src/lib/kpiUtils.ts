@@ -38,14 +38,13 @@ export const KPI_WEIGHTS: Record<string, number> = {
 
 // ============= KPI CATEGORIES FOR GAUGES =============
 // Note: Receita is special - target comes from PJ1 XP Mês + PJ2 XP Mês
+// Display order: Captação NET, Receita, Diversificação, Primeiras Reuniões, Habilitação, Ativação
+// Hidden from display but still used in ICM: Receita Parceiros, PJ1 XP, PJ2 XP
 export const KPI_CATEGORIES = [
   { category: "Captação net", label: "Captação NET", isCurrency: true },
   { category: "Receita", label: "Receita", isCurrency: true, isSpecial: true, targetCategories: ["PJ1 XP Mês", "PJ2 XP Mês"] },
+  { category: "Diversificada ( ROA>1,5)", label: "Diversificação (ROA>1,5)", isCurrency: true },
   { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: false },
-  { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
-  { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true, isSpecial: true, actualCategory: "PJ1 XP" },
-  { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, isSpecial: true, actualCategory: "PJ2 XP" },
   { category: "Habilitacao", label: "Habilitação", isCurrency: false },
   { category: "Ativacao", label: "Ativação", isCurrency: false },
 ];
