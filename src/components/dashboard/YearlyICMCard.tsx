@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "./ProgressBar";
-import { CheckCircle, Clock, AlertTriangle, Calendar } from "lucide-react";
+import { CheckCircle, Clock, AlertTriangle, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -10,59 +10,51 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface ICMCardProps {
+interface YearlyICMCardProps {
   icmGeral: number;
   ritmoIdeal: number;
   diasUteisRestantes: number;
   assessors: string[];
   selectedAssessor: string;
-  selectedMonth: string;
-  months: string[];
+  selectedYear: number;
+  availableYears: number[];
   onAssessorChange: (value: string) => void;
-  onMonthChange: (value: string) => void;
-  onToggleView?: () => void;
+  onYearChange: (value: number) => void;
+  onToggleView: () => void;
 }
 
-export function ICMCard({
+export function YearlyICMCard({
   icmGeral,
   ritmoIdeal,
   diasUteisRestantes,
   assessors,
   selectedAssessor,
-  selectedMonth,
-  months,
+  selectedYear,
+  availableYears,
   onAssessorChange,
-  onMonthChange,
+  onYearChange,
   onToggleView,
-}: ICMCardProps) {
+}: YearlyICMCardProps) {
   const radius = 80;
   const circumference = Math.PI * radius;
   const progress = (Math.min(icmGeral, 100) / 100) * circumference;
 
-  const getCurrentMonthLabel = () => {
-    const now = new Date();
-    const monthNames = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
-    return `${monthNames[now.getMonth()]}/${now.getFullYear().toString().slice(-2)}`;
-  };
-
   return (
-    <Card className="p-6 shadow-card">
+    <Card className="p-6 shadow-card border-l-4 border-l-chart-graphite">
       {/* Header with Toggle */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-medium text-muted-foreground">
-          ICM Mensal
+          ICM Anual
         </h3>
-        {onToggleView && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onToggleView}
-            className="gap-2 text-xs"
-          >
-            <Calendar className="h-3.5 w-3.5" />
-            Visão Anual
-          </Button>
-        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onToggleView}
+          className="gap-2 text-xs"
+        >
+          <CalendarDays className="h-3.5 w-3.5" />
+          Visão Mensal
+        </Button>
       </div>
 
       {/* Filters */}
@@ -81,15 +73,17 @@ export function ICMCard({
           </SelectContent>
         </Select>
 
-        <Select value={selectedMonth} onValueChange={onMonthChange}>
-          <SelectTrigger className="w-[120px] bg-background text-sm">
-            <SelectValue placeholder={getCurrentMonthLabel()} />
+        <Select 
+          value={String(selectedYear)} 
+          onValueChange={(v) => onYearChange(parseInt(v))}
+        >
+          <SelectTrigger className="w-[100px] bg-background text-sm">
+            <SelectValue placeholder={String(selectedYear)} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            {months.map((m) => (
-              <SelectItem key={m} value={m}>
-                {m.toUpperCase()}
+            {availableYears.map((year) => (
+              <SelectItem key={year} value={String(year)}>
+                {year}
               </SelectItem>
             ))}
           </SelectContent>
@@ -97,9 +91,9 @@ export function ICMCard({
       </div>
 
       <div className="flex items-start justify-between gap-6">
-        {/* Gauge */}
+        {/* Gauge with graphite color */}
         <div className="flex flex-col items-center">
-          <h3 className="text-lg font-semibold mb-2 text-foreground">ICM Geral</h3>
+          <h3 className="text-lg font-semibold mb-2 text-foreground">ICM Anual</h3>
           
           <div className="relative" style={{ width: 180, height: 100 }}>
             <svg width="180" height="100" viewBox="0 0 180 110">
@@ -113,7 +107,7 @@ export function ICMCard({
               <path
                 d="M 10 100 A 80 80 0 0 1 170 100"
                 fill="none"
-                stroke="hsl(var(--primary))"
+                stroke="hsl(var(--chart-graphite))"
                 strokeWidth="14"
                 strokeLinecap="round"
                 strokeDasharray={circumference}
@@ -129,23 +123,34 @@ export function ICMCard({
 
         {/* Days remaining */}
         <div className="text-center px-4 py-2">
-          <p className="text-sm text-muted-foreground mb-1">Dias Úteis<br/>Restantes</p>
+          <p className="text-sm text-muted-foreground mb-1">Dias Úteis<br/>Restantes no Ano</p>
           <p className="text-4xl font-bold text-foreground">{diasUteisRestantes}</p>
         </div>
       </div>
 
-      {/* Progress bars */}
+      {/* Progress bars with graphite theme */}
       <div className="mt-6 space-y-3">
-        <ProgressBar label="Ritmo Ideal" percentage={ritmoIdeal} color="primary" />
-        {/* ICM Geral em barra amarela */}
         <div className="space-y-1">
           <div className="flex justify-between text-sm">
-            <span className="font-medium text-foreground">ICM Geral</span>
+            <span className="font-medium text-foreground">Ritmo Ideal (Ano)</span>
+            <span className="font-bold text-foreground">{ritmoIdeal}%</span>
+          </div>
+          <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
+            <div 
+              className="h-full rounded-full bg-chart-graphite-light transition-all duration-500"
+              style={{ width: `${Math.min(ritmoIdeal, 100)}%` }}
+            />
+          </div>
+        </div>
+        
+        <div className="space-y-1">
+          <div className="flex justify-between text-sm">
+            <span className="font-medium text-foreground">ICM Anual</span>
             <span className="font-bold text-foreground">{icmGeral}%</span>
           </div>
           <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
             <div 
-              className="h-full rounded-full bg-yellow-500 transition-all duration-500"
+              className="h-full rounded-full bg-chart-graphite transition-all duration-500"
               style={{ width: `${Math.min(icmGeral, 100)}%` }}
             />
           </div>

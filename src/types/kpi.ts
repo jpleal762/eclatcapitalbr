@@ -18,6 +18,13 @@ export interface DashboardFilters {
   month: string;
 }
 
+export interface YearlyDashboardFilters {
+  assessor: string;
+  year: number;
+}
+
+export type DashboardView = "monthly" | "yearly";
+
 export type KPIStatusIcon = "GREEN_CHECK" | "CLOCK" | "YELLOW_ALERT" | "RED_ALERT";
 
 export interface GaugeKPI {
@@ -54,4 +61,12 @@ export interface DashboardData {
   assessorPerformance: AssessorPerformance[];
   gaugeKPIs: GaugeKPI[];
   headBruno: GaugeKPI[];
+}
+
+export interface YearlyDashboardData {
+  icmGeral: number;
+  ritmoIdeal: number;
+  diasUteisRestantes: number;
+  assessorPerformance: AssessorPerformance[];
+  gaugeKPIs: GaugeKPI[];
 }
