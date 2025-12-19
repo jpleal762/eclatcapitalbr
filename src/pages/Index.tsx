@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ICMCard } from "@/components/dashboard/ICMCard";
 import { MetaTable } from "@/components/dashboard/MetaTable";
@@ -11,13 +11,39 @@ import {
   getAvailableMonths,
   processDashboardData,
 } from "@/lib/kpiUtils";
+import { loadExcelData, saveExcelData } from "@/lib/storage";
 
 const Index = () => {
   const [rawData, setRawData] = useState<KPIRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<DashboardFilters>({
     assessor: "all",
     month: "all",
   });
+
+  // Load data from storage on mount
+  useEffect(() => {
+    const loadStoredData = async () => {
+      setIsLoading(true);
+      try {
+        const storedData = await loadExcelData();
+        if (storedData && storedData.length > 0) {
+          setRawData(storedData);
+        }
+      } catch (error) {
+        console.error("Error loading stored data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadStoredData();
+  }, []);
+
+  // Handle data loaded from file upload
+  const handleDataLoaded = async (data: KPIRecord[]) => {
+    setRawData(data);
+    await saveExcelData(data);
+  };
 
   const processedData = useMemo(() => processKPIData(rawData), [rawData]);
   
@@ -43,14 +69,21 @@ const Index = () => {
               <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded text-sm font-bold">XP</span>
             </div>
             {hasData && (
-              <FileUpload onDataLoaded={setRawData} compact />
+              <FileUpload onDataLoaded={handleDataLoaded} compact />
             )}
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-6">
-        {!hasData ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Carregando dados...</p>
+            </div>
+          </div>
+        ) : !hasData ? (
           <div className="mx-auto max-w-xl animate-fade-in pt-12">
             <div className="mb-8 text-center">
               <h2 className="text-2xl font-bold mb-2 text-foreground">Bem-vindo ao Dashboard</h2>
@@ -58,7 +91,7 @@ const Index = () => {
                 Carregue seus dados KPI em formato XLSX ou JSON para visualizar as métricas de performance
               </p>
             </div>
-            <FileUpload onDataLoaded={setRawData} />
+            <FileUpload onDataLoaded={handleDataLoaded} />
           </div>
         ) : (
           <div className="space-y-6 animate-fade-in">
