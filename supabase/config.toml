@@ -1,0 +1,4 @@
+project_id = "nkhlipjsrkboufoizblr"
+
+[functions.analyze-yearly-kpis]
+verify_jwt = false
