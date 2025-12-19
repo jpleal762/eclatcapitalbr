@@ -376,5 +376,12 @@ export function getAvailableYears(data: ProcessedKPI[]): number[] {
     });
   });
 
-  return Array.from(years).sort((a, b) => b - a);
+  const result = Array.from(years).sort((a, b) => b - a);
+  
+  // Fallback: se não encontrou anos, retorna o ano atual
+  if (result.length === 0) {
+    return [new Date().getFullYear()];
+  }
+  
+  return result;
 }
