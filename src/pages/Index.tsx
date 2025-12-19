@@ -60,7 +60,12 @@ const Index = () => {
   };
 
   const toggleView = () => {
-    setCurrentView(prev => prev === "monthly" ? "yearly" : "monthly");
+    console.log("Toggle view clicked, current view:", currentView);
+    setCurrentView(prev => {
+      const newView = prev === "monthly" ? "yearly" : "monthly";
+      console.log("Changing view to:", newView);
+      return newView;
+    });
   };
 
   const processedData = useMemo(() => processKPIData(rawData), [rawData]);
@@ -277,6 +282,7 @@ const Index = () => {
                 onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
                 onMonthChange={(value) => setFilters({ ...filters, month: value })}
                 onToggleView={toggleView}
+                isYearlyView={true}
               />
               <MetaTable
                 data={dashboardData.metaSemanal}
