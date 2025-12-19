@@ -293,7 +293,7 @@ const Index = () => {
               <AssessorChart data={dashboardData.assessorPerformance} />
             </div>
 
-            {/* KPI Gauges - Same as monthly */}
+            {/* KPI Gauges - Same as monthly but with gray bars */}
             <div className="grid gap-4 lg:grid-cols-3">
               {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
               <div className="space-y-3">
@@ -306,6 +306,7 @@ const Index = () => {
                   warning={dashboardData.gaugeKPIs[0]?.warning}
                   statusIcon={dashboardData.gaugeKPIs[0]?.statusIcon}
                   size="lg"
+                  isYearlyView={true}
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <GaugeChart
@@ -317,6 +318,7 @@ const Index = () => {
                     warning={dashboardData.gaugeKPIs[3]?.warning}
                     statusIcon={dashboardData.gaugeKPIs[3]?.statusIcon}
                     size="sm"
+                    isYearlyView={true}
                   />
                   <GaugeChart
                     label={dashboardData.gaugeKPIs[4]?.label}
@@ -327,6 +329,7 @@ const Index = () => {
                     warning={dashboardData.gaugeKPIs[4]?.warning}
                     statusIcon={dashboardData.gaugeKPIs[4]?.statusIcon}
                     size="sm"
+                    isYearlyView={true}
                   />
                 </div>
               </div>
@@ -342,6 +345,7 @@ const Index = () => {
                   warning={dashboardData.gaugeKPIs[1]?.warning}
                   statusIcon={dashboardData.gaugeKPIs[1]?.statusIcon}
                   size="lg"
+                  isYearlyView={true}
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <GaugeChart
@@ -353,6 +357,7 @@ const Index = () => {
                     warning={dashboardData.gaugeKPIs[5]?.warning}
                     statusIcon={dashboardData.gaugeKPIs[5]?.statusIcon}
                     size="sm"
+                    isYearlyView={true}
                   />
                   <GaugeChart
                     label={dashboardData.gaugeKPIs[6]?.label}
@@ -363,6 +368,7 @@ const Index = () => {
                     warning={dashboardData.gaugeKPIs[6]?.warning}
                     statusIcon={dashboardData.gaugeKPIs[6]?.statusIcon}
                     size="sm"
+                    isYearlyView={true}
                   />
                 </div>
               </div>
@@ -378,6 +384,7 @@ const Index = () => {
                   warning={dashboardData.gaugeKPIs[2]?.warning}
                   statusIcon={dashboardData.gaugeKPIs[2]?.statusIcon}
                   size="lg"
+                  isYearlyView={true}
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <GaugeChart
@@ -389,6 +396,7 @@ const Index = () => {
                     warning={dashboardData.gaugeKPIs[7]?.warning}
                     statusIcon={dashboardData.gaugeKPIs[7]?.statusIcon}
                     size="sm"
+                    isYearlyView={true}
                   />
                   <GaugeChart
                     label={dashboardData.gaugeKPIs[8]?.label}
@@ -399,6 +407,7 @@ const Index = () => {
                     warning={dashboardData.gaugeKPIs[8]?.warning}
                     statusIcon={dashboardData.gaugeKPIs[8]?.statusIcon}
                     size="sm"
+                    isYearlyView={true}
                   />
                 </div>
               </div>

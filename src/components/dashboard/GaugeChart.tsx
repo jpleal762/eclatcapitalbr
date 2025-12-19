@@ -13,6 +13,7 @@ interface GaugeChartProps {
   size?: "sm" | "md" | "lg";
   variant?: "default" | "highlight";
   statusIcon?: KPIStatusIcon;
+  isYearlyView?: boolean;
 }
 
 function StatusIconDisplay({ icon, size }: { icon?: KPIStatusIcon; size: "sm" | "md" | "lg" }) {
@@ -64,6 +65,7 @@ export function GaugeChart({
   size = "md",
   variant = "default",
   statusIcon,
+  isYearlyView = false,
 }: GaugeChartProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   
@@ -112,7 +114,7 @@ export function GaugeChart({
               d={`M ${config.strokeWidth / 2} ${config.height} 
                   A ${radius} ${radius} 0 0 1 ${config.width - config.strokeWidth / 2} ${config.height}`}
               fill="none"
-              stroke="hsl(var(--primary))"
+              stroke={isYearlyView ? "hsl(215, 14%, 34%)" : "hsl(var(--primary))"}
               strokeWidth={config.strokeWidth}
               strokeLinecap="round"
               strokeDasharray={circumference}
