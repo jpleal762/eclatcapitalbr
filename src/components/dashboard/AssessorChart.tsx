@@ -16,12 +16,6 @@ export function AssessorChart({ data }: AssessorChartProps) {
     return "";
   };
 
-  const getBarColor = (percentage: number): string => {
-    if (percentage >= 90) return "bg-green-500";
-    if (percentage >= 70) return "bg-primary";
-    if (percentage >= 50) return "bg-yellow-500";
-    return "bg-destructive";
-  };
 
   return (
     <Card className="p-4 shadow-card">
@@ -45,18 +39,14 @@ export function AssessorChart({ data }: AssessorChartProps) {
               <p className="text-xs font-medium text-foreground truncate">{assessor.name}</p>
               <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-0.5">
                 <div 
-                  className={`h-full rounded-full transition-all duration-500 ${getBarColor(assessor.geralPercentage)}`}
+                  className="h-full rounded-full transition-all duration-500 bg-yellow-500"
                   style={{ width: `${Math.min(assessor.geralPercentage, 100)}%` }}
                 />
               </div>
             </div>
             
             <div className="text-right">
-              <span className={`text-sm font-bold ${
-                assessor.geralPercentage >= 90 ? 'text-green-600' :
-                assessor.geralPercentage >= 70 ? 'text-primary' :
-                assessor.geralPercentage >= 50 ? 'text-yellow-600' : 'text-destructive'
-              }`}>
+              <span className="text-sm font-bold text-yellow-600">
                 {assessor.geralPercentage}%
               </span>
             </div>
