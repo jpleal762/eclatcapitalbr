@@ -53,6 +53,8 @@
     --chart-yellow: 45 100% 51%;
     --chart-gray: 0 0% 75%;
     --chart-dark: 0 0% 30%;
+    --chart-graphite: 220 10% 40%;
+    --chart-graphite-light: 220 10% 55%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 20%;

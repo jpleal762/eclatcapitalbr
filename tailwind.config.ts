@@ -76,6 +76,8 @@ export default {
           yellow: "hsl(var(--chart-yellow))",
           gray: "hsl(var(--chart-gray))",
           dark: "hsl(var(--chart-dark))",
+          graphite: "hsl(var(--chart-graphite))",
+          "graphite-light": "hsl(var(--chart-graphite-light))",
         },
       },
       borderRadius: {
