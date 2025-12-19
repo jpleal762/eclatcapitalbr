@@ -21,6 +21,7 @@ interface ICMCardProps {
   onAssessorChange: (value: string) => void;
   onMonthChange: (value: string) => void;
   onToggleView?: () => void;
+  isYearlyView?: boolean;
 }
 
 export function ICMCard({
@@ -34,6 +35,7 @@ export function ICMCard({
   onAssessorChange,
   onMonthChange,
   onToggleView,
+  isYearlyView = false,
 }: ICMCardProps) {
   const radius = 80;
   const circumference = Math.PI * radius;
@@ -50,7 +52,7 @@ export function ICMCard({
       {/* Header with Toggle */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-medium text-muted-foreground">
-          ICM Mensal
+          {isYearlyView ? "ICM Anual" : "ICM Mensal"}
         </h3>
         {onToggleView && (
           <Button
@@ -60,7 +62,7 @@ export function ICMCard({
             className="gap-2 text-xs"
           >
             <Calendar className="h-3.5 w-3.5" />
-            Visão Anual
+            {isYearlyView ? "Visão Mensal" : "Visão Anual"}
           </Button>
         )}
       </div>
