@@ -59,20 +59,27 @@ const Index = () => {
     await saveExcelData(data);
   };
 
-  const toggleView = () => {
-    console.log("Toggle view clicked, current view:", currentView);
-    setCurrentView(prev => {
-      const newView = prev === "monthly" ? "yearly" : "monthly";
-      console.log("Changing view to:", newView);
-      return newView;
-    });
-  };
-
   const processedData = useMemo(() => processKPIData(rawData), [rawData]);
   
   const assessors = useMemo(() => getUniqueValues(processedData, "assessor"), [processedData]);
   const months = useMemo(() => getAvailableMonths(processedData), [processedData]);
-  const availableYears = useMemo(() => getAvailableYears(processedData), [processedData]);
+  const availableYears = useMemo(() => {
+    const years = getAvailableYears(processedData);
+    return years.length > 0 ? years : [new Date().getFullYear()];
+  }, [processedData]);
+
+  const toggleView = () => {
+    setCurrentView(prev => {
+      const newView = prev === "monthly" ? "yearly" : "monthly";
+      // Garantir que o ano selecionado seja válido ao mudar para visão anual
+      if (newView === "yearly" && availableYears.length > 0) {
+        if (!availableYears.includes(yearlyFilters.year)) {
+          setYearlyFilters(f => ({ ...f, year: availableYears[0] }));
+        }
+      }
+      return newView;
+    });
+  };
 
   const dashboardData = useMemo(
     () => processDashboardData(processedData, filters.month, filters.assessor),
