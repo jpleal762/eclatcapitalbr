@@ -278,7 +278,7 @@ const Index = () => {
                 assessors={assessors}
                 selectedAssessor={filters.assessor}
                 selectedMonth={filters.month}
-                months={months}
+                months={availableYears.map(y => String(y))}
                 onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
                 onMonthChange={(value) => setFilters({ ...filters, month: value })}
                 onToggleView={toggleView}
