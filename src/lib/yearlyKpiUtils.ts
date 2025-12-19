@@ -320,8 +320,8 @@ export function processYearlyDashboardData(
         return sum + getYearlyValue(plannedData, selectedYear);
       }, 0);
 
-      // Actual from Receita + Receita Acumulada
-      const actualCategories = ["Receita", "Receita Acumulada"];
+      // Actual from Receita + Receita Acumulada + Receita Empilhada
+      const actualCategories = ["Receita", "Receita Acumulada", "Receita Empilhada"];
       value = actualCategories.reduce((sum, cat) => {
         const catData = filterByCategory(filteredByAssessor, cat);
         const realizedData = catData.filter(d => isRealizedStatus(d.status));
