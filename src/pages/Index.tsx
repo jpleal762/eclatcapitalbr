@@ -69,14 +69,6 @@ const Index = () => {
     return years.length > 0 ? years : [new Date().getFullYear()];
   }, [processedData]);
 
-  // Debug: Log meses e anos disponíveis
-  useEffect(() => {
-    if (processedData.length > 0) {
-      const allMonths = new Set<string>();
-      processedData.forEach(r => r.monthlyData.forEach(m => allMonths.add(m.month)));
-      console.log("DEBUG - Meses encontrados:", Array.from(allMonths));
-    }
-  }, [processedData]);
 
   const toggleView = () => {
     setCurrentView(prev => {
@@ -100,6 +92,21 @@ const Index = () => {
     () => processYearlyDashboardData(processedData, yearlyFilters.year, yearlyFilters.assessor),
     [processedData, yearlyFilters.year, yearlyFilters.assessor]
   );
+
+  // Debug: Log completo para diagnóstico
+  useEffect(() => {
+    if (processedData.length > 0) {
+      const allMonths = new Set<string>();
+      processedData.forEach(r => r.monthlyData.forEach(m => allMonths.add(m.month)));
+      console.log("=== DEBUG COMPLETO ===");
+      console.log("Total de registros processados:", processedData.length);
+      console.log("Meses únicos encontrados:", Array.from(allMonths));
+      console.log("Anos disponíveis (filtro):", availableYears);
+      console.log("Filtro anual atual:", yearlyFilters);
+      console.log("yearlyDashboardData.gaugeKPIs:", yearlyDashboardData.gaugeKPIs?.map(k => ({ label: k.label, value: k.value, target: k.target })));
+      console.log("======================");
+    }
+  }, [processedData, availableYears, yearlyFilters, yearlyDashboardData]);
 
   const hasData = rawData.length > 0;
 
