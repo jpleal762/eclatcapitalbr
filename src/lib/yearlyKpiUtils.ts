@@ -352,10 +352,28 @@ export function processYearlyDashboardData(
     };
   });
 
+  // Meta Semanal (simplified for yearly - showing yearly goals)
+  const metaSemanal = YEARLY_KPI_CATEGORIES.slice(0, 5).map(kpi => {
+    const catData = filterByCategory(filteredByAssessor, kpi.category);
+    const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+    const target = getYearlyValue(plannedData, selectedYear);
+    return {
+      label: kpi.label,
+      value: target,
+      isCurrency: kpi.isCurrency,
+    };
+  });
+
+  const metaSemanalReal = Math.round(icmGeral);
+  const metaSemanalPercentage = Math.round(ritmoIdeal);
+
   return {
     icmGeral,
     ritmoIdeal,
     diasUteisRestantes,
+    metaSemanal,
+    metaSemanalReal,
+    metaSemanalPercentage,
     assessorPerformance,
     gaugeKPIs,
   };
