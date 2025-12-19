@@ -32,7 +32,7 @@ const Index = () => {
   });
   const [yearlyFilters, setYearlyFilters] = useState<YearlyDashboardFilters>({
     assessor: "all",
-    year: new Date().getFullYear(),
+    year: 0, // Will be set when data loads
   });
 
   // Load data from storage on mount
@@ -74,14 +74,23 @@ const Index = () => {
   const months = useMemo(() => getAvailableMonths(processedData), [processedData]);
   const availableYears = useMemo(() => getAvailableYears(processedData), [processedData]);
 
+  // Set default year when data loads
+  useEffect(() => {
+    if (availableYears.length > 0 && yearlyFilters.year === 0) {
+      setYearlyFilters(prev => ({ ...prev, year: availableYears[0] }));
+    }
+  }, [availableYears, yearlyFilters.year]);
+
   const dashboardData = useMemo(
     () => processDashboardData(processedData, filters.month, filters.assessor),
     [processedData, filters.month, filters.assessor]
   );
 
+  // Only process yearly data when we have a valid year
+  const selectedYear = yearlyFilters.year || availableYears[0] || new Date().getFullYear();
   const yearlyDashboardData = useMemo(
-    () => processYearlyDashboardData(processedData, yearlyFilters.year, yearlyFilters.assessor),
-    [processedData, yearlyFilters.year, yearlyFilters.assessor]
+    () => processYearlyDashboardData(processedData, selectedYear, yearlyFilters.assessor),
+    [processedData, selectedYear, yearlyFilters.assessor]
   );
 
   const hasData = rawData.length > 0;
@@ -277,7 +286,7 @@ const Index = () => {
                 diasUteisRestantes={yearlyDashboardData.diasUteisRestantes}
                 assessors={assessors}
                 selectedAssessor={yearlyFilters.assessor}
-                selectedYear={yearlyFilters.year}
+                selectedYear={selectedYear}
                 availableYears={availableYears}
                 onAssessorChange={(value) => setYearlyFilters({ ...yearlyFilters, assessor: value })}
                 onYearChange={(value) => setYearlyFilters({ ...yearlyFilters, year: value })}
