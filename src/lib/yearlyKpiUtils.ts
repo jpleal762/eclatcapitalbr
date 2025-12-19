@@ -233,17 +233,24 @@ export function calculateYearlyICMRitmo(
 }
 
 // ============= YEARLY KPI CATEGORIES =============
-// Note: Graph 2 (Receita) has special calculation for yearly view
+// KPIs 1, 3, 4, 5, 6 = Same as monthly (yearly aggregated)
+// KPI 2 (Receita) = Target: PJ1+PJ2 Mes, Actual: Receita + Receita Acumulada
+// KPI 7 (NEW - Receita PJ2 XP) = Target: PJ2 XP Mes + PJ2 XP, Actual: PJ2 XP + Receita Acumulada
 const YEARLY_KPI_CATEGORIES = [
+  // Graph 1: Captação NET - Same as monthly
   { category: "Captação net", label: "Captação NET", isCurrency: true },
-  { category: "Receita", label: "Receita", isCurrency: true, isSpecialYearly: true },
+  // Graph 2: Receita - Modified for yearly (Receita + Receita Acumulada)
+  { category: "Receita", label: "Receita", isCurrency: true, isReceitaYearly: true },
+  // Graph 3: Primeiras Reuniões - Same as monthly
   { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
+  // Graph 4: Diversificação - Same as monthly
   { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
-  { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
-  { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true, actualCategory: "PJ1 XP" },
-  { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, actualCategory: "PJ2 XP" },
+  // Graph 5: Habilitação - Same as monthly
   { category: "Habilitacao", label: "Habilitação", isCurrency: false },
+  // Graph 6: Ativação - Same as monthly
   { category: "Ativacao", label: "Ativação", isCurrency: false },
+  // Graph 7 (NEW - ONLY YEARLY): Receita PJ2 XP - Target: PJ2 XP Mes + PJ2 XP, Actual: PJ2 XP + Receita Acumulada
+  { category: "PJ2 XP", label: "Receita PJ2 XP", isCurrency: true, isReceitaPJ2Yearly: true },
 ];
 
 // ============= MAIN YEARLY DASHBOARD PROCESSOR =============
@@ -272,15 +279,15 @@ export function processYearlyDashboardData(
     };
   }).sort((a, b) => b.geralPercentage - a.geralPercentage);
 
-  // Yearly Gauge KPIs with special Receita calculation
+  // Yearly Gauge KPIs with special calculations
   const gaugeKPIs: GaugeKPI[] = YEARLY_KPI_CATEGORIES.map(kpi => {
     let target: number;
     let value: number;
 
-    // Special case for yearly Receita: 
+    // Graph 2: Receita - Special yearly calculation
     // Target = PJ1 XP Mês + PJ2 XP Mês (Planejado Mes)
     // Actual = Receita + Receita Acumulada (Realizado)
-    if ((kpi as any).isSpecialYearly) {
+    if ((kpi as any).isReceitaYearly) {
       // Target from PJ1 XP Mês + PJ2 XP Mês
       const targetCategories = ["PJ1 XP Mês", "PJ2 XP Mês"];
       target = targetCategories.reduce((sum, cat) => {
@@ -297,20 +304,28 @@ export function processYearlyDashboardData(
         return sum + getYearlyValue(realizedData, selectedYear);
       }, 0);
     }
-    // Special case for PJ1/PJ2: target from "PJ1 XP Mês"/"PJ2 XP Mês", actual from "PJ1 XP"/"PJ2 XP"
-    else if ((kpi as any).actualCategory) {
-      const actualCategory = (kpi as any).actualCategory as string;
-      
-      const catData = filterByCategory(filteredByAssessor, kpi.category);
-      const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
-      target = getYearlyValue(plannedData, selectedYear);
-      
-      const actualData = filterByCategory(filteredByAssessor, actualCategory);
-      const realizedData = actualData.filter(d => isRealizedStatus(d.status));
-      value = getYearlyValue(realizedData, selectedYear);
-    } 
+    // Graph 7 (NEW): Receita PJ2 XP - Special yearly calculation
+    // Target = PJ2 XP Mês + PJ2 XP (Planejado Mes)
+    // Actual = PJ2 XP + Receita Acumulada (Realizado)
+    else if ((kpi as any).isReceitaPJ2Yearly) {
+      // Target from PJ2 XP Mês + PJ2 XP (Planejado Mes)
+      const targetCategories = ["PJ2 XP Mês", "PJ2 XP"];
+      target = targetCategories.reduce((sum, cat) => {
+        const catData = filterByCategory(filteredByAssessor, cat);
+        const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+        return sum + getYearlyValue(plannedData, selectedYear);
+      }, 0);
+
+      // Actual from PJ2 XP + Receita Acumulada (Realizado)
+      const actualCategories = ["PJ2 XP", "Receita Acumulada"];
+      value = actualCategories.reduce((sum, cat) => {
+        const catData = filterByCategory(filteredByAssessor, cat);
+        const realizedData = catData.filter(d => isRealizedStatus(d.status));
+        return sum + getYearlyValue(realizedData, selectedYear);
+      }, 0);
+    }
     else {
-      // Standard case: target and actual from same category
+      // Standard case: target and actual from same category (same as monthly)
       const catData = filterByCategory(filteredByAssessor, kpi.category);
       const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
       const realizedData = catData.filter(d => isRealizedStatus(d.status));
