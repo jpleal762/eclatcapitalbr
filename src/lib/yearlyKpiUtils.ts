@@ -361,24 +361,20 @@ export function processYearlyDashboardData(
 // Get available years from data
 export function getAvailableYears(data: ProcessedKPI[]): number[] {
   const years = new Set<number>();
-  
-  if (!data || !Array.isArray(data)) {
-    console.log("getAvailableYears: data is empty or not an array");
-    return [];
-  }
-  
-  data.forEach(record => {
-    if (record.monthlyData && Array.isArray(record.monthlyData)) {
-      record.monthlyData.forEach(m => {
-        if (m && m.month) {
-          const year = getYearFromMonth(m.month);
-          if (year) years.add(year);
-        }
-      });
-    }
+
+  data.forEach((record) => {
+    record.monthlyData.forEach((m) => {
+      const monthKey = String(m.month ?? "");
+      const parts = monthKey.split("/");
+      if (parts.length !== 2) return;
+
+      const yearRaw = parseInt(parts[1], 10);
+      if (Number.isNaN(yearRaw)) return;
+
+      const year = yearRaw < 100 ? yearRaw + 2000 : yearRaw;
+      years.add(year);
+    });
   });
-  
-  const result = Array.from(years).sort((a, b) => b - a);
-  console.log("getAvailableYears: extracted years:", result, "from", data.length, "records");
-  return result;
+
+  return Array.from(years).sort((a, b) => b - a);
 }
