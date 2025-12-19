@@ -8,6 +8,7 @@ import { YearlyICMCard } from "@/components/dashboard/YearlyICMCard";
 import { YearlyMetaTable } from "@/components/dashboard/YearlyMetaTable";
 import { YearlyAssessorChart } from "@/components/dashboard/YearlyAssessorChart";
 import { YearlyGaugeChart } from "@/components/dashboard/YearlyGaugeChart";
+import { YearlyAnalysisCard } from "@/components/dashboard/YearlyAnalysisCard";
 import { KPIRecord, DashboardFilters, DashboardView, YearlyDashboardFilters } from "@/types/kpi";
 import {
   processKPIData,
@@ -308,11 +309,10 @@ const Index = () => {
                 onToggleView={toggleView}
                 isYearlyView={true}
               />
-              <MetaTable
-                data={yearlyDashboardData.metaSemanal}
-                realPercentage={yearlyDashboardData.metaSemanalReal}
+              <YearlyAnalysisCard
+                yearlyData={yearlyDashboardData}
+                selectedYear={yearlyFilters.year}
                 selectedAssessor={yearlyFilters.assessor}
-                weekToMonthPercentage={yearlyDashboardData.metaSemanalPercentage}
               />
               <AssessorChart data={yearlyDashboardData.assessorPerformance} />
             </div>
