@@ -87,6 +87,8 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) processFile(file);
+      // Reset input value to allow selecting the same file again
+      e.target.value = "";
     },
     [processFile]
   );
