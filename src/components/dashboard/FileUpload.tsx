@@ -93,20 +93,18 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
 
   if (compact) {
     return (
-      <label className="cursor-pointer">
+      <div className="relative">
         <input
           type="file"
           accept=".xlsx,.xls,.json"
-          className="hidden"
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           onChange={handleFileInput}
         />
-        <Button variant="outline" size="sm" className="gap-2" asChild>
-          <span>
-            <RefreshCw className="h-4 w-4" />
-            Atualizar dados
-          </span>
+        <Button variant="outline" size="sm" className="gap-2 pointer-events-none">
+          <RefreshCw className="h-4 w-4" />
+          Atualizar dados
         </Button>
-      </label>
+      </div>
     );
   }
 
