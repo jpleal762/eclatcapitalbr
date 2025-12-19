@@ -272,15 +272,15 @@ const Index = () => {
             {/* Top Row - ICM with Filters, Meta, Assessor Ranking */}
             <div className="grid gap-4 lg:grid-cols-3">
               <ICMCard
-                icmGeral={dashboardData.icmGeral}
-                ritmoIdeal={dashboardData.ritmoIdeal}
-                diasUteisRestantes={dashboardData.diasUteisRestantes}
+                icmGeral={yearlyDashboardData.icmGeral}
+                ritmoIdeal={yearlyDashboardData.ritmoIdeal}
+                diasUteisRestantes={yearlyDashboardData.diasUteisRestantes}
                 assessors={assessors}
-                selectedAssessor={filters.assessor}
-                selectedMonth={filters.month}
+                selectedAssessor={yearlyFilters.assessor}
+                selectedMonth={String(yearlyFilters.year)}
                 months={availableYears.map(y => String(y))}
-                onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
-                onMonthChange={(value) => setFilters({ ...filters, month: value })}
+                onAssessorChange={(value) => setYearlyFilters({ ...yearlyFilters, assessor: value })}
+                onMonthChange={(value) => setYearlyFilters({ ...yearlyFilters, year: parseInt(value) || new Date().getFullYear() })}
                 onToggleView={toggleView}
                 isYearlyView={true}
               />

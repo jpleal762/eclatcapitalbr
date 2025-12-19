@@ -2,10 +2,16 @@ interface ProgressBarProps {
   label: string;
   percentage: number;
   color?: "primary" | "muted";
+  variant?: "default" | "gray";
 }
 
-export function ProgressBar({ label, percentage, color = "primary" }: ProgressBarProps) {
+export function ProgressBar({ label, percentage, color = "primary", variant = "default" }: ProgressBarProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
+  
+  const getBarColor = () => {
+    if (variant === "gray") return "bg-slate-500";
+    return color === "primary" ? "bg-primary" : "bg-chart-dark";
+  };
   
   return (
     <div className="space-y-1.5">
@@ -15,9 +21,7 @@ export function ProgressBar({ label, percentage, color = "primary" }: ProgressBa
       </div>
       <div className="h-3 bg-muted rounded-full overflow-hidden">
         <div
-          className={`h-full rounded-full transition-all duration-500 ${
-            color === "primary" ? "bg-primary" : "bg-chart-dark"
-          }`}
+          className={`h-full rounded-full transition-all duration-500 ${getBarColor()}`}
           style={{ width: `${clampedPercentage}%` }}
         />
       </div>

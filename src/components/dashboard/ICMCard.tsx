@@ -138,7 +138,7 @@ export function ICMCard({
 
       {/* Progress bars */}
       <div className="mt-6 space-y-3">
-        <ProgressBar label="Ritmo Ideal" percentage={ritmoIdeal} color="primary" />
+        <ProgressBar label="Ritmo Ideal" percentage={ritmoIdeal} color="primary" variant={isYearlyView ? "gray" : "default"} />
         {/* ICM Geral em barra amarela */}
         <div className="space-y-1">
           <div className="flex justify-between text-sm">
