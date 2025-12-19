@@ -115,7 +115,7 @@ export function ICMCard({
               <path
                 d="M 10 100 A 80 80 0 0 1 170 100"
                 fill="none"
-                stroke="hsl(var(--primary))"
+                stroke={isYearlyView ? "hsl(var(--chart-dark))" : "hsl(var(--primary))"}
                 strokeWidth="14"
                 strokeLinecap="round"
                 strokeDasharray={circumference}
