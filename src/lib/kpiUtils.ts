@@ -463,14 +463,15 @@ export function processDashboardData(
   const ritmoIdeal = calculateIdealRhythm(selectedMonth);
   const diasUteisRestantes = getWorkingDaysRemaining(selectedMonth);
 
-  // Meta Semanal - Categorias específicas com Planejado Semana na ordem correta
+  // Meta Semanal - Categorias específicas com Planejado Semana na nova ordem
+  // Ordem: Captação NET → Receita → Diversificação → Primeiras Reuniões → Habilitação → Ativação
   const metaSemanalCategories = [
-    { category: "Habilitacao", label: "Habilitação" },
-    { category: "Ativacao", label: "Ativação" },
-    { category: "Captação net", label: "Captação NET" },
-    { category: "Diversificada ( ROA>1,5)", label: "Diversificada (ROA>1,5)" },
-    { category: "Receita", label: "Receita" },
-    { category: "Primeira reuniao", label: "Primeiras Reuniões" },
+    { category: "Captação net", label: "Captação NET", isCurrency: true },
+    { category: "Receita", label: "Receita", isCurrency: true },
+    { category: "Diversificada ( ROA>1,5)", label: "Diversificação (ROA>1,5)", isCurrency: true },
+    { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
+    { category: "Habilitacao", label: "Habilitação", isCurrency: false },
+    { category: "Ativacao", label: "Ativação", isCurrency: false },
   ];
   
   const metaSemanal: MetaSemanal[] = metaSemanalCategories.map(item => {
@@ -479,7 +480,7 @@ export function processDashboardData(
     const value = selectedMonth !== "all" 
       ? getMonthValue(weeklyPlanned, selectedMonth)
       : weeklyPlanned.reduce((s, d) => s + d.total, 0);
-    return { label: item.label, value };
+    return { label: item.label, value, isCurrency: item.isCurrency };
   });
 
   // Calculate metaSemanalPercentage: sum of Planejado Semana (6 KPIs) / sum of Planejado Mês (8 KPIs)
