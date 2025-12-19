@@ -151,10 +151,13 @@ export function calculateYearlyIdealRhythm(currentDate: Date, year: number): num
 // ============= YEARLY DATA FILTERING =============
 function getYearFromMonth(monthStr: string): number | null {
   if (!monthStr || typeof monthStr !== 'string') return null;
-  const parts = monthStr.toLowerCase().trim().split("/");
-  if (parts.length !== 2) return null;
-  const yearPart = parts[1].trim();
-  let year = parseInt(yearPart, 10);
+  
+  // Usa regex para extrair o ano após a última barra
+  // Aceita formatos: "jan/2026", "jan/26", "janeiro/2026", etc.
+  const match = monthStr.match(/\/(\d{2,4})$/);
+  if (!match) return null;
+  
+  let year = parseInt(match[1], 10);
   if (isNaN(year)) return null;
   if (year < 100) year += 2000;
   return year;
@@ -364,14 +367,16 @@ export function getAvailableYears(data: ProcessedKPI[]): number[] {
 
   data.forEach((record) => {
     record.monthlyData.forEach((m) => {
-      const monthKey = String(m.month ?? "");
-      const parts = monthKey.split("/");
-      if (parts.length !== 2) return;
-
-      const yearRaw = parseInt(parts[1], 10);
-      if (Number.isNaN(yearRaw)) return;
-
-      const year = yearRaw < 100 ? yearRaw + 2000 : yearRaw;
+      const monthStr = String(m.month ?? "");
+      
+      // Usa regex para extrair o ano após a última barra
+      // Aceita formatos: "jan/2026", "jan/26", "janeiro/2026", etc.
+      const match = monthStr.match(/\/(\d{2,4})$/);
+      if (!match) return;
+      
+      let year = parseInt(match[1], 10);
+      if (isNaN(year)) return;
+      if (year < 100) year += 2000;
       years.add(year);
     });
   });
