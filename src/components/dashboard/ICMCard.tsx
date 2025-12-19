@@ -85,13 +85,13 @@ export function ICMCard({
 
         <Select value={selectedMonth} onValueChange={onMonthChange}>
           <SelectTrigger className="w-[120px] bg-background text-sm">
-            <SelectValue placeholder={getCurrentMonthLabel()} />
+            <SelectValue placeholder={isYearlyView ? "Ano" : getCurrentMonthLabel()} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
             {months.map((m) => (
               <SelectItem key={m} value={m}>
-                {m.toUpperCase()}
+                {isYearlyView ? m : m.toUpperCase()}
               </SelectItem>
             ))}
           </SelectContent>
