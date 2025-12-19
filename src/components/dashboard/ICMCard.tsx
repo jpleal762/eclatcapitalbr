@@ -147,7 +147,7 @@ export function ICMCard({
           </div>
           <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
             <div 
-              className="h-full rounded-full bg-yellow-500 transition-all duration-500"
+              className={`h-full rounded-full transition-all duration-500 ${isYearlyView ? 'bg-slate-600' : 'bg-yellow-500'}`}
               style={{ width: `${Math.min(icmGeral, 100)}%` }}
             />
           </div>
