@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "./ProgressBar";
+import { CheckCircle, Clock, AlertTriangle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -130,17 +131,33 @@ export function ICMCard({
         </div>
       </div>
 
-      {/* Performance indicator */}
-      {ritmoIdeal > icmGeral + 10 && (
-        <div className="mt-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-center">
-          <span className="text-sm font-medium text-destructive">⚠️ Ritmo abaixo do esperado</span>
-        </div>
-      )}
-      {icmGeral >= ritmoIdeal && (
-        <div className="mt-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
-          <span className="text-sm font-medium text-green-700">🎯 No ritmo ou acima da meta!</span>
-        </div>
-      )}
+      {/* Dynamic Performance Indicator */}
+      <div className={`mt-4 p-3 rounded-lg flex items-center justify-center gap-2 ${
+        icmGeral > ritmoIdeal 
+          ? 'bg-green-500/10 border border-green-500/20' 
+          : icmGeral === ritmoIdeal 
+            ? 'bg-blue-500/10 border border-blue-500/20'
+            : 'bg-orange-500/10 border border-orange-500/20'
+      }`}>
+        {icmGeral > ritmoIdeal && (
+          <>
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            <span className="text-sm font-medium text-green-700">Ritmo acima do esperado</span>
+          </>
+        )}
+        {icmGeral === ritmoIdeal && (
+          <>
+            <Clock className="h-5 w-5 text-blue-600" />
+            <span className="text-sm font-medium text-blue-700">No Ritmo</span>
+          </>
+        )}
+        {icmGeral < ritmoIdeal && (
+          <>
+            <AlertTriangle className="h-5 w-5 text-orange-600" />
+            <span className="text-sm font-medium text-orange-700">Ritmo abaixo do esperado</span>
+          </>
+        )}
+      </div>
     </Card>
   );
 }
