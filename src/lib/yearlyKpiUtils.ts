@@ -150,16 +150,30 @@ export function calculateYearlyIdealRhythm(currentDate: Date, year: number): num
 
 // ============= YEARLY DATA FILTERING =============
 function getYearFromMonth(monthStr: string): number | null {
-  if (!monthStr || typeof monthStr !== 'string') return null;
+  if (!monthStr) return null;
   
-  // Usa regex para extrair o ano após a última barra
-  // Aceita formatos: "jan/2026", "jan/26", "janeiro/2026", etc.
-  const match = monthStr.match(/\/(\d{2,4})$/);
+  const str = String(monthStr).trim();
+  if (!str) return null;
+  
+  // Tentar múltiplos padrões de regex para máxima compatibilidade
+  // Padrão 1: "jan/2026" ou "jan/26" (ano após barra no final)
+  let match = str.match(/\/(\d{2,4})$/);
+  
+  // Padrão 2: Qualquer sequência de 4 dígitos (ex: "2026-01", "janeiro 2026")
+  if (!match) match = str.match(/(\d{4})/);
+  
+  // Padrão 3: Qualquer número após barra (ex: "jan/26")
+  if (!match) match = str.match(/\/(\d+)/);
+  
+  // Padrão 4: Qualquer sequência de 2 dígitos no final (ex: "jan26", "jan 26")
+  if (!match) match = str.match(/(\d{2})$/);
+  
   if (!match) return null;
   
   let year = parseInt(match[1], 10);
   if (isNaN(year)) return null;
   if (year < 100) year += 2000;
+  
   return year;
 }
 
@@ -382,14 +396,28 @@ export function processYearlyDashboardData(
 // Get available years from data
 export function getAvailableYears(data: ProcessedKPI[]): number[] {
   const years = new Set<number>();
+  const debugMonths: string[] = [];
 
   data.forEach((record) => {
     record.monthlyData.forEach((m) => {
-      const monthStr = String(m.month ?? "");
+      const monthStr = String(m.month ?? "").trim();
+      if (!monthStr) return;
       
-      // Usa regex para extrair o ano após a última barra
-      // Aceita formatos: "jan/2026", "jan/26", "janeiro/2026", etc.
-      const match = monthStr.match(/\/(\d{2,4})$/);
+      debugMonths.push(monthStr);
+      
+      // Tentar múltiplos padrões de regex para máxima compatibilidade
+      // Padrão 1: "jan/2026" ou "jan/26" (ano após barra no final)
+      let match = monthStr.match(/\/(\d{2,4})$/);
+      
+      // Padrão 2: Qualquer sequência de 4 dígitos (ex: "2026-01", "janeiro 2026")
+      if (!match) match = monthStr.match(/(\d{4})/);
+      
+      // Padrão 3: Qualquer número após barra (ex: "jan/26")
+      if (!match) match = monthStr.match(/\/(\d+)/);
+      
+      // Padrão 4: Qualquer sequência de 2 dígitos no final (ex: "jan26", "jan 26")
+      if (!match) match = monthStr.match(/(\d{2})$/);
+      
       if (!match) return;
       
       let year = parseInt(match[1], 10);
@@ -399,10 +427,17 @@ export function getAvailableYears(data: ProcessedKPI[]): number[] {
     });
   });
 
+  // DEBUG: Log detalhado para identificar o problema
+  const uniqueMonths = [...new Set(debugMonths)];
+  console.log("DEBUG getAvailableYears - Amostras de meses encontrados:", uniqueMonths.slice(0, 20));
+  console.log("DEBUG getAvailableYears - Total de registros de mês:", debugMonths.length);
+  console.log("DEBUG getAvailableYears - Anos extraídos:", Array.from(years));
+
   const result = Array.from(years).sort((a, b) => b - a);
   
   // Fallback: se não encontrou anos, retorna o ano atual
   if (result.length === 0) {
+    console.warn("AVISO: Nenhum ano foi extraído dos dados. Usando ano atual como fallback.");
     return [new Date().getFullYear()];
   }
   
