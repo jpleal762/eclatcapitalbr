@@ -67,6 +67,9 @@ export interface YearlyDashboardData {
   icmGeral: number;
   ritmoIdeal: number;
   diasUteisRestantes: number;
+  metaSemanal: MetaSemanal[];
+  metaSemanalReal: number;
+  metaSemanalPercentage: number;
   assessorPerformance: AssessorPerformance[];
   gaugeKPIs: GaugeKPI[];
 }
