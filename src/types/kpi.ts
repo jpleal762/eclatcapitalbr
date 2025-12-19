@@ -18,6 +18,8 @@ export interface DashboardFilters {
   month: string;
 }
 
+export type KPIStatusIcon = "GREEN_CHECK" | "CLOCK" | "YELLOW_ALERT" | "RED_ALERT";
+
 export interface GaugeKPI {
   label: string;
   value: number;
@@ -26,6 +28,7 @@ export interface GaugeKPI {
   isCurrency?: boolean;
   unit?: string;
   warning?: boolean;
+  statusIcon?: KPIStatusIcon;
 }
 
 export interface AssessorPerformance {

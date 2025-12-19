@@ -1,4 +1,4 @@
-import { KPIRecord, ProcessedKPI, DashboardData, GaugeKPI, AssessorPerformance, MetaSemanal } from "@/types/kpi";
+import { KPIRecord, ProcessedKPI, DashboardData, GaugeKPI, AssessorPerformance, MetaSemanal, KPIStatusIcon } from "@/types/kpi";
 import * as XLSX from "xlsx";
 
 // ============= EXCLUSION LIST (EDITABLE) =============
@@ -313,6 +313,43 @@ export function calculateIdealRhythm(monthStr: string): number {
   return totalDays > 0 ? Math.round((elapsed / totalDays) * 100) : 0;
 }
 
+// ============= KPI STATUS ICON DETERMINATION =============
+/**
+ * Determine which status icon to display for a KPI
+ * 
+ * @param realizadoPercentage - Achievement percentage (Realizado/Planejado Mes × 100)
+ * @param ritmoIdeal - Ideal pace percentage based on elapsed business days
+ * @returns Icon type to display
+ * 
+ * Rules:
+ * - GREEN_CHECK: realizadoPercentage >= 100% (goal achieved)
+ * - CLOCK: realizadoPercentage >= ritmoIdeal && < 100% (on pace or ahead)
+ * - YELLOW_ALERT: realizadoPercentage >= ritmoIdeal * 0.75 && < ritmoIdeal (75-99% of pace)
+ * - RED_ALERT: realizadoPercentage < ritmoIdeal * 0.75 (more than 25% below pace)
+ */
+export function getKPIStatusIcon(
+  realizadoPercentage: number,
+  ritmoIdeal: number
+): KPIStatusIcon {
+  // Priority 1: Goal achieved (100% or more)
+  if (realizadoPercentage >= 100) {
+    return "GREEN_CHECK";
+  }
+  
+  // Priority 2: On pace or ahead (but below 100%)
+  if (realizadoPercentage >= ritmoIdeal) {
+    return "CLOCK";
+  }
+  
+  // Priority 3: Yellow warning (75-99% of ideal pace)
+  if (realizadoPercentage >= ritmoIdeal * 0.75) {
+    return "YELLOW_ALERT";
+  }
+  
+  // Priority 4: Red alert (more than 25% below ideal pace)
+  return "RED_ALERT";
+}
+
 // ============= STATUS HELPERS =============
 function matchesStatus(status: string, targetStatus: string): boolean {
   const s = status.toLowerCase().trim();
@@ -559,6 +596,7 @@ export function processDashboardData(
     }
 
     const percentage = target > 0 ? Math.round((value / target) * 100) : 0;
+    const statusIcon = getKPIStatusIcon(percentage, ritmoIdeal);
 
     return {
       label: kpi.label,
@@ -567,6 +605,7 @@ export function processDashboardData(
       percentage,
       isCurrency: kpi.isCurrency,
       warning: percentage < 50,
+      statusIcon,
     };
   });
 
