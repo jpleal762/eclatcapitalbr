@@ -12,6 +12,7 @@ import {
   processDashboardData,
 } from "@/lib/kpiUtils";
 import { loadExcelData, saveExcelData } from "@/lib/storage";
+import eclatLogo from "@/assets/eclat-xp-logo.png";
 
 const Index = () => {
   const [rawData, setRawData] = useState<KPIRecord[]>([]);
@@ -63,14 +64,21 @@ const Index = () => {
       <header className="bg-card border-b border-border shadow-sm">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-light tracking-wide text-foreground">êclat</span>
-              <span className="text-muted-foreground">|</span>
-              <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded text-sm font-bold">XP</span>
+            <div className="w-32">
+              {/* Spacer for balance */}
             </div>
-            {hasData && (
-              <FileUpload onDataLoaded={handleDataLoaded} compact />
-            )}
+            <div className="flex-1 flex justify-center">
+              <img 
+                src={eclatLogo} 
+                alt="Éclat XP Logo" 
+                className="h-10 object-contain"
+              />
+            </div>
+            <div className="w-32 flex justify-end">
+              {hasData && (
+                <FileUpload onDataLoaded={handleDataLoaded} compact />
+              )}
+            </div>
           </div>
         </div>
       </header>
