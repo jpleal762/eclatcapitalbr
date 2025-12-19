@@ -1,6 +1,7 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
+import { KPIStatusIcon } from "@/types/kpi";
 
 interface GaugeChartProps {
   label: string;
@@ -11,6 +12,46 @@ interface GaugeChartProps {
   warning?: boolean;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "highlight";
+  statusIcon?: KPIStatusIcon;
+}
+
+function StatusIconDisplay({ icon, size }: { icon?: KPIStatusIcon; size: "sm" | "md" | "lg" }) {
+  if (!icon) return null;
+  
+  const iconSize = size === "sm" ? 14 : size === "md" ? 16 : 20;
+  
+  switch (icon) {
+    case "GREEN_CHECK":
+      return (
+        <CheckCircle 
+          className="text-green-500 animate-pulse" 
+          size={iconSize} 
+        />
+      );
+    case "CLOCK":
+      return (
+        <Clock 
+          className="text-blue-500" 
+          size={iconSize} 
+        />
+      );
+    case "YELLOW_ALERT":
+      return (
+        <AlertTriangle 
+          className="text-yellow-500 animate-pulse" 
+          size={iconSize} 
+        />
+      );
+    case "RED_ALERT":
+      return (
+        <AlertTriangle 
+          className="text-red-500 animate-bounce" 
+          size={iconSize} 
+        />
+      );
+    default:
+      return null;
+  }
 }
 
 export function GaugeChart({
@@ -22,9 +63,9 @@ export function GaugeChart({
   warning = false,
   size = "md",
   variant = "default",
+  statusIcon,
 }: GaugeChartProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
-  const angle = (clampedPercentage / 100) * 180;
   
   const sizeConfig = {
     sm: { width: 120, height: 70, strokeWidth: 8, fontSize: "text-sm", labelSize: "text-xs" },
@@ -43,12 +84,12 @@ export function GaugeChart({
     <Card className={`p-4 shadow-card ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
       <div className="flex flex-col items-center">
         <div className="flex items-center justify-between w-full mb-2">
-          <h4 className={`font-semibold ${config.labelSize} ${isHighlight ? "text-card" : "text-foreground"}`}>
+          <h4 className={`font-semibold ${config.labelSize} ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
             {label}
           </h4>
-          {warning && percentage < 50 && (
-            <AlertTriangle className="h-4 w-4 text-destructive" />
-          )}
+          <div className="flex-shrink-0 ml-1">
+            <StatusIconDisplay icon={statusIcon} size={size} />
+          </div>
         </div>
 
         <div className="relative" style={{ width: config.width, height: config.height }}>
