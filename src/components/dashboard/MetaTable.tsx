@@ -35,7 +35,7 @@ export function MetaTable({ data, realPercentage, selectedAssessor, weekToMonthP
                 <td className="py-2.5 text-sm text-foreground">{item.label}</td>
                 <td className="py-2.5 text-sm text-right font-medium text-primary">
                   {typeof item.value === 'number' 
-                    ? (item.label.toLowerCase().includes('receita') || item.label.toLowerCase().includes('captação')
+                    ? (item.isCurrency
                         ? formatNumber(item.value, true)
                         : formatNumber(item.value))
                     : item.value}

@@ -41,6 +41,7 @@ export interface AssessorPerformance {
 export interface MetaSemanal {
   label: string;
   value: number | string;
+  isCurrency?: boolean;
 }
 
 export interface DashboardData {
