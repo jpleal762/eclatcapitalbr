@@ -269,8 +269,8 @@ const YEARLY_KPI_CATEGORIES = [
   { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
   // Graph 6: Receita PJ1 XP - Same as monthly (Target: PJ1 XP Mês, Actual: PJ1 XP)
   { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true, actualCategory: "PJ1 XP" },
-  // Graph 7: Receita PJ2 XP - Same as monthly (Target: PJ2 XP Mês, Actual: PJ2 XP)
-  { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, actualCategory: "PJ2 XP" },
+  // Graph 7: Receita PJ2 XP - Target: PJ2 XP Mês, Actual: PJ2 XP + Receita Empilhada
+  { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, actualCategory: "PJ2 XP", additionalActualCategory: "Receita Empilhada" },
   // Graph 8: Habilitação - Same as monthly
   { category: "Habilitacao", label: "Habilitação", isCurrency: false },
   // Graph 9: Ativação - Same as monthly
@@ -341,6 +341,16 @@ export function processYearlyDashboardData(
       const actualData = filterByCategory(filteredByAssessor, actualCategory);
       const realizedData = actualData.filter(d => isRealizedStatus(d.status));
       value = getYearlyValue(realizedData, selectedYear);
+      
+      // Se há categoria adicional (ex: Receita Empilhada), somar ao valor realizado
+      if ((kpi as any).additionalActualCategory) {
+        const additionalCategory = (kpi as any).additionalActualCategory as string;
+        const additionalData = filterByCategory(filteredByAssessor, additionalCategory);
+        const additionalRealizedData = additionalData.filter(d => isRealizedStatus(d.status));
+        const additionalValue = getYearlyValue(additionalRealizedData, selectedYear);
+        value += additionalValue;
+        console.log(`DEBUG: ${kpi.label} - Valor base: ${value - additionalValue}, Adicional (${additionalCategory}): ${additionalValue}, Total: ${value}`);
+      }
     }
     else {
       // Standard case: target and actual from same category (same as monthly)
