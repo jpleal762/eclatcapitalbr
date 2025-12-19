@@ -2,13 +2,15 @@ import { Card } from "@/components/ui/card";
 import { AssessorPerformance, KPIStatusIcon } from "@/types/kpi";
 import { getKPIStatusIcon } from "@/lib/kpiUtils";
 import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
-
 interface AssessorChartProps {
   data: AssessorPerformance[];
   ritmoIdeal: number;
 }
-
-function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
+function StatusIcon({
+  icon
+}: {
+  icon: KPIStatusIcon;
+}) {
   switch (icon) {
     case "GREEN_CHECK":
       return <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />;
@@ -22,7 +24,6 @@ function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
       return null;
   }
 }
-
 export function AssessorChart({
   data,
   ritmoIdeal
@@ -43,9 +44,7 @@ export function AssessorChart({
       
       <div className="space-y-1.5">
         {filteredData.map((assessor, index) => <div key={assessor.name} className={`flex items-center gap-2 p-1.5 rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
-            <div className="w-6 text-center font-bold text-sm">
-              {getMedalEmoji(index) || `#${index + 1}`}
-            </div>
+            
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1">
