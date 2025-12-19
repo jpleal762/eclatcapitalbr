@@ -150,9 +150,12 @@ export function calculateYearlyIdealRhythm(currentDate: Date, year: number): num
 
 // ============= YEARLY DATA FILTERING =============
 function getYearFromMonth(monthStr: string): number | null {
-  const parts = monthStr.toLowerCase().split("/");
+  if (!monthStr || typeof monthStr !== 'string') return null;
+  const parts = monthStr.toLowerCase().trim().split("/");
   if (parts.length !== 2) return null;
-  let year = parseInt(parts[1]);
+  const yearPart = parts[1].trim();
+  let year = parseInt(yearPart, 10);
+  if (isNaN(year)) return null;
   if (year < 100) year += 2000;
   return year;
 }
@@ -358,11 +361,24 @@ export function processYearlyDashboardData(
 // Get available years from data
 export function getAvailableYears(data: ProcessedKPI[]): number[] {
   const years = new Set<number>();
+  
+  if (!data || !Array.isArray(data)) {
+    console.log("getAvailableYears: data is empty or not an array");
+    return [];
+  }
+  
   data.forEach(record => {
-    record.monthlyData.forEach(m => {
-      const year = getYearFromMonth(m.month);
-      if (year) years.add(year);
-    });
+    if (record.monthlyData && Array.isArray(record.monthlyData)) {
+      record.monthlyData.forEach(m => {
+        if (m && m.month) {
+          const year = getYearFromMonth(m.month);
+          if (year) years.add(year);
+        }
+      });
+    }
   });
-  return Array.from(years).sort((a, b) => b - a);
+  
+  const result = Array.from(years).sort((a, b) => b - a);
+  console.log("getAvailableYears: extracted years:", result, "from", data.length, "records");
+  return result;
 }
