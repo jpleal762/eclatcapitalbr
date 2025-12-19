@@ -14,7 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      kpi_records: {
+        Row: {
+          assessor: string
+          categorias: string
+          created_at: string | null
+          id: string
+          monthly_data: Json
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          assessor: string
+          categorias: string
+          created_at?: string | null
+          id?: string
+          monthly_data: Json
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          assessor?: string
+          categorias?: string
+          created_at?: string | null
+          id?: string
+          monthly_data?: Json
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
