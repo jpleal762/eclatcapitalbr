@@ -9,7 +9,7 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   
   const getBarColor = () => {
-    if (variant === "gray") return "bg-slate-500";
+    if (variant === "gray") return "bg-chart-dark";
     return color === "primary" ? "bg-primary" : "bg-chart-dark";
   };
   

@@ -88,7 +88,7 @@ export function ICMCard({
             <SelectValue placeholder={isYearlyView ? "Ano" : getCurrentMonthLabel()} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
+            {!isYearlyView && <SelectItem value="all">Todos</SelectItem>}
             {months.map((m) => (
               <SelectItem key={m} value={m}>
                 {isYearlyView ? m : m.toUpperCase()}
@@ -147,7 +147,7 @@ export function ICMCard({
           </div>
           <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
             <div 
-              className={`h-full rounded-full transition-all duration-500 ${isYearlyView ? 'bg-slate-600' : 'bg-yellow-500'}`}
+              className="h-full rounded-full transition-all duration-500 bg-yellow-500"
               style={{ width: `${Math.min(icmGeral, 100)}%` }}
             />
           </div>
