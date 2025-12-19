@@ -285,9 +285,9 @@ const Index = () => {
               <YearlyAssessorChart data={yearlyDashboardData.assessorPerformance} />
             </div>
 
-            {/* Yearly KPI Gauges - Graphite themed */}
+            {/* Yearly KPI Gauges - 7 KPIs with graphite theme */}
             <div className="grid gap-4 lg:grid-cols-3">
-              {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
+              {/* Column 1: Graph 1 (Captação NET) + Sub-graphs 4, 5 (Habilitação, Ativação) */}
               <div className="space-y-3">
                 <YearlyGaugeChart
                   label={yearlyDashboardData.gaugeKPIs[0]?.label}
@@ -301,16 +301,6 @@ const Index = () => {
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <YearlyGaugeChart
-                    label={yearlyDashboardData.gaugeKPIs[3]?.label}
-                    value={yearlyDashboardData.gaugeKPIs[3]?.value}
-                    target={yearlyDashboardData.gaugeKPIs[3]?.target}
-                    percentage={yearlyDashboardData.gaugeKPIs[3]?.percentage}
-                    isCurrency={yearlyDashboardData.gaugeKPIs[3]?.isCurrency}
-                    warning={yearlyDashboardData.gaugeKPIs[3]?.warning}
-                    statusIcon={yearlyDashboardData.gaugeKPIs[3]?.statusIcon}
-                    size="sm"
-                  />
-                  <YearlyGaugeChart
                     label={yearlyDashboardData.gaugeKPIs[4]?.label}
                     value={yearlyDashboardData.gaugeKPIs[4]?.value}
                     target={yearlyDashboardData.gaugeKPIs[4]?.target}
@@ -320,10 +310,20 @@ const Index = () => {
                     statusIcon={yearlyDashboardData.gaugeKPIs[4]?.statusIcon}
                     size="sm"
                   />
+                  <YearlyGaugeChart
+                    label={yearlyDashboardData.gaugeKPIs[5]?.label}
+                    value={yearlyDashboardData.gaugeKPIs[5]?.value}
+                    target={yearlyDashboardData.gaugeKPIs[5]?.target}
+                    percentage={yearlyDashboardData.gaugeKPIs[5]?.percentage}
+                    isCurrency={yearlyDashboardData.gaugeKPIs[5]?.isCurrency}
+                    warning={yearlyDashboardData.gaugeKPIs[5]?.warning}
+                    statusIcon={yearlyDashboardData.gaugeKPIs[5]?.statusIcon}
+                    size="sm"
+                  />
                 </div>
               </div>
 
-              {/* Column 2: Graph 2 (Modified Receita) + Sub-graphs 6, 7 */}
+              {/* Column 2: Graph 2 (Receita - Modified) + Graph 7 (Receita PJ2 XP - NEW) */}
               <div className="space-y-3">
                 <YearlyGaugeChart
                   label={yearlyDashboardData.gaugeKPIs[1]?.label}
@@ -335,31 +335,20 @@ const Index = () => {
                   statusIcon={yearlyDashboardData.gaugeKPIs[1]?.statusIcon}
                   size="lg"
                 />
-                <div className="grid grid-cols-2 gap-2">
-                  <YearlyGaugeChart
-                    label={yearlyDashboardData.gaugeKPIs[5]?.label}
-                    value={yearlyDashboardData.gaugeKPIs[5]?.value}
-                    target={yearlyDashboardData.gaugeKPIs[5]?.target}
-                    percentage={yearlyDashboardData.gaugeKPIs[5]?.percentage}
-                    isCurrency={yearlyDashboardData.gaugeKPIs[5]?.isCurrency}
-                    warning={yearlyDashboardData.gaugeKPIs[5]?.warning}
-                    statusIcon={yearlyDashboardData.gaugeKPIs[5]?.statusIcon}
-                    size="sm"
-                  />
-                  <YearlyGaugeChart
-                    label={yearlyDashboardData.gaugeKPIs[6]?.label}
-                    value={yearlyDashboardData.gaugeKPIs[6]?.value}
-                    target={yearlyDashboardData.gaugeKPIs[6]?.target}
-                    percentage={yearlyDashboardData.gaugeKPIs[6]?.percentage}
-                    isCurrency={yearlyDashboardData.gaugeKPIs[6]?.isCurrency}
-                    warning={yearlyDashboardData.gaugeKPIs[6]?.warning}
-                    statusIcon={yearlyDashboardData.gaugeKPIs[6]?.statusIcon}
-                    size="sm"
-                  />
-                </div>
+                {/* Graph 7 - NEW: Receita PJ2 XP (only in yearly view) */}
+                <YearlyGaugeChart
+                  label={yearlyDashboardData.gaugeKPIs[6]?.label}
+                  value={yearlyDashboardData.gaugeKPIs[6]?.value}
+                  target={yearlyDashboardData.gaugeKPIs[6]?.target}
+                  percentage={yearlyDashboardData.gaugeKPIs[6]?.percentage}
+                  isCurrency={yearlyDashboardData.gaugeKPIs[6]?.isCurrency}
+                  warning={yearlyDashboardData.gaugeKPIs[6]?.warning}
+                  statusIcon={yearlyDashboardData.gaugeKPIs[6]?.statusIcon}
+                  size="md"
+                />
               </div>
 
-              {/* Column 3: Graph 3 + Sub-graphs 8, 9 */}
+              {/* Column 3: Graph 3 (Primeiras Reuniões) + Graph 4 (Diversificação) */}
               <div className="space-y-3">
                 <YearlyGaugeChart
                   label={yearlyDashboardData.gaugeKPIs[2]?.label}
@@ -371,28 +360,16 @@ const Index = () => {
                   statusIcon={yearlyDashboardData.gaugeKPIs[2]?.statusIcon}
                   size="lg"
                 />
-                <div className="grid grid-cols-2 gap-2">
-                  <YearlyGaugeChart
-                    label={yearlyDashboardData.gaugeKPIs[7]?.label}
-                    value={yearlyDashboardData.gaugeKPIs[7]?.value}
-                    target={yearlyDashboardData.gaugeKPIs[7]?.target}
-                    percentage={yearlyDashboardData.gaugeKPIs[7]?.percentage}
-                    isCurrency={yearlyDashboardData.gaugeKPIs[7]?.isCurrency}
-                    warning={yearlyDashboardData.gaugeKPIs[7]?.warning}
-                    statusIcon={yearlyDashboardData.gaugeKPIs[7]?.statusIcon}
-                    size="sm"
-                  />
-                  <YearlyGaugeChart
-                    label={yearlyDashboardData.gaugeKPIs[8]?.label}
-                    value={yearlyDashboardData.gaugeKPIs[8]?.value}
-                    target={yearlyDashboardData.gaugeKPIs[8]?.target}
-                    percentage={yearlyDashboardData.gaugeKPIs[8]?.percentage}
-                    isCurrency={yearlyDashboardData.gaugeKPIs[8]?.isCurrency}
-                    warning={yearlyDashboardData.gaugeKPIs[8]?.warning}
-                    statusIcon={yearlyDashboardData.gaugeKPIs[8]?.statusIcon}
-                    size="sm"
-                  />
-                </div>
+                <YearlyGaugeChart
+                  label={yearlyDashboardData.gaugeKPIs[3]?.label}
+                  value={yearlyDashboardData.gaugeKPIs[3]?.value}
+                  target={yearlyDashboardData.gaugeKPIs[3]?.target}
+                  percentage={yearlyDashboardData.gaugeKPIs[3]?.percentage}
+                  isCurrency={yearlyDashboardData.gaugeKPIs[3]?.isCurrency}
+                  warning={yearlyDashboardData.gaugeKPIs[3]?.warning}
+                  statusIcon={yearlyDashboardData.gaugeKPIs[3]?.statusIcon}
+                  size="md"
+                />
               </div>
             </div>
           </div>
