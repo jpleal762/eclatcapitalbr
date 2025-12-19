@@ -233,38 +233,28 @@ export function calculateYearlyICMRitmo(
 }
 
 // ============= YEARLY KPI CATEGORIES =============
-// Yearly dashboard has 7 KPIs with special calculations for Receita
-// Graph 2 (Receita): Target = PJ1 XP Mês + PJ2 XP Mês, Actual = Receita + Receita Acumulada
-// Graph 7 (Receita PJ2 XP): NEW - Target = PJ2 XP Mês + PJ2 XP, Actual = PJ2 XP + Receita Acumulada
-
-interface YearlyKPICategory {
-  category: string;
-  label: string;
-  isCurrency: boolean;
-  isReceitaYearly?: boolean;
-  isReceitaPJ2Yearly?: boolean;
-  actualCategory?: string;
-}
-
-const YEARLY_KPI_CATEGORIES: YearlyKPICategory[] = [
+// Same structure as monthly (9 KPIs) + 1 NEW (Receita PJ2 XP with special calculation)
+// KPI 2 (Receita) has special yearly calculation: Actual = Receita + Receita Acumulada
+// KPI 10 (NEW - Receita PJ2 XP Anual) = Target: PJ2 XP Mes + PJ2 XP, Actual: PJ2 XP + Receita Acumulada
+const YEARLY_KPI_CATEGORIES = [
   // Graph 1: Captação NET - Same as monthly
   { category: "Captação net", label: "Captação NET", isCurrency: true },
-  // Graph 2: Receita - Modified for yearly 
-  // Target: PJ1 XP Mês + PJ2 XP Mês (Planejado Mes)
-  // Actual: Receita + Receita Acumulada (Realizado)
+  // Graph 2: Receita - Modified for yearly (Actual = Receita + Receita Acumulada)
   { category: "Receita", label: "Receita", isCurrency: true, isReceitaYearly: true },
-  // Graph 3: Diversificação - Same as monthly
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
-  // Graph 4: Primeiras Reuniões - Same as monthly
+  // Graph 3: Primeiras Reuniões - Same as monthly
   { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
-  // Graph 5: Habilitação - Same as monthly
+  // Graph 4: Diversificação - Same as monthly
+  { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
+  // Graph 5: Receita Parceiros - Same as monthly
+  { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
+  // Graph 6: Receita PJ1 XP - Same as monthly (Target: PJ1 XP Mês, Actual: PJ1 XP)
+  { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true, actualCategory: "PJ1 XP" },
+  // Graph 7: Receita PJ2 XP - Same as monthly (Target: PJ2 XP Mês, Actual: PJ2 XP)
+  { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, actualCategory: "PJ2 XP" },
+  // Graph 8: Habilitação - Same as monthly
   { category: "Habilitacao", label: "Habilitação", isCurrency: false },
-  // Graph 6: Ativação - Same as monthly
+  // Graph 9: Ativação - Same as monthly
   { category: "Ativacao", label: "Ativação", isCurrency: false },
-  // Graph 7: Receita PJ2 XP - NEW, only in yearly
-  // Target: PJ2 XP Mês + PJ2 XP (Planejado Mes)
-  // Actual: PJ2 XP + Receita Acumulada (Realizado)
-  { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, isReceitaPJ2Yearly: true },
 ];
 
 // ============= MAIN YEARLY DASHBOARD PROCESSOR =============
@@ -293,7 +283,7 @@ export function processYearlyDashboardData(
     };
   }).sort((a, b) => b.geralPercentage - a.geralPercentage);
 
-  // Yearly Gauge KPIs - 7 KPIs total with special calculations
+  // Yearly Gauge KPIs - Same structure as monthly but aggregated by year
   const gaugeKPIs: GaugeKPI[] = YEARLY_KPI_CATEGORIES.map(kpi => {
     let target: number;
     let value: number;
@@ -301,7 +291,7 @@ export function processYearlyDashboardData(
     // Graph 2: Receita - Special yearly calculation
     // Target = PJ1 XP Mês + PJ2 XP Mês (Planejado Mes)
     // Actual = Receita + Receita Acumulada (Realizado)
-    if (kpi.isReceitaYearly) {
+    if ((kpi as any).isReceitaYearly) {
       // Target from PJ1 XP Mês + PJ2 XP Mês
       const targetCategories = ["PJ1 XP Mês", "PJ2 XP Mês"];
       target = targetCategories.reduce((sum, cat) => {
@@ -318,28 +308,22 @@ export function processYearlyDashboardData(
         return sum + getYearlyValue(realizedData, selectedYear);
       }, 0);
     }
-    // Graph 7: Receita PJ2 XP - NEW, only in yearly
-    // Target = PJ2 XP Mês + PJ2 XP (Planejado Mes)
-    // Actual = PJ2 XP + Receita Acumulada (Realizado)
-    else if (kpi.isReceitaPJ2Yearly) {
-      // Target from PJ2 XP Mês + PJ2 XP
-      const targetCategories = ["PJ2 XP Mês", "PJ2 XP"];
-      target = targetCategories.reduce((sum, cat) => {
-        const catData = filterByCategory(filteredByAssessor, cat);
-        const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
-        return sum + getYearlyValue(plannedData, selectedYear);
-      }, 0);
-
-      // Actual from PJ2 XP + Receita Acumulada
-      const actualCategories = ["PJ2 XP", "Receita Acumulada"];
-      value = actualCategories.reduce((sum, cat) => {
-        const catData = filterByCategory(filteredByAssessor, cat);
-        const realizedData = catData.filter(d => isRealizedStatus(d.status));
-        return sum + getYearlyValue(realizedData, selectedYear);
-      }, 0);
+    // Graphs 6 & 7: PJ1 XP and PJ2 XP - Target from "Mês" category, Actual from base category
+    else if ((kpi as any).actualCategory) {
+      const actualCategory = (kpi as any).actualCategory as string;
+      
+      // Target from PJ1 XP Mês or PJ2 XP Mês (Planejado Mes)
+      const catData = filterByCategory(filteredByAssessor, kpi.category);
+      const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+      target = getYearlyValue(plannedData, selectedYear);
+      
+      // Actual from PJ1 XP or PJ2 XP (Realizado)
+      const actualData = filterByCategory(filteredByAssessor, actualCategory);
+      const realizedData = actualData.filter(d => isRealizedStatus(d.status));
+      value = getYearlyValue(realizedData, selectedYear);
     }
     else {
-      // Standard case: target and actual from same category
+      // Standard case: target and actual from same category (same as monthly)
       const catData = filterByCategory(filteredByAssessor, kpi.category);
       const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
       const realizedData = catData.filter(d => isRealizedStatus(d.status));
