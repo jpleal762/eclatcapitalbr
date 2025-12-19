@@ -1,12 +1,29 @@
 import { Card } from "@/components/ui/card";
-import { AssessorPerformance } from "@/types/kpi";
-import { Trophy, Medal, Award } from "lucide-react";
+import { AssessorPerformance, KPIStatusIcon } from "@/types/kpi";
+import { Trophy, Medal, Award, AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { getKPIStatusIcon } from "@/lib/kpiUtils";
 
 interface YearlyAssessorChartProps {
   data: AssessorPerformance[];
+  ritmoIdeal: number;
 }
 
-export function YearlyAssessorChart({ data }: YearlyAssessorChartProps) {
+function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
+  switch (icon) {
+    case "GREEN_CHECK":
+      return <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />;
+    case "CLOCK":
+      return <Clock className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />;
+    case "YELLOW_ALERT":
+      return <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 flex-shrink-0" />;
+    case "RED_ALERT":
+      return <AlertTriangle className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />;
+    default:
+      return null;
+  }
+}
+
+export function YearlyAssessorChart({ data, ritmoIdeal }: YearlyAssessorChartProps) {
   const sortedData = [...data].sort((a, b) => b.geralPercentage - a.geralPercentage);
   const topThree = sortedData.slice(0, 3);
   const others = sortedData.slice(3);
@@ -37,9 +54,12 @@ export function YearlyAssessorChart({ data }: YearlyAssessorChartProps) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-sm font-medium text-foreground truncate">
-                  {assessor.name}
-                </span>
+                <div className="flex items-center gap-1">
+                  <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
+                  <span className="text-sm font-medium text-foreground truncate">
+                    {assessor.name}
+                  </span>
+                </div>
                 <span className="text-sm font-bold text-chart-graphite ml-2">
                   {assessor.geralPercentage}%
                 </span>
@@ -65,9 +85,12 @@ export function YearlyAssessorChart({ data }: YearlyAssessorChartProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground truncate">
-                    {assessor.name}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
+                    <span className="text-sm text-muted-foreground truncate">
+                      {assessor.name}
+                    </span>
+                  </div>
                   <span className="text-sm font-medium text-muted-foreground ml-2">
                     {assessor.geralPercentage}%
                   </span>

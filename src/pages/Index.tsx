@@ -177,7 +177,7 @@ const Index = () => {
                 selectedAssessor={filters.assessor}
                 weekToMonthPercentage={dashboardData.metaSemanalPercentage}
               />
-              <AssessorChart data={dashboardData.assessorPerformance} />
+              <AssessorChart data={dashboardData.assessorPerformance} ritmoIdeal={dashboardData.ritmoIdeal} />
             </div>
 
             {/* KPI Gauges - Main graphs with sub-graphs */}
@@ -314,7 +314,7 @@ const Index = () => {
                 selectedYear={yearlyFilters.year}
                 selectedAssessor={yearlyFilters.assessor}
               />
-              <AssessorChart data={yearlyDashboardData.assessorPerformance} />
+              <AssessorChart data={yearlyDashboardData.assessorPerformance} ritmoIdeal={yearlyDashboardData.ritmoIdeal} />
             </div>
 
             {/* KPI Gauges - Same as monthly but with gray bars */}
