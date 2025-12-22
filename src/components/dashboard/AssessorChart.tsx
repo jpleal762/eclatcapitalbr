@@ -35,31 +35,31 @@ export function AssessorChart({
     if (index === 2) return "🥉";
     return "";
   };
-  return <Card className="p-4 shadow-card">
-      <h3 className="text-base font-semibold mb-3 text-foreground flex items-center gap-2">
+  return <Card className="p-3 shadow-card h-full flex flex-col overflow-hidden">
+      <h3 className="text-sm font-semibold mb-2 text-foreground flex items-center gap-2 flex-shrink-0">
         <span>
       </span> ICM% por Assessor
       </h3>
       
-      <div className="space-y-1.5">
-        {filteredData.map((assessor, index) => <div key={assessor.name} className={`flex items-center gap-2 p-1.5 rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
-            <div className="w-6 text-center font-bold text-sm">
+      <div className="flex-1 overflow-auto min-h-0 space-y-1">
+        {filteredData.map((assessor, index) => <div key={assessor.name} className={`flex items-center gap-1.5 p-1 rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
+            <div className="w-5 text-center font-bold text-xs">
               {getMedalEmoji(index) || `#${index + 1}`}
             </div>
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1">
                 <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
-                <p className="text-xs font-medium text-foreground truncate">{assessor.name}</p>
+                <p className="text-[10px] font-medium text-foreground truncate">{assessor.name}</p>
               </div>
               {/* Barra ICM Geral (amarela) */}
-              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-0.5">
+              <div className="w-full h-1 bg-muted rounded-full overflow-hidden mt-0.5">
                 <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
                   width: `${Math.min(assessor.geralPercentage, 100)}%`
                 }} />
               </div>
               {/* Barra ICM Semanal (cinza) */}
-              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-0.5">
+              <div className="w-full h-1 bg-muted rounded-full overflow-hidden mt-0.5">
                 <div className="h-full rounded-full transition-all duration-500 bg-gray-500" style={{
                   width: `${Math.min(assessor.semanaPercentage, 100)}%`
                 }} />
@@ -67,19 +67,19 @@ export function AssessorChart({
             </div>
             
             <div className="text-right">
-              <span className="text-sm font-bold text-yellow-600">
+              <span className="text-xs font-bold text-yellow-600">
                 {assessor.geralPercentage}%
               </span>
-              <span className="text-xs font-medium text-gray-500 block">
+              <span className="text-[10px] font-medium text-gray-500 block">
                 {assessor.semanaPercentage}%
               </span>
             </div>
           </div>)}
       </div>
 
-      <div className="mt-3 pt-2 border-t border-border text-center">
-        <p className="text-[10px] text-muted-foreground italic">
-          Ranking de todos os assessores para o mês selecionado
+      <div className="mt-auto pt-2 border-t border-border text-center flex-shrink-0">
+        <p className="text-[9px] text-muted-foreground italic">
+          Ranking de assessores para o período
         </p>
       </div>
     </Card>;
