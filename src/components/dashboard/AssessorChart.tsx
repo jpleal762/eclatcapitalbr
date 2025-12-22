@@ -52,16 +52,26 @@ export function AssessorChart({
                 <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
                 <p className="text-xs font-medium text-foreground truncate">{assessor.name}</p>
               </div>
+              {/* Barra ICM Geral (amarela) */}
               <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-0.5">
                 <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
-              width: `${Math.min(assessor.geralPercentage, 100)}%`
-            }} />
+                  width: `${Math.min(assessor.geralPercentage, 100)}%`
+                }} />
+              </div>
+              {/* Barra ICM Semanal (cinza) */}
+              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-0.5">
+                <div className="h-full rounded-full transition-all duration-500 bg-gray-500" style={{
+                  width: `${Math.min(assessor.semanaPercentage, 100)}%`
+                }} />
               </div>
             </div>
             
             <div className="text-right">
               <span className="text-sm font-bold text-yellow-600">
                 {assessor.geralPercentage}%
+              </span>
+              <span className="text-xs font-medium text-gray-500 block">
+                {assessor.semanaPercentage}%
               </span>
             </div>
           </div>)}
