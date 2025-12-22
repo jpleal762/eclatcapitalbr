@@ -19,7 +19,7 @@ interface GaugeChartProps {
 function StatusIconDisplay({ icon, size }: { icon?: KPIStatusIcon; size: "sm" | "md" | "lg" }) {
   if (!icon) return null;
   
-  const iconSize = size === "sm" ? 14 : size === "md" ? 16 : 20;
+  const iconSize = size === "sm" ? 20 : size === "md" ? 24 : 28;
   
   switch (icon) {
     case "GREEN_CHECK":
@@ -70,9 +70,9 @@ export function GaugeChart({
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   
   const sizeConfig = {
-    sm: { width: 120, height: 70, strokeWidth: 8, fontSize: "text-sm", labelSize: "text-xs" },
-    md: { width: 160, height: 90, strokeWidth: 10, fontSize: "text-base", labelSize: "text-xs" },
-    lg: { width: 200, height: 110, strokeWidth: 12, fontSize: "text-xl", labelSize: "text-sm" },
+    sm: { width: 120, height: 70, strokeWidth: 12, fontSize: "text-sm", labelSize: "text-xs" },
+    md: { width: 160, height: 90, strokeWidth: 15, fontSize: "text-base", labelSize: "text-xs" },
+    lg: { width: 200, height: 110, strokeWidth: 18, fontSize: "text-xl", labelSize: "text-sm" },
   };
 
   const config = sizeConfig[size];
