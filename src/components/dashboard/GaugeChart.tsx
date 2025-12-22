@@ -14,6 +14,7 @@ interface GaugeChartProps {
   variant?: "default" | "highlight";
   statusIcon?: KPIStatusIcon;
   isYearlyView?: boolean;
+  showRemaining?: boolean;
 }
 
 function StatusIconDisplay({ icon, size }: { icon?: KPIStatusIcon; size: "sm" | "md" | "lg" }) {
@@ -66,13 +67,15 @@ export function GaugeChart({
   variant = "default",
   statusIcon,
   isYearlyView = false,
+  showRemaining = false,
 }: GaugeChartProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
+  const remainingValue = Math.max(target - value, 0);
   
   const sizeConfig = {
-    sm: { width: 100, height: 60, strokeWidth: 10, fontSize: "text-xs", labelSize: "text-[10px]" },
-    md: { width: 130, height: 75, strokeWidth: 12, fontSize: "text-sm", labelSize: "text-xs" },
-    lg: { width: 160, height: 90, strokeWidth: 14, fontSize: "text-lg", labelSize: "text-xs" },
+    sm: { width: 100, height: 60, strokeWidth: 10, fontSize: "text-xs", labelSize: "text-[10px]", percentSize: "text-[11px]" },
+    md: { width: 130, height: 75, strokeWidth: 12, fontSize: "text-sm", labelSize: "text-xs", percentSize: "text-xs" },
+    lg: { width: 160, height: 90, strokeWidth: 14, fontSize: "text-lg", labelSize: "text-xs", percentSize: "text-sm" },
   };
 
   const config = sizeConfig[size];
@@ -129,13 +132,18 @@ export function GaugeChart({
             <span className={`${config.fontSize} font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
               {formatNumber(value, isCurrency)}
             </span>
+            {showRemaining && remainingValue > 0 && (
+              <span className="text-[9px] text-destructive font-medium">
+                Faltam: {formatNumber(remainingValue, isCurrency)}
+              </span>
+            )}
           </div>
 
           {/* Percentage label */}
           <div 
-            className="absolute text-[10px] font-medium"
+            className={`absolute ${config.percentSize} font-bold`}
             style={{
-              top: "15%",
+              top: "10%",
               left: "50%",
               transform: "translateX(-50%)",
               color: isHighlight ? "hsl(var(--card))" : "hsl(var(--muted-foreground))",

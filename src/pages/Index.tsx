@@ -260,6 +260,7 @@ const Index = () => {
                             warning={dashboardData.gaugeKPIs[0]?.warning}
                             statusIcon={dashboardData.gaugeKPIs[0]?.statusIcon}
                             size="lg"
+                            showRemaining={true}
                           />
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
@@ -306,6 +307,7 @@ const Index = () => {
                             warning={dashboardData.gaugeKPIs[1]?.warning}
                             statusIcon={dashboardData.gaugeKPIs[1]?.statusIcon}
                             size="lg"
+                            showRemaining={true}
                           />
                         )}
                         {(visibility.graph6 || visibility.graph7) && (
