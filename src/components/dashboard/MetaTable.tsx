@@ -11,29 +11,29 @@ interface MetaTableProps {
 
 export function MetaTable({ data, realPercentage, selectedAssessor, weekToMonthPercentage }: MetaTableProps) {
   return (
-    <Card className="p-6 shadow-card">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Metas Semanais</h3>
+    <Card className="p-4 shadow-card h-full flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between mb-2 flex-shrink-0">
+        <h3 className="text-sm font-semibold text-foreground">Metas Semanais</h3>
         {selectedAssessor && selectedAssessor !== "all" && (
-          <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
             {selectedAssessor.split(" ").slice(0, 2).join(" ")}
           </span>
         )}
       </div>
       
-      <div className="overflow-x-auto">
+      <div className="flex-1 overflow-auto min-h-0">
         <table className="w-full">
           <thead>
             <tr className="border-b border-border">
-              <th className="text-left py-2 text-sm font-medium text-muted-foreground">KPI</th>
-              <th className="text-right py-2 text-sm font-medium text-muted-foreground">Meta Semanal</th>
+              <th className="text-left py-1.5 text-xs font-medium text-muted-foreground">KPI</th>
+              <th className="text-right py-1.5 text-xs font-medium text-muted-foreground">Meta</th>
             </tr>
           </thead>
           <tbody>
             {data.map((item, index) => (
               <tr key={index} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
-                <td className="py-2.5 text-sm text-foreground">{item.label}</td>
-                <td className="py-2.5 text-sm text-right font-medium text-primary">
+                <td className="py-1.5 text-xs text-foreground">{item.label}</td>
+                <td className="py-1.5 text-xs text-right font-medium text-primary">
                   {typeof item.value === 'number' 
                     ? (item.isCurrency
                         ? formatNumber(item.value, true)
@@ -46,7 +46,7 @@ export function MetaTable({ data, realPercentage, selectedAssessor, weekToMonthP
         </table>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
+      <div className="mt-auto pt-2 border-t border-border flex items-center justify-between flex-shrink-0">
         <span className="text-sm font-semibold text-primary">
           {weekToMonthPercentage !== undefined ? `${weekToMonthPercentage}%` : "-"}
         </span>

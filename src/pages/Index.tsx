@@ -160,16 +160,16 @@ const Index = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-background flex w-full">
+      <div className="h-screen bg-background flex w-full overflow-hidden">
         <DashboardSidebar 
           visibility={visibility} 
           onVisibilityChange={handleVisibilityChange} 
         />
         
-        <div className="flex-1 flex flex-col min-h-screen">
+        <div className="flex-1 flex flex-col h-screen overflow-hidden">
           {/* Header */}
-          <header className="bg-card border-b border-border shadow-sm">
-            <div className="container mx-auto px-4 py-3">
+          <header className="bg-card border-b border-border shadow-sm flex-shrink-0">
+            <div className="container mx-auto px-4 py-2">
               <div className="flex items-center justify-between">
                 <div className="w-32 flex items-center gap-2">
                   <SidebarTrigger className="p-2 hover:bg-muted rounded-md">
@@ -180,7 +180,7 @@ const Index = () => {
                   <img 
                     src={eclatLogo} 
                     alt="Éclat XP Logo" 
-                    className="h-10 object-contain"
+                    className="h-8 object-contain"
                   />
                 </div>
                 <div className="w-32 flex justify-end">
@@ -192,7 +192,7 @@ const Index = () => {
             </div>
           </header>
 
-          <main className="container mx-auto px-4 py-6 flex-1">
+          <main className="flex-1 overflow-hidden px-4 py-3">
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
@@ -212,10 +212,10 @@ const Index = () => {
               </div>
             ) : currentView === "monthly" ? (
               // MONTHLY VIEW
-              <div className="space-y-6 animate-fade-in">
+              <div className="h-full flex flex-col gap-3 animate-fade-in">
                 {/* Top Row - ICM with Filters, Meta, Assessor Ranking */}
                 {visibleTopCards > 0 && (
-                  <div className={`grid gap-4 ${topGridCols}`}>
+                  <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
                     {visibility.card1 && (
                       <ICMCard
                         icmGeral={dashboardData.icmGeral}
@@ -246,10 +246,10 @@ const Index = () => {
 
                 {/* KPI Gauges - Main graphs with sub-graphs */}
                 {(col1Visible || col2Visible || col3Visible) && (
-                  <div className={`grid gap-4 ${gaugeGridCols}`}>
+                  <div className={`grid gap-3 min-h-0 flex-1 ${gaugeGridCols}`}>
                     {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
                     {col1Visible && (
-                      <div className="space-y-3">
+                      <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph1 && (
                           <GaugeChart
                             label={dashboardData.gaugeKPIs[0]?.label}
@@ -263,7 +263,7 @@ const Index = () => {
                           />
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                             {visibility.graph4 && (
                               <GaugeChart
                                 label={dashboardData.gaugeKPIs[3]?.label}
@@ -295,7 +295,7 @@ const Index = () => {
 
                     {/* Column 2: Graph 2 + Sub-graphs 6, 7 */}
                     {col2Visible && (
-                      <div className="space-y-3">
+                      <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph2 && (
                           <GaugeChart
                             label={dashboardData.gaugeKPIs[1]?.label}
@@ -309,7 +309,7 @@ const Index = () => {
                           />
                         )}
                         {(visibility.graph6 || visibility.graph7) && (
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                             {visibility.graph6 && (
                               <GaugeChart
                                 label={dashboardData.gaugeKPIs[5]?.label}
@@ -341,7 +341,7 @@ const Index = () => {
 
                     {/* Column 3: Graph 3 + Sub-graphs 8, 9 */}
                     {col3Visible && (
-                      <div className="space-y-3">
+                      <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph3 && (
                           <GaugeChart
                             label={dashboardData.gaugeKPIs[2]?.label}
@@ -355,7 +355,7 @@ const Index = () => {
                           />
                         )}
                         {(visibility.graph8 || visibility.graph9) && (
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                             {visibility.graph8 && (
                               <GaugeChart
                                 label={dashboardData.gaugeKPIs[7]?.label}
@@ -388,11 +388,11 @@ const Index = () => {
                 )}
               </div>
             ) : (
-              // YEARLY VIEW - Clone of monthly dashboard (exact same structure)
-              <div className="space-y-6 animate-fade-in">
+              // YEARLY VIEW
+              <div className="h-full flex flex-col gap-3 animate-fade-in">
                 {/* Top Row - ICM with Filters, Meta, Assessor Ranking */}
                 {visibleTopCards > 0 && (
-                  <div className={`grid gap-4 ${topGridCols}`}>
+                  <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
                     {visibility.card1 && (
                       <ICMCard
                         icmGeral={yearlyDashboardData.icmGeral}
@@ -423,10 +423,10 @@ const Index = () => {
 
                 {/* KPI Gauges - Same as monthly but with gray bars */}
                 {(col1Visible || col2Visible || col3Visible) && (
-                  <div className={`grid gap-4 ${gaugeGridCols}`}>
+                  <div className={`grid gap-3 min-h-0 flex-1 ${gaugeGridCols}`}>
                     {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
                     {col1Visible && (
-                      <div className="space-y-3">
+                      <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph1 && (
                           <GaugeChart
                             label={yearlyDashboardData.gaugeKPIs[0]?.label}
@@ -441,7 +441,7 @@ const Index = () => {
                           />
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                             {visibility.graph4 && (
                               <GaugeChart
                                 label={yearlyDashboardData.gaugeKPIs[3]?.label}
@@ -475,7 +475,7 @@ const Index = () => {
 
                     {/* Column 2: Graph 2 + Sub-graphs 6, 7 */}
                     {col2Visible && (
-                      <div className="space-y-3">
+                      <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph2 && (
                           <GaugeChart
                             label={yearlyDashboardData.gaugeKPIs[1]?.label}
@@ -490,7 +490,7 @@ const Index = () => {
                           />
                         )}
                         {(visibility.graph6 || visibility.graph7) && (
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                             {visibility.graph6 && (
                               <GaugeChart
                                 label={yearlyDashboardData.gaugeKPIs[5]?.label}
@@ -524,7 +524,7 @@ const Index = () => {
 
                     {/* Column 3: Graph 3 + Sub-graphs 8, 9 */}
                     {col3Visible && (
-                      <div className="space-y-3">
+                      <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph3 && (
                           <GaugeChart
                             label={yearlyDashboardData.gaugeKPIs[2]?.label}
@@ -539,7 +539,7 @@ const Index = () => {
                           />
                         )}
                         {(visibility.graph8 || visibility.graph9) && (
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                             {visibility.graph8 && (
                               <GaugeChart
                                 label={yearlyDashboardData.gaugeKPIs[7]?.label}
@@ -575,12 +575,6 @@ const Index = () => {
               </div>
             )}
           </main>
-
-          <footer className="border-t border-border py-4 mt-8">
-            <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-              Dashboard de Performance dos Assessores © {new Date().getFullYear()}
-            </div>
-          </footer>
         </div>
       </div>
     </SidebarProvider>
