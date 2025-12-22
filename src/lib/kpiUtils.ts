@@ -420,6 +420,36 @@ export function calculateICMGeral(data: ProcessedKPI[], month: string): number {
 }
 
 // CRITICAL: Cap individual KPI percentages at 120% before weighted average
+// Calculate ICM Semanal (Realizado vs Planejado Semana) with same weights as ICM Geral
+export function calculateICMSemanal(data: ProcessedKPI[], month: string): number {
+  let weightedSum = 0;
+  let totalWeight = 0;
+
+  Object.entries(KPI_WEIGHTS).forEach(([category, weight]) => {
+    const catData = filterByCategory(data, category);
+    const plannedWeekData = catData.filter(d => isPlannedWeekStatus(d.status));
+    const realizedData = catData.filter(d => isRealizedStatus(d.status));
+
+    const targetWeek = month !== "all" 
+      ? getMonthValue(plannedWeekData, month) 
+      : plannedWeekData.reduce((s, d) => s + d.total, 0);
+    const actual = month !== "all" 
+      ? getMonthValue(realizedData, month) 
+      : realizedData.reduce((s, d) => s + d.total, 0);
+
+    if (targetWeek > 0) {
+      const rawAchievementPct = (actual / targetWeek) * 100;
+      // ⚠️ CRITICAL: Cap at 120% before adding to weighted sum
+      const cappedPct = Math.min(rawAchievementPct, ICM_PERCENTAGE_CAP);
+      weightedSum += cappedPct * weight;
+      totalWeight += weight;
+    }
+  });
+
+  return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+}
+
+// CRITICAL: Cap individual KPI percentages at 120% before weighted average
 export function calculateICMRitmo(data: ProcessedKPI[], month: string): number {
   const totalBusinessDays = getTotalBusinessDaysInMonth(month);
   const elapsedBusinessDays = getElapsedBusinessDays(month);
@@ -533,11 +563,12 @@ export function processDashboardData(
   const assessorPerformance: AssessorPerformance[] = allAssessors.map(assessor => {
     const assessorData = filterByAssessor(data, assessor);
     const icm = calculateICMGeral(assessorData, selectedMonth);
+    const icmSemanal = calculateICMSemanal(assessorData, selectedMonth);
     return {
       name: assessor.split(" ").slice(0, 2).join(" "),
       fullName: assessor,
       geralPercentage: icm,
-      semanaPercentage: Math.round(icm * 0.8),
+      semanaPercentage: icmSemanal,
     };
   }).sort((a, b) => b.geralPercentage - a.geralPercentage);
 

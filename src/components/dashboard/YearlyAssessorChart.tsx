@@ -60,14 +60,27 @@ export function YearlyAssessorChart({ data, ritmoIdeal }: YearlyAssessorChartPro
                     {assessor.name}
                   </span>
                 </div>
-                <span className="text-sm font-bold text-chart-graphite ml-2">
-                  {assessor.geralPercentage}%
-                </span>
+                <div className="text-right ml-2">
+                  <span className="text-sm font-bold text-chart-graphite">
+                    {assessor.geralPercentage}%
+                  </span>
+                  <span className="text-xs font-medium text-gray-500 block">
+                    {assessor.semanaPercentage}%
+                  </span>
+                </div>
               </div>
+              {/* Barra ICM Geral */}
               <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                 <div
                   className="h-full rounded-full bg-chart-graphite transition-all duration-500"
                   style={{ width: `${Math.min(assessor.geralPercentage, 100)}%` }}
+                />
+              </div>
+              {/* Barra ICM Semanal (cinza) */}
+              <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden mt-1">
+                <div
+                  className="h-full rounded-full bg-gray-500 transition-all duration-500"
+                  style={{ width: `${Math.min(assessor.semanaPercentage, 100)}%` }}
                 />
               </div>
             </div>
@@ -91,14 +104,27 @@ export function YearlyAssessorChart({ data, ritmoIdeal }: YearlyAssessorChartPro
                       {assessor.name}
                     </span>
                   </div>
-                  <span className="text-sm font-medium text-muted-foreground ml-2">
-                    {assessor.geralPercentage}%
-                  </span>
+                  <div className="text-right ml-2">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {assessor.geralPercentage}%
+                    </span>
+                    <span className="text-xs text-gray-500 block">
+                      {assessor.semanaPercentage}%
+                    </span>
+                  </div>
                 </div>
+                {/* Barra ICM Geral */}
                 <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden mt-1">
                   <div
                     className="h-full rounded-full bg-chart-graphite-light transition-all duration-500"
                     style={{ width: `${Math.min(assessor.geralPercentage, 100)}%` }}
+                  />
+                </div>
+                {/* Barra ICM Semanal (cinza) */}
+                <div className="h-1 w-full rounded-full bg-muted overflow-hidden mt-0.5">
+                  <div
+                    className="h-full rounded-full bg-gray-400 transition-all duration-500"
+                    style={{ width: `${Math.min(assessor.semanaPercentage, 100)}%` }}
                   />
                 </div>
               </div>
