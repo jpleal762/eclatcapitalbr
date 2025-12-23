@@ -32,9 +32,9 @@ export function AssessorRemainingMatrix({
             </span>
             {item.achieved ? (
               <span className="flex items-center gap-0.5 flex-shrink-0">
-                {isTvMode && <PartyPopper className="h-3 w-3 text-yellow-500" />}
-                {isTvMode && <Trophy className="h-3 w-3 text-yellow-500" />}
-                <CheckCircle2 className={`${isTvMode ? 'h-4 w-4' : 'h-3 w-3'} text-green-500`} />
+                {isTvMode && <PartyPopper className="h-3 w-3 text-yellow-500 animate-celebrate-pop" />}
+                {isTvMode && <Trophy className="h-3 w-3 text-yellow-500 animate-celebrate-bounce" />}
+                <CheckCircle2 className={`${isTvMode ? 'h-4 w-4 animate-celebrate-sparkle' : 'h-3 w-3'} text-green-500`} />
               </span>
             ) : (
               <span className="font-medium flex-shrink-0 text-secondary-foreground">
