@@ -3,9 +3,10 @@ interface ProgressBarProps {
   percentage: number;
   color?: "primary" | "muted";
   variant?: "default" | "gray";
+  isTvMode?: boolean;
 }
 
-export function ProgressBar({ label, percentage, color = "primary", variant = "default" }: ProgressBarProps) {
+export function ProgressBar({ label, percentage, color = "primary", variant = "default", isTvMode = false }: ProgressBarProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   
   const getBarColor = () => {
@@ -15,11 +16,11 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
   
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between text-sm">
+      <div className={`flex justify-between ${isTvMode ? 'text-base' : 'text-sm'}`}>
         <span className="font-medium text-foreground">{label}</span>
         <span className="text-muted-foreground">{percentage}%</span>
       </div>
-      <div className="h-3 bg-muted rounded-full overflow-hidden">
+      <div className={`${isTvMode ? 'h-4' : 'h-3'} bg-muted rounded-full overflow-hidden`}>
         <div
           className={`h-full rounded-full transition-all duration-500 ${getBarColor()}`}
           style={{ width: `${clampedPercentage}%` }}
