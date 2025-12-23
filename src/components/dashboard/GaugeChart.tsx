@@ -74,14 +74,14 @@ export function GaugeChart({
   
   // Configuração normal (mensal)
   const normalSizeConfig = {
-    sm: { width: 100, height: 60, strokeWidth: 10, fontSize: "text-xs", labelSize: "text-[10px]", percentSize: "text-[11px]" },
+    sm: { width: 100, height: 60, strokeWidth: 10, fontSize: "text-[10px]", labelSize: "text-[9px]", percentSize: "text-[10px]" },
     md: { width: 130, height: 75, strokeWidth: 12, fontSize: "text-sm", labelSize: "text-xs", percentSize: "text-xs" },
     lg: { width: 160, height: 90, strokeWidth: 14, fontSize: "text-lg", labelSize: "text-xs", percentSize: "text-sm" },
   };
 
   // Configuração TV (barras mais grossas e fontes maiores)
   const tvSizeConfig = {
-    sm: { width: 110, height: 65, strokeWidth: 18, fontSize: "text-sm", labelSize: "text-xs", percentSize: "text-sm" },
+    sm: { width: 110, height: 65, strokeWidth: 18, fontSize: "text-xs", labelSize: "text-[10px]", percentSize: "text-xs" },
     md: { width: 140, height: 80, strokeWidth: 24, fontSize: "text-lg", labelSize: "text-sm", percentSize: "text-base" },
     lg: { width: 180, height: 100, strokeWidth: 28, fontSize: "text-2xl", labelSize: "text-sm", percentSize: "text-lg" },
   };
@@ -141,7 +141,7 @@ export function GaugeChart({
               {formatNumber(value, isCurrency)}
             </span>
             {showRemaining && remainingValue > 0 && (
-              <span className={`${isTvMode ? 'text-sm' : 'text-[9px]'} text-muted-foreground font-medium`}>
+              <span className={`${isTvMode ? 'text-xs' : 'text-[8px]'} text-muted-foreground font-medium`}>
                 Faltam: {formatNumber(remainingValue, isCurrency)}
               </span>
             )}
@@ -162,7 +162,7 @@ export function GaugeChart({
         </div>
 
         {/* Min/Max labels */}
-        <div className={`flex justify-between w-full mt-auto ${isTvMode ? 'text-xs' : 'text-[10px]'} flex-shrink-0 ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
+        <div className={`flex justify-between w-full mt-auto ${isTvMode ? 'text-[10px]' : 'text-[9px]'} flex-shrink-0 ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
           <span>{isCurrency ? "0 Mi" : "0"}</span>
           <span>{formatNumber(target, isCurrency)}</span>
         </div>
