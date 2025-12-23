@@ -73,9 +73,9 @@ export function GaugeChart({
   const remainingValue = Math.max(target - value, 0);
   
   const sizeConfig = {
-    sm: { width: 100, height: 60, strokeWidth: 16, fontSize: "text-xs", labelSize: "text-[10px]", percentSize: "text-[11px]" },
-    md: { width: 130, height: 75, strokeWidth: 20, fontSize: "text-sm", labelSize: "text-xs", percentSize: "text-xs" },
-    lg: { width: 160, height: 90, strokeWidth: 24, fontSize: "text-lg", labelSize: "text-xs", percentSize: "text-sm" },
+    sm: { width: 100, height: 60, strokeWidth: 10, fontSize: "text-xs", labelSize: "text-[10px]", percentSize: "text-[11px]" },
+    md: { width: 130, height: 75, strokeWidth: 12, fontSize: "text-sm", labelSize: "text-xs", percentSize: "text-xs" },
+    lg: { width: 160, height: 90, strokeWidth: 14, fontSize: "text-lg", labelSize: "text-xs", percentSize: "text-sm" },
   };
 
   const config = sizeConfig[size];
@@ -139,11 +139,11 @@ export function GaugeChart({
             )}
           </div>
 
-          {/* Percentage label - positioned just above the bar */}
+          {/* Percentage label */}
           <div 
             className={`absolute ${config.percentSize} font-bold`}
             style={{
-              bottom: `${config.strokeWidth + 8}px`,
+              top: "10%",
               left: "50%",
               transform: "translateX(-50%)",
               color: isHighlight ? "hsl(var(--card))" : "hsl(var(--muted-foreground))",
