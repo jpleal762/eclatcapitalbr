@@ -440,8 +440,8 @@ const Index = () => {
                     {col1Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph1 && (
-                          <div className="flex gap-2">
-                            <div className="flex-1">
+                          <div className="flex gap-2 h-full">
+                            <div className="flex-1 h-full">
                               <GaugeChart
                                 label={dashboardData.gaugeKPIs[0]?.label}
                                 value={dashboardData.gaugeKPIs[0]?.value}
@@ -498,8 +498,8 @@ const Index = () => {
                     {col2Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph2 && (
-                          <div className="flex gap-2">
-                            <div className="flex-1">
+                          <div className="flex gap-2 h-full">
+                            <div className="flex-1 h-full">
                               <GaugeChart
                                 label={dashboardData.gaugeKPIs[1]?.label}
                                 value={dashboardData.gaugeKPIs[1]?.value}

@@ -141,7 +141,7 @@ export function GaugeChart({
               {formatNumber(value, isCurrency)}
             </span>
             {showRemaining && remainingValue > 0 && (
-              <span className={`${isTvMode ? 'text-xs' : 'text-[9px]'} text-destructive font-medium`}>
+              <span className={`${isTvMode ? 'text-xs' : 'text-[9px]'} text-muted-foreground font-medium`}>
                 Faltam: {formatNumber(remainingValue, isCurrency)}
               </span>
             )}
