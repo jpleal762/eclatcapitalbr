@@ -274,7 +274,7 @@ const Index = () => {
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
                           <div className="grid grid-cols-2 gap-2 flex-shrink-0">
-                            {visibility.graph4 && (
+                        {visibility.graph4 && (
                               <GaugeChart
                                 label={dashboardData.gaugeKPIs[3]?.label}
                                 value={dashboardData.gaugeKPIs[3]?.value}
@@ -284,6 +284,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[3]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[3]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                               />
                             )}
                             {visibility.graph5 && (
@@ -296,6 +297,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[4]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[4]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                               />
                             )}
                           </div>
@@ -331,6 +333,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[5]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[5]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                               />
                             )}
                             {visibility.graph7 && (
@@ -343,6 +346,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[6]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[6]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                               />
                             )}
                           </div>
@@ -363,6 +367,7 @@ const Index = () => {
                             warning={dashboardData.gaugeKPIs[2]?.warning}
                             statusIcon={dashboardData.gaugeKPIs[2]?.statusIcon}
                             size="lg"
+                            showRemaining={true}
                           />
                         )}
                         {(visibility.graph8 || visibility.graph9) && (
@@ -377,6 +382,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[7]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[7]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                               />
                             )}
                             {visibility.graph9 && (
@@ -389,6 +395,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[8]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[8]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                               />
                             )}
                           </div>
@@ -473,6 +480,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[3]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[3]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                                 isTvMode={true}
                               />
                             )}
@@ -486,6 +494,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[4]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[4]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                                 isTvMode={true}
                               />
                             )}
@@ -531,6 +540,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[5]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[5]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                                 isTvMode={true}
                               />
                             )}
@@ -544,6 +554,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[6]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[6]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                                 isTvMode={true}
                               />
                             )}
@@ -565,6 +576,7 @@ const Index = () => {
                             warning={dashboardData.gaugeKPIs[2]?.warning}
                             statusIcon={dashboardData.gaugeKPIs[2]?.statusIcon}
                             size="lg"
+                            showRemaining={true}
                             isTvMode={true}
                           />
                         )}
@@ -580,6 +592,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[7]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[7]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                                 isTvMode={true}
                               />
                             )}
@@ -593,6 +606,7 @@ const Index = () => {
                                 warning={dashboardData.gaugeKPIs[8]?.warning}
                                 statusIcon={dashboardData.gaugeKPIs[8]?.statusIcon}
                                 size="sm"
+                                showRemaining={true}
                                 isTvMode={true}
                               />
                             )}
