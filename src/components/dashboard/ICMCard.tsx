@@ -51,7 +51,7 @@ export function ICMCard({
     <Card className="p-4 shadow-card h-full flex flex-col overflow-hidden">
       {/* Header with Toggle */}
       <div className="flex items-center justify-between mb-2 flex-shrink-0">
-        <h3 className="text-xs font-medium text-muted-foreground">
+        <h3 className={`${isTvMode ? 'text-sm' : 'text-xs'} font-medium text-muted-foreground`}>
           ICM Mensal
         </h3>
         {onToggleView && (
@@ -59,9 +59,9 @@ export function ICMCard({
             variant="outline"
             size="sm"
             onClick={onToggleView}
-            className="gap-1.5 text-xs h-7 px-2"
+            className={`gap-1.5 ${isTvMode ? 'text-sm h-8 px-3' : 'text-xs h-7 px-2'}`}
           >
-            <Calendar className="h-3 w-3" />
+            <Calendar className={isTvMode ? "h-4 w-4" : "h-3 w-3"} />
             {isTvMode ? "Mensal" : "TV"}
           </Button>
         )}
@@ -101,51 +101,51 @@ export function ICMCard({
       <div className="flex items-start justify-between gap-4 flex-1 min-h-0">
         {/* Gauge */}
         <div className="flex flex-col items-center flex-1">
-          <h3 className="text-sm font-semibold mb-1 text-foreground">ICM Geral</h3>
+          <h3 className={`${isTvMode ? 'text-lg' : 'text-sm'} font-semibold mb-1 text-foreground`}>ICM Geral</h3>
           
-          <div className="relative" style={{ width: 140, height: 80 }}>
-            <svg width="140" height="80" viewBox="0 0 140 90">
+          <div className="relative" style={{ width: isTvMode ? 160 : 140, height: isTvMode ? 90 : 80 }}>
+            <svg width={isTvMode ? "160" : "140"} height={isTvMode ? "90" : "80"} viewBox={isTvMode ? "0 0 160 100" : "0 0 140 90"}>
               <path
-                d="M 10 80 A 60 60 0 0 1 130 80"
+                d={isTvMode ? "M 10 90 A 70 70 0 0 1 150 90" : "M 10 80 A 60 60 0 0 1 130 80"}
                 fill="none"
                 stroke="hsl(var(--muted))"
-                strokeWidth="12"
+                strokeWidth={isTvMode ? "16" : "12"}
                 strokeLinecap="round"
               />
               <path
-                d="M 10 80 A 60 60 0 0 1 130 80"
+                d={isTvMode ? "M 10 90 A 70 70 0 0 1 150 90" : "M 10 80 A 60 60 0 0 1 130 80"}
                 fill="none"
                 stroke="hsl(var(--primary))"
-                strokeWidth="12"
+                strokeWidth={isTvMode ? "16" : "12"}
                 strokeLinecap="round"
-                strokeDasharray={Math.PI * 60}
-                strokeDashoffset={Math.PI * 60 - (Math.min(icmGeral, 100) / 100) * Math.PI * 60}
+                strokeDasharray={Math.PI * (isTvMode ? 70 : 60)}
+                strokeDashoffset={Math.PI * (isTvMode ? 70 : 60) - (Math.min(icmGeral, 100) / 100) * Math.PI * (isTvMode ? 70 : 60)}
                 style={{ transition: "stroke-dashoffset 0.8s ease-out" }}
               />
             </svg>
             <div className="absolute inset-0 flex items-end justify-center pb-1">
-              <span className="text-3xl font-bold text-foreground">{icmGeral}%</span>
+              <span className={`${isTvMode ? 'text-4xl' : 'text-3xl'} font-bold text-foreground`}>{icmGeral}%</span>
             </div>
           </div>
         </div>
 
         {/* Days remaining */}
         <div className="text-center px-2 py-1">
-          <p className="text-xs text-muted-foreground mb-0.5">Dias Úteis<br/>Restantes</p>
-          <p className="text-2xl font-bold text-foreground">{diasUteisRestantes}</p>
+          <p className={`${isTvMode ? 'text-sm' : 'text-xs'} text-muted-foreground mb-0.5`}>Dias Úteis<br/>Restantes</p>
+          <p className={`${isTvMode ? 'text-3xl' : 'text-2xl'} font-bold text-foreground`}>{diasUteisRestantes}</p>
         </div>
       </div>
 
       {/* Progress bars */}
       <div className="mt-auto pt-2 space-y-2 flex-shrink-0">
-        <ProgressBar label="Ritmo Ideal" percentage={ritmoIdeal} color="primary" variant="default" />
+        <ProgressBar label="Ritmo Ideal" percentage={ritmoIdeal} color="primary" variant="default" isTvMode={isTvMode} />
         {/* ICM Geral em barra amarela */}
         <div className="space-y-0.5">
-          <div className="flex justify-between text-xs">
+          <div className={`flex justify-between ${isTvMode ? 'text-sm' : 'text-xs'}`}>
             <span className="font-medium text-foreground">ICM Geral</span>
             <span className="font-bold text-foreground">{icmGeral}%</span>
           </div>
-          <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+          <div className={`${isTvMode ? 'h-3' : 'h-2'} w-full rounded-full bg-muted overflow-hidden`}>
             <div 
               className="h-full rounded-full transition-all duration-500 bg-yellow-500"
               style={{ width: `${Math.min(icmGeral, 100)}%` }}
@@ -155,7 +155,7 @@ export function ICMCard({
       </div>
 
       {/* Dynamic Performance Indicator */}
-      <div className={`mt-2 p-2 rounded-lg flex items-center justify-center gap-1.5 flex-shrink-0 ${
+      <div className={`mt-2 ${isTvMode ? 'p-3' : 'p-2'} rounded-lg flex items-center justify-center gap-1.5 flex-shrink-0 ${
         icmGeral > ritmoIdeal 
           ? 'bg-green-500/10 border border-green-500/20' 
           : icmGeral === ritmoIdeal 
@@ -164,20 +164,20 @@ export function ICMCard({
       }`}>
         {icmGeral > ritmoIdeal && (
           <>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <span className="text-xs font-medium text-green-700">Acima do esperado</span>
+            <CheckCircle className={`${isTvMode ? 'h-5 w-5' : 'h-4 w-4'} text-green-600`} />
+            <span className={`${isTvMode ? 'text-sm' : 'text-xs'} font-medium text-green-700`}>Acima do esperado</span>
           </>
         )}
         {icmGeral === ritmoIdeal && (
           <>
-            <Clock className="h-4 w-4 text-blue-600" />
-            <span className="text-xs font-medium text-blue-700">No Ritmo</span>
+            <Clock className={`${isTvMode ? 'h-5 w-5' : 'h-4 w-4'} text-blue-600`} />
+            <span className={`${isTvMode ? 'text-sm' : 'text-xs'} font-medium text-blue-700`}>No Ritmo</span>
           </>
         )}
         {icmGeral < ritmoIdeal && (
           <>
-            <AlertTriangle className="h-4 w-4 text-orange-600" />
-            <span className="text-xs font-medium text-orange-700">Abaixo do esperado</span>
+            <AlertTriangle className={`${isTvMode ? 'h-5 w-5' : 'h-4 w-4'} text-orange-600`} />
+            <span className={`${isTvMode ? 'text-sm' : 'text-xs'} font-medium text-orange-700`}>Abaixo do esperado</span>
           </>
         )}
       </div>

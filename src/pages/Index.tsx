@@ -432,10 +432,11 @@ const Index = () => {
                         realPercentage={dashboardData.metaSemanalReal}
                         selectedAssessor={filters.assessor}
                         weekToMonthPercentage={dashboardData.metaSemanalPercentage}
+                        isTvMode={true}
                       />
                     )}
                     {visibility.card3 && (
-                      <AssessorChart data={dashboardData.assessorPerformance} ritmoIdeal={dashboardData.ritmoIdeal} />
+                      <AssessorChart data={dashboardData.assessorPerformance} ritmoIdeal={dashboardData.ritmoIdeal} isTvMode={true} />
                     )}
                   </div>
                 )}
@@ -465,6 +466,7 @@ const Index = () => {
                             <AssessorRemainingMatrix
                               assessorData={assessorRemainingCaptacao}
                               isCurrency={true}
+                              isTvMode={true}
                             />
                           </div>
                         )}
@@ -525,6 +527,7 @@ const Index = () => {
                             <AssessorRemainingMatrix
                               assessorData={assessorRemainingReceita}
                               isCurrency={true}
+                              isTvMode={true}
                             />
                           </div>
                         )}
