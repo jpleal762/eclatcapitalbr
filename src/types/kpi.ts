@@ -23,7 +23,7 @@ export interface YearlyDashboardFilters {
   year: number;
 }
 
-export type DashboardView = "monthly" | "yearly";
+export type DashboardView = "monthly" | "tv";
 
 export type KPIStatusIcon = "GREEN_CHECK" | "CLOCK" | "YELLOW_ALERT" | "RED_ALERT";
 

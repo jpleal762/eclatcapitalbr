@@ -21,7 +21,7 @@ interface ICMCardProps {
   onAssessorChange: (value: string) => void;
   onMonthChange: (value: string) => void;
   onToggleView?: () => void;
-  isYearlyView?: boolean;
+  isTvMode?: boolean;
 }
 
 export function ICMCard({
@@ -35,7 +35,7 @@ export function ICMCard({
   onAssessorChange,
   onMonthChange,
   onToggleView,
-  isYearlyView = false,
+  isTvMode = false,
 }: ICMCardProps) {
   const radius = 80;
   const circumference = Math.PI * radius;
@@ -52,7 +52,7 @@ export function ICMCard({
       {/* Header with Toggle */}
       <div className="flex items-center justify-between mb-2 flex-shrink-0">
         <h3 className="text-xs font-medium text-muted-foreground">
-          {isYearlyView ? "ICM Anual" : "ICM Mensal"}
+          ICM Mensal
         </h3>
         {onToggleView && (
           <Button
@@ -62,7 +62,7 @@ export function ICMCard({
             className="gap-1.5 text-xs h-7 px-2"
           >
             <Calendar className="h-3 w-3" />
-            {isYearlyView ? "Mensal" : "Anual"}
+            {isTvMode ? "Mensal" : "TV"}
           </Button>
         )}
       </div>
@@ -85,13 +85,13 @@ export function ICMCard({
 
         <Select value={selectedMonth} onValueChange={onMonthChange}>
           <SelectTrigger className="w-[100px] bg-background text-xs h-8">
-            <SelectValue placeholder={isYearlyView ? "Ano" : getCurrentMonthLabel()} />
+            <SelectValue placeholder={getCurrentMonthLabel()} />
           </SelectTrigger>
           <SelectContent>
-            {!isYearlyView && <SelectItem value="all">Todos</SelectItem>}
+            <SelectItem value="all">Todos</SelectItem>
             {months.map((m) => (
               <SelectItem key={m} value={m}>
-                {isYearlyView ? m : m.toUpperCase()}
+                {m.toUpperCase()}
               </SelectItem>
             ))}
           </SelectContent>
@@ -115,7 +115,7 @@ export function ICMCard({
               <path
                 d="M 10 80 A 60 60 0 0 1 130 80"
                 fill="none"
-                stroke={isYearlyView ? "hsl(var(--chart-dark))" : "hsl(var(--primary))"}
+                stroke="hsl(var(--primary))"
                 strokeWidth="12"
                 strokeLinecap="round"
                 strokeDasharray={Math.PI * 60}
@@ -138,7 +138,7 @@ export function ICMCard({
 
       {/* Progress bars */}
       <div className="mt-auto pt-2 space-y-2 flex-shrink-0">
-        <ProgressBar label="Ritmo Ideal" percentage={ritmoIdeal} color="primary" variant={isYearlyView ? "gray" : "default"} />
+        <ProgressBar label="Ritmo Ideal" percentage={ritmoIdeal} color="primary" variant="default" />
         {/* ICM Geral em barra amarela */}
         <div className="space-y-0.5">
           <div className="flex justify-between text-xs">
@@ -147,7 +147,7 @@ export function ICMCard({
           </div>
           <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
             <div 
-              className={`h-full rounded-full transition-all duration-500 ${isYearlyView ? "bg-chart-dark" : "bg-yellow-500"}`}
+              className="h-full rounded-full transition-all duration-500 bg-yellow-500"
               style={{ width: `${Math.min(icmGeral, 100)}%` }}
             />
           </div>
