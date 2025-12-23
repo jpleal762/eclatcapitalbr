@@ -480,7 +480,81 @@ export function calculateICMRitmo(data: ProcessedKPI[], month: string): number {
   return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
 }
 
-// ============= MAIN DASHBOARD PROCESSOR =============
+// ============= ASSESSOR REMAINING CALCULATION =============
+export interface AssessorRemainingData {
+  name: string;
+  remaining: number;
+  achieved: boolean;
+}
+
+/**
+ * Calculate how much each assessor is missing to hit their individual target for a specific KPI
+ * @param data - Processed KPI data
+ * @param category - The KPI category (e.g., "Captação net", "Receita")
+ * @param month - Selected month (e.g., "jan/25")
+ * @param targetCategories - Optional array of categories for target calculation (used for Receita)
+ * @param actualCategory - Optional category to use for actual values (used for PJ1 XP, PJ2 XP)
+ * @returns Array of assessor data sorted by remaining (highest first)
+ */
+export function calculateAssessorRemainingForKPI(
+  data: ProcessedKPI[],
+  category: string,
+  month: string,
+  targetCategories?: string[],
+  actualCategory?: string
+): AssessorRemainingData[] {
+  if (!data || data.length === 0 || month === "all") {
+    return [];
+  }
+
+  // Get all unique assessors
+  const allAssessors = [...new Set(data.map(d => d.assessor))].filter(Boolean);
+
+  const results = allAssessors.map(assessor => {
+    const assessorData = filterByAssessor(data, assessor);
+
+    // Calculate target
+    let target: number;
+    if (targetCategories && targetCategories.length > 0) {
+      // Special case: target comes from sum of multiple categories (e.g., Receita uses PJ1 XP Mês + PJ2 XP Mês)
+      target = targetCategories.reduce((sum, cat) => {
+        const catData = filterByCategory(assessorData, cat);
+        const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+        return sum + getMonthValue(plannedData, month);
+      }, 0);
+    } else {
+      // Normal case: target from same category
+      const catData = filterByCategory(assessorData, category);
+      const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+      target = getMonthValue(plannedData, month);
+    }
+
+    // Calculate actual/realized value
+    const actualCat = actualCategory || category;
+    const catData = filterByCategory(assessorData, actualCat);
+    const realizedData = catData.filter(d => isRealizedStatus(d.status));
+    const value = getMonthValue(realizedData, month);
+
+    const remaining = Math.max(target - value, 0);
+    const achieved = target > 0 && value >= target;
+
+    return {
+      name: assessor.split(" ")[0], // Get first name only
+      remaining,
+      achieved
+    };
+  });
+
+  // Sort: achieved at bottom, then by remaining (highest first)
+  return results.sort((a, b) => {
+    if (a.achieved && !b.achieved) return 1;
+    if (!a.achieved && b.achieved) return -1;
+    return b.remaining - a.remaining;
+  });
+}
+
+
+
 export function processDashboardData(
   data: ProcessedKPI[], 
   selectedMonth: string, 

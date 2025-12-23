@@ -16,7 +16,9 @@ import {
   getUniqueValues,
   getAvailableMonths,
   processDashboardData,
+  calculateAssessorRemainingForKPI,
 } from "@/lib/kpiUtils";
+import { AssessorRemainingMatrix } from "@/components/dashboard/AssessorRemainingMatrix";
 import { 
   processYearlyDashboardData, 
   getAvailableYears 
@@ -108,6 +110,22 @@ const Index = () => {
   const yearlyDashboardData = useMemo(
     () => processYearlyDashboardData(processedData, yearlyFilters.year, yearlyFilters.assessor),
     [processedData, yearlyFilters.year, yearlyFilters.assessor]
+  );
+
+  // Calculate assessor remaining data for TV mode (graphs 1 and 2)
+  const assessorRemainingCaptacao = useMemo(
+    () => calculateAssessorRemainingForKPI(processedData, "Captação net", filters.month),
+    [processedData, filters.month]
+  );
+
+  const assessorRemainingReceita = useMemo(
+    () => calculateAssessorRemainingForKPI(
+      processedData, 
+      "Receita", 
+      filters.month, 
+      ["PJ1 XP Mês", "PJ2 XP Mês"]  // Target from these categories
+    ),
+    [processedData, filters.month]
   );
 
   // Debug: Log completo para diagnóstico
@@ -422,18 +440,26 @@ const Index = () => {
                     {col1Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph1 && (
-                          <GaugeChart
-                            label={dashboardData.gaugeKPIs[0]?.label}
-                            value={dashboardData.gaugeKPIs[0]?.value}
-                            target={dashboardData.gaugeKPIs[0]?.target}
-                            percentage={dashboardData.gaugeKPIs[0]?.percentage}
-                            isCurrency={dashboardData.gaugeKPIs[0]?.isCurrency}
-                            warning={dashboardData.gaugeKPIs[0]?.warning}
-                            statusIcon={dashboardData.gaugeKPIs[0]?.statusIcon}
-                            size="lg"
-                            showRemaining={true}
-                            isTvMode={true}
-                          />
+                          <div className="flex gap-2">
+                            <div className="flex-1">
+                              <GaugeChart
+                                label={dashboardData.gaugeKPIs[0]?.label}
+                                value={dashboardData.gaugeKPIs[0]?.value}
+                                target={dashboardData.gaugeKPIs[0]?.target}
+                                percentage={dashboardData.gaugeKPIs[0]?.percentage}
+                                isCurrency={dashboardData.gaugeKPIs[0]?.isCurrency}
+                                warning={dashboardData.gaugeKPIs[0]?.warning}
+                                statusIcon={dashboardData.gaugeKPIs[0]?.statusIcon}
+                                size="lg"
+                                showRemaining={true}
+                                isTvMode={true}
+                              />
+                            </div>
+                            <AssessorRemainingMatrix
+                              assessorData={assessorRemainingCaptacao}
+                              isCurrency={true}
+                            />
+                          </div>
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
                           <div className="grid grid-cols-2 gap-2 flex-shrink-0">
@@ -472,18 +498,26 @@ const Index = () => {
                     {col2Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph2 && (
-                          <GaugeChart
-                            label={dashboardData.gaugeKPIs[1]?.label}
-                            value={dashboardData.gaugeKPIs[1]?.value}
-                            target={dashboardData.gaugeKPIs[1]?.target}
-                            percentage={dashboardData.gaugeKPIs[1]?.percentage}
-                            isCurrency={dashboardData.gaugeKPIs[1]?.isCurrency}
-                            warning={dashboardData.gaugeKPIs[1]?.warning}
-                            statusIcon={dashboardData.gaugeKPIs[1]?.statusIcon}
-                            size="lg"
-                            showRemaining={true}
-                            isTvMode={true}
-                          />
+                          <div className="flex gap-2">
+                            <div className="flex-1">
+                              <GaugeChart
+                                label={dashboardData.gaugeKPIs[1]?.label}
+                                value={dashboardData.gaugeKPIs[1]?.value}
+                                target={dashboardData.gaugeKPIs[1]?.target}
+                                percentage={dashboardData.gaugeKPIs[1]?.percentage}
+                                isCurrency={dashboardData.gaugeKPIs[1]?.isCurrency}
+                                warning={dashboardData.gaugeKPIs[1]?.warning}
+                                statusIcon={dashboardData.gaugeKPIs[1]?.statusIcon}
+                                size="lg"
+                                showRemaining={true}
+                                isTvMode={true}
+                              />
+                            </div>
+                            <AssessorRemainingMatrix
+                              assessorData={assessorRemainingReceita}
+                              isCurrency={true}
+                            />
+                          </div>
                         )}
                         {(visibility.graph6 || visibility.graph7) && (
                           <div className="grid grid-cols-2 gap-2 flex-shrink-0">
