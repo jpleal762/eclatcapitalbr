@@ -2,13 +2,15 @@ import { Card } from "@/components/ui/card";
 import { AssessorPerformance, KPIStatusIcon } from "@/types/kpi";
 import { getKPIStatusIcon } from "@/lib/kpiUtils";
 import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
-
 interface AssessorChartProps {
   data: AssessorPerformance[];
   ritmoIdeal: number;
 }
-
-function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
+function StatusIcon({
+  icon
+}: {
+  icon: KPIStatusIcon;
+}) {
   switch (icon) {
     case "GREEN_CHECK":
       return <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />;
@@ -22,7 +24,6 @@ function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
       return null;
   }
 }
-
 export function AssessorChart({
   data,
   ritmoIdeal
@@ -43,9 +44,7 @@ export function AssessorChart({
       
       <div className="flex-1 overflow-auto min-h-0 space-y-1">
         {filteredData.map((assessor, index) => <div key={assessor.name} className={`flex items-center gap-1.5 p-1 rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
-            <div className="w-5 text-center font-bold text-xs">
-              {getMedalEmoji(index) || `#${index + 1}`}
-            </div>
+            
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1">
@@ -55,14 +54,14 @@ export function AssessorChart({
               {/* Barra ICM Geral (amarela) */}
               <div className="w-full h-1 bg-muted rounded-full overflow-hidden mt-0.5">
                 <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
-                  width: `${Math.min(assessor.geralPercentage, 100)}%`
-                }} />
+              width: `${Math.min(assessor.geralPercentage, 100)}%`
+            }} />
               </div>
               {/* Barra ICM Semanal (cinza) */}
               <div className="w-full h-1 bg-muted rounded-full overflow-hidden mt-0.5">
                 <div className="h-full rounded-full transition-all duration-500 bg-gray-500" style={{
-                  width: `${Math.min(assessor.semanaPercentage, 100)}%`
-                }} />
+              width: `${Math.min(assessor.semanaPercentage, 100)}%`
+            }} />
               </div>
             </div>
             
