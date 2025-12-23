@@ -13,7 +13,7 @@ interface GaugeChartProps {
   size?: "sm" | "md" | "lg";
   variant?: "default" | "highlight";
   statusIcon?: KPIStatusIcon;
-  isYearlyView?: boolean;
+  isTvMode?: boolean;
   showRemaining?: boolean;
 }
 
@@ -66,19 +66,27 @@ export function GaugeChart({
   size = "md",
   variant = "default",
   statusIcon,
-  isYearlyView = false,
+  isTvMode = false,
   showRemaining = false,
 }: GaugeChartProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   const remainingValue = Math.max(target - value, 0);
   
-  const sizeConfig = {
+  // Configuração normal (mensal)
+  const normalSizeConfig = {
     sm: { width: 100, height: 60, strokeWidth: 10, fontSize: "text-xs", labelSize: "text-[10px]", percentSize: "text-[11px]" },
     md: { width: 130, height: 75, strokeWidth: 12, fontSize: "text-sm", labelSize: "text-xs", percentSize: "text-xs" },
     lg: { width: 160, height: 90, strokeWidth: 14, fontSize: "text-lg", labelSize: "text-xs", percentSize: "text-sm" },
   };
 
-  const config = sizeConfig[size];
+  // Configuração TV (barras mais grossas)
+  const tvSizeConfig = {
+    sm: { width: 100, height: 60, strokeWidth: 14, fontSize: "text-xs", labelSize: "text-[10px]", percentSize: "text-[11px]" },
+    md: { width: 130, height: 75, strokeWidth: 18, fontSize: "text-sm", labelSize: "text-xs", percentSize: "text-xs" },
+    lg: { width: 160, height: 90, strokeWidth: 22, fontSize: "text-lg", labelSize: "text-xs", percentSize: "text-sm" },
+  };
+
+  const config = isTvMode ? tvSizeConfig[size] : normalSizeConfig[size];
   const radius = (config.width - config.strokeWidth) / 2;
   const circumference = Math.PI * radius;
   const progress = (clampedPercentage / 100) * circumference;
@@ -118,7 +126,7 @@ export function GaugeChart({
               d={`M ${config.strokeWidth / 2} ${config.height} 
                   A ${radius} ${radius} 0 0 1 ${config.width - config.strokeWidth / 2} ${config.height}`}
               fill="none"
-              stroke={isYearlyView ? "hsl(215, 14%, 34%)" : "hsl(var(--primary))"}
+              stroke="hsl(var(--primary))"
               strokeWidth={config.strokeWidth}
               strokeLinecap="round"
               strokeDasharray={circumference}
@@ -133,7 +141,7 @@ export function GaugeChart({
               {formatNumber(value, isCurrency)}
             </span>
             {showRemaining && remainingValue > 0 && (
-              <span className="text-[9px] text-destructive font-medium">
+              <span className={`${isTvMode ? 'text-xs' : 'text-[9px]'} text-destructive font-medium`}>
                 Faltam: {formatNumber(remainingValue, isCurrency)}
               </span>
             )}
