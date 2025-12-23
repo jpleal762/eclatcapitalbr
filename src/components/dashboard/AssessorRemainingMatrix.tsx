@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Trophy, PartyPopper } from "lucide-react";
 export interface AssessorRemainingData {
   name: string;
   remaining: number;
@@ -30,11 +30,17 @@ export function AssessorRemainingMatrix({
             <span className={`font-medium truncate ${isTvMode ? 'max-w-[60px]' : 'max-w-[50px]'}`} title={item.name}>
               {item.name}
             </span>
-            {item.achieved ? <span className="flex items-center gap-0.5 text-green-500 flex-shrink-0">
-                <CheckCircle2 className={`${isTvMode ? 'h-4 w-4' : 'h-3 w-3'}`} />
-              </span> : <span className="font-medium flex-shrink-0 text-secondary-foreground">
+            {item.achieved ? (
+              <span className="flex items-center gap-0.5 flex-shrink-0">
+                {isTvMode && <PartyPopper className="h-3 w-3 text-yellow-500" />}
+                {isTvMode && <Trophy className="h-3 w-3 text-yellow-500" />}
+                <CheckCircle2 className={`${isTvMode ? 'h-4 w-4' : 'h-3 w-3'} text-green-500`} />
+              </span>
+            ) : (
+              <span className="font-medium flex-shrink-0 text-secondary-foreground">
                 {formatNumber(item.remaining, isCurrency)}
-              </span>}
+              </span>
+            )}
           </div>)}
       </div>
     </Card>;
