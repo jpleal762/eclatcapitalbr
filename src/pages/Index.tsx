@@ -368,6 +368,9 @@ const Index = () => {
                             statusIcon={dashboardData.gaugeKPIs[2]?.statusIcon}
                             size="lg"
                             showRemaining={true}
+                            secondaryValue={dashboardData.gaugeKPIs[2]?.secondaryValue}
+                            secondaryPercentage={dashboardData.gaugeKPIs[2]?.secondaryPercentage}
+                            secondaryLabel={dashboardData.gaugeKPIs[2]?.secondaryLabel}
                           />
                         )}
                         {(visibility.graph8 || visibility.graph9) && (
@@ -581,6 +584,9 @@ const Index = () => {
                             size="lg"
                             showRemaining={true}
                             isTvMode={true}
+                            secondaryValue={dashboardData.gaugeKPIs[2]?.secondaryValue}
+                            secondaryPercentage={dashboardData.gaugeKPIs[2]?.secondaryPercentage}
+                            secondaryLabel={dashboardData.gaugeKPIs[2]?.secondaryLabel}
                           />
                         )}
                         {(visibility.graph8 || visibility.graph9) && (

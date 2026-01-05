@@ -15,6 +15,10 @@ interface GaugeChartProps {
   statusIcon?: KPIStatusIcon;
   isTvMode?: boolean;
   showRemaining?: boolean;
+  // Secondary bar props
+  secondaryValue?: number;
+  secondaryPercentage?: number;
+  secondaryLabel?: string;
 }
 
 function StatusIconDisplay({ icon, size }: { icon?: KPIStatusIcon; size: "sm" | "md" | "lg" }) {
@@ -68,6 +72,9 @@ export function GaugeChart({
   statusIcon,
   isTvMode = false,
   showRemaining = false,
+  secondaryValue,
+  secondaryPercentage,
+  secondaryLabel,
 }: GaugeChartProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   const remainingValue = Math.max(target - value, 0);
@@ -166,6 +173,22 @@ export function GaugeChart({
           <span>{isCurrency ? "0 Mi" : "0"}</span>
           <span>{formatNumber(target, isCurrency)}</span>
         </div>
+
+        {/* Secondary bar - gray indicator below gauge */}
+        {secondaryPercentage !== undefined && (
+          <div className="w-full mt-2 space-y-1 flex-shrink-0">
+            <div className={`flex justify-between ${isTvMode ? 'text-xs' : 'text-[10px]'} ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
+              <span>{secondaryLabel || "Agendadas"}</span>
+              <span className="font-medium">{secondaryPercentage}%</span>
+            </div>
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gray-500 transition-all duration-500"
+                style={{ width: `${Math.min(secondaryPercentage, 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {isHighlight && (
           <p className="text-[10px] text-card/70 mt-1 italic flex-shrink-0">Head Bruno</p>

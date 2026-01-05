@@ -36,6 +36,10 @@ export interface GaugeKPI {
   unit?: string;
   warning?: boolean;
   statusIcon?: KPIStatusIcon;
+  // Secondary bar for additional indicators (e.g., "Agendadas" in Primeira reuniao)
+  secondaryValue?: number;
+  secondaryPercentage?: number;
+  secondaryLabel?: string;
 }
 
 export interface AssessorPerformance {
