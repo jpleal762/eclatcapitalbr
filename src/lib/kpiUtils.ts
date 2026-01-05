@@ -372,6 +372,11 @@ function isRealizedStatus(status: string): boolean {
   return s.includes("realizado") || s.includes("real.") || s === "realizado";
 }
 
+function isAgendadaStatus(status: string): boolean {
+  const s = status.toLowerCase();
+  return s.includes("agendada") || s === "agendada";
+}
+
 // ============= DATA FILTERING HELPERS =============
 export function filterByStatus(data: ProcessedKPI[], statusType: string): ProcessedKPI[] {
   return data.filter(d => matchesStatus(d.status, statusType));
@@ -704,7 +709,8 @@ export function processDashboardData(
     const percentage = target > 0 ? Math.round((value / target) * 100) : 0;
     const statusIcon = getKPIStatusIcon(percentage, ritmoIdeal);
 
-    return {
+    // Base KPI object
+    const baseKPI: GaugeKPI = {
       label: kpi.label,
       value,
       target: target || 0,
@@ -713,6 +719,26 @@ export function processDashboardData(
       warning: percentage < 50,
       statusIcon,
     };
+
+    // Special case for "Primeira reuniao": add secondary bar with "Agendadas" data
+    if (kpi.category === "Primeira reuniao") {
+      const primeiraReuniaoData = filterByCategory(filteredByAssessor, "Primeira reuniao");
+      const agendadaData = primeiraReuniaoData.filter(d => isAgendadaStatus(d.status));
+      const agendadaValue = selectedMonth !== "all"
+        ? getMonthValue(agendadaData, selectedMonth)
+        : agendadaData.reduce((s, d) => s + d.total, 0);
+      
+      const agendadaPercentage = target > 0 ? Math.round((agendadaValue / target) * 100) : 0;
+
+      return {
+        ...baseKPI,
+        secondaryValue: agendadaValue,
+        secondaryPercentage: agendadaPercentage,
+        secondaryLabel: "Agendadas",
+      };
+    }
+
+    return baseKPI;
   });
 
   return {
