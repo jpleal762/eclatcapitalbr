@@ -766,3 +766,34 @@ export function formatNumber(num: number, isCurrency = false): string {
   }
   return num.toLocaleString("pt-BR");
 }
+
+// ============= ASSESSOR AGENDADAS CALCULATION =============
+export interface AssessorAgendadasData {
+  name: string;
+  value: number;
+}
+
+export function calculateAssessorAgendadasForKPI(
+  data: ProcessedKPI[],
+  month: string
+): AssessorAgendadasData[] {
+  if (!data || data.length === 0 || month === "all") return [];
+
+  const allAssessors = [...new Set(data.map(d => d.assessor))].filter(Boolean);
+
+  const results = allAssessors.map(assessor => {
+    const assessorData = filterByAssessor(data, assessor);
+    const primeiraReuniaoData = filterByCategory(assessorData, "Primeira reuniao");
+    const agendadaData = primeiraReuniaoData.filter(d => isAgendadaStatus(d.status));
+    const value = getMonthValue(agendadaData, month);
+
+    return {
+      name: assessor.split(" ")[0],
+      value
+    };
+  });
+
+  return results
+    .filter(r => r.value > 0)
+    .sort((a, b) => b.value - a.value);
+}
