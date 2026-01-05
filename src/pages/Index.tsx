@@ -17,8 +17,10 @@ import {
   getAvailableMonths,
   processDashboardData,
   calculateAssessorRemainingForKPI,
+  calculateAssessorAgendadasForKPI,
 } from "@/lib/kpiUtils";
 import { AssessorRemainingMatrix } from "@/components/dashboard/AssessorRemainingMatrix";
+import { AssessorAgendadasMatrix } from "@/components/dashboard/AssessorAgendadasMatrix";
 import { 
   processYearlyDashboardData, 
   getAvailableYears 
@@ -125,6 +127,12 @@ const Index = () => {
       filters.month, 
       ["PJ1 XP Mês", "PJ2 XP Mês"]  // Target from these categories
     ),
+    [processedData, filters.month]
+  );
+
+  // Calculate assessor agendadas data for TV mode (graph 3)
+  const assessorAgendadas = useMemo(
+    () => calculateAssessorAgendadasForKPI(processedData, filters.month),
     [processedData, filters.month]
   );
 
@@ -573,21 +581,29 @@ const Index = () => {
                     {col3Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph3 && (
-                          <GaugeChart
-                            label={dashboardData.gaugeKPIs[2]?.label}
-                            value={dashboardData.gaugeKPIs[2]?.value}
-                            target={dashboardData.gaugeKPIs[2]?.target}
-                            percentage={dashboardData.gaugeKPIs[2]?.percentage}
-                            isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
-                            warning={dashboardData.gaugeKPIs[2]?.warning}
-                            statusIcon={dashboardData.gaugeKPIs[2]?.statusIcon}
-                            size="lg"
-                            showRemaining={true}
-                            isTvMode={true}
-                            secondaryValue={dashboardData.gaugeKPIs[2]?.secondaryValue}
-                            secondaryPercentage={dashboardData.gaugeKPIs[2]?.secondaryPercentage}
-                            secondaryLabel={dashboardData.gaugeKPIs[2]?.secondaryLabel}
-                          />
+                          <div className="flex gap-2 h-full">
+                            <div className="flex-1 h-full">
+                              <GaugeChart
+                                label={dashboardData.gaugeKPIs[2]?.label}
+                                value={dashboardData.gaugeKPIs[2]?.value}
+                                target={dashboardData.gaugeKPIs[2]?.target}
+                                percentage={dashboardData.gaugeKPIs[2]?.percentage}
+                                isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
+                                warning={dashboardData.gaugeKPIs[2]?.warning}
+                                statusIcon={dashboardData.gaugeKPIs[2]?.statusIcon}
+                                size="lg"
+                                showRemaining={true}
+                                isTvMode={true}
+                                secondaryValue={dashboardData.gaugeKPIs[2]?.secondaryValue}
+                                secondaryPercentage={dashboardData.gaugeKPIs[2]?.secondaryPercentage}
+                                secondaryLabel={dashboardData.gaugeKPIs[2]?.secondaryLabel}
+                              />
+                            </div>
+                            <AssessorAgendadasMatrix
+                              assessorData={assessorAgendadas}
+                              isTvMode={true}
+                            />
+                          </div>
                         )}
                         {(visibility.graph8 || visibility.graph9) && (
                           <div className="grid grid-cols-2 gap-2 flex-shrink-0">
