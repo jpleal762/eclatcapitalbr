@@ -9,6 +9,19 @@ interface ProgressBarProps {
   ritmoIdeal?: number;
 }
 
+// Function to get clock style based on performance
+const getClockStyle = (currentValue: number, idealValue: number) => {
+  const percentageBelowIdeal = idealValue > 0 ? ((idealValue - currentValue) / idealValue) * 100 : 0;
+  
+  if (currentValue >= idealValue) {
+    return { bgColor: 'bg-green-500', animate: false };
+  } else if (percentageBelowIdeal > 30) {
+    return { bgColor: 'bg-red-500', animate: true };
+  } else {
+    return { bgColor: 'bg-yellow-500', animate: true };
+  }
+};
+
 export function ProgressBar({ label, percentage, color = "primary", variant = "default", isTvMode = false, ritmoIdeal }: ProgressBarProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   
@@ -21,6 +34,11 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
   const difference = ritmoIdeal !== undefined ? percentage - ritmoIdeal : 0;
   const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
   const differenceColor = difference >= 0 ? "text-green-600" : "text-red-600";
+  
+  // Get clock style
+  const clockStyle = ritmoIdeal !== undefined 
+    ? getClockStyle(percentage, ritmoIdeal) 
+    : { bgColor: 'bg-primary', animate: false };
   
   return (
     <div className="space-y-responsive-sm">
@@ -42,10 +60,10 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
               className="absolute top-0 flex flex-col items-center transition-all duration-500 ease-out"
               style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
             >
-              <div className="flex items-center justify-center w-4 h-4 rounded-full bg-primary shadow-md">
-                <Clock className="w-2.5 h-2.5 text-primary-foreground" />
+              <div className={`flex items-center justify-center w-4 h-4 rounded-full shadow-md ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
+                <Clock className="w-2.5 h-2.5 text-white" />
               </div>
-              <div className="w-0.5 h-bar-responsive bg-primary -mt-0.5" />
+              <div className={`w-0.5 h-bar-responsive -mt-0.5 ${clockStyle.bgColor}`} />
             </div>
             
             {/* Label sempre visível */}

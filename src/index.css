@@ -158,10 +158,25 @@
   .mb-responsive { margin-bottom: clamp(4px, 0.5vh, 10px); }
   .mt-responsive { margin-top: clamp(4px, 0.5vh, 10px); }
 
-  /* Responsive bar heights */
-  .h-bar-responsive-sm { height: clamp(4px, 0.5vh, 8px); }
-  .h-bar-responsive { height: clamp(6px, 0.7vh, 12px); }
-  .h-bar-responsive-lg { height: clamp(8px, 1vh, 16px); }
+  /* Responsive bar heights (+50% thickness) */
+  .h-bar-responsive-sm { height: clamp(6px, 0.75vh, 12px); }
+  .h-bar-responsive { height: clamp(9px, 1.05vh, 18px); }
+  .h-bar-responsive-lg { height: clamp(12px, 1.5vh, 24px); }
+
+  /* Clock pulse animation */
+  @keyframes pulse-clock {
+    0%, 100% { 
+      transform: scale(1); 
+      opacity: 1; 
+    }
+    50% { 
+      transform: scale(1.15); 
+      opacity: 0.85; 
+    }
+  }
+  .animate-pulse-clock {
+    animation: pulse-clock 1.5s ease-in-out infinite;
+  }
 
   /* Responsive icon sizes */
 .icon-responsive-sm { width: clamp(12px, 1.4vh, 18px); height: clamp(12px, 1.4vh, 18px); }

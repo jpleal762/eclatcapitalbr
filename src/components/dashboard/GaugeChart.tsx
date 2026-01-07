@@ -67,7 +67,20 @@ export function GaugeChart({
   
   const dynamicWidth = Math.round(160 * dynamicScale);
   const dynamicHeight = Math.round(90 * dynamicScale);
-  const dynamicStrokeWidth = Math.round(14 * dynamicScale);
+  const dynamicStrokeWidth = Math.round(21 * dynamicScale); // +50% thickness
+
+  // Function to get clock style based on performance
+  const getClockStyle = (currentValue: number, idealValue: number) => {
+    const percentageBelowIdeal = idealValue > 0 ? ((idealValue - currentValue) / idealValue) * 100 : 0;
+    
+    if (currentValue >= idealValue) {
+      return { color: 'hsl(142.1, 76.2%, 36.3%)', animate: false }; // green-500
+    } else if (percentageBelowIdeal > 30) {
+      return { color: 'hsl(0, 72.2%, 50.6%)', animate: true }; // red-500
+    } else {
+      return { color: 'hsl(47.9, 95.8%, 53.1%)', animate: true }; // yellow-500
+    }
+  };
   
   const radius = (dynamicWidth - dynamicStrokeWidth) / 2;
   const circumference = Math.PI * radius;
@@ -166,14 +179,23 @@ export function GaugeChart({
                     points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`}
                     fill="hsl(var(--primary))"
                   />
-                  {/* Clock icon at marker - larger and more visible */}
-                  <g transform={`translate(${x2 + Math.cos(ritmoIdealAngle) * 8 * dynamicScale}, ${y2 - Math.sin(ritmoIdealAngle) * 8 * dynamicScale})`}>
-                    <circle r={6 * dynamicScale} fill="hsl(var(--primary))" />
-                    <circle r={4.5 * dynamicScale} fill="none" stroke="hsl(var(--primary-foreground))" strokeWidth={0.8 * dynamicScale} />
-                    <line x1={0} y1={0} x2={0} y2={-2.5 * dynamicScale} stroke="hsl(var(--primary-foreground))" strokeWidth={0.8 * dynamicScale} strokeLinecap="round" />
-                    <line x1={0} y1={0} x2={1.8 * dynamicScale} y2={0} stroke="hsl(var(--primary-foreground))" strokeWidth={0.8 * dynamicScale} strokeLinecap="round" />
-                    <circle r={0.6 * dynamicScale} fill="hsl(var(--primary-foreground))" />
-                  </g>
+                  {/* Clock icon at marker - with conditional color and animation */}
+                  {(() => {
+                    const clockStyle = getClockStyle(percentage, ritmoIdeal);
+                    return (
+                      <g 
+                        transform={`translate(${x2 + Math.cos(ritmoIdealAngle) * 8 * dynamicScale}, ${y2 - Math.sin(ritmoIdealAngle) * 8 * dynamicScale})`}
+                        className={clockStyle.animate ? 'animate-pulse-clock' : ''}
+                        style={{ transformOrigin: 'center', transformBox: 'fill-box' }}
+                      >
+                        <circle r={6 * dynamicScale} fill={clockStyle.color} />
+                        <circle r={4.5 * dynamicScale} fill="none" stroke="white" strokeWidth={0.8 * dynamicScale} />
+                        <line x1={0} y1={0} x2={0} y2={-2.5 * dynamicScale} stroke="white" strokeWidth={0.8 * dynamicScale} strokeLinecap="round" />
+                        <line x1={0} y1={0} x2={1.8 * dynamicScale} y2={0} stroke="white" strokeWidth={0.8 * dynamicScale} strokeLinecap="round" />
+                        <circle r={0.6 * dynamicScale} fill="white" />
+                      </g>
+                    );
+                  })()}
                 </svg>
                 
                 <div 

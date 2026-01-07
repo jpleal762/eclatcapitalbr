@@ -10,6 +10,19 @@ interface AssessorChartProps {
   isTvMode?: boolean;
 }
 
+// Function to get clock style based on performance
+const getClockStyle = (currentValue: number, idealValue: number) => {
+  const percentageBelowIdeal = idealValue > 0 ? ((idealValue - currentValue) / idealValue) * 100 : 0;
+  
+  if (currentValue >= idealValue) {
+    return { bgColor: 'bg-green-500', animate: false };
+  } else if (percentageBelowIdeal > 30) {
+    return { bgColor: 'bg-red-500', animate: true };
+  } else {
+    return { bgColor: 'bg-yellow-500', animate: true };
+  }
+};
+
 function StatusIcon({
   icon,
   isTvMode = false
@@ -50,6 +63,7 @@ export function AssessorChart({
           const difference = assessor.geralPercentage - ritmoIdeal;
           const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
           const differenceColor = difference >= 0 ? "text-green-600" : "text-red-600";
+          const clockStyle = getClockStyle(assessor.geralPercentage, ritmoIdeal);
           
           return (
             <div key={assessor.name} className={`flex items-center gap-responsive-sm p-responsive-sm rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
@@ -63,17 +77,19 @@ export function AssessorChart({
                   <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
                     width: `${Math.min(assessor.geralPercentage, 100)}%`
                   }} />
-                  {/* Marcador do Ritmo Ideal - linha vertical com relógio e tooltip */}
+                  {/* Marcador do Ritmo Ideal - posicionado acima da barra */}
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div 
-                          className="absolute top-1/2 flex items-center justify-center cursor-pointer transition-all duration-500 ease-out"
-                          style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translate(-50%, -50%)' }}
+                          className="absolute flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
+                          style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)', top: '-10px' }}
                         >
-                          <div className="flex items-center justify-center w-3.5 h-3.5 rounded-full bg-primary shadow-md">
-                            <Clock className="w-2 h-2 text-primary-foreground" />
+                          <div className={`flex items-center justify-center w-3 h-3 rounded-full shadow-md ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
+                            <Clock className="w-1.5 h-1.5 text-white" />
                           </div>
+                          {/* Linha conectora até a barra */}
+                          <div className={`w-0.5 h-2 ${clockStyle.bgColor}`} />
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
