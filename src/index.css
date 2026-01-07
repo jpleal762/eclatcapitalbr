@@ -143,6 +143,16 @@
   .text-responsive-3xl { font-size: clamp(24px, 3vh, 40px); }
   .text-responsive-4xl { font-size: clamp(28px, 3.5vh, 48px); }
 
+  /* TV Mode - Double size fonts (2x larger for TV visibility) */
+  .text-tv-3xs { font-size: clamp(12px, 1.4vh, 18px); }
+  .text-tv-2xs { font-size: clamp(14px, 1.6vh, 20px); }
+  .text-tv-xs { font-size: clamp(16px, 1.8vh, 24px); }
+  .text-tv-sm { font-size: clamp(20px, 2.2vh, 28px); }
+  .text-tv-base { font-size: clamp(24px, 2.6vh, 32px); }
+  .text-tv-lg { font-size: clamp(28px, 3.2vh, 40px); }
+  .text-tv-xl { font-size: clamp(32px, 4vh, 52px); }
+  .text-tv-2xl { font-size: clamp(40px, 5vh, 64px); }
+
   /* Responsive gaps */
   .gap-responsive-sm { gap: clamp(2px, 0.3vh, 6px); }
   .gap-responsive { gap: clamp(4px, 0.5vh, 10px); }

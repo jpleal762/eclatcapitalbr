@@ -32,13 +32,13 @@ function StatusIcon({
 }) {
   switch (icon) {
     case "GREEN_CHECK":
-      return <CheckCircle className="icon-responsive-sm text-green-500 flex-shrink-0" />;
+      return <CheckCircle className={`${isTvMode ? 'icon-responsive' : 'icon-responsive-sm'} text-green-500 flex-shrink-0`} />;
     case "CLOCK":
-      return <Clock className="icon-responsive-sm text-blue-500 flex-shrink-0" />;
+      return <Clock className={`${isTvMode ? 'icon-responsive' : 'icon-responsive-sm'} text-blue-500 flex-shrink-0`} />;
     case "YELLOW_ALERT":
-      return <AlertTriangle className="icon-responsive-sm text-yellow-500 flex-shrink-0" />;
+      return <AlertTriangle className={`${isTvMode ? 'icon-responsive' : 'icon-responsive-sm'} text-yellow-500 flex-shrink-0`} />;
     case "RED_ALERT":
-      return <AlertTriangle className="icon-responsive-sm text-red-500 flex-shrink-0" />;
+      return <AlertTriangle className={`${isTvMode ? 'icon-responsive' : 'icon-responsive-sm'} text-red-500 flex-shrink-0`} />;
     default:
       return null;
   }
@@ -54,7 +54,7 @@ export function AssessorChart({
   
   return (
     <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
-      <h3 className="text-responsive-sm font-semibold mb-responsive text-foreground flex items-center gap-responsive-sm flex-shrink-0">
+      <h3 className={`${isTvMode ? 'text-tv-base' : 'text-responsive-sm'} font-semibold mb-responsive text-foreground flex items-center gap-responsive-sm flex-shrink-0`}>
         ICM Geral por Assessor
       </h3>
       
@@ -70,32 +70,32 @@ export function AssessorChart({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-responsive-sm">
                   <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} isTvMode={isTvMode} />
-                  <p className="text-responsive-xs font-medium text-foreground truncate">{assessor.name}</p>
+                  <p className={`${isTvMode ? 'text-tv-sm' : 'text-responsive-xs'} font-medium text-foreground truncate`}>{assessor.name}</p>
                 </div>
                 {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
                 <div className="relative w-full h-bar-responsive-sm bg-muted rounded-full overflow-visible mt-responsive-sm">
                   <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
                     width: `${Math.min(assessor.geralPercentage, 100)}%`
                   }} />
-                  {/* Marcador do Ritmo Ideal - posicionado acima da barra */}
+                  {/* Marcador do Ritmo Ideal - Clock com cores condicionais */}
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div 
                           className="absolute flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
-                          style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)', top: '-10px' }}
+                          style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)', top: '-12px' }}
                         >
-                          <div className={`flex items-center justify-center w-3 h-3 rounded-full shadow-md ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
-                            <Clock className="w-1.5 h-1.5 text-white" />
+                          <div className={`flex items-center justify-center w-4 h-4 rounded-full shadow-lg border-2 border-white ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
+                            <Clock className="w-2 h-2 text-white" />
                           </div>
-                          {/* Linha conectora até a barra */}
-                          <div className={`w-0.5 h-2 ${clockStyle.bgColor}`} />
+                          {/* Linha conectora com cor condicional */}
+                          <div className={`w-0.5 h-2.5 ${clockStyle.bgColor}`} />
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
                         <div className="text-center">
-                          <p className="text-responsive-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                          <p className={`text-responsive-sm font-bold ${differenceColor}`}>{differenceText}</p>
+                          <p className={`${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'} text-muted-foreground`}>Ritmo Ideal: {ritmoIdeal}%</p>
+                          <p className={`${isTvMode ? 'text-tv-sm' : 'text-responsive-sm'} font-bold ${differenceColor}`}>{differenceText}</p>
                         </div>
                       </TooltipContent>
                     </Tooltip>
@@ -110,10 +110,10 @@ export function AssessorChart({
               </div>
               
               <div className="text-right">
-                <span className="text-responsive-xs font-bold text-yellow-600">
+                <span className={`${isTvMode ? 'text-tv-sm' : 'text-responsive-xs'} font-bold text-yellow-600`}>
                   {assessor.geralPercentage}%
                 </span>
-                <span className="text-responsive-3xs font-medium text-gray-500 block">
+                <span className={`${isTvMode ? 'text-tv-xs' : 'text-responsive-3xs'} font-medium text-gray-500 block`}>
                   {assessor.semanaPercentage}%
                 </span>
               </div>
@@ -123,7 +123,7 @@ export function AssessorChart({
       </div>
 
       <div className="mt-auto pt-responsive border-t border-border text-center flex-shrink-0">
-        <p className="text-responsive-3xs text-muted-foreground italic">
+        <p className={`${isTvMode ? 'text-tv-xs' : 'text-responsive-3xs'} text-muted-foreground italic`}>
           Ranking de assessores para o período
         </p>
       </div>

@@ -26,6 +26,19 @@ interface ICMCardProps {
   isTvMode?: boolean;
 }
 
+// Function to get clock style based on performance
+const getClockStyle = (currentValue: number, idealValue: number) => {
+  const percentageBelowIdeal = idealValue > 0 ? ((idealValue - currentValue) / idealValue) * 100 : 0;
+  
+  if (currentValue >= idealValue) {
+    return { bgColor: 'bg-green-500', animate: false };
+  } else if (percentageBelowIdeal > 30) {
+    return { bgColor: 'bg-red-500', animate: true };
+  } else {
+    return { bgColor: 'bg-yellow-500', animate: true };
+  }
+};
+
 export function ICMCard({
   icmGeral,
   ritmoIdeal,
@@ -51,6 +64,8 @@ export function ICMCard({
   const circumference = Math.PI * gaugeRadius;
   const progress = (Math.min(icmGeral, 100) / 100) * circumference;
 
+  const clockStyle = getClockStyle(icmGeral, ritmoIdeal);
+
   const getCurrentMonthLabel = () => {
     const now = new Date();
     const monthNames = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
@@ -61,7 +76,7 @@ export function ICMCard({
     <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
       {/* Header with Toggle */}
       <div className="flex items-center justify-between mb-responsive flex-shrink-0">
-        <h3 className="text-responsive-xs font-medium text-muted-foreground">
+        <h3 className={`${isTvMode ? 'text-tv-sm' : 'text-responsive-xs'} font-medium text-muted-foreground`}>
           ICM Mensal
         </h3>
         {onToggleView && (
@@ -69,7 +84,7 @@ export function ICMCard({
             variant="outline"
             size="sm"
             onClick={onToggleView}
-            className="gap-1.5 text-responsive-xs h-auto py-1 px-2"
+            className={`gap-1.5 ${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'} h-auto py-1 px-2`}
           >
             <Calendar className="icon-responsive-sm" />
             {isTvMode ? "Mensal" : "TV"}
@@ -80,7 +95,7 @@ export function ICMCard({
       {/* Filters */}
       <div className="flex flex-wrap gap-responsive-sm mb-responsive flex-shrink-0">
         <Select value={selectedAssessor} onValueChange={onAssessorChange}>
-          <SelectTrigger className="w-[140px] bg-background text-responsive-xs h-auto py-1">
+          <SelectTrigger className={`w-[140px] bg-background ${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'} h-auto py-1`}>
             <SelectValue placeholder="TODOS" />
           </SelectTrigger>
           <SelectContent>
@@ -94,7 +109,7 @@ export function ICMCard({
         </Select>
 
         <Select value={selectedMonth} onValueChange={onMonthChange}>
-          <SelectTrigger className="w-[100px] bg-background text-responsive-xs h-auto py-1">
+          <SelectTrigger className={`w-[100px] bg-background ${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'} h-auto py-1`}>
             <SelectValue placeholder={getCurrentMonthLabel()} />
           </SelectTrigger>
           <SelectContent>
@@ -111,7 +126,7 @@ export function ICMCard({
       <div className="flex items-start justify-between gap-responsive flex-1 min-h-0">
         {/* Gauge */}
         <div className="flex flex-col items-center flex-1">
-          <h3 className="text-responsive-sm font-semibold mb-responsive text-foreground">ICM Geral</h3>
+          <h3 className={`${isTvMode ? 'text-tv-base' : 'text-responsive-sm'} font-semibold mb-responsive text-foreground`}>ICM Geral</h3>
           
           <div className="relative" style={{ width: gaugeWidth, height: gaugeHeight }}>
             <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
@@ -134,22 +149,22 @@ export function ICMCard({
               />
             </svg>
             <div className="absolute inset-0 flex items-end justify-center pb-1">
-              <span className="text-responsive-2xl font-bold text-foreground">{icmGeral}%</span>
+              <span className={`${isTvMode ? 'text-tv-2xl' : 'text-responsive-2xl'} font-bold text-foreground`}>{icmGeral}%</span>
             </div>
           </div>
         </div>
 
         {/* Days remaining */}
         <div className="text-center px-responsive py-responsive-sm">
-          <p className="text-responsive-xs text-muted-foreground mb-responsive-sm">Dias Úteis<br/>Restantes</p>
-          <p className="text-responsive-xl font-bold text-foreground">{diasUteisRestantes}</p>
+          <p className={`${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'} text-muted-foreground mb-responsive-sm`}>Dias Úteis<br/>Restantes</p>
+          <p className={`${isTvMode ? 'text-tv-xl' : 'text-responsive-xl'} font-bold text-foreground`}>{diasUteisRestantes}</p>
         </div>
       </div>
 
       {/* Progress bars */}
       <div className="mt-auto pt-responsive space-y-responsive-sm flex-shrink-0">
         <div className="space-y-responsive-sm">
-          <div className="flex justify-between text-responsive-xs">
+          <div className={`flex justify-between ${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'}`}>
             <span className="font-medium text-foreground">ICM Geral</span>
             <span className="font-bold text-foreground">{icmGeral}%</span>
           </div>
@@ -160,7 +175,7 @@ export function ICMCard({
                 style={{ width: `${Math.min(icmGeral, 100)}%` }}
               />
             </div>
-            {/* Marcador do Ritmo Ideal */}
+            {/* Marcador do Ritmo Ideal - Clock com cores condicionais */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -168,14 +183,16 @@ export function ICMCard({
                     className="absolute top-0 flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
                     style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
                   >
-                    <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-primary -mt-1" />
-                    <div className="w-0.5 h-bar-responsive bg-primary" />
+                    <div className={`flex items-center justify-center w-4 h-4 rounded-full shadow-md border-2 border-white ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''} -mt-1`}>
+                      <Clock className="w-2.5 h-2.5 text-white" />
+                    </div>
+                    <div className={`w-0.5 h-bar-responsive ${clockStyle.bgColor}`} />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <div className="text-center">
-                    <p className="text-responsive-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                    <p className={`text-responsive-sm font-bold ${icmGeral >= ritmoIdeal ? 'text-green-600' : 'text-red-600'}`}>
+                    <p className={`${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'} text-muted-foreground`}>Ritmo Ideal: {ritmoIdeal}%</p>
+                    <p className={`${isTvMode ? 'text-tv-sm' : 'text-responsive-sm'} font-bold ${icmGeral >= ritmoIdeal ? 'text-green-600' : 'text-red-600'}`}>
                       {icmGeral > ritmoIdeal ? `+${icmGeral - ritmoIdeal}%` : `${icmGeral - ritmoIdeal}%`}
                     </p>
                   </div>
@@ -183,7 +200,7 @@ export function ICMCard({
               </Tooltip>
             </TooltipProvider>
           </div>
-          <div className="flex justify-end text-responsive-3xs text-muted-foreground mt-responsive-sm">
+          <div className={`flex justify-end ${isTvMode ? 'text-tv-3xs' : 'text-responsive-3xs'} text-muted-foreground mt-responsive-sm`}>
             <span>▲ Ritmo Ideal: {ritmoIdeal}%</span>
           </div>
         </div>
@@ -200,19 +217,19 @@ export function ICMCard({
         {icmGeral > ritmoIdeal && (
           <>
             <CheckCircle className="icon-responsive-sm text-green-600" />
-            <span className="text-responsive-xs font-medium text-green-700">Acima do esperado</span>
+            <span className={`${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'} font-medium text-green-700`}>Acima do esperado</span>
           </>
         )}
         {icmGeral === ritmoIdeal && (
           <>
             <Clock className="icon-responsive-sm text-blue-600" />
-            <span className="text-responsive-xs font-medium text-blue-700">No Ritmo</span>
+            <span className={`${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'} font-medium text-blue-700`}>No Ritmo</span>
           </>
         )}
         {icmGeral < ritmoIdeal && (
           <>
             <AlertTriangle className="icon-responsive-sm text-orange-600" />
-            <span className="text-responsive-xs font-medium text-orange-700">Abaixo do esperado</span>
+            <span className={`${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'} font-medium text-orange-700`}>Abaixo do esperado</span>
           </>
         )}
       </div>
