@@ -275,37 +275,32 @@ export function GaugeChart({
                   style={{ width: `${Math.min(secondaryPercentage, 100)}%` }}
                 />
               </div>
-              {ritmoIdeal !== undefined && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div 
-                        className="absolute top-0 flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
-                        style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
-                      >
-                        <div className="w-0 h-0 border-l-[3px] border-r-[3px] border-t-[4px] border-l-transparent border-r-transparent border-t-primary" />
-                        <div className="w-0.5 h-2 bg-primary -mt-0.5" />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {(() => {
-                        const secondaryRitmoValue = Math.round(((ritmoIdeal / 100) * target) * 100) / 100;
-                        const secondaryRealDiff = Math.round(((secondaryValue ?? 0) - secondaryRitmoValue) * 100) / 100;
-                        return (
-                          <div className="text-center">
-                            <p className="text-xs text-muted-foreground">Ritmo Ideal: {formatNumber(secondaryRitmoValue, isCurrency)}</p>
-                            <p className={`text-sm font-bold ${secondaryRealDiff >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {secondaryRealDiff >= 0 
-                                ? `+${formatNumber(secondaryRealDiff, isCurrency)}` 
-                                : formatNumber(secondaryRealDiff, isCurrency)}
-                            </p>
-                          </div>
-                        );
-                      })()}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
+              {ritmoIdeal !== undefined && (() => {
+                const secondaryRitmoValue = Math.round(((ritmoIdeal / 100) * target) * 100) / 100;
+                const secondaryRealDiff = Math.round(((secondaryValue ?? 0) - secondaryRitmoValue) * 100) / 100;
+                const isPositive = secondaryRealDiff >= 0;
+                
+                return (
+                  <>
+                    {/* Marcador visual */}
+                    <div 
+                      className="absolute top-0 flex flex-col items-center transition-all duration-500 ease-out"
+                      style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
+                    >
+                      <div className="w-0 h-0 border-l-[3px] border-r-[3px] border-t-[4px] border-l-transparent border-r-transparent border-t-primary" />
+                      <div className="w-0.5 h-2 bg-primary -mt-0.5" />
+                    </div>
+                    
+                    {/* Label sempre visível */}
+                    <div className="absolute -bottom-4 right-0 text-[10px] font-medium whitespace-nowrap">
+                      <span className={isPositive ? 'text-green-600' : 'text-red-600'}>
+                        {isPositive ? '+' : ''}{formatNumber(secondaryRealDiff, isCurrency)}
+                      </span>
+                      <span className="text-muted-foreground ml-1">vs ideal</span>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}
