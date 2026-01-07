@@ -40,7 +40,7 @@ export const KPI_WEIGHTS: Record<string, number> = {
 // Note: Receita is special - target comes from PJ1 XP Mês + PJ2 XP Mês
 export const KPI_CATEGORIES = [
   { category: "Captação net", label: "Captação NET", isCurrency: true },
-  { category: "Receita", label: "Receita", isCurrency: true, isSpecial: true, targetCategories: ["PJ1 XP Mês", "PJ2 XP Mês"] },
+  { category: "Receita", label: "Receita XP", isCurrency: true, isSpecial: true, targetCategories: ["PJ1 XP Mês", "PJ2 XP Mês"] },
   { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
   { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
   { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },

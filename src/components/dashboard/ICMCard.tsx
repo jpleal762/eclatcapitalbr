@@ -138,18 +138,32 @@ export function ICMCard({
 
       {/* Progress bars */}
       <div className="mt-auto pt-2 space-y-2 flex-shrink-0">
-        <ProgressBar label="Ritmo Ideal" percentage={ritmoIdeal} color="primary" variant="default" isTvMode={isTvMode} />
-        {/* ICM Geral em barra amarela */}
+        {/* ICM Geral em barra amarela com marcador de Ritmo Ideal */}
         <div className="space-y-0.5">
           <div className={`flex justify-between ${isTvMode ? 'text-sm' : 'text-xs'}`}>
             <span className="font-medium text-foreground">ICM Geral</span>
             <span className="font-bold text-foreground">{icmGeral}%</span>
           </div>
-          <div className={`${isTvMode ? 'h-3' : 'h-2'} w-full rounded-full bg-muted overflow-hidden`}>
+          <div className="relative">
+            <div className={`${isTvMode ? 'h-3' : 'h-2'} w-full rounded-full bg-muted overflow-hidden`}>
+              <div 
+                className="h-full rounded-full transition-all duration-500 bg-yellow-500"
+                style={{ width: `${Math.min(icmGeral, 100)}%` }}
+              />
+            </div>
+            {/* Marcador do Ritmo Ideal - Triângulo apontando para baixo + linha */}
             <div 
-              className="h-full rounded-full transition-all duration-500 bg-yellow-500"
-              style={{ width: `${Math.min(icmGeral, 100)}%` }}
-            />
+              className="absolute top-0 flex flex-col items-center"
+              style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
+            >
+              {/* Triângulo */}
+              <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-primary -mt-1" />
+              {/* Linha vertical */}
+              <div className={`w-0.5 ${isTvMode ? 'h-3' : 'h-2'} bg-primary`} />
+            </div>
+          </div>
+          <div className="flex justify-end text-[10px] text-muted-foreground mt-0.5">
+            <span>▲ Ritmo Ideal: {ritmoIdeal}%</span>
           </div>
         </div>
       </div>
