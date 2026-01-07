@@ -2,11 +2,14 @@ import { Card } from "@/components/ui/card";
 import { AssessorPerformance, KPIStatusIcon } from "@/types/kpi";
 import { getKPIStatusIcon } from "@/lib/kpiUtils";
 import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 interface AssessorChartProps {
   data: AssessorPerformance[];
   ritmoIdeal: number;
   isTvMode?: boolean;
 }
+
 function StatusIcon({
   icon,
   isTvMode = false
@@ -28,6 +31,7 @@ function StatusIcon({
       return null;
   }
 }
+
 export function AssessorChart({
   data,
   ritmoIdeal,
@@ -35,53 +39,68 @@ export function AssessorChart({
 }: AssessorChartProps) {
   // Filter out "Socios" from ranking
   const filteredData = data.filter(assessor => assessor.name !== "Socios");
-  const getMedalEmoji = (index: number): string => {
-    if (index === 0) return "🥇";
-    if (index === 1) return "🥈";
-    if (index === 2) return "🥉";
-    return "";
-  };
-  return <Card className="p-3 shadow-card h-full flex flex-col overflow-hidden">
+  
+  return (
+    <Card className="p-3 shadow-card h-full flex flex-col overflow-hidden">
       <h3 className={`${isTvMode ? 'text-base' : 'text-sm'} font-semibold mb-2 text-foreground flex items-center gap-2 flex-shrink-0`}>
         ICM Geral por Assessor
       </h3>
       
       <div className="flex-1 overflow-auto min-h-0 space-y-1">
-        {filteredData.map((assessor, index) => <div key={assessor.name} className={`flex items-center gap-1.5 p-1 rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1">
-                <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} isTvMode={isTvMode} />
-                <p className={`${isTvMode ? 'text-xs' : 'text-[10px]'} font-medium text-foreground truncate`}>{assessor.name}</p>
+        {filteredData.map((assessor, index) => {
+          const difference = assessor.geralPercentage - ritmoIdeal;
+          const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
+          const differenceColor = difference >= 0 ? "text-green-600" : "text-red-600";
+          
+          return (
+            <div key={assessor.name} className={`flex items-center gap-1.5 p-1 rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1">
+                  <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} isTvMode={isTvMode} />
+                  <p className={`${isTvMode ? 'text-xs' : 'text-[10px]'} font-medium text-foreground truncate`}>{assessor.name}</p>
+                </div>
+                {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
+                <div className={`relative w-full ${isTvMode ? 'h-1.5' : 'h-1'} bg-muted rounded-full overflow-visible mt-0.5`}>
+                  <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
+                    width: `${Math.min(assessor.geralPercentage, 100)}%`
+                  }} />
+                  {/* Marcador do Ritmo Ideal - linha vertical com tooltip */}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div 
+                          className="absolute top-0 w-0.5 h-full bg-primary cursor-pointer transition-all duration-500 ease-out"
+                          style={{ left: `${Math.min(ritmoIdeal, 100)}%` }}
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                          <p className={`text-sm font-bold ${differenceColor}`}>{differenceText}</p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                {/* Barra ICM Semanal (cinza) */}
+                <div className={`w-full ${isTvMode ? 'h-1.5' : 'h-1'} bg-muted rounded-full overflow-hidden mt-0.5`}>
+                  <div className="h-full rounded-full transition-all duration-500 bg-gray-500" style={{
+                    width: `${Math.min(assessor.semanaPercentage, 100)}%`
+                  }} />
+                </div>
               </div>
-              {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
-              <div className={`relative w-full ${isTvMode ? 'h-1.5' : 'h-1'} bg-muted rounded-full overflow-visible mt-0.5`}>
-                <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
-                  width: `${Math.min(assessor.geralPercentage, 100)}%`
-                }} />
-                {/* Marcador do Ritmo Ideal - linha vertical */}
-                <div 
-                  className="absolute top-0 w-0.5 h-full bg-primary"
-                  style={{ left: `${Math.min(ritmoIdeal, 100)}%` }}
-                />
-              </div>
-              {/* Barra ICM Semanal (cinza) */}
-              <div className={`w-full ${isTvMode ? 'h-1.5' : 'h-1'} bg-muted rounded-full overflow-hidden mt-0.5`}>
-                <div className="h-full rounded-full transition-all duration-500 bg-gray-500" style={{
-                  width: `${Math.min(assessor.semanaPercentage, 100)}%`
-                }} />
+              
+              <div className="text-right">
+                <span className={`${isTvMode ? 'text-sm' : 'text-xs'} font-bold text-yellow-600`}>
+                  {assessor.geralPercentage}%
+                </span>
+                <span className={`${isTvMode ? 'text-xs' : 'text-[10px]'} font-medium text-gray-500 block`}>
+                  {assessor.semanaPercentage}%
+                </span>
               </div>
             </div>
-            
-            <div className="text-right">
-              <span className={`${isTvMode ? 'text-sm' : 'text-xs'} font-bold text-yellow-600`}>
-                {assessor.geralPercentage}%
-              </span>
-              <span className={`${isTvMode ? 'text-xs' : 'text-[10px]'} font-medium text-gray-500 block`}>
-                {assessor.semanaPercentage}%
-              </span>
-            </div>
-          </div>)}
+          );
+        })}
       </div>
 
       <div className="mt-auto pt-2 border-t border-border text-center flex-shrink-0">
@@ -89,5 +108,6 @@ export function AssessorChart({
           Ranking de assessores para o período
         </p>
       </div>
-    </Card>;
+    </Card>
+  );
 }

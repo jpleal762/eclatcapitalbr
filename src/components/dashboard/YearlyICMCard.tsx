@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface YearlyICMCardProps {
   icmGeral: number;
@@ -142,14 +143,28 @@ export function YearlyICMCard({
                 style={{ width: `${Math.min(icmGeral, 100)}%` }}
               />
             </div>
-            {/* Marcador de Ritmo Ideal */}
-            <div 
-              className="absolute top-0 flex flex-col items-center"
-              style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
-            >
-              <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-primary" />
-              <div className="w-0.5 h-3 bg-primary -mt-0.5" />
-            </div>
+            {/* Marcador de Ritmo Ideal com tooltip */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div 
+                    className="absolute top-0 flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
+                    style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
+                  >
+                    <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-primary" />
+                    <div className="w-0.5 h-3 bg-primary -mt-0.5" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-center">
+                    <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                    <p className={`text-sm font-bold ${icmGeral >= ritmoIdeal ? 'text-green-600' : 'text-red-600'}`}>
+                      {icmGeral > ritmoIdeal ? `+${icmGeral - ritmoIdeal}%` : `${icmGeral - ritmoIdeal}%`}
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
             <div className="w-0 h-0 border-l-[3px] border-r-[3px] border-t-[4px] border-l-transparent border-r-transparent border-t-primary" />

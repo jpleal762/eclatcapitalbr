@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ICMCardProps {
   icmGeral: number;
@@ -151,16 +152,30 @@ export function ICMCard({
                 style={{ width: `${Math.min(icmGeral, 100)}%` }}
               />
             </div>
-            {/* Marcador do Ritmo Ideal - Triângulo apontando para baixo + linha */}
-            <div 
-              className="absolute top-0 flex flex-col items-center"
-              style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
-            >
-              {/* Triângulo */}
-              <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-primary -mt-1" />
-              {/* Linha vertical */}
-              <div className={`w-0.5 ${isTvMode ? 'h-3' : 'h-2'} bg-primary`} />
-            </div>
+            {/* Marcador do Ritmo Ideal - Triângulo apontando para baixo + linha com tooltip */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div 
+                    className="absolute top-0 flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
+                    style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
+                  >
+                    {/* Triângulo */}
+                    <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-primary -mt-1" />
+                    {/* Linha vertical */}
+                    <div className={`w-0.5 ${isTvMode ? 'h-3' : 'h-2'} bg-primary`} />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-center">
+                    <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                    <p className={`text-sm font-bold ${icmGeral >= ritmoIdeal ? 'text-green-600' : 'text-red-600'}`}>
+                      {icmGeral > ritmoIdeal ? `+${icmGeral - ritmoIdeal}%` : `${icmGeral - ritmoIdeal}%`}
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <div className="flex justify-end text-[10px] text-muted-foreground mt-0.5">
             <span>▲ Ritmo Ideal: {ritmoIdeal}%</span>
