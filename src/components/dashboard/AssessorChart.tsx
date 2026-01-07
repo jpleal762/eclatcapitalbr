@@ -43,30 +43,33 @@ export function AssessorChart({
   };
   return <Card className="p-3 shadow-card h-full flex flex-col overflow-hidden">
       <h3 className={`${isTvMode ? 'text-base' : 'text-sm'} font-semibold mb-2 text-foreground flex items-center gap-2 flex-shrink-0`}>
-        <span>
-      </span> ICM% por Assessor
+        ICM Geral por Assessor
       </h3>
       
       <div className="flex-1 overflow-auto min-h-0 space-y-1">
         {filteredData.map((assessor, index) => <div key={assessor.name} className={`flex items-center gap-1.5 p-1 rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
-            
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1">
                 <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} isTvMode={isTvMode} />
                 <p className={`${isTvMode ? 'text-xs' : 'text-[10px]'} font-medium text-foreground truncate`}>{assessor.name}</p>
               </div>
-              {/* Barra ICM Geral (amarela) */}
-              <div className={`w-full ${isTvMode ? 'h-1.5' : 'h-1'} bg-muted rounded-full overflow-hidden mt-0.5`}>
+              {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
+              <div className={`relative w-full ${isTvMode ? 'h-1.5' : 'h-1'} bg-muted rounded-full overflow-visible mt-0.5`}>
                 <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
-              width: `${Math.min(assessor.geralPercentage, 100)}%`
-            }} />
+                  width: `${Math.min(assessor.geralPercentage, 100)}%`
+                }} />
+                {/* Marcador do Ritmo Ideal - linha vertical */}
+                <div 
+                  className="absolute top-0 w-0.5 h-full bg-primary"
+                  style={{ left: `${Math.min(ritmoIdeal, 100)}%` }}
+                />
               </div>
               {/* Barra ICM Semanal (cinza) */}
               <div className={`w-full ${isTvMode ? 'h-1.5' : 'h-1'} bg-muted rounded-full overflow-hidden mt-0.5`}>
                 <div className="h-full rounded-full transition-all duration-500 bg-gray-500" style={{
-              width: `${Math.min(assessor.semanaPercentage, 100)}%`
-            }} />
+                  width: `${Math.min(assessor.semanaPercentage, 100)}%`
+                }} />
               </div>
             </div>
             

@@ -50,20 +50,20 @@ interface DashboardSidebarProps {
 
 const CARD_ITEMS: { key: keyof DashboardVisibility; label: string }[] = [
   { key: "card1", label: "Card 1 - ICM Geral" },
-  { key: "card2", label: "Card 2 - Meta/Análise" },
-  { key: "card3", label: "Card 3 - Ranking Assessor" },
+  { key: "card2", label: "Card 2 - Metas Semanais" },
+  { key: "card3", label: "Card 3 - ICM Geral por Assessor" },
 ];
 
 const GRAPH_ITEMS: { key: keyof DashboardVisibility; label: string }[] = [
-  { key: "graph1", label: "Gráfico 1 - Principal" },
-  { key: "graph2", label: "Gráfico 2 - Principal" },
-  { key: "graph3", label: "Gráfico 3 - Principal" },
-  { key: "graph4", label: "Gráfico 4 - Sub" },
-  { key: "graph5", label: "Gráfico 5 - Sub" },
-  { key: "graph6", label: "Gráfico 6 - Sub" },
-  { key: "graph7", label: "Gráfico 7 - Sub" },
-  { key: "graph8", label: "Gráfico 8 - Sub" },
-  { key: "graph9", label: "Gráfico 9 - Sub" },
+  { key: "graph1", label: "Gráfico 1 - Captação NET" },
+  { key: "graph2", label: "Gráfico 2 - Receita XP" },
+  { key: "graph3", label: "Gráfico 3 - Primeiras Reuniões" },
+  { key: "graph4", label: "Gráfico 4 - Diversificação" },
+  { key: "graph5", label: "Gráfico 5 - Receita Parceiros" },
+  { key: "graph6", label: "Gráfico 6 - Receita PJ1 XP" },
+  { key: "graph7", label: "Gráfico 7 - Receita PJ2 XP" },
+  { key: "graph8", label: "Gráfico 8 - Habilitação" },
+  { key: "graph9", label: "Gráfico 9 - Ativação" },
 ];
 
 export function DashboardSidebar({ visibility, onVisibilityChange }: DashboardSidebarProps) {

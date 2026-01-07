@@ -29,16 +29,27 @@ import { loadExcelData, saveExcelData } from "@/lib/storage";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
+import { useAutoTheme } from "@/hooks/use-auto-theme";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 
+// Função para obter o mês atual no formato "jan/26"
+const getCurrentMonthValue = () => {
+  const now = new Date();
+  const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  return `${monthNames[now.getMonth()]}/${now.getFullYear().toString().slice(-2)}`;
+};
+
 const Index = () => {
+  // Hook para tema automático (dark após 16:00)
+  useAutoTheme();
+
   const [rawData, setRawData] = useState<KPIRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentView, setCurrentView] = useState<DashboardView>("monthly");
   const [filters, setFilters] = useState<DashboardFilters>({
     assessor: "all",
-    month: "all",
+    month: getCurrentMonthValue(), // Mês atual como padrão
   });
   const [yearlyFilters, setYearlyFilters] = useState<YearlyDashboardFilters>({
     assessor: "all",
