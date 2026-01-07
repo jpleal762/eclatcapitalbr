@@ -115,12 +115,12 @@ export function GaugeChart({
           </div>
         </div>
 
-        <div className="relative flex-1 flex items-center justify-center" style={{ width: config.width, minHeight: config.height }}>
+        {/* Fixed-size wrapper for precise positioning */}
+        <div className="relative flex-shrink-0" style={{ width: config.width, height: config.height + 10 }}>
           <svg
             width={config.width}
-            height={config.height}
+            height={config.height + 10}
             viewBox={`0 0 ${config.width} ${config.height + 10}`}
-            className="flex-shrink-0"
           >
             {/* Background arc */}
             <path
@@ -143,78 +143,55 @@ export function GaugeChart({
               strokeDashoffset={circumference - progress}
               style={{ transition: "stroke-dashoffset 0.5s ease-out" }}
             />
-            {/* Ritmo Ideal marker on arc - visual only */}
-            {ritmoIdeal !== undefined && (() => {
-              const ritmoIdealAngle = Math.PI - (ritmoIdeal / 100) * Math.PI;
-              const centerX = config.width / 2;
-              const centerY = config.height;
-              const markerInnerRadius = radius - config.strokeWidth / 2 - 4;
-              const markerOuterRadius = radius + config.strokeWidth / 2 + 4;
-              const markerX1 = centerX + Math.cos(ritmoIdealAngle) * markerInnerRadius;
-              const markerY1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
-              const markerX2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
-              const markerY2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
-              
-              // Triangle pointing inward
-              const triangleSize = isTvMode ? 8 : 6;
-              const triangleDistance = markerOuterRadius + triangleSize;
-              const triangleTipX = centerX + Math.cos(ritmoIdealAngle) * (markerOuterRadius + 2);
-              const triangleTipY = centerY - Math.sin(ritmoIdealAngle) * (markerOuterRadius + 2);
-              const triangleBaseX = centerX + Math.cos(ritmoIdealAngle) * triangleDistance;
-              const triangleBaseY = centerY - Math.sin(ritmoIdealAngle) * triangleDistance;
-              const perpAngle = ritmoIdealAngle + Math.PI / 2;
-              const triangleLeft = `${triangleBaseX + Math.cos(perpAngle) * (triangleSize / 2)},${triangleBaseY - Math.sin(perpAngle) * (triangleSize / 2)}`;
-              const triangleRight = `${triangleBaseX - Math.cos(perpAngle) * (triangleSize / 2)},${triangleBaseY + Math.sin(perpAngle) * (triangleSize / 2)}`;
-              const triangleTip = `${triangleTipX},${triangleTipY}`;
-
-              return (
-                <g className="pointer-events-none" style={{ transition: 'transform 0.5s ease-out' }}>
-                  <line
-                    x1={markerX1}
-                    y1={markerY1}
-                    x2={markerX2}
-                    y2={markerY2}
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={isTvMode ? 3 : 2}
-                    className="transition-all duration-500 ease-out"
-                  />
-                  <polygon
-                    points={`${triangleTip} ${triangleLeft} ${triangleRight}`}
-                    fill="hsl(var(--primary))"
-                    className="transition-all duration-500 ease-out"
-                  />
-                </g>
-              );
-            })()}
           </svg>
 
-          {/* Ritmo Ideal tooltip trigger - HTML div outside SVG */}
+          {/* Ritmo Ideal marker - HTML based for proper tooltip */}
           {ritmoIdeal !== undefined && (() => {
             const ritmoIdealAngle = Math.PI - (ritmoIdeal / 100) * Math.PI;
             const centerX = config.width / 2;
             const centerY = config.height;
-            const markerRadius = radius;
-            const markerPosX = centerX + Math.cos(ritmoIdealAngle) * markerRadius;
-            const markerPosY = centerY - Math.sin(ritmoIdealAngle) * markerRadius;
+            const markerOuterRadius = radius + config.strokeWidth / 2 + 2;
+            const markerPosX = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
+            const markerPosY = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
             const difference = percentage - ritmoIdeal;
             const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
             const differenceColor = difference >= 0 ? 'text-green-600' : 'text-red-600';
+            const angleDeg = (ritmoIdealAngle * 180 / Math.PI) - 90;
 
             return (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div 
-                      className="absolute cursor-pointer"
+                      className="absolute z-20 cursor-pointer flex flex-col items-center"
                       style={{
                         left: `${markerPosX}px`,
                         top: `${markerPosY}px`,
-                        width: isTvMode ? '24px' : '18px',
-                        height: isTvMode ? '24px' : '18px',
-                        transform: 'translate(-50%, -50%)',
-                        background: 'transparent',
+                        transform: `translate(-50%, -100%) rotate(${angleDeg}deg)`,
+                        padding: '4px',
                       }}
-                    />
+                    >
+                      {/* Triangle pointing down */}
+                      <div 
+                        className="border-l-transparent border-r-transparent border-t-primary"
+                        style={{
+                          width: 0,
+                          height: 0,
+                          borderLeftWidth: isTvMode ? 5 : 4,
+                          borderRightWidth: isTvMode ? 5 : 4,
+                          borderTopWidth: isTvMode ? 6 : 5,
+                        }}
+                      />
+                      {/* Line */}
+                      <div 
+                        className="bg-primary"
+                        style={{
+                          width: isTvMode ? 3 : 2,
+                          height: isTvMode ? 10 : 8,
+                          marginTop: -1,
+                        }}
+                      />
+                    </div>
                   </TooltipTrigger>
                   <TooltipContent>
                     <div className="text-center">
@@ -227,8 +204,8 @@ export function GaugeChart({
             );
           })()}
 
-          {/* Center content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
+          {/* Center content - pointer-events-none to not block tooltip */}
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-1 pointer-events-none">
             <span className={`${config.fontSize} font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
               {formatNumber(value, isCurrency)}
             </span>
@@ -239,9 +216,9 @@ export function GaugeChart({
             )}
           </div>
 
-          {/* Percentage label */}
+          {/* Percentage label - pointer-events-none to not block tooltip */}
           <div 
-            className={`absolute ${config.percentSize} font-bold`}
+            className={`absolute ${config.percentSize} font-bold pointer-events-none`}
             style={{
               top: "10%",
               left: "50%",
