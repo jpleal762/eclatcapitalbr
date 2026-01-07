@@ -36,8 +36,8 @@ export function ICMCard({
     scale
   } = useResponsiveSize();
 
-  // Dynamic gauge sizing
-  const dynamicScale = Math.max(0.6, Math.min(scale * (isTvMode ? 1.2 : 1), 1.4));
+  // Dynamic gauge sizing - 50% larger than other gauges
+  const dynamicScale = Math.max(0.9, Math.min(scale * (isTvMode ? 1.8 : 1.5), 2.1));
   const gaugeWidth = Math.round(140 * dynamicScale);
   const gaugeHeight = Math.round(80 * dynamicScale);
   const gaugeRadius = Math.round(60 * dynamicScale);
@@ -52,7 +52,7 @@ export function ICMCard({
   return <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
       {/* Header with Toggle */}
       <div className="flex items-center justify-between mb-responsive flex-shrink-0">
-        <h3 className="text-responsive-xs font-medium text-muted-foreground">
+        <h3 className={`${isTvMode ? 'text-tv-lg' : 'text-responsive-sm'} font-semibold text-foreground`}>
           ICM Mensal
         </h3>
         {onToggleView && <Button variant="outline" size="sm" onClick={onToggleView} className="gap-1.5 text-responsive-xs h-auto py-1 px-2">

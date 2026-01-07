@@ -54,7 +54,7 @@ export function AssessorChart({
   
   return (
     <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
-      <h3 className={`${isTvMode ? 'text-tv-base' : 'text-responsive-sm'} font-semibold mb-responsive text-foreground flex items-center gap-responsive-sm flex-shrink-0`}>
+      <h3 className={`${isTvMode ? 'text-tv-lg' : 'text-responsive-sm'} font-semibold mb-responsive text-foreground flex items-center gap-responsive-sm flex-shrink-0`}>
         ICM Geral por Assessor
       </h3>
       
