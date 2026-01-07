@@ -27,7 +27,7 @@ import {
 } from "@/lib/yearlyKpiUtils";
 import { loadExcelData, saveExcelData } from "@/lib/storage";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu } from "lucide-react";
+import { Menu, Maximize2 } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
 import { useAutoTheme } from "@/hooks/use-auto-theme";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -67,6 +67,37 @@ const Index = () => {
     }
     return defaultVisibility;
   });
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Fullscreen toggle with F11
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F11') {
+        e.preventDefault();
+        setIsFullscreen(prev => {
+          const newState = !prev;
+          if (newState) {
+            document.documentElement.requestFullscreen?.();
+          } else {
+            document.exitFullscreen?.();
+          }
+          return newState;
+        });
+      }
+    };
+
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   // Save visibility to localStorage
   useEffect(() => {
@@ -190,37 +221,49 @@ const Index = () => {
   return (
     <SidebarProvider>
       <div className="h-screen bg-background flex w-full overflow-hidden">
-        <DashboardSidebar 
-          visibility={visibility} 
-          onVisibilityChange={handleVisibilityChange} 
-        />
+        {!isFullscreen && (
+          <DashboardSidebar 
+            visibility={visibility} 
+            onVisibilityChange={handleVisibilityChange} 
+          />
+        )}
         
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
-          {/* Header */}
-          <header className="bg-card border-b border-border shadow-sm flex-shrink-0">
-            <div className="container mx-auto px-4 py-2">
-              <div className="flex items-center justify-between">
-                <div className="w-32 flex items-center gap-2">
-                  <SidebarTrigger className="p-2 hover:bg-muted rounded-md">
-                    <Menu className="h-5 w-5" />
-                  </SidebarTrigger>
-                </div>
-                <div className="flex-1 flex justify-center">
-                  <img 
-                    src={eclatLogo} 
-                    alt="Éclat XP Logo" 
-                    className="h-8 object-contain"
-                  />
-                </div>
-                <div className="w-32 flex justify-end items-center gap-2">
-                  <ThemeToggle />
-                  {hasData && (
-                    <FileUpload onDataLoaded={handleDataLoaded} compact />
-                  )}
+          {/* Header - hidden in fullscreen */}
+          {!isFullscreen && (
+            <header className="bg-card border-b border-border shadow-sm flex-shrink-0">
+              <div className="container mx-auto px-4 py-2">
+                <div className="flex items-center justify-between">
+                  <div className="w-32 flex items-center gap-2">
+                    <SidebarTrigger className="p-2 hover:bg-muted rounded-md">
+                      <Menu className="h-5 w-5" />
+                    </SidebarTrigger>
+                  </div>
+                  <div className="flex-1 flex justify-center">
+                    <img 
+                      src={eclatLogo} 
+                      alt="Éclat XP Logo" 
+                      className="h-8 object-contain"
+                    />
+                  </div>
+                  <div className="w-32 flex justify-end items-center gap-2">
+                    <ThemeToggle />
+                    {hasData && (
+                      <FileUpload onDataLoaded={handleDataLoaded} compact />
+                    )}
+                  </div>
                 </div>
               </div>
+            </header>
+          )}
+
+          {/* Fullscreen indicator */}
+          {isFullscreen && (
+            <div className="fixed top-2 right-2 z-50 bg-muted/80 backdrop-blur-sm px-3 py-1.5 rounded-full text-responsive-xs text-muted-foreground flex items-center gap-2 animate-fade-in">
+              <Maximize2 className="w-3 h-3" />
+              <span>F11 para sair</span>
             </div>
-          </header>
+          )}
 
           <main className="flex-1 overflow-hidden px-4 py-3">
             {isLoading ? (

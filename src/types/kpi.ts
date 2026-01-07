@@ -52,6 +52,7 @@ export interface AssessorPerformance {
 export interface MetaSemanal {
   label: string;
   value: number | string;
+  realizedValue?: number;
   isCurrency?: boolean;
 }
 

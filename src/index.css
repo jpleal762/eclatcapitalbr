@@ -164,7 +164,26 @@
   .h-bar-responsive-lg { height: clamp(8px, 1vh, 16px); }
 
   /* Responsive icon sizes */
-  .icon-responsive-sm { width: clamp(12px, 1.4vh, 18px); height: clamp(12px, 1.4vh, 18px); }
+.icon-responsive-sm { width: clamp(12px, 1.4vh, 18px); height: clamp(12px, 1.4vh, 18px); }
   .icon-responsive { width: clamp(16px, 1.8vh, 24px); height: clamp(16px, 1.8vh, 24px); }
   .icon-responsive-lg { width: clamp(20px, 2.2vh, 32px); height: clamp(20px, 2.2vh, 32px); }
+
+  /* Smooth transitions for responsive elements */
+  .transition-responsive {
+    transition: font-size 0.3s ease-out, 
+                padding 0.3s ease-out, 
+                gap 0.3s ease-out, 
+                height 0.3s ease-out,
+                width 0.3s ease-out,
+                transform 0.3s ease-out;
+  }
+}
+
+/* Apply transitions to responsive elements globally */
+[class*="text-responsive"],
+[class*="p-responsive"],
+[class*="gap-responsive"],
+[class*="h-bar-responsive"],
+[class*="icon-responsive"] {
+  transition: all 0.3s ease-out;
 }
