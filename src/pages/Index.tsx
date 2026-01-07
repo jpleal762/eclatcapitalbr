@@ -30,7 +30,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu, Maximize2, Minimize2 } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
 import { useAutoTheme } from "@/hooks/use-auto-theme";
-import { ClockLegend } from "@/components/dashboard/ClockLegend";
+
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -247,7 +247,7 @@ const Index = () => {
                       alt="Éclat XP Logo" 
                       className="h-8 object-contain"
                     />
-                    {hasData && <ClockLegend />}
+                    
                   </div>
                   <div className="w-40 flex justify-end items-center gap-2">
                     {/* Fullscreen Button */}
