@@ -1,5 +1,3 @@
-
-
 interface ProgressBarProps {
   label: string;
   percentage: number;
@@ -23,13 +21,13 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
   const differenceColor = difference >= 0 ? "text-green-600" : "text-red-600";
   
   return (
-    <div className="space-y-1.5">
-      <div className={`flex justify-between ${isTvMode ? 'text-base' : 'text-sm'}`}>
+    <div className="space-y-responsive-sm">
+      <div className="flex justify-between text-responsive-sm">
         <span className="font-medium text-foreground">{label}</span>
         <span className="text-muted-foreground">{percentage}%</span>
       </div>
       <div className="relative">
-        <div className={`${isTvMode ? 'h-4' : 'h-3'} bg-muted rounded-full overflow-hidden`}>
+        <div className="h-bar-responsive bg-muted rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${getBarColor()}`}
             style={{ width: `${clampedPercentage}%` }}
@@ -43,11 +41,11 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
               style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
             >
               <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-primary" />
-              <div className={`w-0.5 ${isTvMode ? 'h-4' : 'h-3'} bg-primary -mt-0.5`} />
+              <div className="w-0.5 h-bar-responsive bg-primary -mt-0.5" />
             </div>
             
             {/* Label sempre visível */}
-            <div className={`absolute ${isTvMode ? '-bottom-5' : '-bottom-4'} right-0 ${isTvMode ? 'text-xs' : 'text-[10px]'} font-medium whitespace-nowrap`}>
+            <div className="absolute -bottom-4 right-0 text-responsive-3xs font-medium whitespace-nowrap">
               <span className={differenceColor}>{differenceText}</span>
               <span className="text-muted-foreground ml-1">vs ideal</span>
             </div>
