@@ -157,9 +157,13 @@ export function GaugeChart({
             const triggerX = centerX + Math.cos(ritmoIdealAngle) * radius;
             const triggerY = centerY - Math.sin(ritmoIdealAngle) * radius;
             
-            const difference = percentage - ritmoIdeal;
-            const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
-            const differenceColor = difference >= 0 ? 'text-green-600' : 'text-red-600';
+            // Calcular valores reais ao invés de percentuais
+            const ritmoIdealValue = (ritmoIdeal / 100) * target;
+            const realDifference = value - ritmoIdealValue;
+            const differenceText = realDifference >= 0 
+              ? `+${formatNumber(realDifference, isCurrency)}` 
+              : formatNumber(realDifference, isCurrency);
+            const differenceColor = realDifference >= 0 ? 'text-green-600' : 'text-red-600';
 
             // Calcular pontos para o marcador SVG
             const x1 = centerX + Math.cos(ritmoIdealAngle) * markerInnerRadius;
@@ -215,7 +219,7 @@ export function GaugeChart({
                     </TooltipTrigger>
                     <TooltipContent>
                       <div className="text-center">
-                        <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                        <p className="text-xs text-muted-foreground">Ritmo Ideal: {formatNumber(ritmoIdealValue, isCurrency)}</p>
                         <p className={`text-sm font-bold ${differenceColor}`}>{differenceText}</p>
                       </div>
                     </TooltipContent>
@@ -284,14 +288,20 @@ export function GaugeChart({
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <div className="text-center">
-                        <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                        <p className={`text-sm font-bold ${(secondaryPercentage ?? 0) >= ritmoIdeal ? 'text-green-600' : 'text-red-600'}`}>
-                          {(secondaryPercentage ?? 0) > ritmoIdeal 
-                            ? `+${(secondaryPercentage ?? 0) - ritmoIdeal}%` 
-                            : `${(secondaryPercentage ?? 0) - ritmoIdeal}%`}
-                        </p>
-                      </div>
+                      {(() => {
+                        const secondaryRitmoValue = (ritmoIdeal / 100) * target;
+                        const secondaryRealDiff = (secondaryValue ?? 0) - secondaryRitmoValue;
+                        return (
+                          <div className="text-center">
+                            <p className="text-xs text-muted-foreground">Ritmo Ideal: {formatNumber(secondaryRitmoValue, isCurrency)}</p>
+                            <p className={`text-sm font-bold ${secondaryRealDiff >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {secondaryRealDiff >= 0 
+                                ? `+${formatNumber(secondaryRealDiff, isCurrency)}` 
+                                : formatNumber(secondaryRealDiff, isCurrency)}
+                            </p>
+                          </div>
+                        );
+                      })()}
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
