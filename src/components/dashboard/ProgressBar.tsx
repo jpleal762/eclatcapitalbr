@@ -42,9 +42,8 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
               className="absolute top-0 flex flex-col items-center transition-all duration-500 ease-out"
               style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
             >
-              <div className="flex items-center gap-0.5">
-                <Clock className="w-2 h-2 text-primary" />
-                <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-primary" />
+              <div className="flex items-center justify-center w-4 h-4 rounded-full bg-primary shadow-md">
+                <Clock className="w-2.5 h-2.5 text-primary-foreground" />
               </div>
               <div className="w-0.5 h-bar-responsive bg-primary -mt-0.5" />
             </div>

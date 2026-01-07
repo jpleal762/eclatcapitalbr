@@ -68,11 +68,12 @@ export function AssessorChart({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div 
-                          className="absolute top-0 flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
-                          style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
+                          className="absolute top-1/2 flex items-center justify-center cursor-pointer transition-all duration-500 ease-out"
+                          style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translate(-50%, -50%)' }}
                         >
-                          <Clock className="w-2 h-2 text-primary -mb-0.5" />
-                          <div className="w-0.5 h-full bg-primary" />
+                          <div className="flex items-center justify-center w-3.5 h-3.5 rounded-full bg-primary shadow-md">
+                            <Clock className="w-2 h-2 text-primary-foreground" />
+                          </div>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
