@@ -73,13 +73,14 @@ export function GaugeChart({
   // Function to get clock style based on performance
   const getClockStyle = (currentValue: number, idealValue: number) => {
     const percentageBelowIdeal = idealValue > 0 ? ((idealValue - currentValue) / idealValue) * 100 : 0;
+    const redGlow = 'drop-shadow(0 0 6px rgba(239, 68, 68, 0.7)) drop-shadow(0 0 12px rgba(239, 68, 68, 0.4))';
     
     if (currentValue >= idealValue) {
-      return { color: 'hsl(142.1, 76.2%, 36.3%)', animate: false }; // green-500
+      return { color: 'hsl(142.1, 76.2%, 36.3%)', animate: false, glow: 'none' }; // green-500
     } else if (percentageBelowIdeal > 30) {
-      return { color: 'hsl(0, 72.2%, 50.6%)', animate: true }; // red-500
+      return { color: 'hsl(0, 72.2%, 50.6%)', animate: true, glow: redGlow }; // red-500 with glow
     } else {
-      return { color: 'hsl(47.9, 95.8%, 53.1%)', animate: true }; // yellow-500
+      return { color: 'hsl(47.9, 95.8%, 53.1%)', animate: true, glow: 'none' }; // yellow-500
     }
   };
   
@@ -187,7 +188,7 @@ export function GaugeChart({
                       <g 
                         transform={`translate(${x2}, ${y2})`}
                         className={clockStyle.animate ? 'animate-pulse-clock' : ''}
-                        style={{ transformOrigin: 'center', transformBox: 'fill-box' }}
+                        style={{ transformOrigin: 'center', transformBox: 'fill-box', filter: clockStyle.glow }}
                       >
                         {/* Shadow for better visibility */}
                         <circle r={9 * dynamicScale} fill="rgba(0,0,0,0.15)" />
