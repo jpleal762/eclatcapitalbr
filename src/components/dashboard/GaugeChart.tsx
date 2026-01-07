@@ -201,17 +201,17 @@ export function GaugeChart({
                   />
                 </svg>
                 
-                {/* Label sempre visível - posicionado junto ao marcador */}
+                {/* Label sempre visível - posicionado do lado de fora do arco */}
                 <div 
                   className="absolute z-20 text-[9px] font-bold whitespace-nowrap pointer-events-none"
                   style={{
                     left: triggerX,
                     top: triggerY,
-                    transform: `translate(${ritmoIdeal > 50 ? '-100%' : '0%'}, -50%) translateX(${ritmoIdeal > 50 ? '-8px' : '8px'})`,
+                    transform: `translate(${ritmoIdeal > 50 ? '0%' : '-100%'}, -50%) translateX(${ritmoIdeal > 50 ? '8px' : '-8px'})`,
                     transition: 'all 0.5s ease-out',
                   }}
                 >
-                  <span className={differenceColor}>{differenceText}</span>
+                  <span className="text-primary">{differenceText}</span>
                 </div>
               </>
             );
@@ -279,17 +279,17 @@ export function GaugeChart({
                       <div className="w-0.5 h-2 bg-primary -mt-0.5" />
                     </div>
                     
-                    {/* Label sempre visível - junto ao marcador */}
+                    {/* Label sempre visível - posicionado do lado de fora (abaixo) da barra */}
                     <div 
                       className="absolute text-[9px] font-bold whitespace-nowrap"
                       style={{ 
                         left: `${Math.min(ritmoIdeal, 100)}%`, 
-                        top: '-14px',
-                        transform: `translateX(${ritmoIdeal > 50 ? '-100%' : '0%'})`,
+                        top: '10px',
+                        transform: `translateX(${ritmoIdeal > 50 ? '0%' : '-100%'})`,
                         transition: 'all 0.5s ease-out',
                       }}
                     >
-                      <span className={isPositive ? 'text-green-600' : 'text-red-600'}>
+                      <span className="text-primary">
                         {isPositive ? '+' : ''}{formatNumber(secondaryRealDiff, isCurrency)}
                       </span>
                     </div>
