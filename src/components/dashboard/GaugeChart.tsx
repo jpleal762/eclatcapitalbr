@@ -263,39 +263,6 @@ export function GaugeChart({
                   style={{ width: `${Math.min(secondaryPercentage, 100)}%` }}
                 />
               </div>
-              {ritmoIdeal !== undefined && (() => {
-                const secondaryRitmoValue = Math.round(((ritmoIdeal / 100) * target) * 100) / 100;
-                const secondaryRealDiff = Math.round(((secondaryValue ?? 0) - secondaryRitmoValue) * 100) / 100;
-                const isPositive = secondaryRealDiff >= 0;
-                
-                return (
-                  <>
-                    {/* Marcador visual */}
-                    <div 
-                      className="absolute top-0 flex flex-col items-center transition-all duration-500 ease-out"
-                      style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
-                    >
-                      <div className="w-0 h-0 border-l-[3px] border-r-[3px] border-t-[4px] border-l-transparent border-r-transparent border-t-primary" />
-                      <div className="w-0.5 h-2 bg-primary -mt-0.5" />
-                    </div>
-                    
-                    {/* Label sempre visível - posicionado do lado de fora (abaixo) da barra */}
-                    <div 
-                      className="absolute text-[9px] font-bold whitespace-nowrap"
-                      style={{ 
-                        left: `${Math.min(ritmoIdeal, 100)}%`, 
-                        top: '10px',
-                        transform: `translateX(${ritmoIdeal > 50 ? '0%' : '-100%'})`,
-                        transition: 'all 0.5s ease-out',
-                      }}
-                    >
-                      <span className="text-primary">
-                        {isPositive ? '+' : ''}{formatNumber(secondaryRealDiff, isCurrency)}
-                      </span>
-                    </div>
-                  </>
-                );
-              })()}
             </div>
           </div>
         )}
