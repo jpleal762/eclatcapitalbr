@@ -145,62 +145,83 @@ export function GaugeChart({
             />
           </svg>
 
-          {/* Ritmo Ideal marker - HTML based for proper tooltip */}
+          {/* Ritmo Ideal marker - SVG visual + invisible HTML trigger for tooltip */}
           {ritmoIdeal !== undefined && (() => {
             const ritmoIdealAngle = Math.PI - (ritmoIdeal / 100) * Math.PI;
             const centerX = config.width / 2;
             const centerY = config.height;
+            const markerInnerRadius = radius - config.strokeWidth / 2 - 2;
             const markerOuterRadius = radius + config.strokeWidth / 2 + 2;
-            const markerPosX = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
-            const markerPosY = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
+            
+            // Posição do trigger no centro do arco
+            const triggerX = centerX + Math.cos(ritmoIdealAngle) * radius;
+            const triggerY = centerY - Math.sin(ritmoIdealAngle) * radius;
+            
             const difference = percentage - ritmoIdeal;
             const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
             const differenceColor = difference >= 0 ? 'text-green-600' : 'text-red-600';
-            const angleDeg = (ritmoIdealAngle * 180 / Math.PI) - 90;
+
+            // Calcular pontos para o marcador SVG
+            const x1 = centerX + Math.cos(ritmoIdealAngle) * markerInnerRadius;
+            const y1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
+            const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
+            const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
+            
+            // Triângulo na ponta externa
+            const triangleSize = isTvMode ? 5 : 4;
+            const perpAngle = ritmoIdealAngle + Math.PI / 2;
+            const tipX = x2;
+            const tipY = y2;
+            const baseX1 = x2 - Math.cos(ritmoIdealAngle) * triangleSize + Math.cos(perpAngle) * triangleSize * 0.6;
+            const baseY1 = y2 + Math.sin(ritmoIdealAngle) * triangleSize - Math.sin(perpAngle) * triangleSize * 0.6;
+            const baseX2 = x2 - Math.cos(ritmoIdealAngle) * triangleSize - Math.cos(perpAngle) * triangleSize * 0.6;
+            const baseY2 = y2 + Math.sin(ritmoIdealAngle) * triangleSize + Math.sin(perpAngle) * triangleSize * 0.6;
 
             return (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div 
-                      className="absolute z-20 cursor-pointer flex flex-col items-center"
-                      style={{
-                        left: `${markerPosX}px`,
-                        top: `${markerPosY}px`,
-                        transform: `translate(-50%, -100%) rotate(${angleDeg}deg)`,
-                        padding: '4px',
-                      }}
-                    >
-                      {/* Triangle pointing down */}
+              <>
+                {/* SVG Marker - visual only */}
+                <svg
+                  className="absolute inset-0 pointer-events-none"
+                  width={config.width}
+                  height={config.height + 10}
+                  viewBox={`0 0 ${config.width} ${config.height + 10}`}
+                  style={{ transition: 'all 0.5s ease-out' }}
+                >
+                  <line 
+                    x1={x1} y1={y1} x2={x2} y2={y2} 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={isTvMode ? 3 : 2} 
+                  />
+                  <polygon 
+                    points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`}
+                    fill="hsl(var(--primary))"
+                  />
+                </svg>
+                
+                {/* Invisible div for tooltip trigger */}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
                       <div 
-                        className="border-l-transparent border-r-transparent border-t-primary"
+                        className="absolute z-20 cursor-pointer"
                         style={{
-                          width: 0,
-                          height: 0,
-                          borderLeftWidth: isTvMode ? 5 : 4,
-                          borderRightWidth: isTvMode ? 5 : 4,
-                          borderTopWidth: isTvMode ? 6 : 5,
+                          left: triggerX,
+                          top: triggerY,
+                          width: isTvMode ? 24 : 20,
+                          height: isTvMode ? 24 : 20,
+                          transform: 'translate(-50%, -50%)',
                         }}
                       />
-                      {/* Line */}
-                      <div 
-                        className="bg-primary"
-                        style={{
-                          width: isTvMode ? 3 : 2,
-                          height: isTvMode ? 10 : 8,
-                          marginTop: -1,
-                        }}
-                      />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                      <p className={`text-sm font-bold ${differenceColor}`}>{differenceText}</p>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                        <p className={`text-sm font-bold ${differenceColor}`}>{differenceText}</p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </>
             );
           })()}
 
