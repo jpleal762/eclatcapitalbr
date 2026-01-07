@@ -2,7 +2,6 @@ import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
 import { KPIStatusIcon } from "@/types/kpi";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface GaugeChartProps {
   label: string;
@@ -202,29 +201,18 @@ export function GaugeChart({
                   />
                 </svg>
                 
-                {/* Invisible div for tooltip trigger */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div 
-                        className="absolute z-20 cursor-pointer"
-                        style={{
-                          left: triggerX,
-                          top: triggerY,
-                          width: isTvMode ? 24 : 20,
-                          height: isTvMode ? 24 : 20,
-                          transform: 'translate(-50%, -50%)',
-                        }}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <div className="text-center">
-                        <p className="text-xs text-muted-foreground">Ritmo Ideal: {formatNumber(ritmoIdealValue, isCurrency)}</p>
-                        <p className={`text-sm font-bold ${differenceColor}`}>{differenceText}</p>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                {/* Label sempre visível - posicionado junto ao marcador */}
+                <div 
+                  className="absolute z-20 text-[9px] font-bold whitespace-nowrap pointer-events-none"
+                  style={{
+                    left: triggerX,
+                    top: triggerY,
+                    transform: `translate(${ritmoIdeal > 50 ? '-100%' : '0%'}, -50%) translateX(${ritmoIdeal > 50 ? '-8px' : '8px'})`,
+                    transition: 'all 0.5s ease-out',
+                  }}
+                >
+                  <span className={differenceColor}>{differenceText}</span>
+                </div>
               </>
             );
           })()}
@@ -291,12 +279,19 @@ export function GaugeChart({
                       <div className="w-0.5 h-2 bg-primary -mt-0.5" />
                     </div>
                     
-                    {/* Label sempre visível */}
-                    <div className="absolute -bottom-4 right-0 text-[10px] font-medium whitespace-nowrap">
+                    {/* Label sempre visível - junto ao marcador */}
+                    <div 
+                      className="absolute text-[9px] font-bold whitespace-nowrap"
+                      style={{ 
+                        left: `${Math.min(ritmoIdeal, 100)}%`, 
+                        top: '-14px',
+                        transform: `translateX(${ritmoIdeal > 50 ? '-100%' : '0%'})`,
+                        transition: 'all 0.5s ease-out',
+                      }}
+                    >
                       <span className={isPositive ? 'text-green-600' : 'text-red-600'}>
                         {isPositive ? '+' : ''}{formatNumber(secondaryRealDiff, isCurrency)}
                       </span>
-                      <span className="text-muted-foreground ml-1">vs ideal</span>
                     </div>
                   </>
                 );
