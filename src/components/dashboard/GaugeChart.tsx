@@ -143,6 +143,64 @@ export function GaugeChart({
               strokeDashoffset={circumference - progress}
               style={{ transition: "stroke-dashoffset 0.5s ease-out" }}
             />
+            {/* Ritmo Ideal marker on arc */}
+            {ritmoIdeal !== undefined && (() => {
+              const ritmoIdealAngle = Math.PI - (ritmoIdeal / 100) * Math.PI;
+              const centerX = config.width / 2;
+              const centerY = config.height;
+              const markerInnerRadius = radius - config.strokeWidth / 2 - 4;
+              const markerOuterRadius = radius + config.strokeWidth / 2 + 4;
+              const markerX1 = centerX + Math.cos(ritmoIdealAngle) * markerInnerRadius;
+              const markerY1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
+              const markerX2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
+              const markerY2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
+              const difference = percentage - ritmoIdeal;
+              const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
+              const differenceColor = difference >= 0 ? 'text-green-600' : 'text-red-600';
+              
+              // Triangle pointing inward
+              const triangleSize = isTvMode ? 8 : 6;
+              const triangleDistance = markerOuterRadius + triangleSize;
+              const triangleTipX = centerX + Math.cos(ritmoIdealAngle) * (markerOuterRadius + 2);
+              const triangleTipY = centerY - Math.sin(ritmoIdealAngle) * (markerOuterRadius + 2);
+              const triangleBaseX = centerX + Math.cos(ritmoIdealAngle) * triangleDistance;
+              const triangleBaseY = centerY - Math.sin(ritmoIdealAngle) * triangleDistance;
+              const perpAngle = ritmoIdealAngle + Math.PI / 2;
+              const triangleLeft = `${triangleBaseX + Math.cos(perpAngle) * (triangleSize / 2)},${triangleBaseY - Math.sin(perpAngle) * (triangleSize / 2)}`;
+              const triangleRight = `${triangleBaseX - Math.cos(perpAngle) * (triangleSize / 2)},${triangleBaseY + Math.sin(perpAngle) * (triangleSize / 2)}`;
+              const triangleTip = `${triangleTipX},${triangleTipY}`;
+
+              return (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <g className="cursor-pointer" style={{ transition: 'transform 0.5s ease-out' }}>
+                        <line
+                          x1={markerX1}
+                          y1={markerY1}
+                          x2={markerX2}
+                          y2={markerY2}
+                          stroke="hsl(var(--primary))"
+                          strokeWidth={isTvMode ? 3 : 2}
+                          className="transition-all duration-500 ease-out"
+                        />
+                        <polygon
+                          points={`${triangleTip} ${triangleLeft} ${triangleRight}`}
+                          fill="hsl(var(--primary))"
+                          className="transition-all duration-500 ease-out"
+                        />
+                      </g>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                        <p className={`text-sm font-bold ${differenceColor}`}>{differenceText}</p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
+            })()}
           </svg>
 
           {/* Center content */}

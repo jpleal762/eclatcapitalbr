@@ -291,6 +291,7 @@ const Index = () => {
                             statusIcon={dashboardData.gaugeKPIs[0]?.statusIcon}
                             size="lg"
                             showRemaining={true}
+                            ritmoIdeal={dashboardData.ritmoIdeal}
                           />
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
@@ -306,6 +307,7 @@ const Index = () => {
                                 statusIcon={dashboardData.gaugeKPIs[3]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                             {visibility.graph5 && (
@@ -319,6 +321,7 @@ const Index = () => {
                                 statusIcon={dashboardData.gaugeKPIs[4]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                           </div>
@@ -340,6 +343,7 @@ const Index = () => {
                             statusIcon={dashboardData.gaugeKPIs[1]?.statusIcon}
                             size="lg"
                             showRemaining={true}
+                            ritmoIdeal={dashboardData.ritmoIdeal}
                           />
                         )}
                         {(visibility.graph6 || visibility.graph7) && (
@@ -355,6 +359,7 @@ const Index = () => {
                                 statusIcon={dashboardData.gaugeKPIs[5]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                             {visibility.graph7 && (
@@ -368,6 +373,7 @@ const Index = () => {
                                 statusIcon={dashboardData.gaugeKPIs[6]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                           </div>
@@ -392,6 +398,7 @@ const Index = () => {
                             secondaryValue={dashboardData.gaugeKPIs[2]?.secondaryValue}
                             secondaryPercentage={dashboardData.gaugeKPIs[2]?.secondaryPercentage}
                             secondaryLabel={dashboardData.gaugeKPIs[2]?.secondaryLabel}
+                            ritmoIdeal={dashboardData.ritmoIdeal}
                           />
                         )}
                         {(visibility.graph8 || visibility.graph9) && (
@@ -407,6 +414,7 @@ const Index = () => {
                                 statusIcon={dashboardData.gaugeKPIs[7]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                             {visibility.graph9 && (
@@ -420,6 +428,7 @@ const Index = () => {
                                 statusIcon={dashboardData.gaugeKPIs[8]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                           </div>
@@ -485,6 +494,7 @@ const Index = () => {
                                 size="lg"
                                 showRemaining={true}
                                 isTvMode={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             </div>
                             <AssessorRemainingMatrix
@@ -508,6 +518,7 @@ const Index = () => {
                                 size="sm"
                                 showRemaining={true}
                                 isTvMode={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                             {visibility.graph5 && (
@@ -522,6 +533,7 @@ const Index = () => {
                                 size="sm"
                                 showRemaining={true}
                                 isTvMode={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                           </div>
@@ -546,6 +558,7 @@ const Index = () => {
                                 size="lg"
                                 showRemaining={true}
                                 isTvMode={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             </div>
                             <AssessorRemainingMatrix
@@ -569,6 +582,7 @@ const Index = () => {
                                 size="sm"
                                 showRemaining={true}
                                 isTvMode={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                             {visibility.graph7 && (
@@ -583,6 +597,7 @@ const Index = () => {
                                 size="sm"
                                 showRemaining={true}
                                 isTvMode={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                           </div>
@@ -610,6 +625,7 @@ const Index = () => {
                                 secondaryValue={dashboardData.gaugeKPIs[2]?.secondaryValue}
                                 secondaryPercentage={dashboardData.gaugeKPIs[2]?.secondaryPercentage}
                                 secondaryLabel={dashboardData.gaugeKPIs[2]?.secondaryLabel}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             </div>
                             <AssessorAgendadasMatrix
@@ -632,6 +648,7 @@ const Index = () => {
                                 size="sm"
                                 showRemaining={true}
                                 isTvMode={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                             {visibility.graph9 && (
@@ -646,6 +663,7 @@ const Index = () => {
                                 size="sm"
                                 showRemaining={true}
                                 isTvMode={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
                           </div>
