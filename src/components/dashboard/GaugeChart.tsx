@@ -166,6 +166,13 @@ export function GaugeChart({
                     points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`}
                     fill="hsl(var(--primary))"
                   />
+                  {/* Clock icon at marker */}
+                  <g transform={`translate(${x2 + Math.cos(ritmoIdealAngle) * 6}, ${y2 - Math.sin(ritmoIdealAngle) * 6})`}>
+                    <circle r={4 * dynamicScale} fill="hsl(var(--primary))" />
+                    <circle r={3 * dynamicScale} fill="none" stroke="hsl(var(--primary-foreground))" strokeWidth={0.5 * dynamicScale} />
+                    <line x1={0} y1={0} x2={0} y2={-1.5 * dynamicScale} stroke="hsl(var(--primary-foreground))" strokeWidth={0.5 * dynamicScale} />
+                    <line x1={0} y1={0} x2={1 * dynamicScale} y2={0} stroke="hsl(var(--primary-foreground))" strokeWidth={0.5 * dynamicScale} />
+                  </g>
                 </svg>
                 
                 <div 

@@ -63,14 +63,17 @@ export function AssessorChart({
                   <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
                     width: `${Math.min(assessor.geralPercentage, 100)}%`
                   }} />
-                  {/* Marcador do Ritmo Ideal - linha vertical com tooltip */}
+                  {/* Marcador do Ritmo Ideal - linha vertical com relógio e tooltip */}
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div 
-                          className="absolute top-0 w-0.5 h-full bg-primary cursor-pointer transition-all duration-500 ease-out"
-                          style={{ left: `${Math.min(ritmoIdeal, 100)}%` }}
-                        />
+                          className="absolute top-0 flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
+                          style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
+                        >
+                          <Clock className="w-2 h-2 text-primary -mb-0.5" />
+                          <div className="w-0.5 h-full bg-primary" />
+                        </div>
                       </TooltipTrigger>
                       <TooltipContent>
                         <div className="text-center">

@@ -28,6 +28,7 @@ export function MetaTable({ data, realPercentage, selectedAssessor, weekToMonthP
             <tr className="border-b border-border">
               <th className="text-left py-responsive-sm text-responsive-xs font-medium text-muted-foreground">KPI</th>
               <th className="text-right py-responsive-sm text-responsive-xs font-medium text-muted-foreground">Meta</th>
+              <th className="text-right py-responsive-sm text-responsive-xs font-medium text-muted-foreground">Realizado</th>
             </tr>
           </thead>
           <tbody>
@@ -40,6 +41,11 @@ export function MetaTable({ data, realPercentage, selectedAssessor, weekToMonthP
                         ? formatNumber(item.value, true)
                         : formatNumber(item.value))
                     : item.value}
+                </td>
+                <td className="py-responsive-sm text-responsive-xs text-right font-medium text-green-600">
+                  {item.realizedValue !== undefined 
+                    ? formatNumber(item.realizedValue, item.isCurrency)
+                    : "-"}
                 </td>
               </tr>
             ))}

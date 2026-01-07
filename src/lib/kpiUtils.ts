@@ -586,10 +586,17 @@ export function processDashboardData(
   const metaSemanal: MetaSemanal[] = metaSemanalCategories.map(item => {
     const catData = filterByCategory(filteredByAssessor, item.category);
     const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
+    const realizedData = catData.filter(d => isRealizedStatus(d.status));
+    
     const value = selectedMonth !== "all" 
       ? getMonthValue(weeklyPlanned, selectedMonth)
       : weeklyPlanned.reduce((s, d) => s + d.total, 0);
-    return { label: item.label, value, isCurrency: item.isCurrency };
+    
+    const realizedValue = selectedMonth !== "all"
+      ? getMonthValue(realizedData, selectedMonth)
+      : realizedData.reduce((s, d) => s + d.total, 0);
+      
+    return { label: item.label, value, realizedValue, isCurrency: item.isCurrency };
   });
 
   // Calculate metaSemanalPercentage: sum of Planejado Semana (6 KPIs) / sum of Planejado Mês (8 KPIs)
