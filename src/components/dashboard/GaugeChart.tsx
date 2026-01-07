@@ -143,7 +143,7 @@ export function GaugeChart({
               strokeDashoffset={circumference - progress}
               style={{ transition: "stroke-dashoffset 0.5s ease-out" }}
             />
-            {/* Ritmo Ideal marker on arc */}
+            {/* Ritmo Ideal marker on arc - visual only */}
             {ritmoIdeal !== undefined && (() => {
               const ritmoIdealAngle = Math.PI - (ritmoIdeal / 100) * Math.PI;
               const centerX = config.width / 2;
@@ -154,9 +154,6 @@ export function GaugeChart({
               const markerY1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
               const markerX2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
               const markerY2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
-              const difference = percentage - ritmoIdeal;
-              const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
-              const differenceColor = difference >= 0 ? 'text-green-600' : 'text-red-600';
               
               // Triangle pointing inward
               const triangleSize = isTvMode ? 8 : 6;
@@ -171,37 +168,64 @@ export function GaugeChart({
               const triangleTip = `${triangleTipX},${triangleTipY}`;
 
               return (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <g className="cursor-pointer" style={{ transition: 'transform 0.5s ease-out' }}>
-                        <line
-                          x1={markerX1}
-                          y1={markerY1}
-                          x2={markerX2}
-                          y2={markerY2}
-                          stroke="hsl(var(--primary))"
-                          strokeWidth={isTvMode ? 3 : 2}
-                          className="transition-all duration-500 ease-out"
-                        />
-                        <polygon
-                          points={`${triangleTip} ${triangleLeft} ${triangleRight}`}
-                          fill="hsl(var(--primary))"
-                          className="transition-all duration-500 ease-out"
-                        />
-                      </g>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <div className="text-center">
-                        <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                        <p className={`text-sm font-bold ${differenceColor}`}>{differenceText}</p>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <g className="pointer-events-none" style={{ transition: 'transform 0.5s ease-out' }}>
+                  <line
+                    x1={markerX1}
+                    y1={markerY1}
+                    x2={markerX2}
+                    y2={markerY2}
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={isTvMode ? 3 : 2}
+                    className="transition-all duration-500 ease-out"
+                  />
+                  <polygon
+                    points={`${triangleTip} ${triangleLeft} ${triangleRight}`}
+                    fill="hsl(var(--primary))"
+                    className="transition-all duration-500 ease-out"
+                  />
+                </g>
               );
             })()}
           </svg>
+
+          {/* Ritmo Ideal tooltip trigger - HTML div outside SVG */}
+          {ritmoIdeal !== undefined && (() => {
+            const ritmoIdealAngle = Math.PI - (ritmoIdeal / 100) * Math.PI;
+            const centerX = config.width / 2;
+            const centerY = config.height;
+            const markerRadius = radius;
+            const markerPosX = centerX + Math.cos(ritmoIdealAngle) * markerRadius;
+            const markerPosY = centerY - Math.sin(ritmoIdealAngle) * markerRadius;
+            const difference = percentage - ritmoIdeal;
+            const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
+            const differenceColor = difference >= 0 ? 'text-green-600' : 'text-red-600';
+
+            return (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div 
+                      className="absolute cursor-pointer"
+                      style={{
+                        left: `${markerPosX}px`,
+                        top: `${markerPosY}px`,
+                        width: isTvMode ? '24px' : '18px',
+                        height: isTvMode ? '24px' : '18px',
+                        transform: 'translate(-50%, -50%)',
+                        background: 'transparent',
+                      }}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                      <p className={`text-sm font-bold ${differenceColor}`}>{differenceText}</p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })()}
 
           {/* Center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
