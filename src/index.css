@@ -173,19 +173,19 @@
   .h-bar-responsive { height: clamp(9px, 1.05vh, 18px); }
   .h-bar-responsive-lg { height: clamp(12px, 1.5vh, 24px); }
 
-  /* Clock pulse animation */
+  /* Clock pulse animation - 3x more intense for TV visibility */
   @keyframes pulse-clock {
     0%, 100% { 
       transform: scale(1); 
       opacity: 1; 
     }
     50% { 
-      transform: scale(1.15); 
-      opacity: 0.85; 
+      transform: scale(1.45); 
+      opacity: 0.65; 
     }
   }
   .animate-pulse-clock {
-    animation: pulse-clock 1.5s ease-in-out infinite;
+    animation: pulse-clock 0.5s ease-in-out infinite;
   }
 
   /* Responsive icon sizes */
