@@ -185,7 +185,7 @@ export function GaugeChart({
                     const clockStyle = getClockStyle(percentage, ritmoIdeal);
                     return (
                       <g 
-                        transform={`translate(${x2 + Math.cos(ritmoIdealAngle) * 2 * dynamicScale}, ${y2 - Math.sin(ritmoIdealAngle) * 2 * dynamicScale})`}
+                        transform={`translate(${x2}, ${y2})`}
                         className={clockStyle.animate ? 'animate-pulse-clock' : ''}
                         style={{ transformOrigin: 'center', transformBox: 'fill-box' }}
                       >
