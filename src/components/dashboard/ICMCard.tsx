@@ -46,7 +46,7 @@ export function ICMCard({
   const gaugeWidth = Math.round(140 * dynamicScale);
   const gaugeHeight = Math.round(80 * dynamicScale);
   const gaugeRadius = Math.round(60 * dynamicScale);
-  const strokeWidth = Math.round(12 * dynamicScale);
+  const strokeWidth = Math.round(18 * dynamicScale); // +50% thickness
   
   const circumference = Math.PI * gaugeRadius;
   const progress = (Math.min(icmGeral, 100) / 100) * circumference;
