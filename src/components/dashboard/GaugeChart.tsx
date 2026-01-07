@@ -19,6 +19,7 @@ interface GaugeChartProps {
   secondaryValue?: number;
   secondaryPercentage?: number;
   secondaryLabel?: string;
+  ritmoIdeal?: number;
 }
 
 function StatusIconDisplay({ icon, size }: { icon?: KPIStatusIcon; size: "sm" | "md" | "lg" }) {
@@ -75,6 +76,7 @@ export function GaugeChart({
   secondaryValue,
   secondaryPercentage,
   secondaryLabel,
+  ritmoIdeal,
 }: GaugeChartProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   const remainingValue = Math.max(target - value, 0);
@@ -181,11 +183,22 @@ export function GaugeChart({
               <span>{secondaryLabel || "Agendadas"}</span>
               <span className="font-medium">{secondaryPercentage}%</span>
             </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gray-500 transition-all duration-500"
-                style={{ width: `${Math.min(secondaryPercentage, 100)}%` }}
-              />
+            <div className="relative">
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gray-500 transition-all duration-500"
+                  style={{ width: `${Math.min(secondaryPercentage, 100)}%` }}
+                />
+              </div>
+              {ritmoIdeal !== undefined && (
+                <div 
+                  className="absolute top-0 flex flex-col items-center"
+                  style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
+                >
+                  <div className="w-0 h-0 border-l-[3px] border-r-[3px] border-t-[4px] border-l-transparent border-r-transparent border-t-primary" />
+                  <div className="w-0.5 h-2 bg-primary -mt-0.5" />
+                </div>
+              )}
             </div>
           </div>
         )}
