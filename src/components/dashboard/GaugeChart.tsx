@@ -179,20 +179,26 @@ export function GaugeChart({
                     points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`}
                     fill="hsl(var(--primary))"
                   />
-                  {/* Clock icon at marker - with conditional color and animation */}
+                  {/* Clock icon at marker - with conditional color and animation - LARGER for visibility */}
                   {(() => {
                     const clockStyle = getClockStyle(percentage, ritmoIdeal);
                     return (
                       <g 
-                        transform={`translate(${x2 + Math.cos(ritmoIdealAngle) * 8 * dynamicScale}, ${y2 - Math.sin(ritmoIdealAngle) * 8 * dynamicScale})`}
+                        transform={`translate(${x2 + Math.cos(ritmoIdealAngle) * 10 * dynamicScale}, ${y2 - Math.sin(ritmoIdealAngle) * 10 * dynamicScale})`}
                         className={clockStyle.animate ? 'animate-pulse-clock' : ''}
                         style={{ transformOrigin: 'center', transformBox: 'fill-box' }}
                       >
-                        <circle r={6 * dynamicScale} fill={clockStyle.color} />
-                        <circle r={4.5 * dynamicScale} fill="none" stroke="white" strokeWidth={0.8 * dynamicScale} />
-                        <line x1={0} y1={0} x2={0} y2={-2.5 * dynamicScale} stroke="white" strokeWidth={0.8 * dynamicScale} strokeLinecap="round" />
-                        <line x1={0} y1={0} x2={1.8 * dynamicScale} y2={0} stroke="white" strokeWidth={0.8 * dynamicScale} strokeLinecap="round" />
-                        <circle r={0.6 * dynamicScale} fill="white" />
+                        {/* Shadow for better visibility */}
+                        <circle r={9 * dynamicScale} fill="rgba(0,0,0,0.15)" />
+                        {/* Colored background - larger */}
+                        <circle r={8 * dynamicScale} fill={clockStyle.color} />
+                        {/* White border - thicker */}
+                        <circle r={6 * dynamicScale} fill="none" stroke="white" strokeWidth={1 * dynamicScale} />
+                        {/* Clock hands - more visible */}
+                        <line x1={0} y1={0} x2={0} y2={-3.5 * dynamicScale} stroke="white" strokeWidth={1 * dynamicScale} strokeLinecap="round" />
+                        <line x1={0} y1={0} x2={2.5 * dynamicScale} y2={0} stroke="white" strokeWidth={1 * dynamicScale} strokeLinecap="round" />
+                        {/* Center dot */}
+                        <circle r={0.8 * dynamicScale} fill="white" />
                       </g>
                     );
                   })()}

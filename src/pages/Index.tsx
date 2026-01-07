@@ -27,9 +27,11 @@ import {
 } from "@/lib/yearlyKpiUtils";
 import { loadExcelData, saveExcelData } from "@/lib/storage";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Maximize2 } from "lucide-react";
+import { Menu, Maximize2, Minimize2 } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
 import { useAutoTheme } from "@/hooks/use-auto-theme";
+import { ClockLegend } from "@/components/dashboard/ClockLegend";
+import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
@@ -239,14 +241,33 @@ const Index = () => {
                       <Menu className="h-5 w-5" />
                     </SidebarTrigger>
                   </div>
-                  <div className="flex-1 flex justify-center">
+                  <div className="flex-1 flex flex-col items-center">
                     <img 
                       src={eclatLogo} 
                       alt="Éclat XP Logo" 
                       className="h-8 object-contain"
                     />
+                    {hasData && <ClockLegend />}
                   </div>
-                  <div className="w-32 flex justify-end items-center gap-2">
+                  <div className="w-40 flex justify-end items-center gap-2">
+                    {/* Fullscreen Button */}
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => {
+                        if (!document.fullscreenElement) {
+                          document.documentElement.requestFullscreen?.();
+                          setIsFullscreen(true);
+                        } else {
+                          document.exitFullscreen?.();
+                          setIsFullscreen(false);
+                        }
+                      }}
+                      className="h-8 w-8"
+                      title="Modo Tela Cheia (F11)"
+                    >
+                      <Maximize2 className="h-4 w-4" />
+                    </Button>
                     <ThemeToggle />
                     {hasData && (
                       <FileUpload onDataLoaded={handleDataLoaded} compact />
@@ -257,11 +278,21 @@ const Index = () => {
             </header>
           )}
 
-          {/* Fullscreen indicator */}
+          {/* Fullscreen exit button */}
           {isFullscreen && (
-            <div className="fixed top-2 right-2 z-50 bg-muted/80 backdrop-blur-sm px-3 py-1.5 rounded-full text-responsive-xs text-muted-foreground flex items-center gap-2 animate-fade-in">
-              <Maximize2 className="w-3 h-3" />
-              <span>F11 para sair</span>
+            <div className="fixed top-2 right-2 z-50 flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  document.exitFullscreen?.();
+                  setIsFullscreen(false);
+                }}
+                className="bg-background/80 backdrop-blur-sm"
+              >
+                <Minimize2 className="w-4 h-4 mr-1" />
+                Sair (F11)
+              </Button>
             </div>
           )}
 
