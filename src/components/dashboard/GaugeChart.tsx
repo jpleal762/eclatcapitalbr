@@ -94,7 +94,7 @@ export function GaugeChart({
     <Card className={`p-responsive shadow-card h-full flex flex-col ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
       <div className="flex flex-col items-center flex-1 min-h-0">
         <div className="flex items-center justify-between w-full mb-responsive">
-          <h4 className={`font-semibold text-responsive-xs ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
+          <h4 className={`font-semibold ${isTvMode ? 'text-tv-xs' : 'text-responsive-3xs'} ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
             {label}
           </h4>
           <div className="flex-shrink-0 ml-1">
@@ -184,6 +184,8 @@ export function GaugeChart({
                   {/* Clock icon at marker - with conditional color and animation - LARGER for visibility */}
                   {(() => {
                     const clockStyle = getClockStyle(percentage, ritmoIdeal);
+                    const showDifference = percentage < ritmoIdeal; // Só mostra para amarelo/vermelho
+                    
                     return (
                       <g 
                         transform={`translate(${x2}, ${y2})`}
@@ -201,22 +203,25 @@ export function GaugeChart({
                         <line x1={0} y1={0} x2={2.5 * dynamicScale} y2={0} stroke="white" strokeWidth={1 * dynamicScale} strokeLinecap="round" />
                         {/* Center dot */}
                         <circle r={0.8 * dynamicScale} fill="white" />
+                        
+                        {/* Número da diferença junto ao relógio - só para amarelo/vermelho */}
+                        {showDifference && (
+                          <text
+                            x={0}
+                            y={16 * dynamicScale}
+                            textAnchor="middle"
+                            fill={clockStyle.color}
+                            fontSize={7 * dynamicScale}
+                            fontWeight="bold"
+                            style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}
+                          >
+                            {differenceText}
+                          </text>
+                        )}
                       </g>
                     );
                   })()}
                 </svg>
-                
-                <div 
-                  className="absolute z-20 text-responsive-3xs font-bold whitespace-nowrap pointer-events-none"
-                  style={{
-                    left: triggerX,
-                    top: triggerY,
-                    transform: `translate(${ritmoIdeal > 50 ? '0%' : '-100%'}, -50%) translateX(${ritmoIdeal > 50 ? '8px' : '-8px'})`,
-                    transition: 'all 0.5s ease-out',
-                  }}
-                >
-                  <span className="text-primary">{differenceText}</span>
-                </div>
               </>
             );
           })()}
