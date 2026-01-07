@@ -2,6 +2,7 @@ import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
 import { KPIStatusIcon } from "@/types/kpi";
+import { useResponsiveSize } from "@/hooks/use-responsive-size";
 
 interface GaugeChartProps {
   label: string;
@@ -15,7 +16,6 @@ interface GaugeChartProps {
   statusIcon?: KPIStatusIcon;
   isTvMode?: boolean;
   showRemaining?: boolean;
-  // Secondary bar props
   secondaryValue?: number;
   secondaryPercentage?: number;
   secondaryLabel?: string;
@@ -25,37 +25,15 @@ interface GaugeChartProps {
 function StatusIconDisplay({ icon, size }: { icon?: KPIStatusIcon; size: "sm" | "md" | "lg" }) {
   if (!icon) return null;
   
-  const iconSize = size === "sm" ? 20 : size === "md" ? 24 : 28;
-  
   switch (icon) {
     case "GREEN_CHECK":
-      return (
-        <CheckCircle 
-          className="text-green-500 animate-pulse" 
-          size={iconSize} 
-        />
-      );
+      return <CheckCircle className="icon-responsive text-green-500 animate-pulse" />;
     case "CLOCK":
-      return (
-        <Clock 
-          className="text-blue-500" 
-          size={iconSize} 
-        />
-      );
+      return <Clock className="icon-responsive text-blue-500" />;
     case "YELLOW_ALERT":
-      return (
-        <AlertTriangle 
-          className="text-yellow-500 animate-pulse" 
-          size={iconSize} 
-        />
-      );
+      return <AlertTriangle className="icon-responsive text-yellow-500 animate-pulse" />;
     case "RED_ALERT":
-      return (
-        <AlertTriangle 
-          className="text-red-500 animate-bounce" 
-          size={iconSize} 
-        />
-      );
+      return <AlertTriangle className="icon-responsive text-red-500 animate-bounce" />;
     default:
       return null;
   }
@@ -78,35 +56,30 @@ export function GaugeChart({
   secondaryLabel,
   ritmoIdeal,
 }: GaugeChartProps) {
+  const { height, scale } = useResponsiveSize();
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   const remainingValue = Math.max(target - value, 0);
   
-  // Configuração normal (mensal)
-  const normalSizeConfig = {
-    sm: { width: 100, height: 60, strokeWidth: 10, fontSize: "text-[10px]", labelSize: "text-[9px]", percentSize: "text-[10px]" },
-    md: { width: 130, height: 75, strokeWidth: 12, fontSize: "text-sm", labelSize: "text-xs", percentSize: "text-xs" },
-    lg: { width: 160, height: 90, strokeWidth: 14, fontSize: "text-lg", labelSize: "text-xs", percentSize: "text-sm" },
-  };
-
-  // Configuração TV (barras mais grossas e fontes maiores)
-  const tvSizeConfig = {
-    sm: { width: 110, height: 65, strokeWidth: 18, fontSize: "text-xs", labelSize: "text-[10px]", percentSize: "text-xs" },
-    md: { width: 140, height: 80, strokeWidth: 24, fontSize: "text-lg", labelSize: "text-sm", percentSize: "text-base" },
-    lg: { width: 180, height: 100, strokeWidth: 28, fontSize: "text-2xl", labelSize: "text-sm", percentSize: "text-lg" },
-  };
-
-  const config = isTvMode ? tvSizeConfig[size] : normalSizeConfig[size];
-  const radius = (config.width - config.strokeWidth) / 2;
+  // Dynamic sizing based on viewport
+  const baseMultiplier = size === "sm" ? 0.7 : size === "md" ? 0.9 : 1.1;
+  const tvMultiplier = isTvMode ? 1.2 : 1;
+  const dynamicScale = Math.max(0.6, Math.min(scale * baseMultiplier * tvMultiplier, 1.5));
+  
+  const dynamicWidth = Math.round(160 * dynamicScale);
+  const dynamicHeight = Math.round(90 * dynamicScale);
+  const dynamicStrokeWidth = Math.round(14 * dynamicScale);
+  
+  const radius = (dynamicWidth - dynamicStrokeWidth) / 2;
   const circumference = Math.PI * radius;
   const progress = (clampedPercentage / 100) * circumference;
 
   const isHighlight = variant === "highlight";
 
   return (
-    <Card className={`p-3 shadow-card h-full flex flex-col ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
+    <Card className={`p-responsive shadow-card h-full flex flex-col ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
       <div className="flex flex-col items-center flex-1 min-h-0">
-        <div className="flex items-center justify-between w-full mb-1">
-          <h4 className={`font-semibold ${config.labelSize} ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
+        <div className="flex items-center justify-between w-full mb-responsive">
+          <h4 className={`font-semibold text-responsive-xs ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
             {label}
           </h4>
           <div className="flex-shrink-0 ml-1">
@@ -114,29 +87,29 @@ export function GaugeChart({
           </div>
         </div>
 
-        {/* Fixed-size wrapper for precise positioning */}
-        <div className="relative flex-shrink-0" style={{ width: config.width, height: config.height + 10 }}>
+        {/* Dynamic SVG gauge */}
+        <div className="relative flex-shrink-0" style={{ width: dynamicWidth, height: dynamicHeight + 10 }}>
           <svg
-            width={config.width}
-            height={config.height + 10}
-            viewBox={`0 0 ${config.width} ${config.height + 10}`}
+            width={dynamicWidth}
+            height={dynamicHeight + 10}
+            viewBox={`0 0 ${dynamicWidth} ${dynamicHeight + 10}`}
           >
             {/* Background arc */}
             <path
-              d={`M ${config.strokeWidth / 2} ${config.height} 
-                  A ${radius} ${radius} 0 0 1 ${config.width - config.strokeWidth / 2} ${config.height}`}
+              d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
+                  A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`}
               fill="none"
               stroke={isHighlight ? "hsl(0, 0%, 50%)" : "hsl(var(--muted))"}
-              strokeWidth={config.strokeWidth}
+              strokeWidth={dynamicStrokeWidth}
               strokeLinecap="round"
             />
             {/* Progress arc */}
             <path
-              d={`M ${config.strokeWidth / 2} ${config.height} 
-                  A ${radius} ${radius} 0 0 1 ${config.width - config.strokeWidth / 2} ${config.height}`}
+              d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
+                  A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`}
               fill="none"
               stroke="hsl(var(--primary))"
-              strokeWidth={config.strokeWidth}
+              strokeWidth={dynamicStrokeWidth}
               strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={circumference - progress}
@@ -144,34 +117,29 @@ export function GaugeChart({
             />
           </svg>
 
-          {/* Ritmo Ideal marker - SVG visual + invisible HTML trigger for tooltip */}
+          {/* Ritmo Ideal marker */}
           {ritmoIdeal !== undefined && (() => {
             const ritmoIdealAngle = Math.PI - (ritmoIdeal / 100) * Math.PI;
-            const centerX = config.width / 2;
-            const centerY = config.height;
-            const markerInnerRadius = radius - config.strokeWidth / 2 - 2;
-            const markerOuterRadius = radius + config.strokeWidth / 2 + 2;
+            const centerX = dynamicWidth / 2;
+            const centerY = dynamicHeight;
+            const markerInnerRadius = radius - dynamicStrokeWidth / 2 - 2;
+            const markerOuterRadius = radius + dynamicStrokeWidth / 2 + 2;
             
-            // Posição do trigger no centro do arco
             const triggerX = centerX + Math.cos(ritmoIdealAngle) * radius;
             const triggerY = centerY - Math.sin(ritmoIdealAngle) * radius;
             
-            // Calcular valores reais ao invés de percentuais (arredondado para 2 casas decimais)
             const ritmoIdealValue = Math.round(((ritmoIdeal / 100) * target) * 100) / 100;
             const realDifference = Math.round((value - ritmoIdealValue) * 100) / 100;
             const differenceText = realDifference >= 0 
               ? `+${formatNumber(realDifference, isCurrency)}` 
               : formatNumber(realDifference, isCurrency);
-            const differenceColor = realDifference >= 0 ? 'text-green-600' : 'text-red-600';
 
-            // Calcular pontos para o marcador SVG
             const x1 = centerX + Math.cos(ritmoIdealAngle) * markerInnerRadius;
             const y1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
             const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
             const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
             
-            // Triângulo na ponta externa
-            const triangleSize = isTvMode ? 5 : 4;
+            const triangleSize = 4 * dynamicScale;
             const perpAngle = ritmoIdealAngle + Math.PI / 2;
             const tipX = x2;
             const tipY = y2;
@@ -182,18 +150,17 @@ export function GaugeChart({
 
             return (
               <>
-                {/* SVG Marker - visual only */}
                 <svg
                   className="absolute inset-0 pointer-events-none"
-                  width={config.width}
-                  height={config.height + 10}
-                  viewBox={`0 0 ${config.width} ${config.height + 10}`}
+                  width={dynamicWidth}
+                  height={dynamicHeight + 10}
+                  viewBox={`0 0 ${dynamicWidth} ${dynamicHeight + 10}`}
                   style={{ transition: 'all 0.5s ease-out' }}
                 >
                   <line 
                     x1={x1} y1={y1} x2={x2} y2={y2} 
                     stroke="hsl(var(--primary))" 
-                    strokeWidth={isTvMode ? 3 : 2} 
+                    strokeWidth={2 * dynamicScale} 
                   />
                   <polygon 
                     points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`}
@@ -201,9 +168,8 @@ export function GaugeChart({
                   />
                 </svg>
                 
-                {/* Label sempre visível - posicionado do lado de fora do arco */}
                 <div 
-                  className="absolute z-20 text-[9px] font-bold whitespace-nowrap pointer-events-none"
+                  className="absolute z-20 text-responsive-3xs font-bold whitespace-nowrap pointer-events-none"
                   style={{
                     left: triggerX,
                     top: triggerY,
@@ -217,21 +183,21 @@ export function GaugeChart({
             );
           })()}
 
-          {/* Center content - pointer-events-none to not block tooltip */}
+          {/* Center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-end pb-1 pointer-events-none">
-            <span className={`${config.fontSize} font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
+            <span className={`text-responsive-base font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
               {formatNumber(value, isCurrency)}
             </span>
             {showRemaining && remainingValue > 0 && (
-              <span className={`${isTvMode ? 'text-xs' : 'text-[8px]'} text-muted-foreground font-medium`}>
+              <span className="text-responsive-3xs text-muted-foreground font-medium">
                 Faltam: {formatNumber(remainingValue, isCurrency)}
               </span>
             )}
           </div>
 
-          {/* Percentage label - pointer-events-none to not block tooltip */}
+          {/* Percentage label */}
           <div 
-            className={`absolute ${config.percentSize} font-bold pointer-events-none`}
+            className="absolute text-responsive-2xs font-bold pointer-events-none"
             style={{
               top: "10%",
               left: "50%",
@@ -244,20 +210,20 @@ export function GaugeChart({
         </div>
 
         {/* Min/Max labels */}
-        <div className={`flex justify-between w-full mt-auto ${isTvMode ? 'text-[10px]' : 'text-[9px]'} flex-shrink-0 ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
+        <div className={`flex justify-between w-full mt-auto text-responsive-3xs flex-shrink-0 ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
           <span>{isCurrency ? "0 Mi" : "0"}</span>
           <span>{formatNumber(target, isCurrency)}</span>
         </div>
 
-        {/* Secondary bar - gray indicator below gauge */}
+        {/* Secondary bar */}
         {secondaryPercentage !== undefined && (
-          <div className="w-full mt-2 space-y-1 flex-shrink-0">
-            <div className={`flex justify-between ${isTvMode ? 'text-xs' : 'text-[10px]'} ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
+          <div className="w-full mt-responsive space-y-1 flex-shrink-0">
+            <div className={`flex justify-between text-responsive-3xs ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
               <span>{secondaryLabel || "Agendadas"}</span>
               <span className="font-medium">{secondaryPercentage}%</span>
             </div>
             <div className="relative">
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div className="h-bar-responsive-sm bg-muted rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full bg-gray-500 transition-all duration-500"
                   style={{ width: `${Math.min(secondaryPercentage, 100)}%` }}
@@ -268,7 +234,7 @@ export function GaugeChart({
         )}
 
         {isHighlight && (
-          <p className="text-[10px] text-card/70 mt-1 italic flex-shrink-0">Head Bruno</p>
+          <p className="text-responsive-3xs text-card/70 mt-1 italic flex-shrink-0">Head Bruno</p>
         )}
       </div>
     </Card>

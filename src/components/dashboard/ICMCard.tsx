@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useResponsiveSize } from "@/hooks/use-responsive-size";
 
 interface ICMCardProps {
   icmGeral: number;
@@ -38,8 +39,16 @@ export function ICMCard({
   onToggleView,
   isTvMode = false,
 }: ICMCardProps) {
-  const radius = 80;
-  const circumference = Math.PI * radius;
+  const { height, scale } = useResponsiveSize();
+  
+  // Dynamic gauge sizing
+  const dynamicScale = Math.max(0.6, Math.min(scale * (isTvMode ? 1.2 : 1), 1.4));
+  const gaugeWidth = Math.round(140 * dynamicScale);
+  const gaugeHeight = Math.round(80 * dynamicScale);
+  const gaugeRadius = Math.round(60 * dynamicScale);
+  const strokeWidth = Math.round(12 * dynamicScale);
+  
+  const circumference = Math.PI * gaugeRadius;
   const progress = (Math.min(icmGeral, 100) / 100) * circumference;
 
   const getCurrentMonthLabel = () => {
@@ -49,10 +58,10 @@ export function ICMCard({
   };
 
   return (
-    <Card className="p-4 shadow-card h-full flex flex-col overflow-hidden">
+    <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
       {/* Header with Toggle */}
-      <div className="flex items-center justify-between mb-2 flex-shrink-0">
-        <h3 className={`${isTvMode ? 'text-sm' : 'text-xs'} font-medium text-muted-foreground`}>
+      <div className="flex items-center justify-between mb-responsive flex-shrink-0">
+        <h3 className="text-responsive-xs font-medium text-muted-foreground">
           ICM Mensal
         </h3>
         {onToggleView && (
@@ -60,18 +69,18 @@ export function ICMCard({
             variant="outline"
             size="sm"
             onClick={onToggleView}
-            className={`gap-1.5 ${isTvMode ? 'text-sm h-8 px-3' : 'text-xs h-7 px-2'}`}
+            className="gap-1.5 text-responsive-xs h-auto py-1 px-2"
           >
-            <Calendar className={isTvMode ? "h-4 w-4" : "h-3 w-3"} />
+            <Calendar className="icon-responsive-sm" />
             {isTvMode ? "Mensal" : "TV"}
           </Button>
         )}
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2 mb-2 flex-shrink-0">
+      <div className="flex flex-wrap gap-responsive-sm mb-responsive flex-shrink-0">
         <Select value={selectedAssessor} onValueChange={onAssessorChange}>
-          <SelectTrigger className="w-[140px] bg-background text-xs h-8">
+          <SelectTrigger className="w-[140px] bg-background text-responsive-xs h-auto py-1">
             <SelectValue placeholder="TODOS" />
           </SelectTrigger>
           <SelectContent>
@@ -85,7 +94,7 @@ export function ICMCard({
         </Select>
 
         <Select value={selectedMonth} onValueChange={onMonthChange}>
-          <SelectTrigger className="w-[100px] bg-background text-xs h-8">
+          <SelectTrigger className="w-[100px] bg-background text-responsive-xs h-auto py-1">
             <SelectValue placeholder={getCurrentMonthLabel()} />
           </SelectTrigger>
           <SelectContent>
@@ -99,60 +108,59 @@ export function ICMCard({
         </Select>
       </div>
 
-      <div className="flex items-start justify-between gap-4 flex-1 min-h-0">
+      <div className="flex items-start justify-between gap-responsive flex-1 min-h-0">
         {/* Gauge */}
         <div className="flex flex-col items-center flex-1">
-          <h3 className={`${isTvMode ? 'text-lg' : 'text-sm'} font-semibold mb-1 text-foreground`}>ICM Geral</h3>
+          <h3 className="text-responsive-sm font-semibold mb-responsive text-foreground">ICM Geral</h3>
           
-          <div className="relative" style={{ width: isTvMode ? 160 : 140, height: isTvMode ? 90 : 80 }}>
-            <svg width={isTvMode ? "160" : "140"} height={isTvMode ? "90" : "80"} viewBox={isTvMode ? "0 0 160 100" : "0 0 140 90"}>
+          <div className="relative" style={{ width: gaugeWidth, height: gaugeHeight }}>
+            <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
               <path
-                d={isTvMode ? "M 10 90 A 70 70 0 0 1 150 90" : "M 10 80 A 60 60 0 0 1 130 80"}
+                d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`}
                 fill="none"
                 stroke="hsl(var(--muted))"
-                strokeWidth={isTvMode ? "16" : "12"}
+                strokeWidth={strokeWidth}
                 strokeLinecap="round"
               />
               <path
-                d={isTvMode ? "M 10 90 A 70 70 0 0 1 150 90" : "M 10 80 A 60 60 0 0 1 130 80"}
+                d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`}
                 fill="none"
                 stroke="hsl(var(--primary))"
-                strokeWidth={isTvMode ? "16" : "12"}
+                strokeWidth={strokeWidth}
                 strokeLinecap="round"
-                strokeDasharray={Math.PI * (isTvMode ? 70 : 60)}
-                strokeDashoffset={Math.PI * (isTvMode ? 70 : 60) - (Math.min(icmGeral, 100) / 100) * Math.PI * (isTvMode ? 70 : 60)}
+                strokeDasharray={circumference}
+                strokeDashoffset={circumference - progress}
                 style={{ transition: "stroke-dashoffset 0.8s ease-out" }}
               />
             </svg>
             <div className="absolute inset-0 flex items-end justify-center pb-1">
-              <span className={`${isTvMode ? 'text-4xl' : 'text-3xl'} font-bold text-foreground`}>{icmGeral}%</span>
+              <span className="text-responsive-2xl font-bold text-foreground">{icmGeral}%</span>
             </div>
           </div>
         </div>
 
         {/* Days remaining */}
-        <div className="text-center px-2 py-1">
-          <p className={`${isTvMode ? 'text-sm' : 'text-xs'} text-muted-foreground mb-0.5`}>Dias Úteis<br/>Restantes</p>
-          <p className={`${isTvMode ? 'text-3xl' : 'text-2xl'} font-bold text-foreground`}>{diasUteisRestantes}</p>
+        <div className="text-center px-responsive py-responsive-sm">
+          <p className="text-responsive-xs text-muted-foreground mb-responsive-sm">Dias Úteis<br/>Restantes</p>
+          <p className="text-responsive-xl font-bold text-foreground">{diasUteisRestantes}</p>
         </div>
       </div>
 
       {/* Progress bars */}
-      <div className="mt-auto pt-2 space-y-2 flex-shrink-0">
-        {/* ICM Geral em barra amarela com marcador de Ritmo Ideal */}
-        <div className="space-y-0.5">
-          <div className={`flex justify-between ${isTvMode ? 'text-sm' : 'text-xs'}`}>
+      <div className="mt-auto pt-responsive space-y-responsive-sm flex-shrink-0">
+        <div className="space-y-responsive-sm">
+          <div className="flex justify-between text-responsive-xs">
             <span className="font-medium text-foreground">ICM Geral</span>
             <span className="font-bold text-foreground">{icmGeral}%</span>
           </div>
           <div className="relative">
-            <div className={`${isTvMode ? 'h-3' : 'h-2'} w-full rounded-full bg-muted overflow-hidden`}>
+            <div className="h-bar-responsive w-full rounded-full bg-muted overflow-hidden">
               <div 
                 className="h-full rounded-full transition-all duration-500 bg-yellow-500"
                 style={{ width: `${Math.min(icmGeral, 100)}%` }}
               />
             </div>
-            {/* Marcador do Ritmo Ideal - Triângulo apontando para baixo + linha com tooltip */}
+            {/* Marcador do Ritmo Ideal */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -160,16 +168,14 @@ export function ICMCard({
                     className="absolute top-0 flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
                     style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
                   >
-                    {/* Triângulo */}
                     <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-primary -mt-1" />
-                    {/* Linha vertical */}
-                    <div className={`w-0.5 ${isTvMode ? 'h-3' : 'h-2'} bg-primary`} />
+                    <div className="w-0.5 h-bar-responsive bg-primary" />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <div className="text-center">
-                    <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                    <p className={`text-sm font-bold ${icmGeral >= ritmoIdeal ? 'text-green-600' : 'text-red-600'}`}>
+                    <p className="text-responsive-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                    <p className={`text-responsive-sm font-bold ${icmGeral >= ritmoIdeal ? 'text-green-600' : 'text-red-600'}`}>
                       {icmGeral > ritmoIdeal ? `+${icmGeral - ritmoIdeal}%` : `${icmGeral - ritmoIdeal}%`}
                     </p>
                   </div>
@@ -177,14 +183,14 @@ export function ICMCard({
               </Tooltip>
             </TooltipProvider>
           </div>
-          <div className="flex justify-end text-[10px] text-muted-foreground mt-0.5">
+          <div className="flex justify-end text-responsive-3xs text-muted-foreground mt-responsive-sm">
             <span>▲ Ritmo Ideal: {ritmoIdeal}%</span>
           </div>
         </div>
       </div>
 
       {/* Dynamic Performance Indicator */}
-      <div className={`mt-2 ${isTvMode ? 'p-3' : 'p-2'} rounded-lg flex items-center justify-center gap-1.5 flex-shrink-0 ${
+      <div className={`mt-responsive p-responsive-sm rounded-lg flex items-center justify-center gap-responsive-sm flex-shrink-0 ${
         icmGeral > ritmoIdeal 
           ? 'bg-green-500/10 border border-green-500/20' 
           : icmGeral === ritmoIdeal 
@@ -193,20 +199,20 @@ export function ICMCard({
       }`}>
         {icmGeral > ritmoIdeal && (
           <>
-            <CheckCircle className={`${isTvMode ? 'h-5 w-5' : 'h-4 w-4'} text-green-600`} />
-            <span className={`${isTvMode ? 'text-sm' : 'text-xs'} font-medium text-green-700`}>Acima do esperado</span>
+            <CheckCircle className="icon-responsive-sm text-green-600" />
+            <span className="text-responsive-xs font-medium text-green-700">Acima do esperado</span>
           </>
         )}
         {icmGeral === ritmoIdeal && (
           <>
-            <Clock className={`${isTvMode ? 'h-5 w-5' : 'h-4 w-4'} text-blue-600`} />
-            <span className={`${isTvMode ? 'text-sm' : 'text-xs'} font-medium text-blue-700`}>No Ritmo</span>
+            <Clock className="icon-responsive-sm text-blue-600" />
+            <span className="text-responsive-xs font-medium text-blue-700">No Ritmo</span>
           </>
         )}
         {icmGeral < ritmoIdeal && (
           <>
-            <AlertTriangle className={`${isTvMode ? 'h-5 w-5' : 'h-4 w-4'} text-orange-600`} />
-            <span className={`${isTvMode ? 'text-sm' : 'text-xs'} font-medium text-orange-700`}>Abaixo do esperado</span>
+            <AlertTriangle className="icon-responsive-sm text-orange-600" />
+            <span className="text-responsive-xs font-medium text-orange-700">Abaixo do esperado</span>
           </>
         )}
       </div>

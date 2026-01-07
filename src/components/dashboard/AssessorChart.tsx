@@ -17,16 +17,15 @@ function StatusIcon({
   icon: KPIStatusIcon;
   isTvMode?: boolean;
 }) {
-  const iconClass = isTvMode ? "h-4 w-4" : "h-3.5 w-3.5";
   switch (icon) {
     case "GREEN_CHECK":
-      return <CheckCircle className={`${iconClass} text-green-500 flex-shrink-0`} />;
+      return <CheckCircle className="icon-responsive-sm text-green-500 flex-shrink-0" />;
     case "CLOCK":
-      return <Clock className={`${iconClass} text-blue-500 flex-shrink-0`} />;
+      return <Clock className="icon-responsive-sm text-blue-500 flex-shrink-0" />;
     case "YELLOW_ALERT":
-      return <AlertTriangle className={`${iconClass} text-yellow-500 flex-shrink-0`} />;
+      return <AlertTriangle className="icon-responsive-sm text-yellow-500 flex-shrink-0" />;
     case "RED_ALERT":
-      return <AlertTriangle className={`${iconClass} text-red-500 flex-shrink-0`} />;
+      return <AlertTriangle className="icon-responsive-sm text-red-500 flex-shrink-0" />;
     default:
       return null;
   }
@@ -41,26 +40,26 @@ export function AssessorChart({
   const filteredData = data.filter(assessor => assessor.name !== "Socios");
   
   return (
-    <Card className="p-3 shadow-card h-full flex flex-col overflow-hidden">
-      <h3 className={`${isTvMode ? 'text-base' : 'text-sm'} font-semibold mb-2 text-foreground flex items-center gap-2 flex-shrink-0`}>
+    <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
+      <h3 className="text-responsive-sm font-semibold mb-responsive text-foreground flex items-center gap-responsive-sm flex-shrink-0">
         ICM Geral por Assessor
       </h3>
       
-      <div className="flex-1 overflow-auto min-h-0 space-y-1">
+      <div className="flex-1 overflow-hidden min-h-0 space-y-responsive-sm">
         {filteredData.map((assessor, index) => {
           const difference = assessor.geralPercentage - ritmoIdeal;
           const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
           const differenceColor = difference >= 0 ? "text-green-600" : "text-red-600";
           
           return (
-            <div key={assessor.name} className={`flex items-center gap-1.5 p-1 rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
+            <div key={assessor.name} className={`flex items-center gap-responsive-sm p-responsive-sm rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-responsive-sm">
                   <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} isTvMode={isTvMode} />
-                  <p className={`${isTvMode ? 'text-xs' : 'text-[10px]'} font-medium text-foreground truncate`}>{assessor.name}</p>
+                  <p className="text-responsive-xs font-medium text-foreground truncate">{assessor.name}</p>
                 </div>
                 {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
-                <div className={`relative w-full ${isTvMode ? 'h-1.5' : 'h-1'} bg-muted rounded-full overflow-visible mt-0.5`}>
+                <div className="relative w-full h-bar-responsive-sm bg-muted rounded-full overflow-visible mt-responsive-sm">
                   <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
                     width: `${Math.min(assessor.geralPercentage, 100)}%`
                   }} />
@@ -75,15 +74,15 @@ export function AssessorChart({
                       </TooltipTrigger>
                       <TooltipContent>
                         <div className="text-center">
-                          <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                          <p className={`text-sm font-bold ${differenceColor}`}>{differenceText}</p>
+                          <p className="text-responsive-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                          <p className={`text-responsive-sm font-bold ${differenceColor}`}>{differenceText}</p>
                         </div>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </div>
                 {/* Barra ICM Semanal (cinza) */}
-                <div className={`w-full ${isTvMode ? 'h-1.5' : 'h-1'} bg-muted rounded-full overflow-hidden mt-0.5`}>
+                <div className="w-full h-bar-responsive-sm bg-muted rounded-full overflow-hidden mt-responsive-sm">
                   <div className="h-full rounded-full transition-all duration-500 bg-gray-500" style={{
                     width: `${Math.min(assessor.semanaPercentage, 100)}%`
                   }} />
@@ -91,10 +90,10 @@ export function AssessorChart({
               </div>
               
               <div className="text-right">
-                <span className={`${isTvMode ? 'text-sm' : 'text-xs'} font-bold text-yellow-600`}>
+                <span className="text-responsive-xs font-bold text-yellow-600">
                   {assessor.geralPercentage}%
                 </span>
-                <span className={`${isTvMode ? 'text-xs' : 'text-[10px]'} font-medium text-gray-500 block`}>
+                <span className="text-responsive-3xs font-medium text-gray-500 block">
                   {assessor.semanaPercentage}%
                 </span>
               </div>
@@ -103,8 +102,8 @@ export function AssessorChart({
         })}
       </div>
 
-      <div className="mt-auto pt-2 border-t border-border text-center flex-shrink-0">
-        <p className={`${isTvMode ? 'text-xs' : 'text-[9px]'} text-muted-foreground italic`}>
+      <div className="mt-auto pt-responsive border-t border-border text-center flex-shrink-0">
+        <p className="text-responsive-3xs text-muted-foreground italic">
           Ranking de assessores para o período
         </p>
       </div>

@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useResponsiveSize } from "@/hooks/use-responsive-size";
 
 interface YearlyICMCardProps {
   icmGeral: number;
@@ -36,32 +37,40 @@ export function YearlyICMCard({
   onYearChange,
   onToggleView,
 }: YearlyICMCardProps) {
-  const radius = 80;
-  const circumference = Math.PI * radius;
+  const { scale } = useResponsiveSize();
+  
+  // Dynamic gauge sizing
+  const dynamicScale = Math.max(0.6, Math.min(scale, 1.4));
+  const gaugeWidth = Math.round(180 * dynamicScale);
+  const gaugeHeight = Math.round(100 * dynamicScale);
+  const gaugeRadius = Math.round(80 * dynamicScale);
+  const strokeWidth = Math.round(14 * dynamicScale);
+  
+  const circumference = Math.PI * gaugeRadius;
   const progress = (Math.min(icmGeral, 100) / 100) * circumference;
 
   return (
-    <Card className="p-6 shadow-card border-l-4 border-l-chart-graphite">
+    <Card className="p-responsive-lg shadow-card border-l-4 border-l-chart-graphite">
       {/* Header with Toggle */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-muted-foreground">
+      <div className="flex items-center justify-between mb-responsive">
+        <h3 className="text-responsive-xs font-medium text-muted-foreground">
           ICM Anual
         </h3>
         <Button
           variant="outline"
           size="sm"
           onClick={onToggleView}
-          className="gap-2 text-xs"
+          className="gap-responsive-sm text-responsive-xs h-auto py-1 px-2"
         >
-          <CalendarDays className="h-3.5 w-3.5" />
+          <CalendarDays className="icon-responsive-sm" />
           Visão Mensal
         </Button>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-4">
+      <div className="flex flex-wrap gap-responsive mb-responsive">
         <Select value={selectedAssessor} onValueChange={onAssessorChange}>
-          <SelectTrigger className="w-[160px] bg-background text-sm">
+          <SelectTrigger className="w-[160px] bg-background text-responsive-xs h-auto py-1">
             <SelectValue placeholder="TODOS" />
           </SelectTrigger>
           <SelectContent>
@@ -78,7 +87,7 @@ export function YearlyICMCard({
           value={String(selectedYear)} 
           onValueChange={(v) => onYearChange(parseInt(v))}
         >
-          <SelectTrigger className="w-[100px] bg-background text-sm">
+          <SelectTrigger className="w-[100px] bg-background text-responsive-xs h-auto py-1">
             <SelectValue placeholder={String(selectedYear)} />
           </SelectTrigger>
           <SelectContent>
@@ -91,25 +100,25 @@ export function YearlyICMCard({
         </Select>
       </div>
 
-      <div className="flex items-start justify-between gap-6">
+      <div className="flex items-start justify-between gap-responsive-lg">
         {/* Gauge with graphite color */}
         <div className="flex flex-col items-center">
-          <h3 className="text-lg font-semibold mb-2 text-foreground">ICM Anual</h3>
+          <h3 className="text-responsive-lg font-semibold mb-responsive text-foreground">ICM Anual</h3>
           
-          <div className="relative" style={{ width: 180, height: 100 }}>
-            <svg width="180" height="100" viewBox="0 0 180 110">
+          <div className="relative" style={{ width: gaugeWidth, height: gaugeHeight }}>
+            <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
               <path
-                d="M 10 100 A 80 80 0 0 1 170 100"
+                d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`}
                 fill="none"
                 stroke="hsl(var(--muted))"
-                strokeWidth="14"
+                strokeWidth={strokeWidth}
                 strokeLinecap="round"
               />
               <path
-                d="M 10 100 A 80 80 0 0 1 170 100"
+                d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`}
                 fill="none"
                 stroke="hsl(var(--chart-graphite))"
-                strokeWidth="14"
+                strokeWidth={strokeWidth}
                 strokeLinecap="round"
                 strokeDasharray={circumference}
                 strokeDashoffset={circumference - progress}
@@ -117,27 +126,27 @@ export function YearlyICMCard({
               />
             </svg>
             <div className="absolute inset-0 flex items-end justify-center pb-2">
-              <span className="text-5xl font-bold text-foreground">{icmGeral}%</span>
+              <span className="text-responsive-3xl font-bold text-foreground">{icmGeral}%</span>
             </div>
           </div>
         </div>
 
         {/* Days remaining */}
-        <div className="text-center px-4 py-2">
-          <p className="text-sm text-muted-foreground mb-1">Dias Úteis<br/>Restantes no Ano</p>
-          <p className="text-4xl font-bold text-foreground">{diasUteisRestantes}</p>
+        <div className="text-center px-responsive py-responsive-sm">
+          <p className="text-responsive-xs text-muted-foreground mb-responsive-sm">Dias Úteis<br/>Restantes no Ano</p>
+          <p className="text-responsive-2xl font-bold text-foreground">{diasUteisRestantes}</p>
         </div>
       </div>
 
       {/* Progress bars with graphite theme */}
-      <div className="mt-6 space-y-3">
-        <div className="space-y-1">
-          <div className="flex justify-between text-sm">
+      <div className="mt-responsive-lg space-y-responsive">
+        <div className="space-y-responsive-sm">
+          <div className="flex justify-between text-responsive-sm">
             <span className="font-medium text-foreground">ICM Anual</span>
             <span className="font-bold text-foreground">{icmGeral}%</span>
           </div>
           <div className="relative">
-            <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
+            <div className="h-bar-responsive w-full rounded-full bg-muted overflow-hidden">
               <div 
                 className="h-full rounded-full bg-chart-graphite transition-all duration-500"
                 style={{ width: `${Math.min(icmGeral, 100)}%` }}
@@ -152,13 +161,13 @@ export function YearlyICMCard({
                     style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
                   >
                     <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-primary" />
-                    <div className="w-0.5 h-3 bg-primary -mt-0.5" />
+                    <div className="w-0.5 h-bar-responsive bg-primary -mt-0.5" />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <div className="text-center">
-                    <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                    <p className={`text-sm font-bold ${icmGeral >= ritmoIdeal ? 'text-green-600' : 'text-red-600'}`}>
+                    <p className="text-responsive-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                    <p className={`text-responsive-sm font-bold ${icmGeral >= ritmoIdeal ? 'text-green-600' : 'text-red-600'}`}>
                       {icmGeral > ritmoIdeal ? `+${icmGeral - ritmoIdeal}%` : `${icmGeral - ritmoIdeal}%`}
                     </p>
                   </div>
@@ -166,7 +175,7 @@ export function YearlyICMCard({
               </Tooltip>
             </TooltipProvider>
           </div>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+          <div className="flex items-center gap-responsive-sm text-responsive-3xs text-muted-foreground mt-responsive-sm">
             <div className="w-0 h-0 border-l-[3px] border-r-[3px] border-t-[4px] border-l-transparent border-r-transparent border-t-primary" />
             <span>Ritmo Ideal: {ritmoIdeal}%</span>
           </div>
@@ -174,7 +183,7 @@ export function YearlyICMCard({
       </div>
 
       {/* Dynamic Performance Indicator */}
-      <div className={`mt-4 p-3 rounded-lg flex items-center justify-center gap-2 ${
+      <div className={`mt-responsive p-responsive-sm rounded-lg flex items-center justify-center gap-responsive-sm ${
         icmGeral > ritmoIdeal 
           ? 'bg-green-500/10 border border-green-500/20' 
           : icmGeral === ritmoIdeal 
@@ -183,20 +192,20 @@ export function YearlyICMCard({
       }`}>
         {icmGeral > ritmoIdeal && (
           <>
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <span className="text-sm font-medium text-green-700">Ritmo acima do esperado</span>
+            <CheckCircle className="icon-responsive text-green-600" />
+            <span className="text-responsive-sm font-medium text-green-700">Ritmo acima do esperado</span>
           </>
         )}
         {icmGeral === ritmoIdeal && (
           <>
-            <Clock className="h-5 w-5 text-blue-600" />
-            <span className="text-sm font-medium text-blue-700">No Ritmo</span>
+            <Clock className="icon-responsive text-blue-600" />
+            <span className="text-responsive-sm font-medium text-blue-700">No Ritmo</span>
           </>
         )}
         {icmGeral < ritmoIdeal && (
           <>
-            <AlertTriangle className="h-5 w-5 text-orange-600" />
-            <span className="text-sm font-medium text-orange-700">Ritmo abaixo do esperado</span>
+            <AlertTriangle className="icon-responsive text-orange-600" />
+            <span className="text-responsive-sm font-medium text-orange-700">Ritmo abaixo do esperado</span>
           </>
         )}
       </div>
