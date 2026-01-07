@@ -68,6 +68,7 @@ export function GaugeChart({
   const dynamicWidth = Math.round(160 * dynamicScale);
   const dynamicHeight = Math.round(90 * dynamicScale);
   const dynamicStrokeWidth = Math.round(21 * dynamicScale); // +50% thickness
+  const clockPadding = Math.round(20 * dynamicScale); // Extra space for clock icons
 
   // Function to get clock style based on performance
   const getClockStyle = (currentValue: number, idealValue: number) => {
@@ -101,11 +102,11 @@ export function GaugeChart({
         </div>
 
         {/* Dynamic SVG gauge */}
-        <div className="relative flex-shrink-0" style={{ width: dynamicWidth, height: dynamicHeight + 10 }}>
+        <div className="relative flex-shrink-0" style={{ width: dynamicWidth + clockPadding * 2, height: dynamicHeight + clockPadding }}>
           <svg
-            width={dynamicWidth}
-            height={dynamicHeight + 10}
-            viewBox={`0 0 ${dynamicWidth} ${dynamicHeight + 10}`}
+            width={dynamicWidth + clockPadding * 2}
+            height={dynamicHeight + clockPadding}
+            viewBox={`${-clockPadding} ${-clockPadding} ${dynamicWidth + clockPadding * 2} ${dynamicHeight + clockPadding}`}
           >
             {/* Background arc */}
             <path
@@ -165,9 +166,9 @@ export function GaugeChart({
               <>
                 <svg
                   className="absolute inset-0 pointer-events-none"
-                  width={dynamicWidth}
-                  height={dynamicHeight + 10}
-                  viewBox={`0 0 ${dynamicWidth} ${dynamicHeight + 10}`}
+                  width={dynamicWidth + clockPadding * 2}
+                  height={dynamicHeight + clockPadding}
+                  viewBox={`${-clockPadding} ${-clockPadding} ${dynamicWidth + clockPadding * 2} ${dynamicHeight + clockPadding}`}
                   style={{ transition: 'all 0.5s ease-out' }}
                 >
                   <line 
@@ -184,7 +185,7 @@ export function GaugeChart({
                     const clockStyle = getClockStyle(percentage, ritmoIdeal);
                     return (
                       <g 
-                        transform={`translate(${x2 + Math.cos(ritmoIdealAngle) * 10 * dynamicScale}, ${y2 - Math.sin(ritmoIdealAngle) * 10 * dynamicScale})`}
+                        transform={`translate(${x2 + Math.cos(ritmoIdealAngle) * 6 * dynamicScale}, ${y2 - Math.sin(ritmoIdealAngle) * 6 * dynamicScale})`}
                         className={clockStyle.animate ? 'animate-pulse-clock' : ''}
                         style={{ transformOrigin: 'center', transformBox: 'fill-box' }}
                       >
