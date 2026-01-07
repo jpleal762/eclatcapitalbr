@@ -157,9 +157,9 @@ export function GaugeChart({
             const triggerX = centerX + Math.cos(ritmoIdealAngle) * radius;
             const triggerY = centerY - Math.sin(ritmoIdealAngle) * radius;
             
-            // Calcular valores reais ao invés de percentuais
-            const ritmoIdealValue = (ritmoIdeal / 100) * target;
-            const realDifference = value - ritmoIdealValue;
+            // Calcular valores reais ao invés de percentuais (arredondado para 2 casas decimais)
+            const ritmoIdealValue = Math.round(((ritmoIdeal / 100) * target) * 100) / 100;
+            const realDifference = Math.round((value - ritmoIdealValue) * 100) / 100;
             const differenceText = realDifference >= 0 
               ? `+${formatNumber(realDifference, isCurrency)}` 
               : formatNumber(realDifference, isCurrency);
@@ -289,8 +289,8 @@ export function GaugeChart({
                     </TooltipTrigger>
                     <TooltipContent>
                       {(() => {
-                        const secondaryRitmoValue = (ritmoIdeal / 100) * target;
-                        const secondaryRealDiff = (secondaryValue ?? 0) - secondaryRitmoValue;
+                        const secondaryRitmoValue = Math.round(((ritmoIdeal / 100) * target) * 100) / 100;
+                        const secondaryRealDiff = Math.round(((secondaryValue ?? 0) - secondaryRitmoValue) * 100) / 100;
                         return (
                           <div className="text-center">
                             <p className="text-xs text-muted-foreground">Ritmo Ideal: {formatNumber(secondaryRitmoValue, isCurrency)}</p>
