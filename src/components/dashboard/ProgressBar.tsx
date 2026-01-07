@@ -4,9 +4,10 @@ interface ProgressBarProps {
   color?: "primary" | "muted";
   variant?: "default" | "gray";
   isTvMode?: boolean;
+  ritmoIdeal?: number;
 }
 
-export function ProgressBar({ label, percentage, color = "primary", variant = "default", isTvMode = false }: ProgressBarProps) {
+export function ProgressBar({ label, percentage, color = "primary", variant = "default", isTvMode = false, ritmoIdeal }: ProgressBarProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   
   const getBarColor = () => {
@@ -20,11 +21,22 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
         <span className="font-medium text-foreground">{label}</span>
         <span className="text-muted-foreground">{percentage}%</span>
       </div>
-      <div className={`${isTvMode ? 'h-4' : 'h-3'} bg-muted rounded-full overflow-hidden`}>
-        <div
-          className={`h-full rounded-full transition-all duration-500 ${getBarColor()}`}
-          style={{ width: `${clampedPercentage}%` }}
-        />
+      <div className="relative">
+        <div className={`${isTvMode ? 'h-4' : 'h-3'} bg-muted rounded-full overflow-hidden`}>
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${getBarColor()}`}
+            style={{ width: `${clampedPercentage}%` }}
+          />
+        </div>
+        {ritmoIdeal !== undefined && (
+          <div 
+            className="absolute top-0 flex flex-col items-center"
+            style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
+          >
+            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-primary" />
+            <div className={`w-0.5 ${isTvMode ? 'h-4' : 'h-3'} bg-primary -mt-0.5`} />
+          </div>
+        )}
       </div>
     </div>
   );

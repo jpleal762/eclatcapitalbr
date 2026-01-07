@@ -30,6 +30,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
 import { useAutoTheme } from "@/hooks/use-auto-theme";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 
@@ -211,7 +212,8 @@ const Index = () => {
                     className="h-8 object-contain"
                   />
                 </div>
-                <div className="w-32 flex justify-end">
+                <div className="w-32 flex justify-end items-center gap-2">
+                  <ThemeToggle />
                   {hasData && (
                     <FileUpload onDataLoaded={handleDataLoaded} compact />
                   )}

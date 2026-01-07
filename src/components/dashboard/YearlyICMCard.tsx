@@ -132,27 +132,28 @@ export function YearlyICMCard({
       <div className="mt-6 space-y-3">
         <div className="space-y-1">
           <div className="flex justify-between text-sm">
-            <span className="font-medium text-foreground">Ritmo Ideal (Ano)</span>
-            <span className="font-bold text-foreground">{ritmoIdeal}%</span>
-          </div>
-          <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
-            <div 
-              className="h-full rounded-full bg-chart-graphite-light transition-all duration-500"
-              style={{ width: `${Math.min(ritmoIdeal, 100)}%` }}
-            />
-          </div>
-        </div>
-        
-        <div className="space-y-1">
-          <div className="flex justify-between text-sm">
             <span className="font-medium text-foreground">ICM Anual</span>
             <span className="font-bold text-foreground">{icmGeral}%</span>
           </div>
-          <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
+          <div className="relative">
+            <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
+              <div 
+                className="h-full rounded-full bg-chart-graphite transition-all duration-500"
+                style={{ width: `${Math.min(icmGeral, 100)}%` }}
+              />
+            </div>
+            {/* Marcador de Ritmo Ideal */}
             <div 
-              className="h-full rounded-full bg-chart-graphite transition-all duration-500"
-              style={{ width: `${Math.min(icmGeral, 100)}%` }}
-            />
+              className="absolute top-0 flex flex-col items-center"
+              style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
+            >
+              <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-primary" />
+              <div className="w-0.5 h-3 bg-primary -mt-0.5" />
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+            <div className="w-0 h-0 border-l-[3px] border-r-[3px] border-t-[4px] border-l-transparent border-r-transparent border-t-primary" />
+            <span>Ritmo Ideal: {ritmoIdeal}%</span>
           </div>
         </div>
       </div>
