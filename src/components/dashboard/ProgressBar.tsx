@@ -1,4 +1,4 @@
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 interface ProgressBarProps {
   label: string;
@@ -36,25 +36,22 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
           />
         </div>
         {ritmoIdeal !== undefined && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div 
-                  className="absolute top-0 flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
-                  style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
-                >
-                  <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-primary" />
-                  <div className={`w-0.5 ${isTvMode ? 'h-4' : 'h-3'} bg-primary -mt-0.5`} />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                  <p className={`text-sm font-bold ${differenceColor}`}>{differenceText}</p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <>
+            {/* Marcador visual */}
+            <div 
+              className="absolute top-0 flex flex-col items-center transition-all duration-500 ease-out"
+              style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
+            >
+              <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-primary" />
+              <div className={`w-0.5 ${isTvMode ? 'h-4' : 'h-3'} bg-primary -mt-0.5`} />
+            </div>
+            
+            {/* Label sempre visível */}
+            <div className={`absolute ${isTvMode ? '-bottom-5' : '-bottom-4'} right-0 ${isTvMode ? 'text-xs' : 'text-[10px]'} font-medium whitespace-nowrap`}>
+              <span className={differenceColor}>{differenceText}</span>
+              <span className="text-muted-foreground ml-1">vs ideal</span>
+            </div>
+          </>
         )}
       </div>
     </div>
