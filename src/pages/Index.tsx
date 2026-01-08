@@ -33,6 +33,7 @@ import { useAutoTheme } from "@/hooks/use-auto-theme";
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Card } from "@/components/ui/card";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 
@@ -321,18 +322,27 @@ const Index = () => {
                 {visibleTopCards > 0 && (
                   <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
                     {visibility.card1 && (
-                      <ICMCard
-                        icmGeral={dashboardData.icmGeral}
-                        ritmoIdeal={dashboardData.ritmoIdeal}
-                        diasUteisRestantes={dashboardData.diasUteisRestantes}
-                        assessors={assessors}
-                        selectedAssessor={filters.assessor}
-                        selectedMonth={filters.month}
-                        months={months}
-                        onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
-                        onMonthChange={(value) => setFilters({ ...filters, month: value })}
-                        onToggleView={toggleView}
-                      />
+                      <div className="flex flex-col gap-3 h-full">
+                        {/* Card 1 - ICMCard (metade superior) */}
+                        <div className="flex-1 min-h-0">
+                          <ICMCard
+                            icmGeral={dashboardData.icmGeral}
+                            ritmoIdeal={dashboardData.ritmoIdeal}
+                            diasUteisRestantes={dashboardData.diasUteisRestantes}
+                            assessors={assessors}
+                            selectedAssessor={filters.assessor}
+                            selectedMonth={filters.month}
+                            months={months}
+                            onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
+                            onMonthChange={(value) => setFilters({ ...filters, month: value })}
+                            onToggleView={toggleView}
+                          />
+                        </div>
+                        {/* Card 4 - Em branco (metade inferior) */}
+                        <Card className="flex-1 min-h-0 p-responsive shadow-card">
+                          {/* Conteúdo futuro */}
+                        </Card>
+                      </div>
                     )}
                     {visibility.card2 && (
                       <MetaTable
@@ -519,19 +529,28 @@ const Index = () => {
                 {visibleTopCards > 0 && (
                   <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
                     {visibility.card1 && (
-                      <ICMCard
-                        icmGeral={dashboardData.icmGeral}
-                        ritmoIdeal={dashboardData.ritmoIdeal}
-                        diasUteisRestantes={dashboardData.diasUteisRestantes}
-                        assessors={assessors}
-                        selectedAssessor={filters.assessor}
-                        selectedMonth={filters.month}
-                        months={months}
-                        onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
-                        onMonthChange={(value) => setFilters({ ...filters, month: value })}
-                        onToggleView={toggleView}
-                        isTvMode={true}
-                      />
+                      <div className="flex flex-col gap-3 h-full">
+                        {/* Card 1 - ICMCard (metade superior) */}
+                        <div className="flex-1 min-h-0">
+                          <ICMCard
+                            icmGeral={dashboardData.icmGeral}
+                            ritmoIdeal={dashboardData.ritmoIdeal}
+                            diasUteisRestantes={dashboardData.diasUteisRestantes}
+                            assessors={assessors}
+                            selectedAssessor={filters.assessor}
+                            selectedMonth={filters.month}
+                            months={months}
+                            onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
+                            onMonthChange={(value) => setFilters({ ...filters, month: value })}
+                            onToggleView={toggleView}
+                            isTvMode={true}
+                          />
+                        </div>
+                        {/* Card 4 - Em branco (metade inferior) */}
+                        <Card className="flex-1 min-h-0 p-responsive shadow-card">
+                          {/* Conteúdo futuro */}
+                        </Card>
+                      </div>
                     )}
                     {visibility.card2 && (
                       <MetaTable
