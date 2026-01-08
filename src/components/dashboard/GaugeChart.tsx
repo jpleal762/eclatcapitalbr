@@ -201,7 +201,7 @@ export function GaugeChart({
 
           {/* Center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-end pb-1 pointer-events-none">
-            <span className={`text-responsive-base font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
+            <span className={`${isTvMode ? 'text-tv-base' : 'text-responsive-lg'} font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
               {formatNumber(value, isCurrency)}
             </span>
             {showRemaining && remainingValue > 0 && <span className="text-responsive-3xs text-muted-foreground font-medium">
@@ -210,7 +210,7 @@ export function GaugeChart({
           </div>
 
           {/* Percentage label */}
-          <div className="absolute text-responsive-2xs font-bold pointer-events-none" style={{
+          <div className={`absolute ${isTvMode ? 'text-tv-2xs' : 'text-responsive-xs'} font-bold pointer-events-none`} style={{
           top: "10%",
           left: "50%",
           transform: "translateX(-50%)",
