@@ -485,9 +485,6 @@ const Index = () => {
                             statusIcon={dashboardData.gaugeKPIs[2]?.statusIcon}
                             size="lg"
                             showRemaining={true}
-                            secondaryValue={dashboardData.gaugeKPIs[2]?.secondaryValue}
-                            secondaryPercentage={dashboardData.gaugeKPIs[2]?.secondaryPercentage}
-                            secondaryLabel={dashboardData.gaugeKPIs[2]?.secondaryLabel}
                             ritmoIdeal={dashboardData.ritmoIdeal}
                           />
                         )}
@@ -714,30 +711,19 @@ const Index = () => {
                     {col3Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph3 && (
-                          <div className="flex gap-2 h-full">
-                            <div className="flex-1 h-full">
-                              <GaugeChart
-                                label={dashboardData.gaugeKPIs[2]?.label}
-                                value={dashboardData.gaugeKPIs[2]?.value}
-                                target={dashboardData.gaugeKPIs[2]?.target}
-                                percentage={dashboardData.gaugeKPIs[2]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[2]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[2]?.statusIcon}
-                                size="lg"
-                                showRemaining={true}
-                                isTvMode={true}
-                                secondaryValue={dashboardData.gaugeKPIs[2]?.secondaryValue}
-                                secondaryPercentage={dashboardData.gaugeKPIs[2]?.secondaryPercentage}
-                                secondaryLabel={dashboardData.gaugeKPIs[2]?.secondaryLabel}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                              />
-                            </div>
-                            <AssessorAgendadasMatrix
-                              assessorData={assessorAgendadas}
-                              isTvMode={true}
-                            />
-                          </div>
+                          <GaugeChart
+                            label={dashboardData.gaugeKPIs[2]?.label}
+                            value={dashboardData.gaugeKPIs[2]?.value}
+                            target={dashboardData.gaugeKPIs[2]?.target}
+                            percentage={dashboardData.gaugeKPIs[2]?.percentage}
+                            isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
+                            warning={dashboardData.gaugeKPIs[2]?.warning}
+                            statusIcon={dashboardData.gaugeKPIs[2]?.statusIcon}
+                            size="lg"
+                            showRemaining={true}
+                            isTvMode={true}
+                            ritmoIdeal={dashboardData.ritmoIdeal}
+                          />
                         )}
                         {(visibility.graph8 || visibility.graph9) && (
                           <div className="grid grid-cols-2 gap-2 flex-shrink-0">
