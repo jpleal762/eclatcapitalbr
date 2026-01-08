@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
 import { KPIStatusIcon } from "@/types/kpi";
@@ -32,7 +32,7 @@ function StatusIconDisplay({
     case "GREEN_CHECK":
       return <CheckCircle className="icon-responsive text-green-500 animate-pulse" />;
     case "CLOCK":
-      return <Clock className="icon-responsive text-blue-500" />;
+      return;
     case "YELLOW_ALERT":
       return <AlertTriangle className="icon-responsive text-yellow-500 animate-pulse" />;
     case "RED_ALERT":
@@ -78,11 +78,20 @@ export function GaugeChart({
   const getClockStyle = (currentValue: number, idealValue: number) => {
     const percentageBelowIdeal = idealValue > 0 ? (idealValue - currentValue) / idealValue * 100 : 0;
     if (currentValue >= idealValue) {
-      return { color: 'hsl(142.1, 76.2%, 36.3%)', animate: false }; // green-500
+      return {
+        color: 'hsl(142.1, 76.2%, 36.3%)',
+        animate: false
+      }; // green-500
     } else if (percentageBelowIdeal > 30) {
-      return { color: 'hsl(0, 72.2%, 50.6%)', animate: true }; // red-500
+      return {
+        color: 'hsl(0, 72.2%, 50.6%)',
+        animate: true
+      }; // red-500
     } else {
-      return { color: 'hsl(47.9, 95.8%, 53.1%)', animate: true }; // yellow-500
+      return {
+        color: 'hsl(47.9, 95.8%, 53.1%)',
+        animate: true
+      }; // yellow-500
     }
   };
   const radius = (dynamicWidth - dynamicStrokeWidth) / 2;
@@ -132,12 +141,11 @@ export function GaugeChart({
           const y1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
           const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
           const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
-          
+
           // Posição do relógio - mais próximo do arco (pequeno offset para fora)
           const clockOffset = 4 * dynamicScale;
           const clockX = centerX + Math.cos(ritmoIdealAngle) * (radius + clockOffset);
           const clockY = centerY - Math.sin(ritmoIdealAngle) * (radius + clockOffset);
-          
           const triangleSize = 4 * dynamicScale;
           const perpAngle = ritmoIdealAngle + Math.PI / 2;
           const tipX = x2;
@@ -156,7 +164,6 @@ export function GaugeChart({
                   {(() => {
                 const clockStyle = getClockStyle(percentage, ritmoIdeal);
                 const showDifference = percentage < ritmoIdeal;
-
                 return <g transform={`translate(${clockX}, ${clockY})`} className={clockStyle.animate ? 'animate-pulse-clock' : ''} style={{
                   transformOrigin: 'center',
                   transformBox: 'fill-box'
