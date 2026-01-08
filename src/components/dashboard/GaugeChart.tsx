@@ -74,26 +74,8 @@ export function GaugeChart({
   const dynamicStrokeWidth = Math.round(21 * dynamicScale); // +50% thickness
   const clockPadding = Math.round(20 * dynamicScale); // Extra space for clock icons
 
-  // Function to get clock style based on performance
-  const getClockStyle = (currentValue: number, idealValue: number) => {
-    const percentageBelowIdeal = idealValue > 0 ? (idealValue - currentValue) / idealValue * 100 : 0;
-    if (currentValue >= idealValue) {
-      return {
-        color: 'hsl(142.1, 76.2%, 36.3%)',
-        animate: false
-      }; // green-500
-    } else if (percentageBelowIdeal > 30) {
-      return {
-        color: 'hsl(0, 72.2%, 50.6%)',
-        animate: true
-      }; // red-500
-    } else {
-      return {
-        color: 'hsl(47.9, 95.8%, 53.1%)',
-        animate: true
-      }; // yellow-500
-    }
-  };
+  // Fixed dark gray color for rhythm marker
+  const clockColor = '#374151'; // gray-700
   const radius = (dynamicWidth - dynamicStrokeWidth) / 2;
   const circumference = Math.PI * radius;
   const progress = clampedPercentage / 100 * circumference;
@@ -158,36 +140,22 @@ export function GaugeChart({
                 <svg className="absolute inset-0 pointer-events-none" width={dynamicWidth + clockPadding * 2} height={dynamicHeight + clockPadding} viewBox={`${-clockPadding} ${-clockPadding} ${dynamicWidth + clockPadding * 2} ${dynamicHeight + clockPadding}`} overflow="visible" style={{
               transition: 'all 0.5s ease-out'
             }}>
-                  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="hsl(var(--primary))" strokeWidth={2 * dynamicScale} />
-                  <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill="hsl(var(--primary))" />
-                  {/* Clock icon at marker - with conditional color and animation */}
-                  {(() => {
-                const clockStyle = getClockStyle(percentage, ritmoIdeal);
-                const showDifference = percentage < ritmoIdeal;
-                return <g transform={`translate(${clockX}, ${clockY})`} className={clockStyle.animate ? 'animate-pulse-clock' : ''} style={{
-                  transformOrigin: 'center',
-                  transformBox: 'fill-box'
-                }}>
+                  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={clockColor} strokeWidth={2 * dynamicScale} />
+                  <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={clockColor} />
+                  {/* Clock icon at marker - dark gray */}
+                  <g transform={`translate(${clockX}, ${clockY})`}>
                         {/* Shadow for better visibility */}
                         <circle r={9 * dynamicScale} fill="rgba(0,0,0,0.15)" />
-                        {/* Colored background - larger */}
-                        <circle r={8 * dynamicScale} fill={clockStyle.color} />
-                        {/* White border - thicker */}
+                        {/* Dark gray background */}
+                        <circle r={8 * dynamicScale} fill={clockColor} />
+                        {/* White border */}
                         <circle r={6 * dynamicScale} fill="none" stroke="white" strokeWidth={1 * dynamicScale} />
-                        {/* Clock hands - more visible */}
+                        {/* Clock hands */}
                         <line x1={0} y1={0} x2={0} y2={-3.5 * dynamicScale} stroke="white" strokeWidth={1 * dynamicScale} strokeLinecap="round" />
                         <line x1={0} y1={0} x2={2.5 * dynamicScale} y2={0} stroke="white" strokeWidth={1 * dynamicScale} strokeLinecap="round" />
                         {/* Center dot */}
                         <circle r={0.8 * dynamicScale} fill="white" />
-                        
-                        {/* Número da diferença junto ao relógio - só para amarelo/vermelho */}
-                        {showDifference && <text x={0} y={16 * dynamicScale} textAnchor="middle" fill={clockStyle.color} fontSize={7 * dynamicScale} fontWeight="bold" style={{
-                    textShadow: '0 1px 2px rgba(0,0,0,0.3)'
-                  }}>
-                            {differenceText}
-                          </text>}
-                      </g>;
-              })()}
+                      </g>
                 </svg>
               </>;
         })()}
