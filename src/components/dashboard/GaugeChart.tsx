@@ -142,8 +142,8 @@ export function GaugeChart({
           const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
           const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
 
-          // Posição do relógio - mais próximo do arco (pequeno offset para fora)
-          const clockOffset = 4 * dynamicScale;
+          // Posição do relógio - próximo da ponta do marcador triangular
+          const clockOffset = (dynamicStrokeWidth / 2) + 6 * dynamicScale;
           const clockX = centerX + Math.cos(ritmoIdealAngle) * (radius + clockOffset);
           const clockY = centerY - Math.sin(ritmoIdealAngle) * (radius + clockOffset);
           const triangleSize = 4 * dynamicScale;
