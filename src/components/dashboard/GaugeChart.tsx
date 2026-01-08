@@ -77,25 +77,12 @@ export function GaugeChart({
   // Function to get clock style based on performance
   const getClockStyle = (currentValue: number, idealValue: number) => {
     const percentageBelowIdeal = idealValue > 0 ? (idealValue - currentValue) / idealValue * 100 : 0;
-    const redGlow = 'drop-shadow(0 0 6px rgba(239, 68, 68, 0.7)) drop-shadow(0 0 12px rgba(239, 68, 68, 0.4))';
     if (currentValue >= idealValue) {
-      return {
-        color: 'hsl(142.1, 76.2%, 36.3%)',
-        animate: false,
-        glow: 'none'
-      }; // green-500
+      return { color: 'hsl(142.1, 76.2%, 36.3%)', animate: false }; // green-500
     } else if (percentageBelowIdeal > 30) {
-      return {
-        color: 'hsl(0, 72.2%, 50.6%)',
-        animate: true,
-        glow: redGlow
-      }; // red-500 with glow
+      return { color: 'hsl(0, 72.2%, 50.6%)', animate: true }; // red-500
     } else {
-      return {
-        color: 'hsl(47.9, 95.8%, 53.1%)',
-        animate: true,
-        glow: 'none'
-      }; // yellow-500
+      return { color: 'hsl(47.9, 95.8%, 53.1%)', animate: true }; // yellow-500
     }
   };
   const radius = (dynamicWidth - dynamicStrokeWidth) / 2;
@@ -154,20 +141,19 @@ export function GaugeChart({
           const baseX2 = x2 - Math.cos(ritmoIdealAngle) * triangleSize - Math.cos(perpAngle) * triangleSize * 0.6;
           const baseY2 = y2 + Math.sin(ritmoIdealAngle) * triangleSize + Math.sin(perpAngle) * triangleSize * 0.6;
           return <>
-                <svg className="absolute inset-0 pointer-events-none" width={dynamicWidth + clockPadding * 2} height={dynamicHeight + clockPadding} viewBox={`${-clockPadding} ${-clockPadding} ${dynamicWidth + clockPadding * 2} ${dynamicHeight + clockPadding}`} style={{
+                <svg className="absolute inset-0 pointer-events-none" width={dynamicWidth + clockPadding * 2} height={dynamicHeight + clockPadding} viewBox={`${-clockPadding} ${-clockPadding} ${dynamicWidth + clockPadding * 2} ${dynamicHeight + clockPadding}`} overflow="visible" style={{
               transition: 'all 0.5s ease-out'
             }}>
                   <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="hsl(var(--primary))" strokeWidth={2 * dynamicScale} />
                   <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill="hsl(var(--primary))" />
-                  {/* Clock icon at marker - with conditional color and animation - LARGER for visibility */}
+                  {/* Clock icon at marker - with conditional color and animation */}
                   {(() => {
                 const clockStyle = getClockStyle(percentage, ritmoIdeal);
-                const showDifference = percentage < ritmoIdeal; // Só mostra para amarelo/vermelho
+                const showDifference = percentage < ritmoIdeal;
 
                 return <g transform={`translate(${x2}, ${y2})`} className={clockStyle.animate ? 'animate-pulse-clock' : ''} style={{
                   transformOrigin: 'center',
-                  transformBox: 'fill-box',
-                  filter: clockStyle.glow
+                  transformBox: 'fill-box'
                 }}>
                         {/* Shadow for better visibility */}
                         <circle r={9 * dynamicScale} fill="rgba(0,0,0,0.15)" />
