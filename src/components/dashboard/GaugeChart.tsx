@@ -201,7 +201,7 @@ export function GaugeChart({
 
           {/* Center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-end pb-1 pointer-events-none">
-            <span className={`${isTvMode ? 'text-tv-base' : 'text-responsive-lg'} font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
+            <span className={`${isTvMode ? (size === 'sm' ? 'text-tv-xs' : 'text-tv-base') : 'text-responsive-lg'} font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
               {formatNumber(value, isCurrency)}
             </span>
             {showRemaining && remainingValue > 0 && <span className="text-responsive-3xs text-muted-foreground font-medium">
