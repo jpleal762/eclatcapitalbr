@@ -132,6 +132,12 @@ export function GaugeChart({
           const y1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
           const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
           const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
+          
+          // Posição do relógio - mais próximo do arco (pequeno offset para fora)
+          const clockOffset = 4 * dynamicScale;
+          const clockX = centerX + Math.cos(ritmoIdealAngle) * (radius + clockOffset);
+          const clockY = centerY - Math.sin(ritmoIdealAngle) * (radius + clockOffset);
+          
           const triangleSize = 4 * dynamicScale;
           const perpAngle = ritmoIdealAngle + Math.PI / 2;
           const tipX = x2;
@@ -151,7 +157,7 @@ export function GaugeChart({
                 const clockStyle = getClockStyle(percentage, ritmoIdeal);
                 const showDifference = percentage < ritmoIdeal;
 
-                return <g transform={`translate(${x2}, ${y2})`} className={clockStyle.animate ? 'animate-pulse-clock' : ''} style={{
+                return <g transform={`translate(${clockX}, ${clockY})`} className={clockStyle.animate ? 'animate-pulse-clock' : ''} style={{
                   transformOrigin: 'center',
                   transformBox: 'fill-box'
                 }}>
