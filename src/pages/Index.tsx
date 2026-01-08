@@ -4,6 +4,7 @@ import { ICMCard } from "@/components/dashboard/ICMCard";
 import { MetaTable } from "@/components/dashboard/MetaTable";
 import { AssessorChart } from "@/components/dashboard/AssessorChart";
 import { GaugeChart } from "@/components/dashboard/GaugeChart";
+import { AgendadasCard } from "@/components/dashboard/AgendadasCard";
 import { YearlyICMCard } from "@/components/dashboard/YearlyICMCard";
 import { YearlyMetaTable } from "@/components/dashboard/YearlyMetaTable";
 import { YearlyAssessorChart } from "@/components/dashboard/YearlyAssessorChart";
@@ -338,10 +339,15 @@ const Index = () => {
                             onToggleView={toggleView}
                           />
                         </div>
-                        {/* Card 4 - Em branco (metade inferior) */}
-                        <Card className="flex-1 min-h-0 p-responsive shadow-card">
-                          {/* Conteúdo futuro */}
-                        </Card>
+                        {/* Card 4 - Agendadas (metade inferior) */}
+                        <div className="flex-1 min-h-0">
+                          <AgendadasCard
+                            agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
+                            agendadasTarget={dashboardData.gaugeKPIs[2]?.target || 0}
+                            agendadasPercentage={dashboardData.gaugeKPIs[2]?.secondaryPercentage || 0}
+                            assessorData={assessorAgendadas}
+                          />
+                        </div>
                       </div>
                     )}
                     {visibility.card2 && (
@@ -546,10 +552,16 @@ const Index = () => {
                             isTvMode={true}
                           />
                         </div>
-                        {/* Card 4 - Em branco (metade inferior) */}
-                        <Card className="flex-1 min-h-0 p-responsive shadow-card">
-                          {/* Conteúdo futuro */}
-                        </Card>
+                        {/* Card 4 - Agendadas (metade inferior) */}
+                        <div className="flex-1 min-h-0">
+                          <AgendadasCard
+                            agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
+                            agendadasTarget={dashboardData.gaugeKPIs[2]?.target || 0}
+                            agendadasPercentage={dashboardData.gaugeKPIs[2]?.secondaryPercentage || 0}
+                            assessorData={assessorAgendadas}
+                            isTvMode={true}
+                          />
+                        </div>
                       </div>
                     )}
                     {visibility.card2 && (
