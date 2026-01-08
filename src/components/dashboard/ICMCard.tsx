@@ -36,8 +36,8 @@ export function ICMCard({
     scale
   } = useResponsiveSize();
 
-  // Dynamic gauge sizing - 50% larger than other gauges
-  const dynamicScale = Math.max(0.9, Math.min(scale * (isTvMode ? 1.8 : 1.5), 2.1));
+  // Dynamic gauge sizing - compacted for half height
+  const dynamicScale = Math.max(0.7, Math.min(scale * (isTvMode ? 1.4 : 1.1), 1.6));
   const gaugeWidth = Math.round(140 * dynamicScale);
   const gaugeHeight = Math.round(80 * dynamicScale);
   const gaugeRadius = Math.round(60 * dynamicScale);
@@ -49,49 +49,47 @@ export function ICMCard({
     const monthNames = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
     return `${monthNames[now.getMonth()]}/${now.getFullYear().toString().slice(-2)}`;
   };
-  return <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
-      {/* Header with Toggle */}
-      <div className="flex items-center justify-between mb-responsive flex-shrink-0">
+  return <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden">
+      {/* Header compacto com filtros */}
+      <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0 flex-wrap">
         <h3 className={`${isTvMode ? 'text-tv-lg' : 'text-responsive-sm'} font-semibold text-foreground`}>
           ICM Mensal
         </h3>
-        {onToggleView && <Button variant="outline" size="sm" onClick={onToggleView} className="gap-1.5 text-responsive-xs h-auto py-1 px-2">
-            <Calendar className="icon-responsive-sm" />
-            {isTvMode ? "Mensal" : "TV"}
-          </Button>}
+        <div className="flex items-center gap-2 flex-wrap">
+          <Select value={selectedAssessor} onValueChange={onAssessorChange}>
+            <SelectTrigger className="w-[120px] bg-background text-responsive-xs h-7 py-0.5">
+              <SelectValue placeholder="TODOS" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">TODOS (Escritório)</SelectItem>
+              {assessors.map(a => <SelectItem key={a} value={a}>
+                  {a.split(" ").slice(0, 2).join(" ")}
+                </SelectItem>)}
+            </SelectContent>
+          </Select>
+
+          <Select value={selectedMonth} onValueChange={onMonthChange}>
+            <SelectTrigger className="w-[85px] bg-background text-responsive-xs h-7 py-0.5">
+              <SelectValue placeholder={getCurrentMonthLabel()} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {months.map(m => <SelectItem key={m} value={m}>
+                  {m.toUpperCase()}
+                </SelectItem>)}
+            </SelectContent>
+          </Select>
+
+          {onToggleView && <Button variant="outline" size="sm" onClick={onToggleView} className="gap-1.5 text-responsive-xs h-7 py-0.5 px-2">
+              <Calendar className="icon-responsive-sm" />
+              {isTvMode ? "Mensal" : "TV"}
+            </Button>}
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-responsive-sm mb-responsive flex-shrink-0">
-        <Select value={selectedAssessor} onValueChange={onAssessorChange}>
-          <SelectTrigger className="w-[140px] bg-background text-responsive-xs h-auto py-1">
-            <SelectValue placeholder="TODOS" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">TODOS (Escritório)</SelectItem>
-            {assessors.map(a => <SelectItem key={a} value={a}>
-                {a.split(" ").slice(0, 2).join(" ")}
-              </SelectItem>)}
-          </SelectContent>
-        </Select>
-
-        <Select value={selectedMonth} onValueChange={onMonthChange}>
-          <SelectTrigger className="w-[100px] bg-background text-responsive-xs h-auto py-1">
-            <SelectValue placeholder={getCurrentMonthLabel()} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            {months.map(m => <SelectItem key={m} value={m}>
-                {m.toUpperCase()}
-              </SelectItem>)}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="flex items-start justify-between gap-responsive flex-1 min-h-0">
+      <div className="flex items-center justify-around gap-2 flex-1 min-h-0">
         {/* Gauge */}
-        <div className="flex flex-col items-center flex-1">
-          <h3 className="text-responsive-sm font-semibold mb-responsive text-foreground">ICM Geral</h3>
+        <div className="flex flex-col items-center">
           
           <div className="relative" style={{
           width: gaugeWidth,
@@ -110,17 +108,14 @@ export function ICMCard({
         </div>
 
         {/* Days remaining */}
-        <div className="text-center px-responsive py-responsive-sm">
-          <p className="text-responsive-xs text-muted-foreground mb-responsive-sm">Dias Úteis<br />Restantes</p>
+        <div className="text-center">
+          <p className="text-responsive-xs text-muted-foreground mb-1">Dias Úteis<br />Restantes</p>
           <p className="text-responsive-xl font-bold text-foreground">{diasUteisRestantes}</p>
         </div>
       </div>
 
-      {/* Progress bars */}
-      
-
       {/* Dynamic Performance Indicator */}
-      <div className={`mt-responsive p-responsive-sm rounded-lg flex items-center justify-center gap-responsive-sm flex-shrink-0 ${icmGeral > ritmoIdeal ? 'bg-green-500/10 border border-green-500/20' : icmGeral === ritmoIdeal ? 'bg-blue-500/10 border border-blue-500/20' : 'bg-orange-500/10 border border-orange-500/20'}`}>
+      <div className={`mt-1 py-1 px-2 rounded-md flex items-center justify-center gap-2 flex-shrink-0 ${icmGeral > ritmoIdeal ? 'bg-green-500/10 border border-green-500/20' : icmGeral === ritmoIdeal ? 'bg-blue-500/10 border border-blue-500/20' : 'bg-orange-500/10 border border-orange-500/20'}`}>
         {icmGeral > ritmoIdeal && <>
             <CheckCircle className="icon-responsive-sm text-green-600" />
             <span className="text-responsive-xs font-medium text-green-700">Acima do esperado</span>
