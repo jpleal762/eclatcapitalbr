@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
 import { KPIStatusIcon } from "@/types/kpi";
 import { useResponsiveSize } from "@/hooks/use-responsive-size";
+import { useTheme } from "next-themes";
 interface GaugeChartProps {
   label: string;
   value: number;
@@ -62,6 +63,7 @@ export function GaugeChart({
     height,
     scale
   } = useResponsiveSize();
+  const { theme } = useTheme();
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   const remainingValue = Math.max(target - value, 0);
 
@@ -158,8 +160,13 @@ export function GaugeChart({
                 <svg className="absolute inset-0 pointer-events-none" width={dynamicWidth + clockPadding * 2} height={dynamicHeight + clockPadding} viewBox={`${-clockPadding} ${-clockPadding} ${dynamicWidth + clockPadding * 2} ${dynamicHeight + clockPadding}`} overflow="visible" style={{
               transition: 'all 0.5s ease-out'
             }}>
-                  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#4B5563" strokeWidth={2 * dynamicScale} />
-                  <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill="#4B5563" />
+                  {(() => {
+                    const markerColor = theme === "dark" ? "#D1D5DB" : "#4B5563";
+                    return <>
+                      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={markerColor} strokeWidth={2 * dynamicScale} />
+                      <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={markerColor} />
+                    </>;
+                  })()}
                   {/* Clock icon at marker - with conditional color and animation */}
                   {(() => {
                 const clockStyle = getClockStyle(percentage, ritmoIdeal);

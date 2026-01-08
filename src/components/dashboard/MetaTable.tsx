@@ -14,7 +14,7 @@ export function MetaTable({ data, realPercentage, selectedAssessor, weekToMonthP
   return (
     <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-responsive flex-shrink-0">
-        <h3 className={`${isTvMode ? 'text-tv-lg' : 'text-responsive-sm'} font-semibold text-foreground`}>Metas Semanais</h3>
+        <h3 className={`${isTvMode ? 'text-tv-lg' : 'text-responsive-sm'} font-semibold text-foreground`}>Meta Semanal Acumulada</h3>
         {selectedAssessor && selectedAssessor !== "all" && (
           <span className={`${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'} px-2 py-responsive-sm rounded-full bg-primary/10 text-primary font-medium`}>
             {selectedAssessor.split(" ").slice(0, 2).join(" ")}
