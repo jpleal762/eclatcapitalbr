@@ -44,6 +44,30 @@ export function ICMCard({
   const strokeWidth = Math.round(12 * dynamicScale);
   const circumference = Math.PI * gaugeRadius;
   const progress = Math.min(icmGeral, 100) / 100 * circumference;
+
+  // Ritmo ideal marker calculations
+  const ritmoIdealAngle = Math.PI - (ritmoIdeal / 100) * Math.PI;
+  const centerX = gaugeWidth / 2;
+  const centerY = gaugeHeight;
+  const markerInnerRadius = gaugeRadius - strokeWidth / 2 - 2;
+  const markerOuterRadius = gaugeRadius + strokeWidth / 2 + 2;
+
+  const x1 = centerX + Math.cos(ritmoIdealAngle) * markerInnerRadius;
+  const y1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
+  const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
+  const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
+
+  // Triangle (arrow)
+  const triangleSize = 4 * dynamicScale;
+  const perpAngle = ritmoIdealAngle + Math.PI / 2;
+  const tipX = x2;
+  const tipY = y2;
+  const baseX1 = x2 - Math.cos(ritmoIdealAngle) * triangleSize + Math.cos(perpAngle) * triangleSize * 0.6;
+  const baseY1 = y2 + Math.sin(ritmoIdealAngle) * triangleSize - Math.sin(perpAngle) * triangleSize * 0.6;
+  const baseX2 = x2 - Math.cos(ritmoIdealAngle) * triangleSize - Math.cos(perpAngle) * triangleSize * 0.6;
+  const baseY2 = y2 + Math.sin(ritmoIdealAngle) * triangleSize + Math.sin(perpAngle) * triangleSize * 0.6;
+
+  const markerColor = "#4B5563"; // gray-600
   const getCurrentMonthLabel = () => {
     const now = new Date();
     const monthNames = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
@@ -100,6 +124,9 @@ export function ICMCard({
               <path d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`} fill="none" stroke="hsl(var(--primary))" strokeWidth={strokeWidth} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference - progress} style={{
               transition: "stroke-dashoffset 0.8s ease-out"
             }} />
+              {/* Ritmo Ideal marker - linha + seta triangular */}
+              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={markerColor} strokeWidth={2 * dynamicScale} />
+              <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={markerColor} />
             </svg>
             <div className="absolute inset-0 flex items-end justify-center pb-1">
               <span className="text-responsive-2xl font-bold text-foreground">{icmGeral}%</span>

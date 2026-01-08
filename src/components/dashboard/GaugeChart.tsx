@@ -158,8 +158,8 @@ export function GaugeChart({
                 <svg className="absolute inset-0 pointer-events-none" width={dynamicWidth + clockPadding * 2} height={dynamicHeight + clockPadding} viewBox={`${-clockPadding} ${-clockPadding} ${dynamicWidth + clockPadding * 2} ${dynamicHeight + clockPadding}`} overflow="visible" style={{
               transition: 'all 0.5s ease-out'
             }}>
-                  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="hsl(var(--primary))" strokeWidth={2 * dynamicScale} />
-                  <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill="hsl(var(--primary))" />
+                  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#4B5563" strokeWidth={2 * dynamicScale} />
+                  <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill="#4B5563" />
                   {/* Clock icon at marker - with conditional color and animation */}
                   {(() => {
                 const clockStyle = getClockStyle(percentage, ritmoIdeal);
