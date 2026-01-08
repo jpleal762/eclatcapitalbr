@@ -117,44 +117,7 @@ export function ICMCard({
       </div>
 
       {/* Progress bars */}
-      <div className="mt-auto pt-responsive space-y-responsive-sm flex-shrink-0">
-        <div className="space-y-responsive-sm">
-          <div className="flex justify-between text-responsive-xs">
-            <span className="font-medium text-foreground">ICM Geral</span>
-            <span className="font-bold text-foreground">{icmGeral}%</span>
-          </div>
-          <div className="relative">
-            <div className="h-bar-responsive w-full rounded-full bg-muted overflow-hidden">
-              <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
-              width: `${Math.min(icmGeral, 100)}%`
-            }} />
-            </div>
-            {/* Marcador do Ritmo Ideal */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="absolute top-0 flex flex-col items-center cursor-pointer transition-all duration-500 ease-out" style={{
-                  left: `${Math.min(ritmoIdeal, 100)}%`,
-                  transform: 'translateX(-50%)'
-                }}>
-                    
-                    
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <div className="text-center">
-                    <p className="text-responsive-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                    <p className={`text-responsive-sm font-bold ${icmGeral >= ritmoIdeal ? 'text-green-600' : 'text-red-600'}`}>
-                      {icmGeral > ritmoIdeal ? `+${icmGeral - ritmoIdeal}%` : `${icmGeral - ritmoIdeal}%`}
-                    </p>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          
-        </div>
-      </div>
+      
 
       {/* Dynamic Performance Indicator */}
       <div className={`mt-responsive p-responsive-sm rounded-lg flex items-center justify-center gap-responsive-sm flex-shrink-0 ${icmGeral > ritmoIdeal ? 'bg-green-500/10 border border-green-500/20' : icmGeral === ritmoIdeal ? 'bg-blue-500/10 border border-blue-500/20' : 'bg-orange-500/10 border border-orange-500/20'}`}>
