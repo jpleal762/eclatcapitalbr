@@ -116,7 +116,7 @@ export function GaugeChart({
         width: dynamicWidth + clockPadding * 2,
         height: dynamicHeight + clockPadding
       }}>
-          <svg width={dynamicWidth + clockPadding * 2} height={dynamicHeight + clockPadding} viewBox={`${-clockPadding} ${-clockPadding} ${dynamicWidth + clockPadding * 2} ${dynamicHeight + clockPadding}`}>
+          <svg width={dynamicWidth + clockPadding * 2} height={dynamicHeight + clockPadding} viewBox={`${-clockPadding} ${-clockPadding} ${dynamicWidth + clockPadding * 2} ${dynamicHeight + clockPadding}`} overflow="visible">
             {/* Background arc */}
             <path d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
                   A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} fill="none" stroke={isHighlight ? "hsl(0, 0%, 50%)" : "hsl(var(--muted))"} strokeWidth={dynamicStrokeWidth} strokeLinecap="round" />
@@ -125,79 +125,62 @@ export function GaugeChart({
                   A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} fill="none" stroke="hsl(var(--primary))" strokeWidth={dynamicStrokeWidth} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference - progress} style={{
             transition: "stroke-dashoffset 0.5s ease-out"
           }} />
+            
+            {/* Ritmo Ideal marker - integrated in main SVG */}
+            {ritmoIdeal !== undefined && (() => {
+              const ritmoIdealAngle = Math.PI - ritmoIdeal / 100 * Math.PI;
+              const centerX = dynamicWidth / 2;
+              const centerY = dynamicHeight;
+              const markerInnerRadius = radius - dynamicStrokeWidth / 2 - 2;
+              const markerOuterRadius = radius + dynamicStrokeWidth / 2 + 2;
+              const ritmoIdealValue = Math.round(ritmoIdeal / 100 * target * 100) / 100;
+              const realDifference = Math.round((value - ritmoIdealValue) * 100) / 100;
+              const differenceText = realDifference >= 0 ? `+${formatNumber(realDifference, isCurrency)}` : formatNumber(realDifference, isCurrency);
+              const x1 = centerX + Math.cos(ritmoIdealAngle) * markerInnerRadius;
+              const y1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
+              const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
+              const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
+
+              const clockOffset = (dynamicStrokeWidth / 2) + 6 * dynamicScale;
+              const clockX = centerX + Math.cos(ritmoIdealAngle) * (radius + clockOffset);
+              const clockY = centerY - Math.sin(ritmoIdealAngle) * (radius + clockOffset);
+              const triangleSize = 4 * dynamicScale;
+              const perpAngle = ritmoIdealAngle + Math.PI / 2;
+              const tipX = x2;
+              const tipY = y2;
+              const baseX1 = x2 - Math.cos(ritmoIdealAngle) * triangleSize + Math.cos(perpAngle) * triangleSize * 0.6;
+              const baseY1 = y2 + Math.sin(ritmoIdealAngle) * triangleSize - Math.sin(perpAngle) * triangleSize * 0.6;
+              const baseX2 = x2 - Math.cos(ritmoIdealAngle) * triangleSize - Math.cos(perpAngle) * triangleSize * 0.6;
+              const baseY2 = y2 + Math.sin(ritmoIdealAngle) * triangleSize + Math.sin(perpAngle) * triangleSize * 0.6;
+              
+              const markerColor = theme === "dark" ? "#D1D5DB" : "#4B5563";
+              const clockStyle = getClockStyle(percentage, ritmoIdeal);
+              const showDifference = percentage < ritmoIdeal;
+              
+              return (
+                <g style={{ transition: 'all 0.5s ease-out' }}>
+                  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={markerColor} strokeWidth={2 * dynamicScale} />
+                  <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={markerColor} />
+                  
+                  {/* Clock icon at marker */}
+                  <g transform={`translate(${clockX}, ${clockY})`} className={clockStyle.animate ? 'animate-pulse-clock' : ''}>
+                    <circle r={9 * dynamicScale} fill="rgba(0,0,0,0.15)" />
+                    <circle r={8 * dynamicScale} fill={clockStyle.color} />
+                    <circle r={6 * dynamicScale} fill="none" stroke="white" strokeWidth={1 * dynamicScale} />
+                    <line x1={0} y1={0} x2={0} y2={-3.5 * dynamicScale} stroke="white" strokeWidth={1 * dynamicScale} strokeLinecap="round" />
+                    <line x1={0} y1={0} x2={2.5 * dynamicScale} y2={0} stroke="white" strokeWidth={1 * dynamicScale} strokeLinecap="round" />
+                    <circle r={0.8 * dynamicScale} fill="white" />
+                    
+                    {showDifference && (
+                      <text x={0} y={16 * dynamicScale} textAnchor="middle" fill={clockStyle.color} fontSize={7 * dynamicScale} fontWeight="bold" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
+                        {differenceText}
+                      </text>
+                    )}
+                  </g>
+                </g>
+              );
+            })()}
           </svg>
-
-          {/* Ritmo Ideal marker */}
-          {ritmoIdeal !== undefined && (() => {
-          const ritmoIdealAngle = Math.PI - ritmoIdeal / 100 * Math.PI;
-          const centerX = dynamicWidth / 2;
-          const centerY = dynamicHeight;
-          const markerInnerRadius = radius - dynamicStrokeWidth / 2 - 2;
-          const markerOuterRadius = radius + dynamicStrokeWidth / 2 + 2;
-          const triggerX = centerX + Math.cos(ritmoIdealAngle) * radius;
-          const triggerY = centerY - Math.sin(ritmoIdealAngle) * radius;
-          const ritmoIdealValue = Math.round(ritmoIdeal / 100 * target * 100) / 100;
-          const realDifference = Math.round((value - ritmoIdealValue) * 100) / 100;
-          const differenceText = realDifference >= 0 ? `+${formatNumber(realDifference, isCurrency)}` : formatNumber(realDifference, isCurrency);
-          const x1 = centerX + Math.cos(ritmoIdealAngle) * markerInnerRadius;
-          const y1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
-          const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
-          const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
-
-          // Posição do relógio - próximo da ponta do marcador triangular
-          const clockOffset = (dynamicStrokeWidth / 2) + 6 * dynamicScale;
-          const clockX = centerX + Math.cos(ritmoIdealAngle) * (radius + clockOffset);
-          const clockY = centerY - Math.sin(ritmoIdealAngle) * (radius + clockOffset);
-          const triangleSize = 4 * dynamicScale;
-          const perpAngle = ritmoIdealAngle + Math.PI / 2;
-          const tipX = x2;
-          const tipY = y2;
-          const baseX1 = x2 - Math.cos(ritmoIdealAngle) * triangleSize + Math.cos(perpAngle) * triangleSize * 0.6;
-          const baseY1 = y2 + Math.sin(ritmoIdealAngle) * triangleSize - Math.sin(perpAngle) * triangleSize * 0.6;
-          const baseX2 = x2 - Math.cos(ritmoIdealAngle) * triangleSize - Math.cos(perpAngle) * triangleSize * 0.6;
-          const baseY2 = y2 + Math.sin(ritmoIdealAngle) * triangleSize + Math.sin(perpAngle) * triangleSize * 0.6;
-          return <>
-                <svg className="absolute inset-0 pointer-events-none" width={dynamicWidth + clockPadding * 2} height={dynamicHeight + clockPadding} viewBox={`${-clockPadding} ${-clockPadding} ${dynamicWidth + clockPadding * 2} ${dynamicHeight + clockPadding}`} overflow="visible" style={{
-              transition: 'all 0.5s ease-out'
-            }}>
-                  {(() => {
-                    const markerColor = theme === "dark" ? "#D1D5DB" : "#4B5563";
-                    return <>
-                      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={markerColor} strokeWidth={2 * dynamicScale} />
-                      <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={markerColor} />
-                    </>;
-                  })()}
-                  {/* Clock icon at marker - with conditional color and animation */}
-                  {(() => {
-                const clockStyle = getClockStyle(percentage, ritmoIdeal);
-                const showDifference = percentage < ritmoIdeal;
-                return <g transform={`translate(${clockX}, ${clockY})`} className={clockStyle.animate ? 'animate-pulse-clock' : ''} style={{
-                  transformOrigin: 'center',
-                  transformBox: 'fill-box'
-                }}>
-                        {/* Shadow for better visibility */}
-                        <circle r={9 * dynamicScale} fill="rgba(0,0,0,0.15)" />
-                        {/* Colored background - larger */}
-                        <circle r={8 * dynamicScale} fill={clockStyle.color} />
-                        {/* White border - thicker */}
-                        <circle r={6 * dynamicScale} fill="none" stroke="white" strokeWidth={1 * dynamicScale} />
-                        {/* Clock hands - more visible */}
-                        <line x1={0} y1={0} x2={0} y2={-3.5 * dynamicScale} stroke="white" strokeWidth={1 * dynamicScale} strokeLinecap="round" />
-                        <line x1={0} y1={0} x2={2.5 * dynamicScale} y2={0} stroke="white" strokeWidth={1 * dynamicScale} strokeLinecap="round" />
-                        {/* Center dot */}
-                        <circle r={0.8 * dynamicScale} fill="white" />
-                        
-                        {/* Número da diferença junto ao relógio - só para amarelo/vermelho */}
-                        {showDifference && <text x={0} y={16 * dynamicScale} textAnchor="middle" fill={clockStyle.color} fontSize={7 * dynamicScale} fontWeight="bold" style={{
-                    textShadow: '0 1px 2px rgba(0,0,0,0.3)'
-                  }}>
-                            {differenceText}
-                          </text>}
-                      </g>;
-              })()}
-                </svg>
-              </>;
-        })()}
 
           {/* Center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-end pb-1 pointer-events-none">
