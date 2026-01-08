@@ -10,8 +10,18 @@ interface AssessorChartProps {
   isTvMode?: boolean;
 }
 
-// Fixed dark gray color for rhythm marker
-const clockColor = 'bg-gray-700';
+// Function to get clock style based on performance
+const getClockStyle = (currentValue: number, idealValue: number) => {
+  const percentageBelowIdeal = idealValue > 0 ? ((idealValue - currentValue) / idealValue) * 100 : 0;
+  
+  if (currentValue >= idealValue) {
+    return { bgColor: 'bg-green-500', animate: false };
+  } else if (percentageBelowIdeal > 30) {
+    return { bgColor: 'bg-red-500', animate: true };
+  } else {
+    return { bgColor: 'bg-yellow-500', animate: true };
+  }
+};
 
 function StatusIcon({
   icon,
@@ -53,6 +63,7 @@ export function AssessorChart({
           const difference = assessor.geralPercentage - ritmoIdeal;
           const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
           const differenceColor = difference >= 0 ? "text-green-600" : "text-red-600";
+          const clockStyle = getClockStyle(assessor.geralPercentage, ritmoIdeal);
           
           return (
             <div key={assessor.name} className={`flex items-center gap-responsive-sm p-responsive-sm rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
@@ -74,11 +85,11 @@ export function AssessorChart({
                           className="absolute flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
                           style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)', top: '-12px' }}
                         >
-                          <div className={`flex items-center justify-center w-4 h-4 rounded-full shadow-lg border-2 border-white ${clockColor}`}>
+                          <div className={`flex items-center justify-center w-4 h-4 rounded-full shadow-lg border-2 border-white ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
                             <Clock className="w-2 h-2 text-white" />
                           </div>
-                          {/* Linha conectora */}
-                          <div className={`w-0.5 h-2.5 ${clockColor}`} />
+                          {/* Linha conectora com cor condicional */}
+                          <div className={`w-0.5 h-2.5 ${clockStyle.bgColor}`} />
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>

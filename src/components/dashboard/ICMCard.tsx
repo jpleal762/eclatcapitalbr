@@ -1,7 +1,9 @@
 import { Card } from "@/components/ui/card";
+import { ProgressBar } from "./ProgressBar";
 import { CheckCircle, Clock, AlertTriangle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useResponsiveSize } from "@/hooks/use-responsive-size";
 interface ICMCardProps {
   icmGeral: number;
@@ -90,64 +92,14 @@ export function ICMCard({
         <div className="flex flex-col items-center">
           
           <div className="relative" style={{
-          width: gaugeWidth + 30,
-          height: gaugeHeight + 20
+          width: gaugeWidth,
+          height: gaugeHeight
         }}>
-            <svg width={gaugeWidth + 30} height={gaugeHeight + 20} viewBox={`-15 -15 ${gaugeWidth + 30} ${gaugeHeight + 20}`}>
+            <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
               <path d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`} fill="none" stroke="hsl(var(--muted))" strokeWidth={strokeWidth} strokeLinecap="round" />
               <path d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`} fill="none" stroke="hsl(var(--primary))" strokeWidth={strokeWidth} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference - progress} style={{
               transition: "stroke-dashoffset 0.8s ease-out"
             }} />
-              
-              {/* Marcador de Ritmo Ideal */}
-              {(() => {
-                const ritmoAngle = Math.PI - (ritmoIdeal / 100) * Math.PI;
-                const centerX = gaugeWidth / 2;
-                const centerY = gaugeHeight;
-                const markerInnerRadius = gaugeRadius - strokeWidth / 2 - 2;
-                const markerOuterRadius = gaugeRadius + strokeWidth / 2 + 2;
-                
-                const x1 = centerX + Math.cos(ritmoAngle) * markerInnerRadius;
-                const y1 = centerY - Math.sin(ritmoAngle) * markerInnerRadius;
-                const x2 = centerX + Math.cos(ritmoAngle) * markerOuterRadius;
-                const y2 = centerY - Math.sin(ritmoAngle) * markerOuterRadius;
-                
-                // Triângulo apontando para dentro
-                const triangleSize = 3 * dynamicScale;
-                const perpAngle = ritmoAngle + Math.PI / 2;
-                const tipX = x2;
-                const tipY = y2;
-                const baseX1 = x2 - Math.cos(ritmoAngle) * triangleSize + Math.cos(perpAngle) * triangleSize * 0.6;
-                const baseY1 = y2 + Math.sin(ritmoAngle) * triangleSize - Math.sin(perpAngle) * triangleSize * 0.6;
-                const baseX2 = x2 - Math.cos(ritmoAngle) * triangleSize - Math.cos(perpAngle) * triangleSize * 0.6;
-                const baseY2 = y2 + Math.sin(ritmoAngle) * triangleSize + Math.sin(perpAngle) * triangleSize * 0.6;
-                
-                // Posição do relógio
-                const clockOffset = (strokeWidth / 2) + 5 * dynamicScale;
-                const clockX = centerX + Math.cos(ritmoAngle) * (gaugeRadius + clockOffset);
-                const clockY = centerY - Math.sin(ritmoAngle) * (gaugeRadius + clockOffset);
-                const clockSize = 6 * dynamicScale;
-                
-                const clockColor = '#374151'; // gray-700
-                
-                return (
-                  <g>
-                    {/* Linha do marcador */}
-                    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={clockColor} strokeWidth={2 * dynamicScale} />
-                    {/* Triângulo */}
-                    <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={clockColor} />
-                    {/* Círculo do relógio */}
-                    <circle cx={clockX} cy={clockY} r={clockSize} fill={clockColor} />
-                    {/* Bordinha branca */}
-                    <circle cx={clockX} cy={clockY} r={clockSize * 0.75} fill="none" stroke="white" strokeWidth={0.8 * dynamicScale} />
-                    {/* Ponteiros */}
-                    <line x1={clockX} y1={clockY} x2={clockX} y2={clockY - clockSize * 0.45} stroke="white" strokeWidth={0.8 * dynamicScale} strokeLinecap="round" />
-                    <line x1={clockX} y1={clockY} x2={clockX + clockSize * 0.35} y2={clockY} stroke="white" strokeWidth={0.8 * dynamicScale} strokeLinecap="round" />
-                    {/* Ponto central */}
-                    <circle cx={clockX} cy={clockY} r={0.6 * dynamicScale} fill="white" />
-                  </g>
-                );
-              })()}
             </svg>
             <div className="absolute inset-0 flex items-end justify-center pb-1">
               <span className="text-responsive-2xl font-bold text-foreground">{icmGeral}%</span>
