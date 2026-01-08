@@ -32,7 +32,7 @@ export function AgendadasCard({
       {/* Header compacto */}
       <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0">
         <h3 className={`${isTvMode ? 'text-tv-lg' : 'text-responsive-sm'} font-semibold text-white`}>
-          Reuniões Agendadas
+          Primeiras Reuniões Agendadas Semana
         </h3>
       </div>
 

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useResponsiveSize } from "@/hooks/use-responsive-size";
+import { useTheme } from "next-themes";
 interface ICMCardProps {
   icmGeral: number;
   ritmoIdeal: number;
@@ -35,6 +36,7 @@ export function ICMCard({
     height,
     scale
   } = useResponsiveSize();
+  const { theme } = useTheme();
 
   // Dynamic gauge sizing - compacted for half height
   const dynamicScale = Math.max(0.7, Math.min(scale * (isTvMode ? 1.4 : 1.1), 1.6));
@@ -67,7 +69,8 @@ export function ICMCard({
   const baseX2 = x2 - Math.cos(ritmoIdealAngle) * triangleSize - Math.cos(perpAngle) * triangleSize * 0.6;
   const baseY2 = y2 + Math.sin(ritmoIdealAngle) * triangleSize + Math.sin(perpAngle) * triangleSize * 0.6;
 
-  const markerColor = "#4B5563"; // gray-600
+  // Cinza escuro no tema claro, cinza claro no tema escuro
+  const markerColor = theme === "dark" ? "#D1D5DB" : "#4B5563";
   const getCurrentMonthLabel = () => {
     const now = new Date();
     const monthNames = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
@@ -77,7 +80,7 @@ export function ICMCard({
       {/* Header compacto com filtros */}
       <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0 flex-wrap">
         <h3 className={`${isTvMode ? 'text-tv-lg' : 'text-responsive-sm'} font-semibold text-foreground`}>
-          ICM Mensal
+          ICM Geral
         </h3>
         <div className="flex items-center gap-2 flex-wrap">
           <Select value={selectedAssessor} onValueChange={onAssessorChange}>
