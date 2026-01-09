@@ -382,6 +382,8 @@ const Index = () => {
                             size="lg"
                             showRemaining={true}
                             ritmoIdeal={dashboardData.ritmoIdeal}
+                            showAssessorList={true}
+                            assessorRemainingData={assessorRemainingCaptacao}
                           />
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
@@ -434,6 +436,8 @@ const Index = () => {
                             size="lg"
                             showRemaining={true}
                             ritmoIdeal={dashboardData.ritmoIdeal}
+                            showAssessorList={true}
+                            assessorRemainingData={assessorRemainingReceita}
                           />
                         )}
                         {(visibility.graph6 || visibility.graph7) && (
