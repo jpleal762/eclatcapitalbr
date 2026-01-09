@@ -21,7 +21,6 @@ interface GaugeChartProps {
   size?: "sm" | "md" | "lg";
   variant?: "default" | "highlight";
   statusIcon?: KPIStatusIcon;
-  isTvMode?: boolean;
   showRemaining?: boolean;
   secondaryValue?: number;
   secondaryPercentage?: number;
@@ -61,7 +60,6 @@ export function GaugeChart({
   size = "md",
   variant = "default",
   statusIcon,
-  isTvMode = false,
   showRemaining = false,
   secondaryValue,
   secondaryPercentage,
@@ -80,8 +78,7 @@ export function GaugeChart({
 
   // Dynamic sizing based on viewport
   const baseMultiplier = size === "sm" ? 0.7 : size === "md" ? 0.9 : 1.1;
-  const tvMultiplier = isTvMode ? 1.2 : 1;
-  const dynamicScale = Math.max(0.6, Math.min(scale * baseMultiplier * tvMultiplier, 1.5));
+  const dynamicScale = Math.max(0.6, Math.min(scale * baseMultiplier, 1.5));
   const dynamicWidth = Math.round(160 * dynamicScale);
   const dynamicHeight = Math.round(90 * dynamicScale);
   const dynamicStrokeWidth = Math.round(21 * dynamicScale); // +50% thickness
@@ -116,7 +113,7 @@ export function GaugeChart({
         {/* Gauge Container */}
         <div className={`flex flex-col items-center ${showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 ? 'flex-1' : ''} min-h-0`}>
           <div className="flex items-center justify-between w-full mb-responsive">
-            <h4 className={`font-semibold ${isTvMode ? 'text-tv-xs' : 'text-responsive-3xs'} ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
+            <h4 className={`font-semibold text-responsive-3xs ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
               {label}
             </h4>
             <div className="flex-shrink-0 ml-1">
@@ -197,7 +194,7 @@ export function GaugeChart({
 
           {/* Center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-end pb-1 pointer-events-none">
-            <span className={`${isTvMode ? (size === 'sm' ? 'text-tv-xs' : 'text-tv-base') : 'text-responsive-lg'} font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
+            <span className={`text-responsive-lg font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
               {formatNumber(value, isCurrency)}
             </span>
             {showRemaining && remainingValue > 0 && <span className="text-responsive-3xs text-muted-foreground font-medium">
@@ -206,7 +203,7 @@ export function GaugeChart({
           </div>
 
           {/* Percentage label */}
-          <div className={`absolute ${isTvMode ? 'text-tv-2xs' : 'text-responsive-xs'} font-bold pointer-events-none`} style={{
+          <div className="absolute text-responsive-xs font-bold pointer-events-none" style={{
           top: "10%",
           left: "50%",
           transform: "translateX(-50%)",

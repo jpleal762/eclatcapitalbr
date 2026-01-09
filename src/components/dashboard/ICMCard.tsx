@@ -16,8 +16,6 @@ interface ICMCardProps {
   months: string[];
   onAssessorChange: (value: string) => void;
   onMonthChange: (value: string) => void;
-  onToggleView?: () => void;
-  isTvMode?: boolean;
 }
 export function ICMCard({
   icmGeral,
@@ -28,9 +26,7 @@ export function ICMCard({
   selectedMonth,
   months,
   onAssessorChange,
-  onMonthChange,
-  onToggleView,
-  isTvMode = false
+  onMonthChange
 }: ICMCardProps) {
   const {
     height,
@@ -39,7 +35,7 @@ export function ICMCard({
   const { theme } = useTheme();
 
   // Dynamic gauge sizing - compacted for half height
-  const dynamicScale = Math.max(0.7, Math.min(scale * (isTvMode ? 1.4 : 1.1), 1.6));
+  const dynamicScale = Math.max(0.7, Math.min(scale * 1.1, 1.6));
   const gaugeWidth = Math.round(140 * dynamicScale);
   const gaugeHeight = Math.round(80 * dynamicScale);
   const gaugeRadius = Math.round(60 * dynamicScale);
@@ -79,7 +75,7 @@ export function ICMCard({
   return <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden">
       {/* Header compacto com filtros */}
       <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0 flex-wrap">
-        <h3 className={`${isTvMode ? 'text-tv-lg' : 'text-responsive-sm'} font-semibold text-foreground`}>
+        <h3 className="text-responsive-sm font-semibold text-foreground">
           ICM Geral
         </h3>
         <div className="flex items-center gap-2 flex-wrap">
@@ -107,10 +103,6 @@ export function ICMCard({
             </SelectContent>
           </Select>
 
-          {onToggleView && <Button variant="outline" size="sm" onClick={onToggleView} className="gap-1.5 text-responsive-xs h-7 py-0.5 px-2">
-              <Calendar className="icon-responsive-sm" />
-              {isTvMode ? "Mensal" : "TV"}
-            </Button>}
         </div>
       </div>
 
