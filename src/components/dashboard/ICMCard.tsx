@@ -129,10 +129,16 @@ export function ICMCard({
           </div>
         </div>
 
-        {/* Days remaining */}
-        <div className="text-center">
-          <p className="text-responsive-xs text-muted-foreground mb-1">Dias Úteis<br />Restantes</p>
-          <p className="text-responsive-xl font-bold text-foreground">{diasUteisRestantes}</p>
+        {/* Days remaining + Ritmo Ideal */}
+        <div className="flex items-center gap-4">
+          <div className="text-center">
+            <p className="text-responsive-xs text-muted-foreground mb-1">Dias Úteis<br />Restantes</p>
+            <p className="text-responsive-xl font-bold text-foreground">{diasUteisRestantes}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-responsive-xs text-muted-foreground mb-1">Ritmo<br />Ideal</p>
+            <p className="text-responsive-xl font-bold text-foreground">{ritmoIdeal}%</p>
+          </div>
         </div>
       </div>
 
