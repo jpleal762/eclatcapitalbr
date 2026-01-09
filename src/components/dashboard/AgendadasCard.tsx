@@ -6,20 +6,18 @@ interface AgendadasCardProps {
   agendadasTarget: number;
   agendadasPercentage: number;
   assessorData: Array<{ name: string; value: number }>;
-  isTvMode?: boolean;
 }
 
 export function AgendadasCard({
   agendadasValue,
   agendadasTarget,
   agendadasPercentage,
-  assessorData,
-  isTvMode = false
+  assessorData
 }: AgendadasCardProps) {
   const { scale } = useResponsiveSize();
 
   // Dynamic gauge sizing - compact for half height
-  const dynamicScale = Math.max(0.7, Math.min(scale * (isTvMode ? 1.4 : 1.1), 1.6));
+  const dynamicScale = Math.max(0.7, Math.min(scale * 1.1, 1.6));
   const gaugeWidth = Math.round(140 * dynamicScale);
   const gaugeHeight = Math.round(80 * dynamicScale);
   const gaugeRadius = Math.round(60 * dynamicScale);
@@ -31,7 +29,7 @@ export function AgendadasCard({
     <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
       {/* Header compacto */}
       <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0">
-        <h3 className={`${isTvMode ? 'text-tv-lg' : 'text-responsive-sm'} font-semibold text-white`}>
+        <h3 className="text-responsive-sm font-semibold text-white">
           Primeiras Reuniões Agendadas Semana
         </h3>
       </div>

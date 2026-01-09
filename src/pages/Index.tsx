@@ -11,7 +11,7 @@ import { YearlyAssessorChart } from "@/components/dashboard/YearlyAssessorChart"
 import { YearlyGaugeChart } from "@/components/dashboard/YearlyGaugeChart";
 import { YearlyAnalysisCard } from "@/components/dashboard/YearlyAnalysisCard";
 import { DashboardSidebar, DashboardVisibility, defaultVisibility } from "@/components/dashboard/DashboardSidebar";
-import { KPIRecord, DashboardFilters, DashboardView, YearlyDashboardFilters } from "@/types/kpi";
+import { KPIRecord, DashboardFilters, YearlyDashboardFilters } from "@/types/kpi";
 import {
   processKPIData,
   getUniqueValues,
@@ -20,8 +20,6 @@ import {
   calculateAssessorRemainingForKPI,
   calculateAssessorAgendadasForKPI,
 } from "@/lib/kpiUtils";
-import { AssessorRemainingMatrix } from "@/components/dashboard/AssessorRemainingMatrix";
-import { AssessorAgendadasMatrix } from "@/components/dashboard/AssessorAgendadasMatrix";
 import { 
   processYearlyDashboardData, 
   getAvailableYears 
@@ -51,7 +49,7 @@ const Index = () => {
 
   const [rawData, setRawData] = useState<KPIRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<DashboardView>("monthly");
+  
   const [filters, setFilters] = useState<DashboardFilters>({
     assessor: "all",
     month: getCurrentMonthValue(), // Mês atual como padrão
@@ -147,9 +145,6 @@ const Index = () => {
   }, [processedData]);
 
 
-  const toggleView = () => {
-    setCurrentView(prev => prev === "monthly" ? "tv" : "monthly");
-  };
 
   const dashboardData = useMemo(
     () => processDashboardData(processedData, filters.month, filters.assessor),
@@ -316,7 +311,7 @@ const Index = () => {
                 </div>
                 <FileUpload onDataLoaded={handleDataLoaded} />
               </div>
-            ) : currentView === "monthly" ? (
+            ) : (
               // MONTHLY VIEW
               <div className="h-full flex flex-col gap-3 animate-fade-in">
                 {/* Top Row - ICM with Filters, Meta, Assessor Ranking */}
@@ -336,7 +331,6 @@ const Index = () => {
                             months={months}
                             onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
                             onMonthChange={(value) => setFilters({ ...filters, month: value })}
-                            onToggleView={toggleView}
                           />
                         </div>
                         {/* Card 4 - Agendadas (metade inferior) */}
@@ -519,245 +513,6 @@ const Index = () => {
                                 statusIcon={dashboardData.gaugeKPIs[8]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                              />
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : (
-              // TV VIEW - Cópia exata da visão mensal
-              <div className="h-full flex flex-col gap-3 animate-fade-in">
-                {/* Top Row - ICM with Filters, Meta, Assessor Ranking */}
-                {visibleTopCards > 0 && (
-                  <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
-                    {visibility.card1 && (
-                      <div className="flex flex-col gap-3 h-full">
-                        {/* Card 1 - ICMCard (metade superior) */}
-                        <div className="flex-1 min-h-0">
-                          <ICMCard
-                            icmGeral={dashboardData.icmGeral}
-                            ritmoIdeal={dashboardData.ritmoIdeal}
-                            diasUteisRestantes={dashboardData.diasUteisRestantes}
-                            assessors={assessors}
-                            selectedAssessor={filters.assessor}
-                            selectedMonth={filters.month}
-                            months={months}
-                            onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
-                            onMonthChange={(value) => setFilters({ ...filters, month: value })}
-                            onToggleView={toggleView}
-                            isTvMode={true}
-                          />
-                        </div>
-                        {/* Card 4 - Agendadas (metade inferior) */}
-                        <div className="flex-1 min-h-0">
-                          <AgendadasCard
-                            agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
-                            agendadasTarget={dashboardData.gaugeKPIs[2]?.target || 0}
-                            agendadasPercentage={dashboardData.gaugeKPIs[2]?.secondaryPercentage || 0}
-                            assessorData={assessorAgendadas}
-                            isTvMode={true}
-                          />
-                        </div>
-                      </div>
-                    )}
-                    {visibility.card2 && (
-                      <MetaTable
-                        data={dashboardData.metaSemanal}
-                        realPercentage={dashboardData.metaSemanalReal}
-                        selectedAssessor={filters.assessor}
-                        weekToMonthPercentage={dashboardData.metaSemanalPercentage}
-                        isTvMode={true}
-                      />
-                    )}
-                    {visibility.card3 && (
-                      <AssessorChart data={dashboardData.assessorPerformance} ritmoIdeal={dashboardData.ritmoIdeal} isTvMode={true} />
-                    )}
-                  </div>
-                )}
-
-                {/* KPI Gauges - Main graphs with sub-graphs */}
-                {(col1Visible || col2Visible || col3Visible) && (
-                  <div className={`grid gap-3 min-h-0 flex-1 ${gaugeGridCols}`}>
-                    {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
-                    {col1Visible && (
-              <div className="flex flex-col gap-2 min-h-0">
-                {visibility.graph1 && (
-                  <div className="flex gap-2 h-full">
-                            <div className="flex-1 h-full">
-                              <GaugeChart
-                                label={dashboardData.gaugeKPIs[0]?.label}
-                                value={dashboardData.gaugeKPIs[0]?.value}
-                                target={dashboardData.gaugeKPIs[0]?.target}
-                                percentage={dashboardData.gaugeKPIs[0]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[0]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[0]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[0]?.statusIcon}
-                                size="lg"
-                                showRemaining={true}
-                                isTvMode={true}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                              />
-                            </div>
-                            <AssessorRemainingMatrix
-                              assessorData={assessorRemainingCaptacao}
-                              isCurrency={true}
-                              isTvMode={true}
-                            />
-                          </div>
-                        )}
-                {(visibility.graph4 || visibility.graph5) && (
-                  <div className="grid grid-cols-2 gap-2 flex-shrink-0">
-                            {visibility.graph4 && (
-                              <GaugeChart
-                                label={dashboardData.gaugeKPIs[3]?.label}
-                                value={dashboardData.gaugeKPIs[3]?.value}
-                                target={dashboardData.gaugeKPIs[3]?.target}
-                                percentage={dashboardData.gaugeKPIs[3]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[3]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[3]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[3]?.statusIcon}
-                                size="sm"
-                                showRemaining={true}
-                                isTvMode={true}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                              />
-                            )}
-                            {visibility.graph5 && (
-                              <GaugeChart
-                                label={dashboardData.gaugeKPIs[4]?.label}
-                                value={dashboardData.gaugeKPIs[4]?.value}
-                                target={dashboardData.gaugeKPIs[4]?.target}
-                                percentage={dashboardData.gaugeKPIs[4]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[4]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[4]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[4]?.statusIcon}
-                                size="sm"
-                                showRemaining={true}
-                                isTvMode={true}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                              />
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Column 2: Graph 2 + Sub-graphs 6, 7 */}
-                    {col2Visible && (
-              <div className="flex flex-col gap-2 min-h-0">
-                {visibility.graph2 && (
-                  <div className="flex gap-2 h-full">
-                            <div className="flex-1 h-full">
-                              <GaugeChart
-                                label={dashboardData.gaugeKPIs[1]?.label}
-                                value={dashboardData.gaugeKPIs[1]?.value}
-                                target={dashboardData.gaugeKPIs[1]?.target}
-                                percentage={dashboardData.gaugeKPIs[1]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[1]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[1]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[1]?.statusIcon}
-                                size="lg"
-                                showRemaining={true}
-                                isTvMode={true}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                              />
-                            </div>
-                            <AssessorRemainingMatrix
-                              assessorData={assessorRemainingReceita}
-                              isCurrency={true}
-                              isTvMode={true}
-                            />
-                          </div>
-                        )}
-                {(visibility.graph6 || visibility.graph7) && (
-                  <div className="grid grid-cols-2 gap-2 flex-shrink-0">
-                            {visibility.graph6 && (
-                              <GaugeChart
-                                label={dashboardData.gaugeKPIs[5]?.label}
-                                value={dashboardData.gaugeKPIs[5]?.value}
-                                target={dashboardData.gaugeKPIs[5]?.target}
-                                percentage={dashboardData.gaugeKPIs[5]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[5]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[5]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[5]?.statusIcon}
-                                size="sm"
-                                showRemaining={true}
-                                isTvMode={true}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                              />
-                            )}
-                            {visibility.graph7 && (
-                              <GaugeChart
-                                label={dashboardData.gaugeKPIs[6]?.label}
-                                value={dashboardData.gaugeKPIs[6]?.value}
-                                target={dashboardData.gaugeKPIs[6]?.target}
-                                percentage={dashboardData.gaugeKPIs[6]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[6]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[6]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[6]?.statusIcon}
-                                size="sm"
-                                showRemaining={true}
-                                isTvMode={true}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                              />
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Column 3: Graph 3 + Sub-graphs 8, 9 */}
-                    {col3Visible && (
-              <div className="flex flex-col gap-2 min-h-0">
-                        {visibility.graph3 && (
-                          <GaugeChart
-                            label={dashboardData.gaugeKPIs[2]?.label}
-                            value={dashboardData.gaugeKPIs[2]?.value}
-                            target={dashboardData.gaugeKPIs[2]?.target}
-                            percentage={dashboardData.gaugeKPIs[2]?.percentage}
-                            isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
-                            warning={dashboardData.gaugeKPIs[2]?.warning}
-                            statusIcon={dashboardData.gaugeKPIs[2]?.statusIcon}
-                            size="lg"
-                            showRemaining={true}
-                            isTvMode={true}
-                            ritmoIdeal={dashboardData.ritmoIdeal}
-                          />
-                        )}
-                {(visibility.graph8 || visibility.graph9) && (
-                  <div className="grid grid-cols-2 gap-2 flex-shrink-0">
-                            {visibility.graph8 && (
-                              <GaugeChart
-                                label={dashboardData.gaugeKPIs[7]?.label}
-                                value={dashboardData.gaugeKPIs[7]?.value}
-                                target={dashboardData.gaugeKPIs[7]?.target}
-                                percentage={dashboardData.gaugeKPIs[7]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[7]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[7]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[7]?.statusIcon}
-                                size="sm"
-                                showRemaining={true}
-                                isTvMode={true}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                              />
-                            )}
-                            {visibility.graph9 && (
-                              <GaugeChart
-                                label={dashboardData.gaugeKPIs[8]?.label}
-                                value={dashboardData.gaugeKPIs[8]?.value}
-                                target={dashboardData.gaugeKPIs[8]?.target}
-                                percentage={dashboardData.gaugeKPIs[8]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[8]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[8]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[8]?.statusIcon}
-                                size="sm"
-                                showRemaining={true}
-                                isTvMode={true}
                                 ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             )}
