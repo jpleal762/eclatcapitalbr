@@ -120,9 +120,9 @@ export function ICMCard({
           
           <div className="relative" style={{
           width: gaugeWidth,
-          height: gaugeHeight
+          height: gaugeHeight + 10
         }}>
-            <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
+            <svg width={gaugeWidth} height={gaugeHeight + 10} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
               <path d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`} fill="none" stroke="hsl(var(--muted))" strokeWidth={strokeWidth} strokeLinecap="round" />
               <path d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`} fill="none" stroke="hsl(var(--primary))" strokeWidth={strokeWidth} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference - progress} style={{
               transition: "stroke-dashoffset 0.8s ease-out"

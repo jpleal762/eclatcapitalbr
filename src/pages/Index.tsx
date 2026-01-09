@@ -530,7 +530,7 @@ const Index = () => {
               <div className="h-full flex flex-col gap-3 animate-fade-in">
                 {/* Top Row - ICM with Filters, Meta, Assessor Ranking */}
                 {visibleTopCards > 0 && (
-                  <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
+                  <div className={`grid gap-3 min-h-0 h-[38%] ${topGridCols}`}>
                     {visibility.card1 && (
                       <div className="flex flex-col gap-3 h-full">
                         {/* Card 1 - ICMCard (metade superior) */}
@@ -578,7 +578,7 @@ const Index = () => {
 
                 {/* KPI Gauges - Main graphs with sub-graphs */}
                 {(col1Visible || col2Visible || col3Visible) && (
-                  <div className={`grid gap-3 min-h-0 flex-1 ${gaugeGridCols}`}>
+                  <div className={`grid gap-3 min-h-0 flex-1 overflow-hidden ${gaugeGridCols}`}>
                     {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
                     {col1Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
