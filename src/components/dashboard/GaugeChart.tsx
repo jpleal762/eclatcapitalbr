@@ -1,9 +1,16 @@
-import { AlertTriangle, CheckCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
 import { KPIStatusIcon } from "@/types/kpi";
 import { useResponsiveSize } from "@/hooks/use-responsive-size";
 import { useTheme } from "next-themes";
+
+export interface AssessorRemainingItem {
+  name: string;
+  remaining: number;
+  achieved: boolean;
+}
+
 interface GaugeChartProps {
   label: string;
   value: number;
@@ -20,6 +27,8 @@ interface GaugeChartProps {
   secondaryPercentage?: number;
   secondaryLabel?: string;
   ritmoIdeal?: number;
+  assessorRemainingData?: AssessorRemainingItem[];
+  showAssessorList?: boolean;
 }
 function StatusIconDisplay({
   icon,
@@ -57,7 +66,9 @@ export function GaugeChart({
   secondaryValue,
   secondaryPercentage,
   secondaryLabel,
-  ritmoIdeal
+  ritmoIdeal,
+  assessorRemainingData,
+  showAssessorList = false
 }: GaugeChartProps) {
   const {
     height,
@@ -101,15 +112,17 @@ export function GaugeChart({
   const progress = clampedPercentage / 100 * circumference;
   const isHighlight = variant === "highlight";
   return <Card className={`p-responsive shadow-card h-full flex flex-col ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
-      <div className="flex flex-col items-center flex-1 min-h-0">
-        <div className="flex items-center justify-between w-full mb-responsive">
-          <h4 className={`font-semibold ${isTvMode ? 'text-tv-xs' : 'text-responsive-3xs'} ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
-            {label}
-          </h4>
-          <div className="flex-shrink-0 ml-1">
-            <StatusIconDisplay icon={statusIcon} size={size} />
+      <div className={`flex ${showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 ? 'flex-row gap-3' : 'flex-col'} flex-1 min-h-0`}>
+        {/* Gauge Container */}
+        <div className={`flex flex-col items-center ${showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 ? 'flex-1' : ''} min-h-0`}>
+          <div className="flex items-center justify-between w-full mb-responsive">
+            <h4 className={`font-semibold ${isTvMode ? 'text-tv-xs' : 'text-responsive-3xs'} ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
+              {label}
+            </h4>
+            <div className="flex-shrink-0 ml-1">
+              <StatusIconDisplay icon={statusIcon} size={size} />
+            </div>
           </div>
-        </div>
 
         {/* Dynamic SVG gauge */}
         <div className="relative flex-shrink-0" style={{
@@ -225,6 +238,37 @@ export function GaugeChart({
           </div>}
 
         {isHighlight && <p className="text-responsive-3xs text-card/70 mt-1 italic flex-shrink-0">Head Bruno</p>}
+        </div>
+
+        {/* Lista de Falta por Assessor - integrada ao card */}
+        {showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 && (
+          <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
+            <p className="text-responsive-3xs text-muted-foreground mb-1 flex-shrink-0 font-semibold truncate">
+              Falta p/ Assessor
+            </p>
+            <div className="overflow-y-auto flex-1 min-h-0">
+              <div className="space-y-0.5">
+                {assessorRemainingData.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between text-responsive-3xs gap-1"
+                  >
+                    <span className="font-medium truncate max-w-[40px]" title={item.name}>
+                      {item.name}
+                    </span>
+                    {item.achieved ? (
+                      <CheckCircle2 className="h-3 w-3 text-green-500 flex-shrink-0" />
+                    ) : (
+                      <span className="font-medium flex-shrink-0 text-secondary-foreground text-[9px]">
+                        {formatNumber(item.remaining, isCurrency)}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Card>;
 }
