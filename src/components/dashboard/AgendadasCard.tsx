@@ -18,8 +18,11 @@ export function AgendadasCard({
 }: AgendadasCardProps) {
   const { scale } = useResponsiveSize();
 
-  // Dynamic gauge sizing - compact for half height
-  const dynamicScale = Math.max(0.7, Math.min(scale * (isTvMode ? 1.4 : 1.1), 1.6));
+  // Dynamic gauge sizing - viewport-based compact scaling
+  const viewportScale = typeof window !== 'undefined' 
+    ? Math.min(window.innerHeight / 1080, window.innerWidth / 1920) 
+    : scale;
+  const dynamicScale = Math.max(0.5, Math.min(viewportScale * (isTvMode ? 1.0 : 0.9), 1.3));
   const gaugeWidth = Math.round(140 * dynamicScale);
   const gaugeHeight = Math.round(80 * dynamicScale);
   const gaugeRadius = Math.round(60 * dynamicScale);

@@ -38,8 +38,11 @@ export function ICMCard({
   } = useResponsiveSize();
   const { theme } = useTheme();
 
-  // Dynamic gauge sizing - compacted for half height
-  const dynamicScale = Math.max(0.7, Math.min(scale * (isTvMode ? 1.4 : 1.1), 1.6));
+  // Dynamic gauge sizing - viewport-based scaling
+  const viewportScale = typeof window !== 'undefined' 
+    ? Math.min(window.innerHeight / 1080, window.innerWidth / 1920) 
+    : scale;
+  const dynamicScale = Math.max(0.5, Math.min(viewportScale * (isTvMode ? 1.6 : 1.2), 2.0));
   const gaugeWidth = Math.round(140 * dynamicScale);
   const gaugeHeight = Math.round(80 * dynamicScale);
   const gaugeRadius = Math.round(60 * dynamicScale);
