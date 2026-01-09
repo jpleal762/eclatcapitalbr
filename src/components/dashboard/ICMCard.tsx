@@ -38,11 +38,8 @@ export function ICMCard({
   } = useResponsiveSize();
   const { theme } = useTheme();
 
-  // Dynamic gauge sizing - viewport-based scaling
-  const viewportScale = typeof window !== 'undefined' 
-    ? Math.min(window.innerHeight / 1080, window.innerWidth / 1920) 
-    : scale;
-  const dynamicScale = Math.max(0.5, Math.min(viewportScale * (isTvMode ? 1.6 : 1.2), 2.0));
+  // Dynamic gauge sizing - compacted for half height
+  const dynamicScale = Math.max(0.7, Math.min(scale * (isTvMode ? 1.4 : 1.1), 1.6));
   const gaugeWidth = Math.round(140 * dynamicScale);
   const gaugeHeight = Math.round(80 * dynamicScale);
   const gaugeRadius = Math.round(60 * dynamicScale);
@@ -123,9 +120,9 @@ export function ICMCard({
           
           <div className="relative" style={{
           width: gaugeWidth,
-          height: gaugeHeight + 10
+          height: gaugeHeight
         }}>
-            <svg width={gaugeWidth} height={gaugeHeight + 10} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
+            <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
               <path d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`} fill="none" stroke="hsl(var(--muted))" strokeWidth={strokeWidth} strokeLinecap="round" />
               <path d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`} fill="none" stroke="hsl(var(--primary))" strokeWidth={strokeWidth} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference - progress} style={{
               transition: "stroke-dashoffset 0.8s ease-out"

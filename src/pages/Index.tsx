@@ -381,6 +381,7 @@ const Index = () => {
                             statusIcon={dashboardData.gaugeKPIs[0]?.statusIcon}
                             size="lg"
                             showRemaining={true}
+                            ritmoIdeal={dashboardData.ritmoIdeal}
                           />
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
@@ -526,10 +527,10 @@ const Index = () => {
               </div>
             ) : (
               // TV VIEW - Cópia exata da visão mensal
-              <div className="h-full flex flex-col gap-2 animate-fade-in">
+              <div className="h-full flex flex-col gap-3 animate-fade-in">
                 {/* Top Row - ICM with Filters, Meta, Assessor Ranking */}
                 {visibleTopCards > 0 && (
-                  <div className={`grid gap-2 min-h-0 h-[35vh] max-h-[38%] ${topGridCols}`}>
+                  <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
                     {visibility.card1 && (
                       <div className="flex flex-col gap-3 h-full">
                         {/* Card 1 - ICMCard (metade superior) */}
@@ -577,7 +578,7 @@ const Index = () => {
 
                 {/* KPI Gauges - Main graphs with sub-graphs */}
                 {(col1Visible || col2Visible || col3Visible) && (
-                  <div className={`grid gap-2 min-h-0 flex-1 ${gaugeGridCols}`}>
+                  <div className={`grid gap-3 min-h-0 flex-1 ${gaugeGridCols}`}>
                     {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
                     {col1Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
@@ -595,6 +596,7 @@ const Index = () => {
                                 size="lg"
                                 showRemaining={true}
                                 isTvMode={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
                               />
                             </div>
                             <AssessorRemainingMatrix

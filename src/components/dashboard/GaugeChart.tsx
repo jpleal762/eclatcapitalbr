@@ -67,13 +67,10 @@ export function GaugeChart({
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   const remainingValue = Math.max(target - value, 0);
 
-  // Dynamic sizing based on viewport - improved for TV mode
-  const viewportScale = typeof window !== 'undefined' 
-    ? Math.min(window.innerHeight / 1080, window.innerWidth / 1920) 
-    : scale;
-  const baseMultiplier = size === "sm" ? 0.55 : size === "md" ? 0.75 : 0.95;
-  const tvMultiplier = isTvMode ? 1.0 : 1;
-  const dynamicScale = Math.max(0.4, Math.min(viewportScale * baseMultiplier * tvMultiplier, 1.2));
+  // Dynamic sizing based on viewport
+  const baseMultiplier = size === "sm" ? 0.7 : size === "md" ? 0.9 : 1.1;
+  const tvMultiplier = isTvMode ? 1.2 : 1;
+  const dynamicScale = Math.max(0.6, Math.min(scale * baseMultiplier * tvMultiplier, 1.5));
   const dynamicWidth = Math.round(160 * dynamicScale);
   const dynamicHeight = Math.round(90 * dynamicScale);
   const dynamicStrokeWidth = Math.round(21 * dynamicScale); // +50% thickness

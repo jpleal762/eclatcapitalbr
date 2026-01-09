@@ -18,11 +18,8 @@ export function AgendadasCard({
 }: AgendadasCardProps) {
   const { scale } = useResponsiveSize();
 
-  // Dynamic gauge sizing - viewport-based compact scaling
-  const viewportScale = typeof window !== 'undefined' 
-    ? Math.min(window.innerHeight / 1080, window.innerWidth / 1920) 
-    : scale;
-  const dynamicScale = Math.max(0.5, Math.min(viewportScale * (isTvMode ? 1.0 : 0.9), 1.3));
+  // Dynamic gauge sizing - compact for half height
+  const dynamicScale = Math.max(0.7, Math.min(scale * (isTvMode ? 1.4 : 1.1), 1.6));
   const gaugeWidth = Math.round(140 * dynamicScale);
   const gaugeHeight = Math.round(80 * dynamicScale);
   const gaugeRadius = Math.round(60 * dynamicScale);
@@ -72,14 +69,14 @@ export function AgendadasCard({
         </div>
 
         {/* Lista de Assessores */}
-        <div className={`${isTvMode ? 'w-[160px]' : 'w-[120px]'} max-h-full overflow-hidden flex flex-col flex-shrink-0`}>
-          <p className={`${isTvMode ? 'text-tv-xs' : 'text-responsive-xs'} text-white/70 mb-1 flex-shrink-0`}>Por Assessor</p>
+        <div className="w-[120px] max-h-full overflow-hidden flex flex-col flex-shrink-0">
+          <p className="text-responsive-xs text-white/70 mb-1 flex-shrink-0">Por Assessor</p>
           <div className="overflow-y-auto flex-1 min-h-0">
             <div className="space-y-0.5">
               {assessorData.map((assessor, index) => (
                 <div
                   key={index}
-                  className={`flex items-center justify-between ${isTvMode ? 'text-tv-2xs' : 'text-responsive-xs'} py-0.5 px-0.5 rounded hover:bg-white/10`}
+                  className="flex items-center justify-between text-responsive-xs py-0.5 px-0.5 rounded hover:bg-white/10"
                 >
                   <span className="truncate text-white max-w-[80%]">
                     {assessor.name.split(" ").slice(0, 2).join(" ")}
