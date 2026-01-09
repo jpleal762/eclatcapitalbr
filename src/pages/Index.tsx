@@ -527,14 +527,14 @@ const Index = () => {
               </div>
             ) : (
               // TV VIEW - Cópia exata da visão mensal
-              <div className="h-full flex flex-col gap-3 animate-fade-in">
+              <div className="h-full flex flex-col gap-2 animate-fade-in">
                 {/* Top Row - ICM with Filters, Meta, Assessor Ranking */}
                 {visibleTopCards > 0 && (
-                  <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
+                  <div className={`grid gap-2 ${topGridCols}`} style={{ height: '33vh' }}>
                     {visibility.card1 && (
-                      <div className="flex flex-col gap-3 h-full">
+                      <div className="flex flex-col gap-1 h-full">
                         {/* Card 1 - ICMCard (metade superior) */}
-                        <div className="flex-1 min-h-0">
+                        <div className="h-1/2 min-h-0">
                           <ICMCard
                             icmGeral={dashboardData.icmGeral}
                             ritmoIdeal={dashboardData.ritmoIdeal}
@@ -550,7 +550,7 @@ const Index = () => {
                           />
                         </div>
                         {/* Card 4 - Agendadas (metade inferior) */}
-                        <div className="flex-1 min-h-0">
+                        <div className="h-1/2 min-h-0">
                           <AgendadasCard
                             agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
                             agendadasTarget={dashboardData.gaugeKPIs[2]?.target || 0}
@@ -578,12 +578,12 @@ const Index = () => {
 
                 {/* KPI Gauges - Main graphs with sub-graphs */}
                 {(col1Visible || col2Visible || col3Visible) && (
-                  <div className={`grid gap-3 min-h-0 flex-1 ${gaugeGridCols}`}>
+                  <div className={`grid gap-2 ${gaugeGridCols}`} style={{ height: 'calc(67vh - 1rem)' }}>
                     {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
                     {col1Visible && (
-                      <div className="flex flex-col gap-2 min-h-0">
+                      <div className="flex flex-col gap-1 h-full">
                         {visibility.graph1 && (
-                          <div className="flex gap-2 h-full">
+                          <div className="flex gap-2 h-1/2">
                             <div className="flex-1 h-full">
                               <GaugeChart
                                 label={dashboardData.gaugeKPIs[0]?.label}
@@ -607,7 +607,7 @@ const Index = () => {
                           </div>
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
-                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+                          <div className="grid grid-cols-2 gap-1 h-1/2">
                             {visibility.graph4 && (
                               <GaugeChart
                                 label={dashboardData.gaugeKPIs[3]?.label}
@@ -645,9 +645,9 @@ const Index = () => {
 
                     {/* Column 2: Graph 2 + Sub-graphs 6, 7 */}
                     {col2Visible && (
-                      <div className="flex flex-col gap-2 min-h-0">
+                      <div className="flex flex-col gap-1 h-full">
                         {visibility.graph2 && (
-                          <div className="flex gap-2 h-full">
+                          <div className="flex gap-2 h-1/2">
                             <div className="flex-1 h-full">
                               <GaugeChart
                                 label={dashboardData.gaugeKPIs[1]?.label}
@@ -671,7 +671,7 @@ const Index = () => {
                           </div>
                         )}
                         {(visibility.graph6 || visibility.graph7) && (
-                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+                          <div className="grid grid-cols-2 gap-1 h-1/2">
                             {visibility.graph6 && (
                               <GaugeChart
                                 label={dashboardData.gaugeKPIs[5]?.label}
@@ -709,7 +709,7 @@ const Index = () => {
 
                     {/* Column 3: Graph 3 + Sub-graphs 8, 9 */}
                     {col3Visible && (
-                      <div className="flex flex-col gap-2 min-h-0">
+                      <div className="flex flex-col gap-1 h-full">
                         {visibility.graph3 && (
                           <GaugeChart
                             label={dashboardData.gaugeKPIs[2]?.label}
@@ -726,7 +726,7 @@ const Index = () => {
                           />
                         )}
                         {(visibility.graph8 || visibility.graph9) && (
-                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+                          <div className="grid grid-cols-2 gap-1 h-1/2">
                             {visibility.graph8 && (
                               <GaugeChart
                                 label={dashboardData.gaugeKPIs[7]?.label}
