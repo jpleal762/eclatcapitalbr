@@ -25,7 +25,7 @@ export interface YearlyDashboardFilters {
 
 
 
-export type KPIStatusIcon = "GREEN_CHECK" | "CLOCK" | "YELLOW_ALERT" | "RED_ALERT";
+export type KPIStatusIcon = "GREEN_CHECK" | "CLOCK" | "YELLOW_ALERT" | "ORANGE_ALERT" | "RED_ALERT" | "TROPHY";
 
 export interface GaugeKPI {
   label: string;
