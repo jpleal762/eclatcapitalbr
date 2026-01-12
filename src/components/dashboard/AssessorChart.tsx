@@ -66,7 +66,7 @@ export function AssessorChart({
                 </div>
                 {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
                 <div className="relative w-full h-bar-responsive-sm bg-muted rounded-full overflow-visible mt-responsive-sm">
-                  <div className="h-full rounded-full transition-all duration-500 bg-yellow-500" style={{
+                  <div className="h-full rounded-l-full transition-all duration-500 bg-yellow-500" style={{
                     width: `${Math.min(assessor.geralPercentage, 100)}%`
                   }} />
                   {/* Marcador do Ritmo Ideal - Clock com cores condicionais */}
@@ -95,7 +95,7 @@ export function AssessorChart({
                 </div>
                 {/* Barra ICM Semanal (cinza) */}
                 <div className="w-full h-bar-responsive-sm bg-muted rounded-full overflow-hidden mt-responsive-sm">
-                  <div className="h-full rounded-full transition-all duration-500 bg-gray-500" style={{
+                  <div className="h-full rounded-l-full transition-all duration-500 bg-gray-500" style={{
                     width: `${Math.min(assessor.semanaPercentage, 100)}%`
                   }} />
                 </div>

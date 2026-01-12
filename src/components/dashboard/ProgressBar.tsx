@@ -49,7 +49,7 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
       <div className="relative">
         <div className="h-bar-responsive bg-muted rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${getBarColor()}`}
+            className={`h-full rounded-l-full transition-all duration-500 ${getBarColor()}`}
             style={{ width: `${clampedPercentage}%` }}
           />
         </div>
