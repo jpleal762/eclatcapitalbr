@@ -18,7 +18,7 @@ const getClockStyle = (currentValue: number, idealValue: number) => {
   } else if (percentageBelowIdeal > 50) {
     return { bgColor: 'bg-red-500', animate: true };
   } else {
-    return { bgColor: 'bg-yellow-500', animate: false };
+    return { bgColor: 'bg-yellow-500', animate: true };
   }
 };
 

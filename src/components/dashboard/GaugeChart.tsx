@@ -100,7 +100,7 @@ export function GaugeChart({
     } else {
       return {
         color: 'hsl(47.9, 95.8%, 53.1%)',
-        animate: false
+        animate: true
       }; // yellow-500
     }
   };
@@ -182,7 +182,7 @@ export function GaugeChart({
                     <circle r={0.8 * dynamicScale} fill="white" />
                     
                     {showDifference && (
-                      <text x={0} y={-16 * dynamicScale} textAnchor="middle" fill={clockStyle.color} fontSize={7 * dynamicScale} fontWeight="bold" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
+                      <text x={0} y={16 * dynamicScale} textAnchor="middle" fill={clockStyle.color} fontSize={7 * dynamicScale} fontWeight="bold" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
                         {differenceText}
                       </text>
                     )}
@@ -239,8 +239,8 @@ export function GaugeChart({
 
         {/* Lista de Falta por Assessor - integrada ao card */}
         {showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 && (
-          <div className="w-[110px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
-            <p className="text-responsive-xs text-muted-foreground mb-1 flex-shrink-0 font-semibold truncate">
+          <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
+            <p className="text-responsive-3xs text-muted-foreground mb-1 flex-shrink-0 font-semibold truncate">
               Falta p/ Assessor
             </p>
             <div className="overflow-y-auto flex-1 min-h-0">
@@ -248,15 +248,15 @@ export function GaugeChart({
                 {assessorRemainingData.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between text-responsive-xs gap-1"
+                    className="flex items-center justify-between text-responsive-3xs gap-1"
                   >
-                    <span className="font-medium truncate max-w-[50px]" title={item.name}>
+                    <span className="font-medium truncate max-w-[40px]" title={item.name}>
                       {item.name}
                     </span>
                     {item.achieved ? (
                       <CheckCircle2 className="h-3 w-3 text-green-500 flex-shrink-0" />
                     ) : (
-                      <span className="font-semibold flex-shrink-0 text-secondary-foreground text-responsive-xs">
+                      <span className="font-medium flex-shrink-0 text-secondary-foreground text-[9px]">
                         {formatNumber(item.remaining, isCurrency)}
                       </span>
                     )}
