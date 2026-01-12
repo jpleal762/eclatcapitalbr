@@ -321,32 +321,41 @@ export function calculateIdealRhythm(monthStr: string): number {
  * @param ritmoIdeal - Ideal pace percentage based on elapsed business days
  * @returns Icon type to display
  * 
- * Rules:
- * - GREEN_CHECK: realizadoPercentage >= 100% (goal achieved)
- * - CLOCK: realizadoPercentage >= ritmoIdeal && < 100% (on pace or ahead)
- * - YELLOW_ALERT: realizadoPercentage >= ritmoIdeal * 0.75 && < ritmoIdeal (75-99% of pace)
- * - RED_ALERT: realizadoPercentage < ritmoIdeal * 0.75 (more than 25% below pace)
+ * Rules (based on percentage of ritmoIdeal):
+ * - TROPHY: > 120% of ritmoIdeal (exceptional performance)
+ * - GREEN_CHECK: 100% - 120% of ritmoIdeal (on track or ahead)
+ * - YELLOW_ALERT: 51% - 99% of ritmoIdeal (below pace but acceptable)
+ * - ORANGE_ALERT: 26% - 50% of ritmoIdeal (concerning performance)
+ * - RED_ALERT: ≤ 25% of ritmoIdeal (critical - needs attention)
  */
 export function getKPIStatusIcon(
   realizadoPercentage: number,
   ritmoIdeal: number
 ): KPIStatusIcon {
-  // Priority 1: Goal achieved (100% or more)
-  if (realizadoPercentage >= 100) {
+  // Calculate percentage relative to ideal rhythm
+  const percentageOfIdeal = ritmoIdeal > 0 ? (realizadoPercentage / ritmoIdeal) * 100 : 0;
+  
+  // Priority 1: Trophy - Above 120% of ideal rhythm
+  if (percentageOfIdeal > 120) {
+    return "TROPHY";
+  }
+  
+  // Priority 2: Green Clock - Between 100% and 120% of ideal rhythm
+  if (percentageOfIdeal >= 100) {
     return "GREEN_CHECK";
   }
   
-  // Priority 2: On pace or ahead (but below 100%)
-  if (realizadoPercentage >= ritmoIdeal) {
-    return "CLOCK";
-  }
-  
-  // Priority 3: Yellow warning (75-99% of ideal pace)
-  if (realizadoPercentage >= ritmoIdeal * 0.75) {
+  // Priority 3: Yellow Alert - Between 51% and 99% of ideal rhythm
+  if (percentageOfIdeal > 50) {
     return "YELLOW_ALERT";
   }
   
-  // Priority 4: Red alert (more than 25% below ideal pace)
+  // Priority 4: Orange Alert - Between 26% and 50% of ideal rhythm
+  if (percentageOfIdeal > 25) {
+    return "ORANGE_ALERT";
+  }
+  
+  // Priority 5: Red Alert - Up to 25% of ideal rhythm
   return "RED_ALERT";
 }
 

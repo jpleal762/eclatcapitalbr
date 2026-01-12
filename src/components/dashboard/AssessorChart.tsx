@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { AssessorPerformance, KPIStatusIcon } from "@/types/kpi";
 import { getKPIStatusIcon } from "@/lib/kpiUtils";
-import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { AlertTriangle, Clock, Trophy } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface AssessorChartProps {
@@ -24,12 +24,16 @@ const getClockStyle = (currentValue: number, idealValue: number) => {
 
 function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
   switch (icon) {
+    case "TROPHY":
+      return <Trophy className="icon-responsive-sm text-yellow-500 flex-shrink-0" />;
     case "GREEN_CHECK":
-      return <CheckCircle className="icon-responsive-sm text-green-500 flex-shrink-0" />;
+      return <Clock className="icon-responsive-sm text-green-500 flex-shrink-0" />;
     case "CLOCK":
       return <Clock className="icon-responsive-sm text-blue-500 flex-shrink-0" />;
     case "YELLOW_ALERT":
       return <AlertTriangle className="icon-responsive-sm text-yellow-500 flex-shrink-0" />;
+    case "ORANGE_ALERT":
+      return <AlertTriangle className="icon-responsive-sm text-orange-500 flex-shrink-0" />;
     case "RED_ALERT":
       return <AlertTriangle className="icon-responsive-sm text-red-500 flex-shrink-0" />;
     default:
