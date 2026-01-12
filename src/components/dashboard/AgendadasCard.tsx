@@ -68,18 +68,18 @@ export function AgendadasCard({
 
         {/* Lista de Assessores */}
         <div className="w-[120px] max-h-full overflow-hidden flex flex-col flex-shrink-0">
-          <p className="text-responsive-xs text-white/70 mb-1 flex-shrink-0">Por Assessor</p>
+          <p className="text-responsive-sm text-white/70 mb-1 flex-shrink-0 font-semibold">Por Assessor</p>
           <div className="overflow-y-auto flex-1 min-h-0">
             <div className="space-y-0.5">
               {assessorData.map((assessor, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between text-responsive-xs py-0.5 px-0.5 rounded hover:bg-white/10"
+                  className="flex items-center justify-between text-responsive-sm py-0.5 px-0.5 rounded hover:bg-white/10"
                 >
                   <span className="truncate text-white max-w-[80%]">
                     {assessor.name.split(" ").slice(0, 2).join(" ")}
                   </span>
-                  <span className="font-semibold text-white ml-2">{assessor.value}</span>
+                  <span className="font-bold text-white ml-2">{assessor.value}</span>
                 </div>
               ))}
               {assessorData.length === 0 && (
