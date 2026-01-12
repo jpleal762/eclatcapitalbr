@@ -92,7 +92,7 @@ export function GaugeChart({
         color: 'hsl(142.1, 76.2%, 36.3%)',
         animate: false
       }; // green-500
-    } else if (percentageBelowIdeal > 30) {
+    } else if (percentageBelowIdeal > 50) {
       return {
         color: 'hsl(0, 72.2%, 50.6%)',
         animate: true
