@@ -1,24 +1,24 @@
 import { Card } from "@/components/ui/card";
 import { MetaSemanal } from "@/types/kpi";
 import { formatNumber } from "@/lib/kpiUtils";
-
 interface MetaTableProps {
   data: MetaSemanal[];
   realPercentage: number;
   selectedAssessor?: string;
   weekToMonthPercentage?: number;
 }
-
-export function MetaTable({ data, realPercentage, selectedAssessor, weekToMonthPercentage }: MetaTableProps) {
-  return (
-    <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
+export function MetaTable({
+  data,
+  realPercentage,
+  selectedAssessor,
+  weekToMonthPercentage
+}: MetaTableProps) {
+  return <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-responsive flex-shrink-0">
         <h3 className="text-responsive-sm font-semibold text-foreground">Meta Semanal Acumulada</h3>
-        {selectedAssessor && selectedAssessor !== "all" && (
-          <span className="text-responsive-xs px-2 py-responsive-sm rounded-full bg-primary/10 text-primary font-medium">
+        {selectedAssessor && selectedAssessor !== "all" && <span className="text-responsive-xs px-2 py-responsive-sm rounded-full bg-primary/10 text-primary font-medium">
             {selectedAssessor.split(" ").slice(0, 2).join(" ")}
-          </span>
-        )}
+          </span>}
       </div>
       
       <div className="flex-1 overflow-hidden min-h-0">
@@ -31,23 +31,15 @@ export function MetaTable({ data, realPercentage, selectedAssessor, weekToMonthP
             </tr>
           </thead>
           <tbody>
-            {data.map((item, index) => (
-              <tr key={index} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+            {data.map((item, index) => <tr key={index} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
                 <td className="py-responsive-sm text-responsive-xs text-foreground">{item.label}</td>
-                <td className="py-responsive-sm text-responsive-xs text-right font-medium text-primary">
-                  {typeof item.value === 'number' 
-                    ? (item.isCurrency
-                        ? formatNumber(item.value, true)
-                        : formatNumber(item.value))
-                    : item.value}
+                <td className="py-responsive-sm text-responsive-xs text-right font-medium text-secondary-foreground">
+                  {typeof item.value === 'number' ? item.isCurrency ? formatNumber(item.value, true) : formatNumber(item.value) : item.value}
                 </td>
-                <td className="py-responsive-sm text-responsive-xs text-right font-medium text-green-600">
-                  {item.realizedValue !== undefined 
-                    ? formatNumber(item.realizedValue, item.isCurrency)
-                    : "-"}
+                <td className="py-responsive-sm text-responsive-xs text-right font-medium text-secondary-foreground">
+                  {item.realizedValue !== undefined ? formatNumber(item.realizedValue, item.isCurrency) : "-"}
                 </td>
-              </tr>
-            ))}
+              </tr>)}
           </tbody>
         </table>
       </div>
@@ -57,11 +49,8 @@ export function MetaTable({ data, realPercentage, selectedAssessor, weekToMonthP
           {weekToMonthPercentage !== undefined ? `${weekToMonthPercentage}%` : "-"}
         </span>
         <p className="text-responsive-xs text-muted-foreground italic">
-          {selectedAssessor && selectedAssessor !== "all" 
-            ? `Metas individuais de ${selectedAssessor.split(" ")[0]}`
-            : "Valores consolidados do escritório"}
+          {selectedAssessor && selectedAssessor !== "all" ? `Metas individuais de ${selectedAssessor.split(" ")[0]}` : "Valores consolidados do escritório"}
         </p>
       </div>
-    </Card>
-  );
+    </Card>;
 }
