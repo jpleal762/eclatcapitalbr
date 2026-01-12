@@ -28,7 +28,6 @@ import { loadExcelData, saveExcelData } from "@/lib/storage";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu, Maximize2, Minimize2 } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
-import { useAutoTheme } from "@/hooks/use-auto-theme";
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -44,9 +43,6 @@ const getCurrentMonthValue = () => {
 };
 
 const Index = () => {
-  // Hook para tema automático (dark após 16:00)
-  useAutoTheme();
-
   const [rawData, setRawData] = useState<KPIRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -297,22 +293,33 @@ const Index = () => {
             </header>
           )}
 
-          {/* Fullscreen exit button */}
+          {/* Fullscreen controls */}
           {isFullscreen && (
-            <div className="fixed top-2 right-2 z-50 flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  document.exitFullscreen?.();
-                  setIsFullscreen(false);
-                }}
-                className="bg-background/80 backdrop-blur-sm"
-              >
-                <Minimize2 className="w-4 h-4 mr-1" />
-                Sair (F11)
-              </Button>
-            </div>
+            <>
+              {/* Logo no fullscreen - canto superior esquerdo */}
+              <div className="fixed top-2 left-2 z-50">
+                <img 
+                  src={eclatLogo} 
+                  alt="Éclat XP Logo" 
+                  className="h-8 object-contain"
+                />
+              </div>
+              {/* Botão sair - canto superior direito */}
+              <div className="fixed top-2 right-2 z-50 flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    document.exitFullscreen?.();
+                    setIsFullscreen(false);
+                  }}
+                  className="bg-background/80 backdrop-blur-sm"
+                >
+                  <Minimize2 className="w-4 h-4 mr-1" />
+                  Sair (F11)
+                </Button>
+              </div>
+            </>
           )}
 
           <main className="flex-1 overflow-hidden px-4 py-3">
