@@ -28,6 +28,8 @@ import { loadExcelData, saveExcelData } from "@/lib/storage";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu, Maximize2, Minimize2 } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
+import eclatLogoDark from "@/assets/eclat-xp-logo-dark.png";
+import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -43,6 +45,7 @@ const getCurrentMonthValue = () => {
 };
 
 const Index = () => {
+  const { resolvedTheme } = useTheme();
   const [rawData, setRawData] = useState<KPIRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -258,7 +261,7 @@ const Index = () => {
                   </div>
                   <div className="flex-1 flex flex-col items-center">
                     <img 
-                      src={eclatLogo} 
+                      src={resolvedTheme === 'dark' ? eclatLogoDark : eclatLogo} 
                       alt="Éclat XP Logo" 
                       className="h-8 object-contain"
                     />
@@ -299,7 +302,7 @@ const Index = () => {
               {/* Logo no fullscreen - canto superior esquerdo */}
               <div className="fixed top-2 left-2 z-50">
                 <img 
-                  src={eclatLogo} 
+                  src={resolvedTheme === 'dark' ? eclatLogoDark : eclatLogo} 
                   alt="Éclat XP Logo" 
                   className="h-8 object-contain"
                 />
