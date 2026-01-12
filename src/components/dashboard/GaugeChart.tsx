@@ -182,7 +182,7 @@ export function GaugeChart({
                     <circle r={0.8 * dynamicScale} fill="white" />
                     
                     {showDifference && (
-                      <text x={0} y={16 * dynamicScale} textAnchor="middle" fill={clockStyle.color} fontSize={7 * dynamicScale} fontWeight="bold" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
+                      <text x={0} y={-16 * dynamicScale} textAnchor="middle" fill={clockStyle.color} fontSize={7 * dynamicScale} fontWeight="bold" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
                         {differenceText}
                       </text>
                     )}
