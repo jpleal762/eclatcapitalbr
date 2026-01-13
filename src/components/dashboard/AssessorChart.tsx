@@ -48,74 +48,90 @@ export function AssessorChart({
   // Filter out "Socios" from ranking
   const filteredData = data.filter(assessor => assessor.name !== "Socios");
   
+  // Dividir em duas colunas: primeiros 3 na esquerda, resto na direita
+  const leftColumn = filteredData.slice(0, 3);
+  const rightColumn = filteredData.slice(3);
+  
+  const renderAssessor = (assessor: AssessorPerformance, index: number, isLeftColumn: boolean) => {
+    const actualIndex = isLeftColumn ? index : index + 3;
+    const difference = assessor.geralPercentage - ritmoIdeal;
+    const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
+    const differenceColor = difference >= 0 ? "text-green-600" : "text-red-600";
+    const clockStyle = getClockStyle(assessor.geralPercentage, ritmoIdeal);
+    
+    return (
+      <div key={assessor.name} className={`flex items-center gap-1 p-1 rounded-md transition-all hover:translate-x-0.5 ${actualIndex < 3 ? 'bg-muted/50' : 'bg-background'}`}>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1">
+            <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
+            <p className="text-responsive-3xs font-medium text-foreground truncate">{assessor.name}</p>
+          </div>
+          {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
+          <div className="relative w-full h-1.5 bg-muted rounded-full overflow-visible mt-0.5">
+            <div className="h-full rounded-l-full transition-all duration-500 bg-yellow-500" style={{
+              width: `${Math.min(assessor.geralPercentage, 100)}%`
+            }} />
+            {/* Marcador do Ritmo Ideal - Clock com cores condicionais */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div 
+                    className="absolute flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
+                    style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)', top: '-8px' }}
+                  >
+                    <div className={`flex items-center justify-center w-3 h-3 rounded-full shadow-lg border border-white ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
+                      <Clock className="w-1.5 h-1.5 text-white" />
+                    </div>
+                    {/* Linha conectora com cor condicional */}
+                    <div className={`w-px h-1.5 ${clockStyle.bgColor}`} />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-center">
+                    <p className="text-responsive-3xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                    <p className="text-responsive-xs font-bold" style={{ color: differenceColor === 'text-green-600' ? '#16a34a' : '#dc2626' }}>{differenceText}</p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          {/* Barra ICM Semanal (cinza) */}
+          <div className="w-full h-1 bg-muted rounded-full overflow-hidden mt-0.5">
+            <div className="h-full rounded-l-full transition-all duration-500 bg-gray-500" style={{
+              width: `${Math.min(assessor.semanaPercentage, 100)}%`
+            }} />
+          </div>
+        </div>
+        
+        <div className="text-right flex-shrink-0">
+          <span className="text-responsive-3xs font-bold text-yellow-600">
+            {assessor.geralPercentage}%
+          </span>
+          <span className="text-[9px] font-medium text-gray-500 block leading-tight">
+            {assessor.semanaPercentage}%
+          </span>
+        </div>
+      </div>
+    );
+  };
+  
   return (
     <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden">
       <h3 className="text-responsive-xs font-semibold mb-1 text-foreground flex items-center gap-1 flex-shrink-0">
         ICM Geral por Assessor
       </h3>
       
-      <div className="flex-1 overflow-y-auto min-h-0 space-y-0.5">
-        {filteredData.map((assessor, index) => {
-          const difference = assessor.geralPercentage - ritmoIdeal;
-          const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
-          const differenceColor = difference >= 0 ? "text-green-600" : "text-red-600";
-          const clockStyle = getClockStyle(assessor.geralPercentage, ritmoIdeal);
-          
-          return (
-            <div key={assessor.name} className={`flex items-center gap-1 p-1 rounded-md transition-all hover:translate-x-0.5 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1">
-                  <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
-                  <p className="text-responsive-3xs font-medium text-foreground truncate">{assessor.name}</p>
-                </div>
-                {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
-                <div className="relative w-full h-1.5 bg-muted rounded-full overflow-visible mt-0.5">
-                  <div className="h-full rounded-l-full transition-all duration-500 bg-yellow-500" style={{
-                    width: `${Math.min(assessor.geralPercentage, 100)}%`
-                  }} />
-                  {/* Marcador do Ritmo Ideal - Clock com cores condicionais */}
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div 
-                          className="absolute flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
-                          style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)', top: '-8px' }}
-                        >
-                          <div className={`flex items-center justify-center w-3 h-3 rounded-full shadow-lg border border-white ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
-                            <Clock className="w-1.5 h-1.5 text-white" />
-                          </div>
-                          {/* Linha conectora com cor condicional */}
-                          <div className={`w-px h-1.5 ${clockStyle.bgColor}`} />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <div className="text-center">
-                          <p className="text-responsive-3xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                          <p className="text-responsive-xs font-bold" style={{ color: differenceColor === 'text-green-600' ? '#16a34a' : '#dc2626' }}>{differenceText}</p>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                {/* Barra ICM Semanal (cinza) */}
-                <div className="w-full h-1 bg-muted rounded-full overflow-hidden mt-0.5">
-                  <div className="h-full rounded-l-full transition-all duration-500 bg-gray-500" style={{
-                    width: `${Math.min(assessor.semanaPercentage, 100)}%`
-                  }} />
-                </div>
-              </div>
-              
-              <div className="text-right flex-shrink-0">
-                <span className="text-responsive-3xs font-bold text-yellow-600">
-                  {assessor.geralPercentage}%
-                </span>
-                <span className="text-[9px] font-medium text-gray-500 block leading-tight">
-                  {assessor.semanaPercentage}%
-                </span>
-              </div>
-            </div>
-          );
-        })}
+      {/* Grid de duas colunas */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+        {/* Coluna Esquerda - Top 3 */}
+        <div className="flex flex-col space-y-0.5">
+          {leftColumn.map((assessor, index) => renderAssessor(assessor, index, true))}
+        </div>
+        
+        {/* Coluna Direita - Demais assessores */}
+        <div className="flex flex-col space-y-0.5">
+          {rightColumn.map((assessor, index) => renderAssessor(assessor, index, false))}
+        </div>
       </div>
     </Card>
   );
