@@ -67,7 +67,7 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
             </div>
             
             {/* Label sempre visível */}
-            <div className="absolute -bottom-4 right-0 text-responsive-3xs font-medium whitespace-nowrap">
+            <div className="absolute -bottom-5 right-0 text-responsive-2xs font-semibold whitespace-nowrap">
               <span className={differenceColor}>{differenceText}</span>
               <span className="text-muted-foreground ml-1">vs ideal</span>
             </div>
