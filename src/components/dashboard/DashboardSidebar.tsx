@@ -51,7 +51,7 @@ interface DashboardSidebarProps {
 const CARD_ITEMS: { key: keyof DashboardVisibility; label: string }[] = [
   { key: "card1", label: "Card 1 - ICM Geral" },
   { key: "card2", label: "Card 2 - Metas Semanais" },
-  { key: "card3", label: "Card 3 - ICM Geral por Assessor" },
+  { key: "card3", label: "Card 3 - Primeiras Reuniões Agendadas" },
 ];
 
 const GRAPH_ITEMS: { key: keyof DashboardVisibility; label: string }[] = [
