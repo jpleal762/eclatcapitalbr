@@ -367,7 +367,11 @@ const Index = () => {
                         </div>
                         {/* Card 4 - ICM Geral por Assessor (metade inferior) */}
                         <div className="flex-1 min-h-0">
-                          <AssessorChart data={dashboardData.assessorPerformance} ritmoIdeal={dashboardData.ritmoIdeal} />
+                          <AssessorChart 
+                            data={dashboardData.assessorPerformance} 
+                            ritmoIdeal={dashboardData.ritmoIdeal}
+                            selectedAssessor={filters.assessor}
+                          />
                         </div>
                       </div>
                     )}
