@@ -88,8 +88,8 @@ export function AssessorChart({
                 </TooltipTrigger>
                 <TooltipContent>
                   <div className="text-center">
-                    <p className="text-responsive-3xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                    <p className="text-responsive-xs font-bold" style={{ color: differenceColor === 'text-green-600' ? '#16a34a' : '#dc2626' }}>{differenceText}</p>
+                    <p className="text-responsive-2xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                    <p className="text-responsive-sm font-bold" style={{ color: differenceColor === 'text-green-600' ? '#16a34a' : '#dc2626' }}>{differenceText}</p>
                   </div>
                 </TooltipContent>
               </Tooltip>
