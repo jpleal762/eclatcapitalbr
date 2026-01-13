@@ -365,18 +365,9 @@ const Index = () => {
                             onMonthChange={(value) => setFilters({ ...filters, month: value })}
                           />
                         </div>
-                        {/* Card 4 - Agendadas (metade inferior) */}
+                        {/* Card 4 - ICM Geral por Assessor (metade inferior) */}
                         <div className="flex-1 min-h-0">
-                          <AgendadasCard
-                            agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
-                            agendadasTarget={agendadasWeeklyTarget}
-                            agendadasPercentage={
-                              agendadasWeeklyTarget > 0 
-                                ? Math.round(((dashboardData.gaugeKPIs[2]?.secondaryValue || 0) / agendadasWeeklyTarget) * 100) 
-                                : 0
-                            }
-                            assessorData={assessorAgendadas}
-                          />
+                          <AssessorChart data={dashboardData.assessorPerformance} ritmoIdeal={dashboardData.ritmoIdeal} />
                         </div>
                       </div>
                     )}
@@ -389,7 +380,16 @@ const Index = () => {
                       />
                     )}
                     {visibility.card3 && (
-                      <AssessorChart data={dashboardData.assessorPerformance} ritmoIdeal={dashboardData.ritmoIdeal} />
+                      <AgendadasCard
+                        agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
+                        agendadasTarget={agendadasWeeklyTarget}
+                        agendadasPercentage={
+                          agendadasWeeklyTarget > 0 
+                            ? Math.round(((dashboardData.gaugeKPIs[2]?.secondaryValue || 0) / agendadasWeeklyTarget) * 100) 
+                            : 0
+                        }
+                        assessorData={assessorAgendadas}
+                      />
                     )}
                   </div>
                 )}

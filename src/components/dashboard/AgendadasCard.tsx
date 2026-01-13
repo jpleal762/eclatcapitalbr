@@ -16,27 +16,27 @@ export function AgendadasCard({
 }: AgendadasCardProps) {
   const { scale } = useResponsiveSize();
 
-  // Dynamic gauge sizing - compact for half height
-  const dynamicScale = Math.max(0.7, Math.min(scale * 1.1, 1.6));
-  const gaugeWidth = Math.round(140 * dynamicScale);
-  const gaugeHeight = Math.round(80 * dynamicScale);
-  const gaugeRadius = Math.round(60 * dynamicScale);
-  const strokeWidth = Math.round(12 * dynamicScale);
+  // Dynamic gauge sizing - larger for full column
+  const dynamicScale = Math.max(0.8, Math.min(scale * 1.2, 2.5));
+  const gaugeWidth = Math.round(180 * dynamicScale);
+  const gaugeHeight = Math.round(100 * dynamicScale);
+  const gaugeRadius = Math.round(75 * dynamicScale);
+  const strokeWidth = Math.round(14 * dynamicScale);
   const circumference = Math.PI * gaugeRadius;
   const progress = Math.min(agendadasPercentage, 100) / 100 * circumference;
 
   return (
-    <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
-      {/* Header compacto */}
-      <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0">
+    <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2 mb-responsive flex-shrink-0">
         <h3 className="text-responsive-sm font-semibold text-white">
           Primeiras Reuniões Agendadas Semana
         </h3>
       </div>
 
-      <div className="flex items-center justify-center gap-6 flex-1 min-h-0">
-        {/* Gauge */}
-        <div className="flex flex-col items-center flex-shrink-0">
+      {/* Gauge - centered */}
+      <div className="flex justify-center items-center py-responsive flex-shrink-0">
+        <div className="flex flex-col items-center">
           <div className="relative" style={{ width: gaugeWidth, height: gaugeHeight }}>
             <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
               <path
@@ -65,27 +65,27 @@ export function AgendadasCard({
             Meta: {agendadasTarget} ({agendadasPercentage}%)
           </p>
         </div>
+      </div>
 
-        {/* Lista de Assessores */}
-        <div className="w-[120px] max-h-full overflow-hidden flex flex-col flex-shrink-0">
-          <p className="text-responsive-xs text-white/70 mb-1 flex-shrink-0">Por Assessor</p>
-          <div className="overflow-y-auto flex-1 min-h-0">
-            <div className="space-y-0.5">
-              {assessorData.map((assessor, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between text-responsive-xs py-0.5 px-0.5 rounded hover:bg-white/10"
-                >
-                  <span className="truncate text-white max-w-[80%]">
-                    {assessor.name.split(" ").slice(0, 2).join(" ")}
-                  </span>
-                  <span className="font-semibold text-white ml-2">{assessor.value}</span>
-                </div>
-              ))}
-              {assessorData.length === 0 && (
-                <p className="text-responsive-xs text-white/70 italic">Sem dados</p>
-              )}
-            </div>
+      {/* Lista de Assessores - flex-1 para ocupar espaço restante */}
+      <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+        <p className="text-responsive-xs text-white/70 mb-responsive-sm flex-shrink-0">Por Assessor</p>
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="space-y-responsive-sm">
+            {assessorData.map((assessor, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between text-responsive-xs py-responsive-sm px-responsive-sm rounded hover:bg-white/10 transition-colors"
+              >
+                <span className="truncate text-white max-w-[80%]">
+                  {assessor.name.split(" ").slice(0, 2).join(" ")}
+                </span>
+                <span className="font-semibold text-white ml-2">{assessor.value}</span>
+              </div>
+            ))}
+            {assessorData.length === 0 && (
+              <p className="text-responsive-xs text-white/70 italic">Sem dados</p>
+            )}
           </div>
         </div>
       </div>

@@ -49,12 +49,12 @@ export function AssessorChart({
   const filteredData = data.filter(assessor => assessor.name !== "Socios");
   
   return (
-    <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
-      <h3 className="text-responsive-sm font-semibold mb-responsive text-foreground flex items-center gap-responsive-sm flex-shrink-0">
+    <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden">
+      <h3 className="text-responsive-xs font-semibold mb-1 text-foreground flex items-center gap-1 flex-shrink-0">
         ICM Geral por Assessor
       </h3>
       
-      <div className="flex-1 overflow-hidden min-h-0 space-y-responsive-sm">
+      <div className="flex-1 overflow-y-auto min-h-0 space-y-0.5">
         {filteredData.map((assessor, index) => {
           const difference = assessor.geralPercentage - ritmoIdeal;
           const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
@@ -62,14 +62,14 @@ export function AssessorChart({
           const clockStyle = getClockStyle(assessor.geralPercentage, ritmoIdeal);
           
           return (
-            <div key={assessor.name} className={`flex items-center gap-responsive-sm p-responsive-sm rounded-md transition-all hover:translate-x-1 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
+            <div key={assessor.name} className={`flex items-center gap-1 p-1 rounded-md transition-all hover:translate-x-0.5 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-responsive-sm">
+                <div className="flex items-center gap-1">
                   <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
-                  <p className="text-responsive-xs font-medium text-foreground truncate">{assessor.name}</p>
+                  <p className="text-responsive-3xs font-medium text-foreground truncate">{assessor.name}</p>
                 </div>
                 {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
-                <div className="relative w-full h-bar-responsive-sm bg-muted rounded-full overflow-visible mt-responsive-sm">
+                <div className="relative w-full h-1.5 bg-muted rounded-full overflow-visible mt-0.5">
                   <div className="h-full rounded-l-full transition-all duration-500 bg-yellow-500" style={{
                     width: `${Math.min(assessor.geralPercentage, 100)}%`
                   }} />
@@ -79,49 +79,43 @@ export function AssessorChart({
                       <TooltipTrigger asChild>
                         <div 
                           className="absolute flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
-                          style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)', top: '-12px' }}
+                          style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)', top: '-8px' }}
                         >
-                          <div className={`flex items-center justify-center w-4 h-4 rounded-full shadow-lg border-2 border-white ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
-                            <Clock className="w-2 h-2 text-white" />
+                          <div className={`flex items-center justify-center w-3 h-3 rounded-full shadow-lg border border-white ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
+                            <Clock className="w-1.5 h-1.5 text-white" />
                           </div>
                           {/* Linha conectora com cor condicional */}
-                          <div className={`w-0.5 h-2.5 ${clockStyle.bgColor}`} />
+                          <div className={`w-px h-1.5 ${clockStyle.bgColor}`} />
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
                         <div className="text-center">
-                          <p className="text-responsive-xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
-                          <p className="text-responsive-sm font-bold" style={{ color: differenceColor === 'text-green-600' ? '#16a34a' : '#dc2626' }}>{differenceText}</p>
+                          <p className="text-responsive-3xs text-muted-foreground">Ritmo Ideal: {ritmoIdeal}%</p>
+                          <p className="text-responsive-xs font-bold" style={{ color: differenceColor === 'text-green-600' ? '#16a34a' : '#dc2626' }}>{differenceText}</p>
                         </div>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </div>
                 {/* Barra ICM Semanal (cinza) */}
-                <div className="w-full h-bar-responsive-sm bg-muted rounded-full overflow-hidden mt-responsive-sm">
+                <div className="w-full h-1 bg-muted rounded-full overflow-hidden mt-0.5">
                   <div className="h-full rounded-l-full transition-all duration-500 bg-gray-500" style={{
                     width: `${Math.min(assessor.semanaPercentage, 100)}%`
                   }} />
                 </div>
               </div>
               
-              <div className="text-right">
-                <span className="text-responsive-xs font-bold text-yellow-600">
+              <div className="text-right flex-shrink-0">
+                <span className="text-responsive-3xs font-bold text-yellow-600">
                   {assessor.geralPercentage}%
                 </span>
-                <span className="text-responsive-3xs font-medium text-gray-500 block">
+                <span className="text-[9px] font-medium text-gray-500 block leading-tight">
                   {assessor.semanaPercentage}%
                 </span>
               </div>
             </div>
           );
         })}
-      </div>
-
-      <div className="mt-auto pt-responsive border-t border-border text-center flex-shrink-0">
-        <p className="text-responsive-3xs text-muted-foreground italic">
-          Ranking de assessores para o período
-        </p>
       </div>
     </Card>
   );
