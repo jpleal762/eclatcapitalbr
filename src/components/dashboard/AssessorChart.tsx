@@ -53,8 +53,9 @@ export function AssessorChart({
     let filtered = data.filter(assessor => assessor.name !== "Socios");
     
     // Se um assessor específico foi selecionado, mostrar apenas ele
+    // Usar fullName para corresponder ao valor do filtro
     if (selectedAssessor && selectedAssessor !== "all") {
-      filtered = filtered.filter(assessor => assessor.name === selectedAssessor);
+      filtered = filtered.filter(assessor => assessor.fullName === selectedAssessor);
     }
     
     return filtered;
