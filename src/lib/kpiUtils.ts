@@ -494,6 +494,49 @@ export function calculateICMRitmo(data: ProcessedKPI[], month: string): number {
   return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
 }
 
+// ============= RECEITA EMPILHADA POR ASSESSOR =============
+export interface AssessorReceitaEmpilhadaData {
+  name: string;
+  value: number;
+}
+
+/**
+ * Calculate the "Receita Empilhada" for each assessor
+ * @param data - Processed KPI data
+ * @param month - Selected month (e.g., "jan/25")
+ * @returns Array of assessor data sorted by value (highest first)
+ */
+export function calculateAssessorReceitaEmpilhada(
+  data: ProcessedKPI[],
+  month: string
+): AssessorReceitaEmpilhadaData[] {
+  if (!data || data.length === 0 || month === "all") {
+    return [];
+  }
+
+  // Get all unique assessors
+  const allAssessors = [...new Set(data.map(d => d.assessor))].filter(Boolean);
+
+  const results = allAssessors.map(assessor => {
+    const assessorData = filterByAssessor(data, assessor);
+    
+    // Filter for "Receita Empilhada" category with "Realizado" status
+    const receitaEmpilhadaData = filterByCategory(assessorData, "Receita Empilhada");
+    const realizedData = receitaEmpilhadaData.filter(d => isRealizedStatus(d.status));
+    const value = getMonthValue(realizedData, month);
+
+    return {
+      name: assessor.split(" ")[0], // Get first name only
+      value
+    };
+  });
+
+  // Filter out zero values and sort by value (highest first)
+  return results
+    .filter(r => r.value > 0)
+    .sort((a, b) => b.value - a.value);
+}
+
 // ============= ASSESSOR REMAINING CALCULATION =============
 export interface AssessorRemainingData {
   name: string;
