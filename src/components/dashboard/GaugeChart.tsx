@@ -28,6 +28,8 @@ interface GaugeChartProps {
   ritmoIdeal?: number;
   assessorRemainingData?: AssessorRemainingItem[];
   showAssessorList?: boolean;
+  // Additional value for segmented bar visualization (e.g., Receita Empilhada)
+  additionalValue?: number;
 }
 function StatusIconDisplay({
   icon,
@@ -66,7 +68,8 @@ export function GaugeChart({
   secondaryLabel,
   ritmoIdeal,
   assessorRemainingData,
-  showAssessorList = false
+  showAssessorList = false,
+  additionalValue
 }: GaugeChartProps) {
   const {
     height,
@@ -106,7 +109,19 @@ export function GaugeChart({
   };
   const radius = (dynamicWidth - dynamicStrokeWidth) / 2;
   const circumference = Math.PI * radius;
+  
+  // Calculate segmented bar values when additionalValue is present
+  const hasSegmentedBar = additionalValue && additionalValue > 0;
+  const baseValue = hasSegmentedBar ? value - additionalValue : value;
+  const basePercentage = target > 0 ? (baseValue / target) * 100 : 0;
+  const clampedBasePercentage = Math.min(Math.max(basePercentage, 0), 100);
+  const additionalPercentage = target > 0 && hasSegmentedBar ? (additionalValue / target) * 100 : 0;
+  const clampedAdditionalPercentage = Math.min(Math.max(additionalPercentage, 0), 100 - clampedBasePercentage);
+  
+  const baseProgress = (clampedBasePercentage / 100) * circumference;
+  const additionalProgress = (clampedAdditionalPercentage / 100) * circumference;
   const progress = clampedPercentage / 100 * circumference;
+  
   const isHighlight = variant === "highlight";
   return <Card className={`p-responsive shadow-card h-full flex flex-col ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
       <div className={`flex ${showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 ? 'flex-row gap-3' : 'flex-col'} flex-1 min-h-0`}>
@@ -130,11 +145,33 @@ export function GaugeChart({
             {/* Background arc */}
             <path d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
                   A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} fill="none" stroke={isHighlight ? "hsl(0, 0%, 50%)" : "hsl(var(--muted))"} strokeWidth={dynamicStrokeWidth} strokeLinecap="round" />
-            {/* Progress arc */}
-            <path d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
-                  A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} fill="none" stroke="hsl(var(--primary))" strokeWidth={dynamicStrokeWidth} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference - progress} style={{
-            transition: "stroke-dashoffset 0.5s ease-out"
-          }} />
+            {/* Progress arc - base value (or full if no segmentation) */}
+            <path 
+              d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
+                  A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} 
+              fill="none" 
+              stroke="hsl(var(--primary))" 
+              strokeWidth={dynamicStrokeWidth} 
+              strokeLinecap={hasSegmentedBar ? "butt" : "round"} 
+              strokeDasharray={circumference} 
+              strokeDashoffset={hasSegmentedBar ? circumference - baseProgress : circumference - progress} 
+              style={{ transition: "stroke-dashoffset 0.5s ease-out" }} 
+            />
+            
+            {/* Additional value arc (darker yellow/gold for Receita Empilhada) */}
+            {hasSegmentedBar && (
+              <path 
+                d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
+                    A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} 
+                fill="none" 
+                stroke="#A67C00"
+                strokeWidth={dynamicStrokeWidth} 
+                strokeLinecap="round" 
+                strokeDasharray={circumference} 
+                strokeDashoffset={circumference - baseProgress - additionalProgress} 
+                style={{ transition: "stroke-dashoffset 0.5s ease-out" }} 
+              />
+            )}
             
             {/* Ritmo Ideal marker - integrated in main SVG */}
             {ritmoIdeal !== undefined && (() => {

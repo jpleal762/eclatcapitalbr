@@ -25,6 +25,8 @@ interface FlipGaugeChartProps {
   ritmoIdeal?: number;
   assessorRemainingData?: AssessorRemainingItem[];
   showAssessorList?: boolean;
+  // Additional value for segmented bar visualization (e.g., Receita Empilhada)
+  additionalValue?: number;
   // Props para o verso
   backTitle: string;
   backData: FlipBackData[];
@@ -43,6 +45,7 @@ export function FlipGaugeChart({
   ritmoIdeal,
   assessorRemainingData,
   showAssessorList = false,
+  additionalValue,
   backTitle,
   backData,
 }: FlipGaugeChartProps) {
@@ -81,6 +84,7 @@ export function FlipGaugeChart({
               ritmoIdeal={ritmoIdeal}
               assessorRemainingData={assessorRemainingData}
               showAssessorList={showAssessorList}
+              additionalValue={additionalValue}
             />
             {/* Indicador de flip */}
             <div className="absolute top-1 right-1 p-1 rounded-full bg-muted/50 opacity-50 hover:opacity-100 transition-opacity">
