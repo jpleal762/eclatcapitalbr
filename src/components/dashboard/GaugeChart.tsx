@@ -145,20 +145,7 @@ export function GaugeChart({
             {/* Background arc */}
             <path d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
                   A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} fill="none" stroke={isHighlight ? "hsl(0, 0%, 50%)" : "hsl(var(--muted))"} strokeWidth={dynamicStrokeWidth} strokeLinecap="round" />
-            {/* Progress arc - base value (or full if no segmentation) */}
-            <path 
-              d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
-                  A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} 
-              fill="none" 
-              stroke="hsl(var(--primary))" 
-              strokeWidth={dynamicStrokeWidth} 
-              strokeLinecap={hasSegmentedBar ? "butt" : "round"} 
-              strokeDasharray={circumference} 
-              strokeDashoffset={hasSegmentedBar ? circumference - baseProgress : circumference - progress} 
-              style={{ transition: "stroke-dashoffset 0.5s ease-out" }} 
-            />
-            
-            {/* Additional value arc (darker yellow/gold for Receita Empilhada) */}
+            {/* Additional value arc (darker yellow/gold for Receita Empilhada) - vem primeiro */}
             {hasSegmentedBar && (
               <path 
                 d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
@@ -166,16 +153,31 @@ export function GaugeChart({
                 fill="none" 
                 stroke="#A67C00"
                 strokeWidth={dynamicStrokeWidth} 
-                strokeLinecap="round" 
+                strokeLinecap="butt" 
                 strokeDasharray={circumference} 
                 strokeDashoffset={circumference - additionalProgress}
-                style={{ 
-                  transition: "stroke-dashoffset 0.5s ease-out, transform 0.5s ease-out",
-                  transformOrigin: `${dynamicWidth / 2}px ${dynamicHeight}px`,
-                  transform: `rotate(${(clampedBasePercentage / 100) * 180}deg)`
-                }} 
+                style={{ transition: "stroke-dashoffset 0.5s ease-out" }} 
               />
             )}
+            
+            {/* Progress arc - base value (PJ2 XP amarelo) - vem depois */}
+            <path 
+              d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
+                  A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} 
+              fill="none" 
+              stroke="hsl(var(--primary))" 
+              strokeWidth={dynamicStrokeWidth} 
+              strokeLinecap="round" 
+              strokeDasharray={circumference} 
+              strokeDashoffset={hasSegmentedBar ? circumference - baseProgress : circumference - progress} 
+              style={{ 
+                transition: "stroke-dashoffset 0.5s ease-out, transform 0.5s ease-out",
+                ...(hasSegmentedBar && {
+                  transformOrigin: `${dynamicWidth / 2}px ${dynamicHeight}px`,
+                  transform: `rotate(${(clampedAdditionalPercentage / 100) * 180}deg)`
+                })
+              }} 
+            />
             
             {/* Ritmo Ideal marker - integrated in main SVG */}
             {ritmoIdeal !== undefined && (() => {
