@@ -45,7 +45,7 @@ export const KPI_CATEGORIES = [
   { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
   { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
   { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true, isSpecial: true, actualCategory: "PJ1 XP" },
-  { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, isSpecial: true, actualCategory: "PJ2 XP" },
+  { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, isSpecial: true, actualCategory: "PJ2 XP", additionalActualCategory: "Receita Empilhada" },
   { category: "Habilitacao", label: "Habilitação", isCurrency: false },
   { category: "Ativacao", label: "Ativação", isCurrency: false },
 ];
@@ -749,7 +749,18 @@ export function processDashboardData(
       value = selectedMonth !== "all"
         ? getMonthValue(realizedData, selectedMonth)
         : realizedData.reduce((s, d) => s + d.total, 0);
-    } 
+      
+      // If there's an additional category (e.g., Receita Empilhada), add it to the realized value
+      if ((kpi as any).additionalActualCategory) {
+        const additionalCategory = (kpi as any).additionalActualCategory as string;
+        const additionalData = filterByCategory(filteredByAssessor, additionalCategory);
+        const additionalRealizedData = additionalData.filter(d => isRealizedStatus(d.status));
+        const additionalValue = selectedMonth !== "all"
+          ? getMonthValue(additionalRealizedData, selectedMonth)
+          : additionalRealizedData.reduce((s, d) => s + d.total, 0);
+        value += additionalValue;
+      }
+    }
     else {
       // Standard case: target and actual from same category
       const catData = filterByCategory(filteredByAssessor, kpi.category);
