@@ -40,7 +40,7 @@ export const KPI_WEIGHTS: Record<string, number> = {
 // Note: Receita is special - target comes from PJ1 XP Mês + PJ2 XP Mês
 export const KPI_CATEGORIES = [
   { category: "Captação net", label: "Captação NET", isCurrency: true },
-  { category: "Receita", label: "Receita XP", isCurrency: true, isSpecial: true, targetCategories: ["PJ1 XP Mês", "PJ2 XP Mês"] },
+  { category: "Receita", label: "Receita XP", isCurrency: true, isSpecial: true, targetCategories: ["PJ1 XP Mês", "PJ2 XP Mês"], additionalActualCategory: "Receita Empilhada" },
   { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
   { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
   { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
@@ -731,7 +731,18 @@ export function processDashboardData(
       value = selectedMonth !== "all"
         ? getMonthValue(realizedData, selectedMonth)
         : realizedData.reduce((s, d) => s + d.total, 0);
-    } 
+        
+      // If there's an additional category (e.g., Receita Empilhada), add it to the realized value
+      if ((kpi as any).additionalActualCategory) {
+        const additionalCategory = (kpi as any).additionalActualCategory as string;
+        const additionalData = filterByCategory(filteredByAssessor, additionalCategory);
+        const additionalRealizedData = additionalData.filter(d => isRealizedStatus(d.status));
+        const additionalValue = selectedMonth !== "all"
+          ? getMonthValue(additionalRealizedData, selectedMonth)
+          : additionalRealizedData.reduce((s, d) => s + d.total, 0);
+        value += additionalValue;
+      }
+    }
     // Special case for PJ1/PJ2: target from "PJ1 XP Mês"/"PJ2 XP Mês", actual from "PJ1 XP"/"PJ2 XP"
     else if ((kpi as any).isSpecial && (kpi as any).actualCategory) {
       const actualCategory = (kpi as any).actualCategory as string;
