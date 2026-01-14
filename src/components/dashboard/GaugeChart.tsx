@@ -168,8 +168,12 @@ export function GaugeChart({
                 strokeWidth={dynamicStrokeWidth} 
                 strokeLinecap="round" 
                 strokeDasharray={circumference} 
-                strokeDashoffset={circumference - baseProgress - additionalProgress} 
-                style={{ transition: "stroke-dashoffset 0.5s ease-out" }} 
+                strokeDashoffset={circumference - additionalProgress}
+                style={{ 
+                  transition: "stroke-dashoffset 0.5s ease-out, transform 0.5s ease-out",
+                  transformOrigin: `${dynamicWidth / 2}px ${dynamicHeight}px`,
+                  transform: `rotate(${(clampedBasePercentage / 100) * 180}deg)`
+                }} 
               />
             )}
             
