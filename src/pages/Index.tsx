@@ -4,6 +4,7 @@ import { ICMCard } from "@/components/dashboard/ICMCard";
 import { MetaTable } from "@/components/dashboard/MetaTable";
 import { AssessorChart } from "@/components/dashboard/AssessorChart";
 import { GaugeChart } from "@/components/dashboard/GaugeChart";
+import { FlipGaugeChart } from "@/components/dashboard/FlipGaugeChart";
 import { AgendadasCard } from "@/components/dashboard/AgendadasCard";
 import { YearlyICMCard } from "@/components/dashboard/YearlyICMCard";
 import { YearlyMetaTable } from "@/components/dashboard/YearlyMetaTable";
@@ -19,6 +20,7 @@ import {
   processDashboardData,
   calculateAssessorRemainingForKPI,
   calculateAssessorAgendadasForKPI,
+  calculateAssessorReceitaEmpilhada,
 } from "@/lib/kpiUtils";
 import { 
   processYearlyDashboardData, 
@@ -174,6 +176,12 @@ const Index = () => {
   // Calculate assessor agendadas data for TV mode (graph 3)
   const assessorAgendadas = useMemo(
     () => calculateAssessorAgendadasForKPI(processedData, filters.month),
+    [processedData, filters.month]
+  );
+
+  // Calculate receita empilhada data for graph 7 flip card
+  const assessorReceitaEmpilhada = useMemo(
+    () => calculateAssessorReceitaEmpilhada(processedData, filters.month),
     [processedData, filters.month]
   );
 
@@ -491,7 +499,7 @@ const Index = () => {
                               />
                             )}
                             {visibility.graph7 && (
-                              <GaugeChart
+                              <FlipGaugeChart
                                 label={dashboardData.gaugeKPIs[6]?.label}
                                 value={dashboardData.gaugeKPIs[6]?.value}
                                 target={dashboardData.gaugeKPIs[6]?.target}
@@ -502,6 +510,8 @@ const Index = () => {
                                 size="sm"
                                 showRemaining={true}
                                 ritmoIdeal={dashboardData.ritmoIdeal}
+                                backTitle="Receita Empilhada"
+                                backData={assessorReceitaEmpilhada}
                               />
                             )}
                           </div>
