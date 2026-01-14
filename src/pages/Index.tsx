@@ -510,6 +510,7 @@ const Index = () => {
                                 size="sm"
                                 showRemaining={true}
                                 ritmoIdeal={dashboardData.ritmoIdeal}
+                                additionalValue={dashboardData.gaugeKPIs[6]?.additionalValue}
                                 backTitle="Receita Empilhada"
                                 backData={assessorReceitaEmpilhada}
                               />

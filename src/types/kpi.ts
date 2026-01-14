@@ -40,6 +40,8 @@ export interface GaugeKPI {
   secondaryValue?: number;
   secondaryPercentage?: number;
   secondaryLabel?: string;
+  // Additional value for segmented bar visualization (e.g., Receita Empilhada in PJ2 XP)
+  additionalValue?: number;
 }
 
 export interface AssessorPerformance {
