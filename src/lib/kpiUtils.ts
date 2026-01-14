@@ -712,8 +712,9 @@ export function processDashboardData(
 
   // Gauge KPIs
   const gaugeKPIs: GaugeKPI[] = KPI_CATEGORIES.map(kpi => {
-    let target: number;
-    let value: number;
+    let target: number = 0;
+    let value: number = 0;
+    let additionalValueForGauge = 0;
 
     // Special case for Receita: target comes from PJ1 XP Mês + PJ2 XP Mês
     if ((kpi as any).isSpecial && (kpi as any).targetCategories) {
@@ -737,17 +738,15 @@ export function processDashboardData(
         const additionalCategory = (kpi as any).additionalActualCategory as string;
         const additionalData = filterByCategory(filteredByAssessor, additionalCategory);
         const additionalRealizedData = additionalData.filter(d => isRealizedStatus(d.status));
-        const additionalValue = selectedMonth !== "all"
+        additionalValueForGauge = selectedMonth !== "all"
           ? getMonthValue(additionalRealizedData, selectedMonth)
           : additionalRealizedData.reduce((s, d) => s + d.total, 0);
-        value += additionalValue;
+        value += additionalValueForGauge;
       }
     }
     // Special case for PJ1/PJ2: target from "PJ1 XP Mês"/"PJ2 XP Mês", actual from "PJ1 XP"/"PJ2 XP"
     // Also tracks additionalValue separately for segmented bar visualization
-    let additionalValueForGauge = 0;
-    
-    if ((kpi as any).isSpecial && (kpi as any).actualCategory) {
+    else if ((kpi as any).isSpecial && (kpi as any).actualCategory) {
       const actualCategory = (kpi as any).actualCategory as string;
       
       // Target comes from category (e.g., "PJ1 XP Mês") with Planejado Mês
