@@ -558,7 +558,8 @@ export function calculateAssessorRemainingForKPI(
   category: string,
   month: string,
   targetCategories?: string[],
-  actualCategory?: string
+  actualCategory?: string,
+  additionalActualCategory?: string
 ): AssessorRemainingData[] {
   if (!data || data.length === 0 || month === "all") {
     return [];
@@ -590,7 +591,14 @@ export function calculateAssessorRemainingForKPI(
     const actualCat = actualCategory || category;
     const catData = filterByCategory(assessorData, actualCat);
     const realizedData = catData.filter(d => isRealizedStatus(d.status));
-    const value = getMonthValue(realizedData, month);
+    let value = getMonthValue(realizedData, month);
+
+    // Add additional category value (e.g., Receita Empilhada for Receita XP)
+    if (additionalActualCategory) {
+      const additionalData = filterByCategory(assessorData, additionalActualCategory);
+      const additionalRealizedData = additionalData.filter(d => isRealizedStatus(d.status));
+      value += getMonthValue(additionalRealizedData, month);
+    }
 
     const remaining = Math.max(target - value, 0);
     const achieved = target > 0 && value >= target;

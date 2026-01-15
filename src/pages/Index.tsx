@@ -168,7 +168,9 @@ const Index = () => {
       processedData, 
       "Receita", 
       filters.month, 
-      ["PJ1 XP Mês", "PJ2 XP Mês"]  // Target from these categories
+      ["PJ1 XP Mês", "PJ2 XP Mês"],  // Target from these categories
+      undefined,                      // actualCategory (uses category default)
+      "Receita Empilhada"             // additionalActualCategory
     ),
     [processedData, filters.month]
   );
