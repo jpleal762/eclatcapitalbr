@@ -55,9 +55,6 @@ export function FlipGaugeChart({
     setIsFlipped(!isFlipped);
   };
 
-  // Calculate total for back
-  const backTotal = backData.reduce((sum, item) => sum + item.value, 0);
-
   return (
     <div 
       className="relative h-full cursor-pointer perspective-1000"
@@ -105,16 +102,8 @@ export function FlipGaugeChart({
               </div>
             </div>
             
-            {/* Total */}
-            <div className="mb-1 pb-1 border-b border-border">
-              <p className="text-[8px] text-muted-foreground">Total</p>
-              <p className="text-[11px] font-bold text-foreground">
-                {formatNumber(backTotal, true)}
-              </p>
-            </div>
-            
             {/* Lista de assessores */}
-            <div className="flex-1 overflow-y-auto min-h-0">
+            <div className="flex-1 min-h-0">
               <div className="space-y-0.5">
                 {backData.length > 0 ? (
                   backData.map((item, idx) => (
@@ -137,11 +126,6 @@ export function FlipGaugeChart({
                 )}
               </div>
             </div>
-            
-            {/* Instrução */}
-            <p className="text-[8px] text-muted-foreground text-center mt-1 flex-shrink-0">
-              Clique para voltar
-            </p>
           </Card>
         </div>
       </div>
