@@ -2,7 +2,7 @@ import { AlertTriangle, CheckCircle, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
 import { useResponsiveSize } from "@/hooks/use-responsive-size";
-
+import { useTheme } from "next-themes";
 export interface AssessorRemainingItem {
   name: string;
   remaining: number;
@@ -100,6 +100,7 @@ export function GaugeChart({
   showAssessorList = false,
   additionalValue
 }: GaugeChartProps) {
+  const { theme } = useTheme();
   const {
     scale
   } = useResponsiveSize();
@@ -137,6 +138,33 @@ export function GaugeChart({
   const progress = clampedPercentage / 100 * circumference;
   
   const isHighlight = variant === "highlight";
+
+  // Ritmo ideal marker calculations
+  const ritmoIdealAngle = ritmoIdeal !== undefined 
+    ? Math.PI - (ritmoIdeal / 100) * Math.PI 
+    : 0;
+  const centerX = dynamicWidth / 2;
+  const centerY = dynamicHeight;
+  const markerInnerRadius = radius - dynamicStrokeWidth / 2 - 2;
+  const markerOuterRadius = radius + dynamicStrokeWidth / 2 + 2;
+
+  const markerX1 = centerX + Math.cos(ritmoIdealAngle) * markerInnerRadius;
+  const markerY1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
+  const markerX2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
+  const markerY2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
+
+  // Triangle (arrow) for ritmo ideal marker
+  const triangleSize = 4 * dynamicScale;
+  const perpAngle = ritmoIdealAngle + Math.PI / 2;
+  const tipX = markerX2;
+  const tipY = markerY2;
+  const baseX1 = markerX2 - Math.cos(ritmoIdealAngle) * triangleSize + Math.cos(perpAngle) * triangleSize * 0.6;
+  const baseY1 = markerY2 + Math.sin(ritmoIdealAngle) * triangleSize - Math.sin(perpAngle) * triangleSize * 0.6;
+  const baseX2 = markerX2 - Math.cos(ritmoIdealAngle) * triangleSize - Math.cos(perpAngle) * triangleSize * 0.6;
+  const baseY2 = markerY2 + Math.sin(ritmoIdealAngle) * triangleSize + Math.sin(perpAngle) * triangleSize * 0.6;
+
+  // Marker color - dark gray in light mode, light gray in dark mode
+  const markerColor = theme === "dark" ? "#D1D5DB" : "#4B5563";
   return <Card className={`p-responsive shadow-card h-full flex flex-col ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
       <div className={`flex ${showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 ? 'flex-row gap-3' : 'flex-col'} flex-1 min-h-0`}>
         {/* Gauge Container */}
@@ -197,6 +225,23 @@ export function GaugeChart({
               }} 
             />
             
+            {/* Ritmo Ideal marker - linha + seta triangular */}
+            {ritmoIdeal !== undefined && (
+              <>
+                <line 
+                  x1={markerX1} 
+                  y1={markerY1} 
+                  x2={markerX2} 
+                  y2={markerY2} 
+                  stroke={markerColor} 
+                  strokeWidth={2 * dynamicScale} 
+                />
+                <polygon 
+                  points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} 
+                  fill={markerColor} 
+                />
+              </>
+            )}
           </svg>
 
           {/* Center content */}
