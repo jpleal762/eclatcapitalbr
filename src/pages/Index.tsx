@@ -422,7 +422,6 @@ const Index = () => {
                             percentage={dashboardData.gaugeKPIs[0]?.percentage}
                             isCurrency={dashboardData.gaugeKPIs[0]?.isCurrency}
                             warning={dashboardData.gaugeKPIs[0]?.warning}
-                            statusIcon={dashboardData.gaugeKPIs[0]?.statusIcon}
                             size="lg"
                             showRemaining={true}
                             ritmoIdeal={dashboardData.ritmoIdeal}
@@ -440,7 +439,6 @@ const Index = () => {
                                 percentage={dashboardData.gaugeKPIs[3]?.percentage}
                                 isCurrency={dashboardData.gaugeKPIs[3]?.isCurrency}
                                 warning={dashboardData.gaugeKPIs[3]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[3]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
                                 ritmoIdeal={dashboardData.ritmoIdeal}
@@ -454,7 +452,6 @@ const Index = () => {
                                 percentage={dashboardData.gaugeKPIs[4]?.percentage}
                                 isCurrency={dashboardData.gaugeKPIs[4]?.isCurrency}
                                 warning={dashboardData.gaugeKPIs[4]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[4]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
                                 ritmoIdeal={dashboardData.ritmoIdeal}
@@ -476,7 +473,6 @@ const Index = () => {
                             percentage={dashboardData.gaugeKPIs[1]?.percentage}
                             isCurrency={dashboardData.gaugeKPIs[1]?.isCurrency}
                             warning={dashboardData.gaugeKPIs[1]?.warning}
-                            statusIcon={dashboardData.gaugeKPIs[1]?.statusIcon}
                             size="lg"
                             showRemaining={true}
                             ritmoIdeal={dashboardData.ritmoIdeal}
@@ -494,7 +490,6 @@ const Index = () => {
                                 percentage={dashboardData.gaugeKPIs[5]?.percentage}
                                 isCurrency={dashboardData.gaugeKPIs[5]?.isCurrency}
                                 warning={dashboardData.gaugeKPIs[5]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[5]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
                                 ritmoIdeal={dashboardData.ritmoIdeal}
@@ -508,7 +503,6 @@ const Index = () => {
                                 percentage={dashboardData.gaugeKPIs[6]?.percentage}
                                 isCurrency={dashboardData.gaugeKPIs[6]?.isCurrency}
                                 warning={dashboardData.gaugeKPIs[6]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[6]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
                                 ritmoIdeal={dashboardData.ritmoIdeal}
@@ -535,7 +529,6 @@ const Index = () => {
                             percentage={dashboardData.gaugeKPIs[2]?.percentage}
                             isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
                             warning={dashboardData.gaugeKPIs[2]?.warning}
-                            statusIcon={dashboardData.gaugeKPIs[2]?.statusIcon}
                             size="lg"
                             showRemaining={true}
                             ritmoIdeal={dashboardData.ritmoIdeal}
@@ -551,7 +544,6 @@ const Index = () => {
                                 percentage={dashboardData.gaugeKPIs[7]?.percentage}
                                 isCurrency={dashboardData.gaugeKPIs[7]?.isCurrency}
                                 warning={dashboardData.gaugeKPIs[7]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[7]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
                                 ritmoIdeal={dashboardData.ritmoIdeal}
@@ -565,7 +557,6 @@ const Index = () => {
                                 percentage={dashboardData.gaugeKPIs[8]?.percentage}
                                 isCurrency={dashboardData.gaugeKPIs[8]?.isCurrency}
                                 warning={dashboardData.gaugeKPIs[8]?.warning}
-                                statusIcon={dashboardData.gaugeKPIs[8]?.statusIcon}
                                 size="sm"
                                 showRemaining={true}
                                 ritmoIdeal={dashboardData.ritmoIdeal}
