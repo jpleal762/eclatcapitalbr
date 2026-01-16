@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { GaugeChart } from "./GaugeChart";
 import { formatNumber } from "@/lib/kpiUtils";
@@ -30,6 +30,9 @@ interface FlipGaugeChartProps {
   // Props para o verso
   backTitle: string;
   backData: FlipBackData[];
+  // Auto-flip props
+  autoFlip?: boolean;
+  autoFlipInterval?: number;
 }
 
 export function FlipGaugeChart({
@@ -48,11 +51,47 @@ export function FlipGaugeChart({
   additionalValue,
   backTitle,
   backData,
+  autoFlip = false,
+  autoFlipInterval = 30000,
 }: FlipGaugeChartProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Função para iniciar o auto-flip
+  const startAutoFlip = useCallback(() => {
+    if (!autoFlip) return;
+    
+    // Limpar interval anterior se existir
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
+    // Criar novo interval
+    intervalRef.current = setInterval(() => {
+      setIsFlipped(prev => !prev);
+    }, autoFlipInterval);
+  }, [autoFlip, autoFlipInterval]);
+
+  // Iniciar auto-flip quando componente monta
+  useEffect(() => {
+    startAutoFlip();
+    
+    // Cleanup ao desmontar
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [startAutoFlip]);
+
+  // Handler para flip manual
   const handleFlip = () => {
-    setIsFlipped(!isFlipped);
+    setIsFlipped(prev => !prev);
+    
+    // Se auto-flip está ativo, reiniciar o timer
+    if (autoFlip) {
+      startAutoFlip();
+    }
   };
 
   return (

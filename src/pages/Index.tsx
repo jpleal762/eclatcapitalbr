@@ -515,6 +515,8 @@ const Index = () => {
                                 additionalValue={dashboardData.gaugeKPIs[6]?.additionalValue}
                                 backTitle="Receita Empilhada"
                                 backData={assessorReceitaEmpilhada}
+                                autoFlip={true}
+                                autoFlipInterval={30000}
                               />
                             )}
                           </div>
