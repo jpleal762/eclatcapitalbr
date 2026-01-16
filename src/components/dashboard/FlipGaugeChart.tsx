@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { GaugeChart } from "./GaugeChart";
 import { formatNumber } from "@/lib/kpiUtils";
-import { KPIStatusIcon } from "@/types/kpi";
 import { RotateCcw } from "lucide-react";
 import type { AssessorRemainingItem } from "./GaugeChart";
 
@@ -20,7 +19,6 @@ interface FlipGaugeChartProps {
   isCurrency?: boolean;
   warning?: boolean;
   size?: "sm" | "md" | "lg";
-  statusIcon?: KPIStatusIcon;
   showRemaining?: boolean;
   ritmoIdeal?: number;
   assessorRemainingData?: AssessorRemainingItem[];
@@ -43,7 +41,6 @@ export function FlipGaugeChart({
   isCurrency = false,
   warning = false,
   size = "md",
-  statusIcon,
   showRemaining = false,
   ritmoIdeal,
   assessorRemainingData,
@@ -115,7 +112,6 @@ export function FlipGaugeChart({
               isCurrency={isCurrency}
               warning={warning}
               size={size}
-              statusIcon={statusIcon}
               showRemaining={showRemaining}
               ritmoIdeal={ritmoIdeal}
               assessorRemainingData={assessorRemainingData}

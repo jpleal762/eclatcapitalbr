@@ -1,9 +1,7 @@
 import { AlertTriangle, CheckCircle, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
-import { KPIStatusIcon } from "@/types/kpi";
 import { useResponsiveSize } from "@/hooks/use-responsive-size";
-import { useTheme } from "next-themes";
 
 export interface AssessorRemainingItem {
   name: string;
@@ -20,7 +18,6 @@ interface GaugeChartProps {
   warning?: boolean;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "highlight";
-  statusIcon?: KPIStatusIcon;
   showRemaining?: boolean;
   secondaryValue?: number;
   secondaryPercentage?: number;
@@ -31,26 +28,59 @@ interface GaugeChartProps {
   // Additional value for segmented bar visualization (e.g., Receita Empilhada)
   additionalValue?: number;
 }
-function StatusIconDisplay({
-  icon,
-  size
-}: {
-  icon?: KPIStatusIcon;
-  size: "sm" | "md" | "lg";
-}) {
-  if (!icon) return null;
-  switch (icon) {
-    case "GREEN_CHECK":
-      return <CheckCircle className="icon-responsive text-green-500 animate-pulse" />;
-    case "CLOCK":
-      return;
-    case "YELLOW_ALERT":
-      return <AlertTriangle className="icon-responsive text-yellow-500 animate-pulse" />;
-    case "RED_ALERT":
-      return;
-    default:
-      return null;
+// Determina o alerta baseado na performance vs ritmo ideal
+const getGaugeAlert = (currentPercentage: number, ritmoIdeal?: number): "GREEN" | "ORANGE" | "RED" | undefined => {
+  if (ritmoIdeal === undefined) return undefined;
+  
+  if (currentPercentage >= ritmoIdeal) {
+    return "GREEN";
   }
+  
+  const percentageBelowIdeal = ((ritmoIdeal - currentPercentage) / ritmoIdeal) * 100;
+  
+  if (percentageBelowIdeal > 50) {
+    return "RED";
+  }
+  
+  return "ORANGE";
+};
+
+function RitmoAlertDisplay({
+  alertType,
+  difference,
+  isCurrency
+}: {
+  alertType?: "GREEN" | "ORANGE" | "RED";
+  difference?: number;
+  isCurrency?: boolean;
+}) {
+  if (!alertType) return null;
+  
+  const showDifference = difference !== undefined && difference < 0;
+  
+  const iconElement = (() => {
+    switch (alertType) {
+      case "GREEN":
+        return <CheckCircle className="icon-responsive text-green-500" />;
+      case "ORANGE":
+        return <AlertTriangle className="icon-responsive text-orange-500 animate-pulse" />;
+      case "RED":
+        return <AlertTriangle className="icon-responsive text-red-500 animate-pulse" />;
+      default:
+        return null;
+    }
+  })();
+
+  return (
+    <div className="flex flex-col items-center">
+      {iconElement}
+      {showDifference && (
+        <span className={`text-[8px] font-bold ${alertType === "RED" ? "text-red-500" : "text-orange-500"}`}>
+          {formatNumber(difference, isCurrency)}
+        </span>
+      )}
+    </div>
+  );
 }
 export function GaugeChart({
   label,
@@ -61,7 +91,6 @@ export function GaugeChart({
   warning = false,
   size = "md",
   variant = "default",
-  statusIcon,
   showRemaining = false,
   secondaryValue,
   secondaryPercentage,
@@ -72,10 +101,8 @@ export function GaugeChart({
   additionalValue
 }: GaugeChartProps) {
   const {
-    height,
     scale
   } = useResponsiveSize();
-  const { theme } = useTheme();
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   const remainingValue = Math.max(target - value, 0);
 
@@ -84,29 +111,16 @@ export function GaugeChart({
   const dynamicScale = Math.max(0.6, Math.min(scale * baseMultiplier, 1.5));
   const dynamicWidth = Math.round(160 * dynamicScale);
   const dynamicHeight = Math.round(90 * dynamicScale);
-  const dynamicStrokeWidth = Math.round(21 * dynamicScale); // +50% thickness
-  const clockPadding = Math.round(20 * dynamicScale); // Extra space for clock icons
+  const dynamicStrokeWidth = Math.round(21 * dynamicScale);
 
-  // Function to get clock style based on performance
-  const getClockStyle = (currentValue: number, idealValue: number) => {
-    const percentageBelowIdeal = idealValue > 0 ? (idealValue - currentValue) / idealValue * 100 : 0;
-    if (currentValue >= idealValue) {
-      return {
-        color: 'hsl(142.1, 76.2%, 36.3%)',
-        animate: false
-      }; // green-500
-    } else if (percentageBelowIdeal > 50) {
-      return {
-        color: 'hsl(0, 72.2%, 50.6%)',
-        animate: true
-      }; // red-500
-    } else {
-      return {
-        color: 'hsl(47.9, 95.8%, 53.1%)',
-        animate: true
-      }; // yellow-500
-    }
-  };
+  // Calcular alerta e diferença para o ritmo ideal
+  const ritmoIdealValue = ritmoIdeal !== undefined && target > 0 
+    ? Math.round(ritmoIdeal / 100 * target * 100) / 100 
+    : undefined;
+  const ritmoIdealDifference = ritmoIdealValue !== undefined 
+    ? Math.round((value - ritmoIdealValue) * 100) / 100 
+    : undefined;
+  const alertType = getGaugeAlert(percentage, ritmoIdeal);
   const radius = (dynamicWidth - dynamicStrokeWidth) / 2;
   const circumference = Math.PI * radius;
   
@@ -132,16 +146,20 @@ export function GaugeChart({
               {label}
             </h4>
             <div className="flex-shrink-0 ml-1">
-              <StatusIconDisplay icon={statusIcon} size={size} />
+              <RitmoAlertDisplay 
+                alertType={alertType} 
+                difference={ritmoIdealDifference}
+                isCurrency={isCurrency}
+              />
             </div>
           </div>
 
         {/* Dynamic SVG gauge */}
         <div className="relative flex-shrink-0" style={{
-        width: dynamicWidth + clockPadding * 2,
-        height: dynamicHeight + clockPadding
+        width: dynamicWidth,
+        height: dynamicHeight
       }}>
-          <svg width={dynamicWidth + clockPadding * 2} height={dynamicHeight + clockPadding} viewBox={`${-clockPadding} ${-clockPadding} ${dynamicWidth + clockPadding * 2} ${dynamicHeight + clockPadding}`} overflow="visible">
+          <svg width={dynamicWidth} height={dynamicHeight} viewBox={`0 0 ${dynamicWidth} ${dynamicHeight}`} overflow="visible">
             {/* Background arc */}
             <path d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
                   A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} fill="none" stroke={isHighlight ? "hsl(0, 0%, 50%)" : "hsl(var(--muted))"} strokeWidth={dynamicStrokeWidth} strokeLinecap="round" />
@@ -179,60 +197,6 @@ export function GaugeChart({
               }} 
             />
             
-            {/* Ritmo Ideal marker - integrated in main SVG */}
-            {ritmoIdeal !== undefined && (() => {
-              const ritmoIdealAngle = Math.PI - ritmoIdeal / 100 * Math.PI;
-              const centerX = dynamicWidth / 2;
-              const centerY = dynamicHeight;
-              const markerInnerRadius = radius - dynamicStrokeWidth / 2 - 2;
-              const markerOuterRadius = radius + dynamicStrokeWidth / 2 + 2;
-              const ritmoIdealValue = Math.round(ritmoIdeal / 100 * target * 100) / 100;
-              const realDifference = Math.round((value - ritmoIdealValue) * 100) / 100;
-              const differenceText = realDifference >= 0 ? `+${formatNumber(realDifference, isCurrency)}` : formatNumber(realDifference, isCurrency);
-              const x1 = centerX + Math.cos(ritmoIdealAngle) * markerInnerRadius;
-              const y1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
-              const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
-              const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
-
-              const clockOffset = (dynamicStrokeWidth / 2) + 6 * dynamicScale;
-              const clockX = centerX + Math.cos(ritmoIdealAngle) * (radius + clockOffset);
-              const clockY = centerY - Math.sin(ritmoIdealAngle) * (radius + clockOffset);
-              const triangleSize = 4 * dynamicScale;
-              const perpAngle = ritmoIdealAngle + Math.PI / 2;
-              const tipX = x2;
-              const tipY = y2;
-              const baseX1 = x2 - Math.cos(ritmoIdealAngle) * triangleSize + Math.cos(perpAngle) * triangleSize * 0.6;
-              const baseY1 = y2 + Math.sin(ritmoIdealAngle) * triangleSize - Math.sin(perpAngle) * triangleSize * 0.6;
-              const baseX2 = x2 - Math.cos(ritmoIdealAngle) * triangleSize - Math.cos(perpAngle) * triangleSize * 0.6;
-              const baseY2 = y2 + Math.sin(ritmoIdealAngle) * triangleSize + Math.sin(perpAngle) * triangleSize * 0.6;
-              
-              const markerColor = theme === "dark" ? "#D1D5DB" : "#4B5563";
-              const clockStyle = getClockStyle(percentage, ritmoIdeal);
-              const showDifference = percentage < ritmoIdeal;
-              
-              return (
-                <g style={{ transition: 'all 0.5s ease-out' }}>
-                  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={markerColor} strokeWidth={2 * dynamicScale} />
-                  <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={markerColor} />
-                  
-                  {/* Clock icon at marker */}
-                  <g transform={`translate(${clockX}, ${clockY})`} className={clockStyle.animate ? 'animate-pulse-clock' : ''}>
-                    <circle r={9 * dynamicScale} fill="rgba(0,0,0,0.15)" />
-                    <circle r={8 * dynamicScale} fill={clockStyle.color} />
-                    <circle r={6 * dynamicScale} fill="none" stroke="white" strokeWidth={1 * dynamicScale} />
-                    <line x1={0} y1={0} x2={0} y2={-3.5 * dynamicScale} stroke="white" strokeWidth={1 * dynamicScale} strokeLinecap="round" />
-                    <line x1={0} y1={0} x2={2.5 * dynamicScale} y2={0} stroke="white" strokeWidth={1 * dynamicScale} strokeLinecap="round" />
-                    <circle r={0.8 * dynamicScale} fill="white" />
-                    
-                    {showDifference && (
-                      <text x={0} y={16 * dynamicScale} textAnchor="middle" fill={clockStyle.color} fontSize={10 * dynamicScale} fontWeight="bold" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
-                        {differenceText}
-                      </text>
-                    )}
-                  </g>
-                </g>
-              );
-            })()}
           </svg>
 
           {/* Center content */}
