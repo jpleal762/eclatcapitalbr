@@ -419,7 +419,17 @@ export function calculateICMGeral(data: ProcessedKPI[], month: string): number {
     const realizedData = catData.filter(d => isRealizedStatus(d.status));
 
     const target = month !== "all" ? getMonthValue(plannedData, month) : plannedData.reduce((s, d) => s + d.total, 0);
-    const actual = month !== "all" ? getMonthValue(realizedData, month) : realizedData.reduce((s, d) => s + d.total, 0);
+    let actual = month !== "all" ? getMonthValue(realizedData, month) : realizedData.reduce((s, d) => s + d.total, 0);
+
+    // Verificar se há additionalActualCategory para esta categoria (ex: Receita Empilhada)
+    const kpiConfig = KPI_CATEGORIES.find(k => k.category === category);
+    if (kpiConfig?.additionalActualCategory) {
+      const additionalData = filterByCategory(data, kpiConfig.additionalActualCategory);
+      const additionalRealizedData = additionalData.filter(d => isRealizedStatus(d.status));
+      actual += month !== "all" 
+        ? getMonthValue(additionalRealizedData, month) 
+        : additionalRealizedData.reduce((s, d) => s + d.total, 0);
+    }
 
     if (target > 0) {
       const rawAchievementPct = (actual / target) * 100;
@@ -447,9 +457,19 @@ export function calculateICMSemanal(data: ProcessedKPI[], month: string): number
     const targetWeek = month !== "all" 
       ? getMonthValue(plannedWeekData, month) 
       : plannedWeekData.reduce((s, d) => s + d.total, 0);
-    const actual = month !== "all" 
+    let actual = month !== "all" 
       ? getMonthValue(realizedData, month) 
       : realizedData.reduce((s, d) => s + d.total, 0);
+
+    // Verificar se há additionalActualCategory para esta categoria (ex: Receita Empilhada)
+    const kpiConfig = KPI_CATEGORIES.find(k => k.category === category);
+    if (kpiConfig?.additionalActualCategory) {
+      const additionalData = filterByCategory(data, kpiConfig.additionalActualCategory);
+      const additionalRealizedData = additionalData.filter(d => isRealizedStatus(d.status));
+      actual += month !== "all" 
+        ? getMonthValue(additionalRealizedData, month) 
+        : additionalRealizedData.reduce((s, d) => s + d.total, 0);
+    }
 
     if (targetWeek > 0) {
       const rawAchievementPct = (actual / targetWeek) * 100;
@@ -478,8 +498,18 @@ export function calculateICMRitmo(data: ProcessedKPI[], month: string): number {
     const realizedData = catData.filter(d => isRealizedStatus(d.status));
 
     const target = month !== "all" ? getMonthValue(plannedData, month) : plannedData.reduce((s, d) => s + d.total, 0);
-    const actual = month !== "all" ? getMonthValue(realizedData, month) : realizedData.reduce((s, d) => s + d.total, 0);
+    let actual = month !== "all" ? getMonthValue(realizedData, month) : realizedData.reduce((s, d) => s + d.total, 0);
     
+    // Verificar se há additionalActualCategory para esta categoria (ex: Receita Empilhada)
+    const kpiConfig = KPI_CATEGORIES.find(k => k.category === category);
+    if (kpiConfig?.additionalActualCategory) {
+      const additionalData = filterByCategory(data, kpiConfig.additionalActualCategory);
+      const additionalRealizedData = additionalData.filter(d => isRealizedStatus(d.status));
+      actual += month !== "all" 
+        ? getMonthValue(additionalRealizedData, month) 
+        : additionalRealizedData.reduce((s, d) => s + d.total, 0);
+    }
+
     const expectedAtPace = target * paceRatio;
 
     if (expectedAtPace > 0) {
