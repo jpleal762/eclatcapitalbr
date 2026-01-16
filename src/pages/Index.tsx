@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ICMCard } from "@/components/dashboard/ICMCard";
-import { MetaTable } from "@/components/dashboard/MetaTable";
+import { FlipMetaTable } from "@/components/dashboard/FlipMetaTable";
 import { AssessorChart } from "@/components/dashboard/AssessorChart";
 import { GaugeChart } from "@/components/dashboard/GaugeChart";
 import { FlipGaugeChart } from "@/components/dashboard/FlipGaugeChart";
@@ -386,7 +386,7 @@ const Index = () => {
                       </div>
                     )}
                     {visibility.card2 && (
-                      <MetaTable
+                      <FlipMetaTable
                         data={dashboardData.metaSemanal}
                         realPercentage={dashboardData.metaSemanalReal}
                         selectedAssessor={filters.assessor}
