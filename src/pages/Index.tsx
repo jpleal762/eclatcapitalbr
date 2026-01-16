@@ -391,6 +391,8 @@ const Index = () => {
                         realPercentage={dashboardData.metaSemanalReal}
                         selectedAssessor={filters.assessor}
                         weekToMonthPercentage={dashboardData.metaSemanalPercentage}
+                        autoFlip={true}
+                        autoFlipInterval={30000}
                       />
                     )}
                     {visibility.card3 && (
