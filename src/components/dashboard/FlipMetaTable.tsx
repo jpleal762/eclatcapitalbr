@@ -9,9 +9,8 @@ interface FlipMetaTableProps {
   realPercentage: number;
   selectedAssessor?: string;
   weekToMonthPercentage?: number;
-  // Auto-flip props
-  autoFlip?: boolean;
-  autoFlipInterval?: number;
+  // Sync tick prop for synchronized flipping
+  syncTick?: number;
 }
 
 export function FlipMetaTable({
@@ -19,11 +18,9 @@ export function FlipMetaTable({
   realPercentage,
   selectedAssessor,
   weekToMonthPercentage,
-  autoFlip = false,
-  autoFlipInterval = 30000,
+  syncTick,
 }: FlipMetaTableProps) {
   const [isFlipped, setIsFlipped] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Calculate remaining value for each KPI
   const getRemainingValue = (item: MetaSemanal): number => {
@@ -40,41 +37,16 @@ export function FlipMetaTable({
     return item.realizedValue >= targetValue;
   };
 
-  // Function to start auto-flip
-  const startAutoFlip = useCallback(() => {
-    if (!autoFlip) return;
-    
-    // Clear previous interval if exists
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-    
-    // Create new interval
-    intervalRef.current = setInterval(() => {
-      setIsFlipped(prev => !prev);
-    }, autoFlipInterval);
-  }, [autoFlip, autoFlipInterval]);
-
-  // Start auto-flip when component mounts
+  // Sync flip with global tick
   useEffect(() => {
-    startAutoFlip();
-    
-    // Cleanup on unmount
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [startAutoFlip]);
+    if (syncTick !== undefined && syncTick > 0) {
+      setIsFlipped(prev => !prev);
+    }
+  }, [syncTick]);
 
   // Handler for manual flip
   const handleFlip = () => {
     setIsFlipped(prev => !prev);
-    
-    // If auto-flip is active, restart the timer
-    if (autoFlip) {
-      startAutoFlip();
-    }
   };
 
   return (
