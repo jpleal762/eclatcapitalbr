@@ -18,25 +18,27 @@ function formatValue(value: number, isCurrency: boolean): string {
   return value.toLocaleString("pt-BR");
 }
 
-// Get color class based on percentage
-function getBarColor(percentage: number): string {
-  if (percentage >= 100) return "bg-green-500";
-  if (percentage >= 75) return "bg-yellow-500";
-  if (percentage >= 50) return "bg-orange-500";
+// Get color class based on percentage vs ritmo ideal
+function getBarColor(percentage: number, ritmoIdeal: number): string {
+  if (ritmoIdeal <= 0) return "bg-green-500"; // Trimestre futuro
+  
+  if (percentage >= ritmoIdeal) return "bg-green-500";
+  if (percentage >= ritmoIdeal * 0.5) return "bg-yellow-500";
   return "bg-red-500";
 }
 
-function getTextColor(percentage: number): string {
-  if (percentage >= 100) return "text-green-600 dark:text-green-400";
-  if (percentage >= 75) return "text-yellow-600 dark:text-yellow-400";
-  if (percentage >= 50) return "text-orange-600 dark:text-orange-400";
+function getTextColor(percentage: number, ritmoIdeal: number): string {
+  if (ritmoIdeal <= 0) return "text-green-600 dark:text-green-400"; // Trimestre futuro
+  
+  if (percentage >= ritmoIdeal) return "text-green-600 dark:text-green-400";
+  if (percentage >= ritmoIdeal * 0.5) return "text-yellow-600 dark:text-yellow-400";
   return "text-red-600 dark:text-red-400";
 }
 
 export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, ritmoIdeal }: QuarterlyKPIBarProps) {
   const barWidth = Math.min(percentage, 100);
-  const barColor = getBarColor(percentage);
-  const textColor = getTextColor(percentage);
+  const barColor = getBarColor(percentage, ritmoIdeal);
+  const textColor = getTextColor(percentage, ritmoIdeal);
 
   return (
     <div className="bg-card rounded-lg p-4 border border-border shadow-sm">
