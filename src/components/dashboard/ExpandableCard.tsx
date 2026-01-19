@@ -68,8 +68,8 @@ export function ExpandableCard({ children, className = "" }: ExpandableCardProps
         >
           {minimizeButton}
           <div 
-            className="h-[75%] w-[75%] [&>*]:h-full [&>*]:w-full"
-            style={{ transform: 'scale(1.3)', transformOrigin: 'center center' }}
+            className="h-[65%] w-[65%] [&>*]:h-full [&>*]:w-full"
+            style={{ transform: 'scale(1.5)', transformOrigin: 'center center' }}
           >
             {children}
           </div>
