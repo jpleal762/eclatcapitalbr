@@ -1,5 +1,5 @@
 import { ProcessedKPI } from "@/types/kpi";
-import { KPI_CATEGORIES } from "./kpiUtils";
+import { KPI_CATEGORIES, isBrazilianHoliday } from "./kpiUtils";
 
 // ============= MONTH MAPPING (English → Portuguese) =============
 const MONTH_MAP: Record<string, string> = {
@@ -27,11 +27,79 @@ const MONTH_MAP: Record<string, string> = {
 
 // ============= QUARTER DEFINITIONS =============
 export const QUARTERS = [
-  { label: "Q1 (Jan-Mar)", value: "Q1", months: ["jan", "fev", "mar"] },
-  { label: "Q2 (Abr-Jun)", value: "Q2", months: ["abr", "mai", "jun"] },
-  { label: "Q3 (Jul-Set)", value: "Q3", months: ["jul", "ago", "set"] },
-  { label: "Q4 (Out-Dez)", value: "Q4", months: ["out", "nov", "dez"] },
+  { label: "Q1 (Jan-Mar)", value: "Q1", months: ["jan", "fev", "mar"], startMonth: 0, endMonth: 2 },
+  { label: "Q2 (Abr-Jun)", value: "Q2", months: ["abr", "mai", "jun"], startMonth: 3, endMonth: 5 },
+  { label: "Q3 (Jul-Set)", value: "Q3", months: ["jul", "ago", "set"], startMonth: 6, endMonth: 8 },
+  { label: "Q4 (Out-Dez)", value: "Q4", months: ["out", "nov", "dez"], startMonth: 9, endMonth: 11 },
 ];
+
+// ============= QUARTERLY RHYTHM CALCULATION =============
+// Get first and last day of a quarter
+function getQuarterDateRange(year: number, quarter: string): { start: Date; end: Date } {
+  const quarterDef = QUARTERS.find(q => q.value === quarter);
+  if (!quarterDef) {
+    return { start: new Date(year, 0, 1), end: new Date(year, 2, 31) };
+  }
+  
+  const start = new Date(year, quarterDef.startMonth, 1);
+  const end = new Date(year, quarterDef.endMonth + 1, 0); // Last day of the month
+  
+  return { start, end };
+}
+
+// Calculate total business days in a quarter
+export function getTotalBusinessDaysInQuarter(year: number, quarter: string): number {
+  const { start, end } = getQuarterDateRange(year, quarter);
+  let businessDays = 0;
+  const current = new Date(start);
+  
+  while (current <= end) {
+    const dayOfWeek = current.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isBrazilianHoliday(current)) {
+      businessDays++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  
+  return businessDays;
+}
+
+// Calculate elapsed business days in a quarter
+export function getElapsedBusinessDaysInQuarter(year: number, quarter: string): number {
+  const now = new Date();
+  const { start, end } = getQuarterDateRange(year, quarter);
+  
+  // Quarter in the past → 100% elapsed
+  if (end < now) {
+    return getTotalBusinessDaysInQuarter(year, quarter);
+  }
+  
+  // Quarter in the future → 0% elapsed
+  if (start > now) {
+    return 0;
+  }
+  
+  // Current quarter → count up to today
+  let businessDays = 0;
+  const current = new Date(start);
+  
+  while (current <= now) {
+    const dayOfWeek = current.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isBrazilianHoliday(current)) {
+      businessDays++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  
+  return businessDays;
+}
+
+// Calculate quarterly ideal rhythm (percentage)
+export function calculateQuarterlyIdealRhythm(year: number, quarter: string): number {
+  const total = getTotalBusinessDaysInQuarter(year, quarter);
+  const elapsed = getElapsedBusinessDaysInQuarter(year, quarter);
+  return total > 0 ? Math.round((elapsed / total) * 100) : 0;
+}
 
 // ============= QUARTERLY KPI INTERFACE =============
 export interface QuarterlyKPI {
