@@ -97,14 +97,14 @@ export function AnalysisPage({ processedData, assessors, availableYears }: Analy
         </div>
       </Card>
 
-      {/* KPI Bars */}
+      {/* KPI Bars - Responsive layout without scroll on desktop/TV */}
       {hasData ? (
-        <div className="flex-1 overflow-auto">
-          <div className="grid gap-3 md:gap-4">
-            {quarterlyKPIs.map((kpi, index) => (
-              <QuarterlyKPIBar key={index} {...kpi} ritmoIdeal={ritmoIdeal} />
-            ))}
-          </div>
+        <div className="flex-1 min-h-0 flex flex-col gap-responsive-sm overflow-hidden lg:overflow-hidden overflow-y-auto">
+          {quarterlyKPIs.map((kpi, index) => (
+            <div key={index} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
+              <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
+            </div>
+          ))}
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center">

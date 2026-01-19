@@ -41,17 +41,17 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
   const textColor = getTextColor(percentage, ritmoIdeal);
 
   return (
-    <div className="bg-card rounded-lg p-4 border border-border shadow-sm">
+    <div className="bg-card rounded-lg p-responsive-sm lg:p-responsive h-full flex flex-col border border-border shadow-sm">
       {/* Label and percentage */}
-      <div className="flex justify-between items-center mb-2">
-        <span className="font-semibold text-foreground text-sm md:text-base">{label}</span>
-        <span className={`font-bold text-lg md:text-xl ${textColor}`}>
+      <div className="flex justify-between items-center mb-responsive">
+        <span className="font-semibold text-foreground text-responsive-xs">{label}</span>
+        <span className={`font-bold text-responsive-sm ${textColor}`}>
           {percentage}%
         </span>
       </div>
 
-      {/* Progress bar */}
-      <div className="relative h-6 md:h-8 bg-muted rounded-full overflow-hidden mb-2">
+      {/* Progress bar - takes available space */}
+      <div className="relative flex-1 min-h-[clamp(12px,1.5vh,24px)] bg-muted rounded-full overflow-hidden">
         <div
           className={`absolute left-0 top-0 h-full ${barColor} transition-all duration-500 ease-out rounded-full`}
           style={{ width: `${barWidth}%` }}
@@ -89,14 +89,14 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
       {/* Rhythm indicator below bar */}
       {ritmoIdeal > 0 && ritmoIdeal <= 100 && (
         <div 
-          className="relative h-3 mb-2"
+          className="relative h-[clamp(10px,1.2vh,16px)] mt-responsive"
           style={{ marginLeft: `${ritmoIdeal}%`, transform: "translateX(-50%)" }}
         >
           <div className="absolute flex flex-col items-center">
             {/* Triangle */}
-            <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[6px] border-b-blue-500" />
+            <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[5px] border-b-blue-500" />
             {/* Label */}
-            <span className="text-[10px] text-blue-500 font-medium whitespace-nowrap mt-0.5">
+            <span className="text-responsive-3xs text-blue-500 font-medium whitespace-nowrap">
               Ritmo {ritmoIdeal}%
             </span>
           </div>
@@ -104,7 +104,7 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
       )}
 
       {/* Values */}
-      <div className="flex justify-between items-center text-xs md:text-sm text-muted-foreground">
+      <div className="flex justify-between items-center text-responsive-2xs text-muted-foreground mt-responsive">
         <span>
           <span className="font-medium text-foreground">{formatValue(value, isCurrency)}</span>
           {" / "}
