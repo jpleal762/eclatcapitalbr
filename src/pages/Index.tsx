@@ -263,88 +263,58 @@ const Index = () => {
         )}
         
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
-          {/* Header - hidden in fullscreen */}
-          {!isFullscreen && (
-            <header className="bg-card border-b border-border shadow-sm flex-shrink-0">
-              <div className="container mx-auto px-4 py-2">
-                <div className="flex items-center justify-between">
-                  <div className="w-32 flex items-center gap-2">
+          {/* Header - always visible */}
+          <header className="bg-card border-b border-border shadow-sm flex-shrink-0">
+            <div className="container mx-auto px-4 py-2">
+              <div className="flex items-center justify-between">
+                <div className="w-32 flex items-center gap-2">
+                  {!isFullscreen && (
                     <SidebarTrigger className="p-2 hover:bg-muted rounded-md">
                       <Menu className="h-5 w-5" />
                     </SidebarTrigger>
-                  </div>
-                  <div className="flex-1 flex flex-col items-center">
-                    <img 
-                      src={resolvedTheme === 'dark' ? eclatLogoDark : eclatLogo} 
-                      alt="Éclat XP Logo" 
-                      className="h-8 object-contain"
+                  )}
+                </div>
+                <div className="flex-1 flex flex-col items-center">
+                  <img 
+                    src={resolvedTheme === 'dark' ? eclatLogoDark : eclatLogo} 
+                    alt="Éclat XP Logo" 
+                    className="h-8 object-contain"
+                  />
+                </div>
+                <div className="w-40 flex justify-end items-center gap-2">
+                  {/* Page Toggle Button */}
+                  {hasData && (
+                    <PageToggle 
+                      currentPage={currentPage} 
+                      onPageChange={setCurrentPage} 
                     />
-                    
-                  </div>
-                  <div className="w-40 flex justify-end items-center gap-2">
-                    {/* Page Toggle Button */}
-                    {hasData && (
-                      <PageToggle 
-                        currentPage={currentPage} 
-                        onPageChange={setCurrentPage} 
-                      />
-                    )}
-                    {/* Fullscreen Button */}
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => {
-                        if (!document.fullscreenElement) {
-                          document.documentElement.requestFullscreen?.();
-                          setIsFullscreen(true);
-                        } else {
-                          document.exitFullscreen?.();
-                          setIsFullscreen(false);
-                        }
-                      }}
-                      className="h-8 w-8"
-                      title="Modo Tela Cheia (F11)"
-                    >
-                      <Maximize2 className="h-4 w-4" />
-                    </Button>
-                    <ThemeToggle />
-                    {hasData && (
-                      <FileUpload onDataLoaded={handleDataLoaded} compact />
-                    )}
-                  </div>
+                  )}
+                  {/* Fullscreen Button */}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => {
+                      if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen?.();
+                        setIsFullscreen(true);
+                      } else {
+                        document.exitFullscreen?.();
+                        setIsFullscreen(false);
+                      }
+                    }}
+                    className="h-8 w-8"
+                    title="Modo Tela Cheia (F11)"
+                  >
+                    {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                  </Button>
+                  <ThemeToggle />
+                  {hasData && (
+                    <FileUpload onDataLoaded={handleDataLoaded} compact />
+                  )}
                 </div>
               </div>
-            </header>
-          )}
-
-          {/* Fullscreen controls */}
-          {isFullscreen && (
-            <>
-              {/* Logo no fullscreen - canto superior esquerdo */}
-              <div className="fixed top-2 left-2 z-50">
-                <img 
-                  src={resolvedTheme === 'dark' ? eclatLogoDark : eclatLogo} 
-                  alt="Éclat XP Logo" 
-                  className="h-8 object-contain"
-                />
-              </div>
-              {/* Botão sair - canto superior direito */}
-              <div className="fixed top-2 right-2 z-50 flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    document.exitFullscreen?.();
-                    setIsFullscreen(false);
-                  }}
-                  className="bg-background/80 backdrop-blur-sm"
-                >
-                  <Minimize2 className="w-4 h-4 mr-1" />
-                  Sair (F11)
-                </Button>
-              </div>
-            </>
-          )}
+            </div>
+          </header>
 
           <main className="flex-1 overflow-hidden px-4 py-3">
             {isLoading ? (
