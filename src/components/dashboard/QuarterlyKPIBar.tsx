@@ -52,6 +52,15 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency }
           className={`absolute left-0 top-0 h-full ${barColor} transition-all duration-500 ease-out rounded-full`}
           style={{ width: `${barWidth}%` }}
         />
+        {/* Month dividers (3 equal parts) */}
+        <div 
+          className="absolute top-0 h-full w-px bg-foreground/20"
+          style={{ left: "33.33%" }}
+        />
+        <div 
+          className="absolute top-0 h-full w-px bg-foreground/20"
+          style={{ left: "66.66%" }}
+        />
         {/* 100% marker */}
         {percentage < 100 && (
           <div 
