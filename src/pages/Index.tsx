@@ -75,6 +75,7 @@ const Index = () => {
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentPage, setCurrentPage] = useState<"dashboard" | "analysis">("dashboard");
+  const [flipTick, setFlipTick] = useState(0);
 
   // Fullscreen toggle with F11
   useEffect(() => {
@@ -236,6 +237,28 @@ const Index = () => {
 
   const hasData = rawData.length > 0;
 
+  // Auto-rotate between dashboard and analysis pages every 90 seconds
+  useEffect(() => {
+    if (!hasData) return;
+    
+    const interval = setInterval(() => {
+      setCurrentPage(prev => prev === "dashboard" ? "analysis" : "dashboard");
+    }, 90000); // 1 minuto e 30 segundos
+    
+    return () => clearInterval(interval);
+  }, [hasData]);
+
+  // Global flip tick - increments every 30 seconds to sync all flip cards
+  useEffect(() => {
+    if (!hasData) return;
+    
+    const interval = setInterval(() => {
+      setFlipTick(prev => prev + 1);
+    }, 30000); // 30 segundos
+    
+    return () => clearInterval(interval);
+  }, [hasData]);
+
   // Calculate grid columns based on visible top cards
   const visibleTopCards = [visibility.card1, visibility.card2, visibility.card3].filter(Boolean).length;
   const topGridCols = visibleTopCards === 3 ? "lg:grid-cols-3" : 
@@ -390,8 +413,7 @@ const Index = () => {
                           realPercentage={dashboardData.metaSemanalReal}
                           selectedAssessor={filters.assessor}
                           weekToMonthPercentage={dashboardData.metaSemanalPercentage}
-                          autoFlip={true}
-                          autoFlipInterval={30000}
+                          syncTick={flipTick}
                         />
                       </ExpandableCard>
                     )}
@@ -468,8 +490,7 @@ const Index = () => {
                                   backData={assessorRemainingParceiros
                                     .filter(a => !a.achieved)
                                     .map(a => ({ name: a.name, value: a.remaining }))}
-                                  autoFlip={true}
-                                  autoFlipInterval={30000}
+                                  syncTick={flipTick}
                                 />
                               </ExpandableCard>
                             )}
@@ -530,8 +551,7 @@ const Index = () => {
                                   additionalValue={dashboardData.gaugeKPIs[6]?.additionalValue}
                                   backTitle="Receita Empilhada"
                                   backData={assessorReceitaEmpilhada}
-                                  autoFlip={true}
-                                  autoFlipInterval={30000}
+                                  syncTick={flipTick}
                                 />
                               </ExpandableCard>
                             )}

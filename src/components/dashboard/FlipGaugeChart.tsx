@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { GaugeChart } from "./GaugeChart";
 import { formatNumber } from "@/lib/kpiUtils";
@@ -28,9 +28,8 @@ interface FlipGaugeChartProps {
   // Props para o verso
   backTitle: string;
   backData: FlipBackData[];
-  // Auto-flip props
-  autoFlip?: boolean;
-  autoFlipInterval?: number;
+  // Sync tick prop for synchronized flipping
+  syncTick?: number;
 }
 
 export function FlipGaugeChart({
@@ -48,47 +47,20 @@ export function FlipGaugeChart({
   additionalValue,
   backTitle,
   backData,
-  autoFlip = false,
-  autoFlipInterval = 30000,
+  syncTick,
 }: FlipGaugeChartProps) {
   const [isFlipped, setIsFlipped] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Função para iniciar o auto-flip
-  const startAutoFlip = useCallback(() => {
-    if (!autoFlip) return;
-    
-    // Limpar interval anterior se existir
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-    
-    // Criar novo interval
-    intervalRef.current = setInterval(() => {
-      setIsFlipped(prev => !prev);
-    }, autoFlipInterval);
-  }, [autoFlip, autoFlipInterval]);
-
-  // Iniciar auto-flip quando componente monta
+  // Sync flip with global tick
   useEffect(() => {
-    startAutoFlip();
-    
-    // Cleanup ao desmontar
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [startAutoFlip]);
+    if (syncTick !== undefined && syncTick > 0) {
+      setIsFlipped(prev => !prev);
+    }
+  }, [syncTick]);
 
   // Handler para flip manual
   const handleFlip = () => {
     setIsFlipped(prev => !prev);
-    
-    // Se auto-flip está ativo, reiniciar o timer
-    if (autoFlip) {
-      startAutoFlip();
-    }
   };
 
   return (
