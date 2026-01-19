@@ -25,6 +25,8 @@ interface FlipGaugeChartProps {
   showAssessorList?: boolean;
   // Additional value for segmented bar visualization (e.g., Receita Empilhada)
   additionalValue?: number;
+  // Peso do KPI no cálculo do ICM
+  weight?: number;
   // Props para o verso
   backTitle: string;
   backData: FlipBackData[];
@@ -45,6 +47,7 @@ export function FlipGaugeChart({
   assessorRemainingData,
   showAssessorList = false,
   additionalValue,
+  weight,
   backTitle,
   backData,
   syncTick,
@@ -89,6 +92,7 @@ export function FlipGaugeChart({
               assessorRemainingData={assessorRemainingData}
               showAssessorList={showAssessorList}
               additionalValue={additionalValue}
+              weight={weight}
             />
             {/* Indicador de flip */}
             <div className="absolute top-1 right-1 p-1 rounded-full bg-muted/50 opacity-50 hover:opacity-100 transition-opacity">

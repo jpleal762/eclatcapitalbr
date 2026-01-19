@@ -22,6 +22,7 @@ import {
   calculateAssessorRemainingForKPI,
   calculateAssessorAgendadasForKPI,
   calculateAssessorReceitaEmpilhada,
+  getWeightForLabel,
 } from "@/lib/kpiUtils";
 import { 
   processYearlyDashboardData, 
@@ -454,6 +455,7 @@ const Index = () => {
                               ritmoIdeal={dashboardData.ritmoIdeal}
                               showAssessorList={true}
                               assessorRemainingData={assessorRemainingCaptacao}
+                              weight={getWeightForLabel(dashboardData.gaugeKPIs[0]?.label)}
                             />
                           </ExpandableCard>
                         )}
@@ -471,6 +473,7 @@ const Index = () => {
                                   size="sm"
                                   showRemaining={true}
                                   ritmoIdeal={dashboardData.ritmoIdeal}
+                                  weight={getWeightForLabel(dashboardData.gaugeKPIs[3]?.label)}
                                 />
                               </ExpandableCard>
                             )}
@@ -491,6 +494,7 @@ const Index = () => {
                                     .filter(a => !a.achieved)
                                     .map(a => ({ name: a.name, value: a.remaining }))}
                                   syncTick={flipTick}
+                                  weight={getWeightForLabel(dashboardData.gaugeKPIs[4]?.label)}
                                 />
                               </ExpandableCard>
                             )}
@@ -516,6 +520,7 @@ const Index = () => {
                               ritmoIdeal={dashboardData.ritmoIdeal}
                               showAssessorList={true}
                               assessorRemainingData={assessorRemainingReceita}
+                              weight={getWeightForLabel(dashboardData.gaugeKPIs[1]?.label)}
                             />
                           </ExpandableCard>
                         )}
@@ -575,6 +580,7 @@ const Index = () => {
                               size="lg"
                               showRemaining={true}
                               ritmoIdeal={dashboardData.ritmoIdeal}
+                              weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label)}
                             />
                           </ExpandableCard>
                         )}
@@ -592,6 +598,7 @@ const Index = () => {
                                   size="sm"
                                   showRemaining={true}
                                   ritmoIdeal={dashboardData.ritmoIdeal}
+                                  weight={getWeightForLabel(dashboardData.gaugeKPIs[7]?.label)}
                                 />
                               </ExpandableCard>
                             )}
@@ -607,6 +614,7 @@ const Index = () => {
                                   size="sm"
                                   showRemaining={true}
                                   ritmoIdeal={dashboardData.ritmoIdeal}
+                                  weight={getWeightForLabel(dashboardData.gaugeKPIs[8]?.label)}
                                 />
                               </ExpandableCard>
                             )}

@@ -27,6 +27,8 @@ interface GaugeChartProps {
   showAssessorList?: boolean;
   // Additional value for segmented bar visualization (e.g., Receita Empilhada)
   additionalValue?: number;
+  // Peso do KPI no cálculo do ICM (exibido ao lado do título)
+  weight?: number;
 }
 // Determina o alerta baseado na performance vs ritmo ideal
 const getGaugeAlert = (currentPercentage: number, ritmoIdeal?: number): "GREEN" | "ORANGE" | "RED" | undefined => {
@@ -98,7 +100,8 @@ export function GaugeChart({
   ritmoIdeal,
   assessorRemainingData,
   showAssessorList = false,
-  additionalValue
+  additionalValue,
+  weight
 }: GaugeChartProps) {
   const { theme } = useTheme();
   const {
@@ -172,6 +175,11 @@ export function GaugeChart({
           <div className="flex items-center justify-between w-full mb-responsive">
             <h4 className={`font-semibold text-responsive-3xs ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
               {label}
+              {weight !== undefined && (
+                <span className="ml-1 text-muted-foreground font-normal">
+                  x{weight}
+                </span>
+              )}
             </h4>
             <div className="flex-shrink-0 ml-1">
               <RitmoAlertDisplay 
