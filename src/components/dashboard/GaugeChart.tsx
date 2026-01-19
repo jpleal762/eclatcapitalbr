@@ -77,7 +77,7 @@ function RitmoAlertDisplay({
     <div className="flex flex-col items-center">
       {iconElement}
       {showDifference && (
-        <span className={`text-[8px] font-bold ${alertType === "RED" ? "text-red-500" : "text-orange-500"}`}>
+        <span className={`text-responsive-4xs font-bold ${alertType === "RED" ? "text-red-500" : "text-orange-500"}`}>
           {formatNumber(difference, isCurrency)}
         </span>
       )}
