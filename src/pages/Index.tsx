@@ -191,6 +191,12 @@ const Index = () => {
     [processedData, filters.month]
   );
 
+  // Calculate assessor remaining data for Receita Parceiros (Graph 5)
+  const assessorRemainingParceiros = useMemo(
+    () => calculateAssessorRemainingForKPI(processedData, "Parceiros Tri", filters.month),
+    [processedData, filters.month]
+  );
+
   // Calculate weekly target for Primeira reunião (Planejado Semana) - Card 4
   const agendadasWeeklyTarget = useMemo(() => {
     if (!processedData || processedData.length === 0 || filters.month === "all") return 0;
@@ -448,7 +454,7 @@ const Index = () => {
                             )}
                             {visibility.graph5 && (
                               <ExpandableCard>
-                                <GaugeChart
+                                <FlipGaugeChart
                                   label={dashboardData.gaugeKPIs[4]?.label}
                                   value={dashboardData.gaugeKPIs[4]?.value}
                                   target={dashboardData.gaugeKPIs[4]?.target}
@@ -458,6 +464,12 @@ const Index = () => {
                                   size="sm"
                                   showRemaining={true}
                                   ritmoIdeal={dashboardData.ritmoIdeal}
+                                  backTitle="Falta por Assessor"
+                                  backData={assessorRemainingParceiros
+                                    .filter(a => !a.achieved)
+                                    .map(a => ({ name: a.name, value: a.remaining }))}
+                                  autoFlip={true}
+                                  autoFlipInterval={30000}
                                 />
                               </ExpandableCard>
                             )}
