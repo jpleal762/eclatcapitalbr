@@ -62,15 +62,18 @@ export function ExpandableCard({ children, className = "" }: ExpandableCardProps
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
           onClick={() => setIsExpanded(false)}
         >
-          <div
-            className="relative w-full h-full max-w-[95vw] max-h-[95vh] animate-scale-in"
-            onClick={(e) => e.stopPropagation()}
+        <div
+          className="relative w-full h-full max-w-[95vw] max-h-[95vh] animate-scale-in flex items-center justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {minimizeButton}
+          <div 
+            className="h-[75%] w-[75%] [&>*]:h-full [&>*]:w-full"
+            style={{ transform: 'scale(1.3)', transformOrigin: 'center center' }}
           >
-            {minimizeButton}
-            <div className="w-full h-full [&>*]:h-full [&>*]:w-full">
-              {children}
-            </div>
+            {children}
           </div>
+        </div>
         </div>,
         document.body
       )
