@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { ProcessedKPI } from "@/types/kpi";
-import { QUARTERS, processQuarterlyDashboardData, getCurrentQuarter } from "@/lib/quarterlyKpiUtils";
+import { QUARTERS, processQuarterlyDashboardData, getCurrentQuarter, calculateQuarterlyIdealRhythm } from "@/lib/quarterlyKpiUtils";
 import { QuarterlyKPIBar } from "./QuarterlyKPIBar";
 import {
   Select,
@@ -26,6 +26,12 @@ export function AnalysisPage({ processedData, assessors, availableYears }: Analy
   const quarterlyKPIs = useMemo(
     () => processQuarterlyDashboardData(processedData, selectedYear, selectedQuarter, selectedAssessor),
     [processedData, selectedYear, selectedQuarter, selectedAssessor]
+  );
+
+  // Calculate ideal rhythm based on business days
+  const ritmoIdeal = useMemo(
+    () => calculateQuarterlyIdealRhythm(selectedYear, selectedQuarter),
+    [selectedYear, selectedQuarter]
   );
 
   // Check if we have any data
@@ -96,7 +102,7 @@ export function AnalysisPage({ processedData, assessors, availableYears }: Analy
         <div className="flex-1 overflow-auto">
           <div className="grid gap-3 md:gap-4">
             {quarterlyKPIs.map((kpi, index) => (
-              <QuarterlyKPIBar key={index} {...kpi} />
+              <QuarterlyKPIBar key={index} {...kpi} ritmoIdeal={ritmoIdeal} />
             ))}
           </div>
         </div>

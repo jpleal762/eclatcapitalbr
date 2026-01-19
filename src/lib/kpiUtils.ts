@@ -135,7 +135,7 @@ function calculateEaster(year: number): Date {
   return new Date(year, month - 1, day);
 }
 
-function isBrazilianHoliday(date: Date): boolean {
+export function isBrazilianHoliday(date: Date): boolean {
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();

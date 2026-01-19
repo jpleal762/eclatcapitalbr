@@ -1,6 +1,8 @@
 import { QuarterlyKPI } from "@/lib/quarterlyKpiUtils";
 
-interface QuarterlyKPIBarProps extends QuarterlyKPI {}
+interface QuarterlyKPIBarProps extends QuarterlyKPI {
+  ritmoIdeal: number;
+}
 
 // Format value for display
 function formatValue(value: number, isCurrency: boolean): string {
@@ -31,7 +33,7 @@ function getTextColor(percentage: number): string {
   return "text-red-600 dark:text-red-400";
 }
 
-export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency }: QuarterlyKPIBarProps) {
+export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, ritmoIdeal }: QuarterlyKPIBarProps) {
   const barWidth = Math.min(percentage, 100);
   const barColor = getBarColor(percentage);
   const textColor = getTextColor(percentage);
@@ -61,6 +63,18 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency }
           className="absolute top-0 h-full w-px bg-foreground/20"
           style={{ left: "66.66%" }}
         />
+        
+        {/* Ideal Rhythm Marker */}
+        {ritmoIdeal > 0 && ritmoIdeal <= 100 && (
+          <div 
+            className="absolute top-0 h-full flex flex-col items-center z-10"
+            style={{ left: `${ritmoIdeal}%`, transform: "translateX(-50%)" }}
+          >
+            {/* Vertical line */}
+            <div className="h-full w-0.5 bg-blue-500" />
+          </div>
+        )}
+        
         {/* 100% marker */}
         {percentage < 100 && (
           <div 
@@ -69,6 +83,23 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency }
           />
         )}
       </div>
+      
+      {/* Rhythm indicator below bar */}
+      {ritmoIdeal > 0 && ritmoIdeal <= 100 && (
+        <div 
+          className="relative h-3 mb-2"
+          style={{ marginLeft: `${ritmoIdeal}%`, transform: "translateX(-50%)" }}
+        >
+          <div className="absolute flex flex-col items-center">
+            {/* Triangle */}
+            <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[6px] border-b-blue-500" />
+            {/* Label */}
+            <span className="text-[10px] text-blue-500 font-medium whitespace-nowrap mt-0.5">
+              Ritmo {ritmoIdeal}%
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Values */}
       <div className="flex justify-between items-center text-xs md:text-sm text-muted-foreground">
