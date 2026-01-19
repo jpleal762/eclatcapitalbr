@@ -366,7 +366,11 @@ const Index = () => {
               </div>
             ) : currentPage === "analysis" ? (
               // ANALYSIS PAGE
-              <AnalysisPage />
+              <AnalysisPage 
+                processedData={processedData}
+                assessors={assessors}
+                availableYears={availableYears}
+              />
             ) : (
               // MONTHLY VIEW
               <div className="h-full flex flex-col gap-3 animate-fade-in">
