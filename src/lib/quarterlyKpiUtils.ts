@@ -1,6 +1,30 @@
 import { ProcessedKPI } from "@/types/kpi";
 import { KPI_CATEGORIES } from "./kpiUtils";
 
+// ============= MONTH MAPPING (English → Portuguese) =============
+const MONTH_MAP: Record<string, string> = {
+  "jan": "jan",
+  "feb": "fev",
+  "mar": "mar",
+  "apr": "abr",
+  "may": "mai",
+  "jun": "jun",
+  "jul": "jul",
+  "aug": "ago",
+  "sep": "set",
+  "oct": "out",
+  "nov": "nov",
+  "dec": "dez",
+  // Portuguese (already correct)
+  "fev": "fev",
+  "abr": "abr",
+  "mai": "mai",
+  "ago": "ago",
+  "set": "set",
+  "out": "out",
+  "dez": "dez",
+};
+
 // ============= QUARTER DEFINITIONS =============
 export const QUARTERS = [
   { label: "Q1 (Jan-Mar)", value: "Q1", months: ["jan", "fev", "mar"] },
@@ -45,8 +69,16 @@ function getQuarterValue(records: ProcessedKPI[], quarterMonths: string[], year:
     const yearSuffix = year.toString().slice(-2);
     const monthSum = r.monthlyData
       .filter(m => {
-        const [monthPart, yearPart] = m.month.toLowerCase().split("/");
-        return quarterMonths.includes(monthPart) && yearPart === yearSuffix;
+        // Accept both "/" and "-" as separators
+        const separator = m.month.includes("/") ? "/" : "-";
+        const parts = m.month.toLowerCase().split(separator);
+        if (parts.length !== 2) return false;
+        
+        const [monthPart, yearPart] = parts;
+        // Convert English month to Portuguese
+        const normalizedMonth = MONTH_MAP[monthPart] || monthPart;
+        
+        return quarterMonths.includes(normalizedMonth) && yearPart === yearSuffix;
       })
       .reduce((acc, m) => acc + m.value, 0);
     return sum + monthSum;
