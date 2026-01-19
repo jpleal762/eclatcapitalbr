@@ -37,6 +37,8 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card } from "@/components/ui/card";
+import { PageToggle } from "@/components/dashboard/PageToggle";
+import { AnalysisPage } from "@/components/dashboard/AnalysisPage";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 
@@ -72,6 +74,7 @@ const Index = () => {
     return defaultVisibility;
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [currentPage, setCurrentPage] = useState<"dashboard" | "analysis">("dashboard");
 
   // Fullscreen toggle with F11
   useEffect(() => {
@@ -279,6 +282,13 @@ const Index = () => {
                     
                   </div>
                   <div className="w-40 flex justify-end items-center gap-2">
+                    {/* Page Toggle Button */}
+                    {hasData && (
+                      <PageToggle 
+                        currentPage={currentPage} 
+                        onPageChange={setCurrentPage} 
+                      />
+                    )}
                     {/* Fullscreen Button */}
                     <Button 
                       variant="ghost" 
@@ -354,6 +364,9 @@ const Index = () => {
                 </div>
                 <FileUpload onDataLoaded={handleDataLoaded} />
               </div>
+            ) : currentPage === "analysis" ? (
+              // ANALYSIS PAGE
+              <AnalysisPage />
             ) : (
               // MONTHLY VIEW
               <div className="h-full flex flex-col gap-3 animate-fade-in">
