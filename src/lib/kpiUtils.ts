@@ -37,6 +37,23 @@ export const KPI_WEIGHTS: Record<string, number> = {
   "Ativacao": 1,               // Graph 9 - peso 1
 };
 
+// Mapeamento de label → peso para exibição nos gráficos
+export const LABEL_TO_WEIGHT: Record<string, number> = {
+  "Captação NET": 2,
+  "Receita XP": 2,
+  "Primeiras Reuniões": 1,
+  "Diversificação": 1,
+  "Receita Parceiros": 1.5,
+  "Habilitação": 1,
+  "Ativação": 1,
+  // PJ1 XP e PJ2 XP não participam do ICM, sem peso
+};
+
+export function getWeightForLabel(label: string | undefined): number | undefined {
+  if (!label) return undefined;
+  return LABEL_TO_WEIGHT[label];
+}
+
 // ============= KPI CATEGORIES FOR GAUGES =============
 // Note: Receita is special - target comes from PJ1 XP Mês + PJ2 XP Mês
 export const KPI_CATEGORIES = [
