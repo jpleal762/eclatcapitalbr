@@ -141,6 +141,7 @@
   }
 
   /* Responsive typography using clamp with vh units - Increased for TV visibility */
+  .text-responsive-4xs { font-size: clamp(13px, 1.4vh, 20px); }
   .text-responsive-3xs { font-size: clamp(9px, 1.0vh, 14px); }
   .text-responsive-2xs { font-size: clamp(10px, 1.2vh, 16px); }
   .text-responsive-xs { font-size: clamp(12px, 1.4vh, 20px); }
