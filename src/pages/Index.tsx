@@ -464,20 +464,7 @@ const Index = () => {
                     {col1Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph1 && (
-                          <ExpandableCard>
-                            <GaugeChart
-                              label={dashboardData.gaugeKPIs[2]?.label}
-                              value={dashboardData.gaugeKPIs[2]?.value}
-                              target={dashboardData.gaugeKPIs[2]?.target}
-                              percentage={dashboardData.gaugeKPIs[2]?.percentage}
-                              isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
-                              warning={dashboardData.gaugeKPIs[2]?.warning}
-                              size="lg"
-                              showRemaining={true}
-                              ritmoIdeal={dashboardData.ritmoIdeal}
-                              weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label)}
-                            />
-                          </ExpandableCard>
+                          <div className="flex-1" />
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
                           <div className="grid grid-cols-2 gap-2 flex-shrink-0">
