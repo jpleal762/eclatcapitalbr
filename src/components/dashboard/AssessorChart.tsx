@@ -63,19 +63,16 @@ export function AssessorChart({
   
   const isSingleAssessor = filteredData.length === 1;
   
-  // Dividir em duas colunas: primeiros 3 na esquerda, resto na direita
-  const leftColumn = filteredData.slice(0, 3);
-  const rightColumn = filteredData.slice(3);
+  // Lista única de assessores (coluna única)
   
-  const renderAssessor = (assessor: AssessorPerformance, index: number, isLeftColumn: boolean) => {
-    const actualIndex = isLeftColumn ? index : index + 3;
+  const renderAssessor = (assessor: AssessorPerformance, index: number) => {
     const difference = assessor.geralPercentage - ritmoIdeal;
     const differenceText = difference > 0 ? `+${difference}%` : `${difference}%`;
     const differenceColor = difference >= 0 ? "text-green-600" : "text-red-600";
     const clockStyle = getClockStyle(assessor.geralPercentage, ritmoIdeal);
     
     return (
-      <div key={assessor.name} className={`flex items-center gap-1 p-1 rounded-md transition-all hover:translate-x-0.5 ${actualIndex < 3 ? 'bg-muted/50' : 'bg-background'}`}>
+      <div key={assessor.name} className={`flex items-center gap-1 p-1 rounded-md transition-all hover:translate-x-0.5 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1">
             <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
@@ -140,7 +137,7 @@ export function AssessorChart({
         
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="w-full max-w-md">
-            {renderAssessor(filteredData[0], 0, true)}
+            {renderAssessor(filteredData[0], 0)}
           </div>
         </div>
       </Card>
@@ -153,16 +150,10 @@ export function AssessorChart({
         ICM Geral por Assessor
       </h3>
       
-      {/* Grid de duas colunas */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
-        {/* Coluna Esquerda - Top 3 */}
+      {/* Lista única de assessores com scroll */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
         <div className="flex flex-col space-y-0.5">
-          {leftColumn.map((assessor, index) => renderAssessor(assessor, index, true))}
-        </div>
-        
-        {/* Coluna Direita - Demais assessores */}
-        <div className="flex flex-col space-y-0.5">
-          {rightColumn.map((assessor, index) => renderAssessor(assessor, index, false))}
+          {filteredData.map((assessor, index) => renderAssessor(assessor, index))}
         </div>
       </div>
     </Card>
