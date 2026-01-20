@@ -435,14 +435,21 @@ const Index = () => {
                         />
                           </ExpandableCard>
                         </div>
-                        {/* Novo Card Vazio (metade inferior) */}
+                        {/* Gráfico Primeiras Reuniões (metade inferior) */}
                         <div className="flex-1 min-h-0">
                           <ExpandableCard>
-                            <Card className="p-responsive shadow-card h-full flex items-center justify-center">
-                              <p className="text-muted-foreground text-responsive-sm">
-                                Card disponível
-                              </p>
-                            </Card>
+                            <GaugeChart
+                              label={dashboardData.gaugeKPIs[2]?.label || "Primeiras Reuniões"}
+                              value={dashboardData.gaugeKPIs[2]?.value || 0}
+                              target={dashboardData.gaugeKPIs[2]?.target || 0}
+                              percentage={dashboardData.gaugeKPIs[2]?.percentage || 0}
+                              isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
+                              warning={dashboardData.gaugeKPIs[2]?.warning}
+                              size="lg"
+                              showRemaining={true}
+                              ritmoIdeal={dashboardData.ritmoIdeal}
+                              weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label || "")}
+                            />
                           </ExpandableCard>
                         </div>
                       </div>
