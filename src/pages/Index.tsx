@@ -379,8 +379,8 @@ const Index = () => {
                   <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
                     {visibility.card1 && (
                       <div className="flex flex-col gap-3 h-full">
-                        {/* Card 1 - ICMCard (metade superior) */}
-                        <div className="flex-1 min-h-0">
+                        {/* Card 1 - ICMCard (proporção menor) */}
+                        <div className="flex-[2] min-h-0">
                           <ExpandableCard>
                             <ICMCard
                               icmGeral={dashboardData.icmGeral}
@@ -395,8 +395,8 @@ const Index = () => {
                             />
                           </ExpandableCard>
                         </div>
-                        {/* Card 4 - ICM Geral por Assessor (metade inferior) */}
-                        <div className="flex-1 min-h-0">
+                        {/* Card 4 - ICM Geral por Assessor (proporção maior - ocupa espaço expandido) */}
+                        <div className="flex-[3] min-h-0">
                           <ExpandableCard>
                             <AssessorChart 
                               data={dashboardData.assessorPerformance} 
@@ -463,11 +463,6 @@ const Index = () => {
                     {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
                     {col1Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
-                        {visibility.graph1 && (
-                          <ExpandableCard>
-                            <Card className="flex-1 h-full min-h-[200px]" />
-                          </ExpandableCard>
-                        )}
                         {(visibility.graph4 || visibility.graph5) && (
                           <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                         {visibility.graph4 && (
