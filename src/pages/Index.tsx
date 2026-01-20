@@ -419,8 +419,11 @@ const Index = () => {
                       </ExpandableCard>
                     )}
                     {visibility.card3 && (
-                      <ExpandableCard>
-                        <AgendadasCard
+                      <div className="flex flex-col gap-3 h-full">
+                        {/* AgendadasCard (metade superior) */}
+                        <div className="flex-1 min-h-0">
+                          <ExpandableCard>
+                            <AgendadasCard
                           agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
                           agendadasTarget={agendadasWeeklyTarget}
                           agendadasPercentage={
@@ -430,7 +433,19 @@ const Index = () => {
                           }
                           assessorData={assessorAgendadas}
                         />
-                      </ExpandableCard>
+                          </ExpandableCard>
+                        </div>
+                        {/* Novo Card Vazio (metade inferior) */}
+                        <div className="flex-1 min-h-0">
+                          <ExpandableCard>
+                            <Card className="p-responsive shadow-card h-full flex items-center justify-center">
+                              <p className="text-muted-foreground text-responsive-sm">
+                                Card disponível
+                              </p>
+                            </Card>
+                          </ExpandableCard>
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
