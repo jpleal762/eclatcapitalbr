@@ -16,27 +16,28 @@ export function AgendadasCard({
 }: AgendadasCardProps) {
   const { scale } = useResponsiveSize();
 
-  // Dynamic gauge sizing - larger for full column
-  const dynamicScale = Math.max(0.8, Math.min(scale * 1.2, 2.5));
-  const gaugeWidth = Math.round(180 * dynamicScale);
-  const gaugeHeight = Math.round(100 * dynamicScale);
-  const gaugeRadius = Math.round(75 * dynamicScale);
-  const strokeWidth = Math.round(14 * dynamicScale);
+  // Dynamic gauge sizing - smaller for horizontal layout
+  const dynamicScale = Math.max(0.6, Math.min(scale * 0.9, 1.8));
+  const gaugeWidth = Math.round(140 * dynamicScale);
+  const gaugeHeight = Math.round(80 * dynamicScale);
+  const gaugeRadius = Math.round(60 * dynamicScale);
+  const strokeWidth = Math.round(12 * dynamicScale);
   const circumference = Math.PI * gaugeRadius;
   const progress = Math.min(agendadasPercentage, 100) / 100 * circumference;
 
   return (
     <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 mb-responsive flex-shrink-0">
+      <div className="flex items-center justify-between gap-2 mb-responsive-sm flex-shrink-0">
         <h3 className="text-responsive-sm font-semibold text-white">
           Primeiras Reuniões Agendadas Semana
         </h3>
       </div>
 
-      {/* Gauge - centered */}
-      <div className="flex justify-center items-center py-responsive flex-shrink-0">
-        <div className="flex flex-col items-center">
+      {/* Content - Horizontal layout: Gauge left, Assessors right */}
+      <div className="flex flex-row flex-1 gap-3 min-h-0 overflow-hidden">
+        {/* Left: Gauge */}
+        <div className="flex flex-col items-center justify-center flex-shrink-0">
           <div className="relative" style={{ width: gaugeWidth, height: gaugeHeight }}>
             <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
               <path
@@ -58,34 +59,34 @@ export function AgendadasCard({
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
-              <span className="text-responsive-2xl font-bold text-white">{agendadasValue}</span>
+              <span className="text-responsive-xl font-bold text-white">{agendadasValue}</span>
             </div>
           </div>
-          <p className="text-responsive-xs text-white/70 mt-1">
+          <p className="text-responsive-xs text-white/70 mt-1 text-center">
             Meta: {agendadasTarget} ({agendadasPercentage}%)
           </p>
         </div>
-      </div>
 
-      {/* Lista de Assessores - flex-1 para ocupar espaço restante */}
-      <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-        <p className="text-responsive-xs text-white/70 mb-responsive-sm flex-shrink-0">Por Assessor</p>
-        <div className="flex-1 overflow-y-auto min-h-0">
-          <div className="space-y-responsive-sm">
-            {assessorData.map((assessor, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between text-responsive-xs py-responsive-sm px-responsive-sm rounded hover:bg-white/10 transition-colors"
-              >
-                <span className="truncate text-white max-w-[80%]">
-                  {assessor.name.split(" ").slice(0, 2).join(" ")}
-                </span>
-                <span className="font-semibold text-white ml-2">{assessor.value}</span>
-              </div>
-            ))}
-            {assessorData.length === 0 && (
-              <p className="text-responsive-xs text-white/70 italic">Sem dados</p>
-            )}
+        {/* Right: Assessor list */}
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <p className="text-responsive-xs text-white/70 mb-1 flex-shrink-0">Por Assessor</p>
+          <div className="flex-1 overflow-y-auto min-h-0">
+            <div className="space-y-0.5">
+              {assessorData.map((assessor, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between text-responsive-xs py-0.5 px-1 rounded hover:bg-white/10 transition-colors"
+                >
+                  <span className="truncate text-white max-w-[75%]">
+                    {assessor.name.split(" ").slice(0, 2).join(" ")}
+                  </span>
+                  <span className="font-semibold text-white ml-2">{assessor.value}</span>
+                </div>
+              ))}
+              {assessorData.length === 0 && (
+                <p className="text-responsive-xs text-white/70 italic">Sem dados</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
