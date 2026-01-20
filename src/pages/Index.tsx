@@ -379,8 +379,8 @@ const Index = () => {
                   <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
                     {visibility.card1 && (
                       <div className="flex flex-col gap-3 h-full">
-                        {/* Card 1 - ICMCard (metade superior) */}
-                        <div className="flex-1 min-h-0">
+                        {/* Card 1 - ICMCard */}
+                        <div className="flex-shrink-0">
                           <ExpandableCard>
                             <ICMCard
                               icmGeral={dashboardData.icmGeral}
@@ -395,7 +395,7 @@ const Index = () => {
                             />
                           </ExpandableCard>
                         </div>
-                        {/* Card 4 - ICM Geral por Assessor (metade inferior) */}
+                        {/* Card 4 - ICM Geral por Assessor (expandido) */}
                         <div className="flex-1 min-h-0">
                           <ExpandableCard>
                             <AssessorChart 
@@ -463,22 +463,6 @@ const Index = () => {
                     {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
                     {col1Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
-                        {visibility.graph1 && (
-                          <ExpandableCard>
-                            <GaugeChart
-                              label={dashboardData.gaugeKPIs[2]?.label}
-                              value={dashboardData.gaugeKPIs[2]?.value}
-                              target={dashboardData.gaugeKPIs[2]?.target}
-                              percentage={dashboardData.gaugeKPIs[2]?.percentage}
-                              isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
-                              warning={dashboardData.gaugeKPIs[2]?.warning}
-                              size="lg"
-                              showRemaining={true}
-                              ritmoIdeal={dashboardData.ritmoIdeal}
-                              weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label)}
-                            />
-                          </ExpandableCard>
-                        )}
                         {(visibility.graph4 || visibility.graph5) && (
                           <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                         {visibility.graph4 && (

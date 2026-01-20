@@ -63,9 +63,6 @@ export function AssessorChart({
   
   const isSingleAssessor = filteredData.length === 1;
   
-  // Dividir em duas colunas: primeiros 3 na esquerda, resto na direita
-  const leftColumn = filteredData.slice(0, 3);
-  const rightColumn = filteredData.slice(3);
   
   const renderAssessor = (assessor: AssessorPerformance, index: number, isLeftColumn: boolean) => {
     const actualIndex = isLeftColumn ? index : index + 3;
@@ -153,16 +150,10 @@ export function AssessorChart({
         ICM Geral por Assessor
       </h3>
       
-      {/* Grid de duas colunas */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
-        {/* Coluna Esquerda - Top 3 */}
-        <div className="flex flex-col space-y-0.5">
-          {leftColumn.map((assessor, index) => renderAssessor(assessor, index, true))}
-        </div>
-        
-        {/* Coluna Direita - Demais assessores */}
-        <div className="flex flex-col space-y-0.5">
-          {rightColumn.map((assessor, index) => renderAssessor(assessor, index, false))}
+      {/* Lista única de assessores */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="flex flex-col space-y-1">
+          {filteredData.map((assessor, index) => renderAssessor(assessor, index, true))}
         </div>
       </div>
     </Card>
