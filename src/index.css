@@ -239,3 +239,16 @@
 .rotate-y-180 {
   transform: rotateY(180deg);
 }
+
+/* Gradiente Éclat XP - baseado no logo */
+.bg-eclat-gradient {
+  background: linear-gradient(180deg, #FFE066 0%, #E6A800 100%);
+}
+
+.bg-eclat-gradient-horizontal {
+  background: linear-gradient(90deg, #FFE066 0%, #E6A800 100%);
+}
+
+.text-eclat-gold {
+  color: #D4A000;
+}

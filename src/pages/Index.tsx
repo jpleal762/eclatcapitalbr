@@ -32,7 +32,7 @@ import { loadExcelData, saveExcelData } from "@/lib/storage";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu, Maximize2, Minimize2 } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
-import eclatLogoDark from "@/assets/eclat-xp-logo-dark.png";
+import eclatLogoDark from "@/assets/eclat-xp-logo-dark.svg";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";

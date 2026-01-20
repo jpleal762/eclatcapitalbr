@@ -20,20 +20,20 @@ const getClockStyle = (currentValue: number, idealValue: number) => {
   } else if (percentageBelowIdeal > 50) {
     return { bgColor: 'bg-red-500', animate: true };
   } else {
-    return { bgColor: 'bg-yellow-500', animate: true };
+    return { bgColor: 'bg-eclat-gradient', animate: true };
   }
 };
 
 function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
   switch (icon) {
     case "TROPHY":
-      return <Trophy className="icon-responsive-sm text-yellow-500 flex-shrink-0" />;
+      return <Trophy className="icon-responsive-sm text-eclat-gold flex-shrink-0" />;
     case "GREEN_CHECK":
       return <Clock className="icon-responsive-sm text-green-500 flex-shrink-0" />;
     case "CLOCK":
       return <Clock className="icon-responsive-sm text-blue-500 flex-shrink-0" />;
     case "YELLOW_ALERT":
-      return <AlertTriangle className="icon-responsive-sm text-yellow-500 flex-shrink-0" />;
+      return <AlertTriangle className="icon-responsive-sm text-eclat-gold flex-shrink-0" />;
     case "ORANGE_ALERT":
       return <AlertTriangle className="icon-responsive-sm text-orange-500 flex-shrink-0" />;
     case "RED_ALERT":
@@ -78,7 +78,7 @@ export function AssessorChart({
           </div>
           {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
           <div className="relative w-full h-1.5 bg-muted rounded-full overflow-visible mt-0.5">
-            <div className="h-full rounded-l-full transition-all duration-500 bg-yellow-500" style={{
+            <div className="h-full rounded-l-full transition-all duration-500 bg-eclat-gradient-horizontal" style={{
               width: `${Math.min(assessor.geralPercentage, 100)}%`
             }} />
             {/* Marcador do Ritmo Ideal - Clock com cores condicionais */}
@@ -114,7 +114,7 @@ export function AssessorChart({
         </div>
         
         <div className="text-right flex-shrink-0">
-          <span className="text-responsive-3xs font-bold text-yellow-600">
+          <span className="text-responsive-3xs font-bold text-eclat-gold">
             {assessor.geralPercentage}%
           </span>
           <span className="text-[9px] font-medium text-gray-500 block leading-tight">
