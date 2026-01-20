@@ -9,6 +9,7 @@ interface AssessorChartProps {
   data: AssessorPerformance[];
   ritmoIdeal: number;
   selectedAssessor?: string;
+  agendadasData?: Array<{ name: string; value: number }>;
 }
 
 // Function to get clock style based on performance
@@ -18,7 +19,7 @@ const getClockStyle = (currentValue: number, idealValue: number) => {
   if (currentValue >= idealValue) {
     return { bgColor: 'bg-green-500', animate: false };
   } else if (percentageBelowIdeal > 50) {
-    return { bgColor: 'bg-red-500', animate: true };
+    return { bgColor: 'bg-red-gradient', animate: true };
   } else {
     return { bgColor: 'bg-eclat-gradient', animate: true };
   }
@@ -46,7 +47,8 @@ function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
 export function AssessorChart({
   data,
   ritmoIdeal,
-  selectedAssessor = "all"
+  selectedAssessor = "all",
+  agendadasData = []
 }: AssessorChartProps) {
   // Filter out "Socios" from ranking and apply assessor filter
   const filteredData = React.useMemo(() => {
@@ -60,6 +62,19 @@ export function AssessorChart({
     
     return filtered;
   }, [data, selectedAssessor]);
+
+  // Calcular quem é o top agendador (maior valor, >= 4)
+  const topAgendador = React.useMemo(() => {
+    if (!agendadasData || agendadasData.length === 0) return null;
+    
+    const maxAgendadas = Math.max(...agendadasData.map(a => a.value));
+    
+    // Só mostrar troféu se >= 4
+    if (maxAgendadas < 4) return null;
+    
+    const topAssessor = agendadasData.find(a => a.value === maxAgendadas);
+    return topAssessor?.name || null;
+  }, [agendadasData]);
   
   const isSingleAssessor = filteredData.length === 1;
   
@@ -75,6 +90,10 @@ export function AssessorChart({
           <div className="flex items-center gap-1">
             <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
             <p className="text-responsive-3xs font-medium text-foreground truncate">{assessor.name}</p>
+            {/* Troféu animado para top agendador */}
+            {topAgendador === assessor.name && (
+              <Trophy className="icon-responsive-sm text-eclat-gold animate-trophy-celebrate flex-shrink-0" />
+            )}
           </div>
           {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
           <div className="relative w-full h-1.5 bg-muted rounded-full overflow-visible mt-0.5">
