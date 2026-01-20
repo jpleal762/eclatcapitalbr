@@ -463,9 +463,11 @@ const Index = () => {
                     {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
                     {col1Visible && (
                       <div className="flex flex-col gap-2 min-h-0">
-                        {visibility.graph1 && (
-                          <div className="flex-1" />
-                        )}
+                  {visibility.graph1 && (
+                    <ExpandableCard>
+                      <div className="flex-1 h-full" />
+                    </ExpandableCard>
+                  )}
                         {(visibility.graph4 || visibility.graph5) && (
                           <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                         {visibility.graph4 && (
