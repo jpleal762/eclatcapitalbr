@@ -23,7 +23,7 @@ function getBarColor(percentage: number, ritmoIdeal: number): string {
   if (ritmoIdeal <= 0) return "bg-green-500"; // Trimestre futuro
   
   if (percentage >= ritmoIdeal) return "bg-green-500";
-  if (percentage >= ritmoIdeal * 0.5) return "bg-yellow-500";
+  if (percentage >= ritmoIdeal * 0.5) return "bg-eclat-gradient-horizontal";
   return "bg-red-500";
 }
 
@@ -31,7 +31,7 @@ function getTextColor(percentage: number, ritmoIdeal: number): string {
   if (ritmoIdeal <= 0) return "text-green-600 dark:text-green-400"; // Trimestre futuro
   
   if (percentage >= ritmoIdeal) return "text-green-600 dark:text-green-400";
-  if (percentage >= ritmoIdeal * 0.5) return "text-yellow-600 dark:text-yellow-400";
+  if (percentage >= ritmoIdeal * 0.5) return "text-eclat-gold";
   return "text-red-600 dark:text-red-400";
 }
 

@@ -24,7 +24,7 @@ function StatusIconDisplay({ icon, size }: { icon?: KPIStatusIcon; size: "sm" | 
     case "CLOCK":
       return <Clock className="icon-responsive text-blue-500" />;
     case "YELLOW_ALERT":
-      return <AlertTriangle className="icon-responsive text-yellow-500 animate-pulse" />;
+      return <AlertTriangle className="icon-responsive text-eclat-gold animate-pulse" />;
     case "RED_ALERT":
       return <AlertTriangle className="icon-responsive text-red-500 animate-bounce" />;
     default:

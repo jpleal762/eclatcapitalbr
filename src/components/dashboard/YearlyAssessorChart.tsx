@@ -15,7 +15,7 @@ function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
     case "CLOCK":
       return <Clock className="icon-responsive-sm text-blue-500 flex-shrink-0" />;
     case "YELLOW_ALERT":
-      return <AlertTriangle className="icon-responsive-sm text-yellow-500 flex-shrink-0" />;
+      return <AlertTriangle className="icon-responsive-sm text-eclat-gold flex-shrink-0" />;
     case "RED_ALERT":
       return <AlertTriangle className="icon-responsive-sm text-red-500 flex-shrink-0" />;
     default:
@@ -31,7 +31,7 @@ export function YearlyAssessorChart({ data, ritmoIdeal }: YearlyAssessorChartPro
   const getRankIcon = (index: number) => {
     switch (index) {
       case 0:
-        return <Trophy className="icon-responsive text-yellow-500" />;
+        return <Trophy className="icon-responsive text-eclat-gold" />;
       case 1:
         return <Medal className="icon-responsive text-gray-400" />;
       case 2:
