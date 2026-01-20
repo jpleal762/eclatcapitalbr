@@ -378,33 +378,20 @@ const Index = () => {
                 {visibleTopCards > 0 && (
                   <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
                     {visibility.card1 && (
-                      <div className="flex flex-col gap-3 h-full">
-                        {/* Card 1 - ICMCard (metade superior) */}
-                        <div className="flex-1 min-h-0">
-                          <ExpandableCard>
-                            <ICMCard
-                              icmGeral={dashboardData.icmGeral}
-                              ritmoIdeal={dashboardData.ritmoIdeal}
-                              diasUteisRestantes={dashboardData.diasUteisRestantes}
-                              assessors={assessors}
-                              selectedAssessor={filters.assessor}
-                              selectedMonth={filters.month}
-                              months={months}
-                              onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
-                              onMonthChange={(value) => setFilters({ ...filters, month: value })}
-                            />
-                          </ExpandableCard>
-                        </div>
-                        {/* Card 4 - ICM Geral por Assessor (metade inferior) */}
-                        <div className="flex-1 min-h-0">
-                          <ExpandableCard>
-                            <AssessorChart 
-                              data={dashboardData.assessorPerformance} 
-                              ritmoIdeal={dashboardData.ritmoIdeal}
-                              selectedAssessor={filters.assessor}
-                            />
-                          </ExpandableCard>
-                        </div>
+                      <div className="h-full">
+                        <ExpandableCard>
+                          <ICMCard
+                            icmGeral={dashboardData.icmGeral}
+                            ritmoIdeal={dashboardData.ritmoIdeal}
+                            diasUteisRestantes={dashboardData.diasUteisRestantes}
+                            assessors={assessors}
+                            selectedAssessor={filters.assessor}
+                            selectedMonth={filters.month}
+                            months={months}
+                            onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
+                            onMonthChange={(value) => setFilters({ ...filters, month: value })}
+                          />
+                        </ExpandableCard>
                       </div>
                     )}
                     {visibility.card2 && (
@@ -465,7 +452,11 @@ const Index = () => {
                       <div className="flex flex-col gap-2 min-h-0">
                         {visibility.graph1 && (
                           <ExpandableCard>
-                            <Card className="flex-1 h-full min-h-[200px]" />
+                            <AssessorChart 
+                              data={dashboardData.assessorPerformance} 
+                              ritmoIdeal={dashboardData.ritmoIdeal}
+                              selectedAssessor={filters.assessor}
+                            />
                           </ExpandableCard>
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
