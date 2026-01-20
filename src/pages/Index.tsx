@@ -266,11 +266,11 @@ const Index = () => {
                       visibleTopCards === 2 ? "lg:grid-cols-2" : 
                       visibleTopCards === 1 ? "lg:grid-cols-1" : "";
 
-  // Calculate grid columns for gauge sections (Graph 1 moved to Column 3)
+  // Calculate grid columns for gauge sections
   const getVisibleGaugeColumns = () => {
-    const col1Visible = visibility.graph4 || visibility.graph5;
+    const col1Visible = visibility.graph1 || visibility.graph4 || visibility.graph5;
     const col2Visible = visibility.graph2 || visibility.graph6 || visibility.graph7;
-    const col3Visible = visibility.graph1 || visibility.graph3 || visibility.graph8 || visibility.graph9;
+    const col3Visible = visibility.graph3 || visibility.graph8 || visibility.graph9;
     const visibleCols = [col1Visible, col2Visible, col3Visible].filter(Boolean).length;
     return visibleCols === 3 ? "lg:grid-cols-3" : 
            visibleCols === 2 ? "lg:grid-cols-2" : 
@@ -278,9 +278,9 @@ const Index = () => {
   };
 
   const gaugeGridCols = getVisibleGaugeColumns();
-  const col1Visible = visibility.graph4 || visibility.graph5;
+  const col1Visible = visibility.graph1 || visibility.graph4 || visibility.graph5;
   const col2Visible = visibility.graph2 || visibility.graph6 || visibility.graph7;
-  const col3Visible = visibility.graph1 || visibility.graph3 || visibility.graph8 || visibility.graph9;
+  const col3Visible = visibility.graph3 || visibility.graph8 || visibility.graph9;
 
   return (
     <SidebarProvider>
@@ -377,11 +377,10 @@ const Index = () => {
                 {/* Top Row - ICM with Filters, Meta, Assessor Ranking */}
                 {visibleTopCards > 0 && (
                   <div className={`grid gap-3 min-h-0 flex-1 ${topGridCols}`}>
-                    {/* Column 1: Card 1 + Card 4 (expanded) + Graphs 4, 5 */}
                     {visibility.card1 && (
                       <div className="flex flex-col gap-3 h-full">
-                        {/* Card 1 - ICMCard */}
-                        <div className="flex-none" style={{ height: '22%' }}>
+                        {/* Card 1 - ICMCard (metade superior) */}
+                        <div className="flex-1 min-h-0">
                           <ExpandableCard>
                             <ICMCard
                               icmGeral={dashboardData.icmGeral}
@@ -396,7 +395,7 @@ const Index = () => {
                             />
                           </ExpandableCard>
                         </div>
-                        {/* Card 4 - AssessorChart (EXPANDED - takes more vertical space) */}
+                        {/* Card 4 - ICM Geral por Assessor (metade inferior) */}
                         <div className="flex-1 min-h-0">
                           <ExpandableCard>
                             <AssessorChart 
@@ -406,10 +405,63 @@ const Index = () => {
                             />
                           </ExpandableCard>
                         </div>
-                        {/* Graphs 4 and 5 - Diversificação and Receita Parceiros */}
+                      </div>
+                    )}
+                    {visibility.card2 && (
+                      <ExpandableCard>
+                        <FlipMetaTable
+                          data={dashboardData.metaSemanal}
+                          realPercentage={dashboardData.metaSemanalReal}
+                          selectedAssessor={filters.assessor}
+                          weekToMonthPercentage={dashboardData.metaSemanalPercentage}
+                          syncTick={flipTick}
+                        />
+                      </ExpandableCard>
+                    )}
+                    {visibility.card3 && (
+                      <ExpandableCard>
+                        <AgendadasCard
+                          agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
+                          agendadasTarget={agendadasWeeklyTarget}
+                          agendadasPercentage={
+                            agendadasWeeklyTarget > 0 
+                              ? Math.round(((dashboardData.gaugeKPIs[2]?.secondaryValue || 0) / agendadasWeeklyTarget) * 100) 
+                              : 0
+                          }
+                          assessorData={assessorAgendadas}
+                        />
+                      </ExpandableCard>
+                    )}
+                  </div>
+                )}
+
+                {/* KPI Gauges - Main graphs with sub-graphs */}
+                {(col1Visible || col2Visible || col3Visible) && (
+                  <div className={`grid gap-3 min-h-0 flex-1 ${gaugeGridCols}`}>
+                    {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
+                    {col1Visible && (
+                      <div className="flex flex-col gap-2 min-h-0">
+                        {visibility.graph1 && (
+                          <ExpandableCard>
+                            <GaugeChart
+                              label={dashboardData.gaugeKPIs[0]?.label}
+                              value={dashboardData.gaugeKPIs[0]?.value}
+                              target={dashboardData.gaugeKPIs[0]?.target}
+                              percentage={dashboardData.gaugeKPIs[0]?.percentage}
+                              isCurrency={dashboardData.gaugeKPIs[0]?.isCurrency}
+                              warning={dashboardData.gaugeKPIs[0]?.warning}
+                              size="lg"
+                              showRemaining={true}
+                              ritmoIdeal={dashboardData.ritmoIdeal}
+                              showAssessorList={true}
+                              assessorRemainingData={assessorRemainingCaptacao}
+                              weight={getWeightForLabel(dashboardData.gaugeKPIs[0]?.label)}
+                            />
+                          </ExpandableCard>
+                        )}
                         {(visibility.graph4 || visibility.graph5) && (
-                          <div className="grid grid-cols-2 gap-2 flex-none" style={{ height: '20%' }}>
-                            {visibility.graph4 && (
+                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+                        {visibility.graph4 && (
                               <ExpandableCard>
                                 <GaugeChart
                                   label={dashboardData.gaugeKPIs[3]?.label}
@@ -450,82 +502,90 @@ const Index = () => {
                         )}
                       </div>
                     )}
-                    {/* Column 2: FlipMetaTable - No changes */}
-                    {visibility.card2 && (
-                      <ExpandableCard>
-                        <FlipMetaTable
-                          data={dashboardData.metaSemanal}
-                          realPercentage={dashboardData.metaSemanalReal}
-                          selectedAssessor={filters.assessor}
-                          weekToMonthPercentage={dashboardData.metaSemanalPercentage}
-                          syncTick={flipTick}
-                        />
-                      </ExpandableCard>
-                    )}
-                    {/* Column 3: Card 3 + Graph 3 (split) + Graph 1 + Graphs 8, 9 */}
-                    {visibility.card3 && (
-                      <div className="flex flex-col gap-3 h-full">
-                        {/* Top section: Card 3 + Graph 3 sharing vertical space */}
-                        <div className="flex flex-col gap-2 flex-1 min-h-0">
-                          {/* Card 3 - AgendadasCard (top half) */}
-                          <div className="flex-1 min-h-0">
-                            <ExpandableCard>
-                              <AgendadasCard
-                                agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
-                                agendadasTarget={agendadasWeeklyTarget}
-                                agendadasPercentage={
-                                  agendadasWeeklyTarget > 0 
-                                    ? Math.round(((dashboardData.gaugeKPIs[2]?.secondaryValue || 0) / agendadasWeeklyTarget) * 100) 
-                                    : 0
-                                }
-                                assessorData={assessorAgendadas}
-                              />
-                            </ExpandableCard>
-                          </div>
-                          {/* Graph 3 - Primeiras Reuniões (bottom half) */}
-                          {visibility.graph3 && (
-                            <div className="flex-1 min-h-0">
+
+                    {/* Column 2: Graph 2 + Sub-graphs 6, 7 */}
+                    {col2Visible && (
+                      <div className="flex flex-col gap-2 min-h-0">
+                        {visibility.graph2 && (
+                          <ExpandableCard>
+                            <GaugeChart
+                              label={dashboardData.gaugeKPIs[1]?.label}
+                              value={dashboardData.gaugeKPIs[1]?.value}
+                              target={dashboardData.gaugeKPIs[1]?.target}
+                              percentage={dashboardData.gaugeKPIs[1]?.percentage}
+                              isCurrency={dashboardData.gaugeKPIs[1]?.isCurrency}
+                              warning={dashboardData.gaugeKPIs[1]?.warning}
+                              size="lg"
+                              showRemaining={true}
+                              ritmoIdeal={dashboardData.ritmoIdeal}
+                              showAssessorList={true}
+                              assessorRemainingData={assessorRemainingReceita}
+                              weight={getWeightForLabel(dashboardData.gaugeKPIs[1]?.label)}
+                            />
+                          </ExpandableCard>
+                        )}
+                        {(visibility.graph6 || visibility.graph7) && (
+                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+                            {visibility.graph6 && (
                               <ExpandableCard>
                                 <GaugeChart
-                                  label={dashboardData.gaugeKPIs[2]?.label}
-                                  value={dashboardData.gaugeKPIs[2]?.value}
-                                  target={dashboardData.gaugeKPIs[2]?.target}
-                                  percentage={dashboardData.gaugeKPIs[2]?.percentage}
-                                  isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
-                                  warning={dashboardData.gaugeKPIs[2]?.warning}
-                                  size="md"
+                                  label={dashboardData.gaugeKPIs[5]?.label}
+                                  value={dashboardData.gaugeKPIs[5]?.value}
+                                  target={dashboardData.gaugeKPIs[5]?.target}
+                                  percentage={dashboardData.gaugeKPIs[5]?.percentage}
+                                  isCurrency={dashboardData.gaugeKPIs[5]?.isCurrency}
+                                  warning={dashboardData.gaugeKPIs[5]?.warning}
+                                  size="sm"
                                   showRemaining={true}
                                   ritmoIdeal={dashboardData.ritmoIdeal}
-                                  weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label)}
                                 />
                               </ExpandableCard>
-                            </div>
-                          )}
-                        </div>
-                        {/* Graph 1 - Captação NET (repositioned here) */}
-                        {visibility.graph1 && (
-                          <div className="flex-none" style={{ height: '25%' }}>
-                            <ExpandableCard>
-                              <GaugeChart
-                                label={dashboardData.gaugeKPIs[0]?.label}
-                                value={dashboardData.gaugeKPIs[0]?.value}
-                                target={dashboardData.gaugeKPIs[0]?.target}
-                                percentage={dashboardData.gaugeKPIs[0]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[0]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[0]?.warning}
-                                size="md"
-                                showRemaining={true}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                                showAssessorList={true}
-                                assessorRemainingData={assessorRemainingCaptacao}
-                                weight={getWeightForLabel(dashboardData.gaugeKPIs[0]?.label)}
-                              />
-                            </ExpandableCard>
+                            )}
+                            {visibility.graph7 && (
+                              <ExpandableCard>
+                                <FlipGaugeChart
+                                  label={dashboardData.gaugeKPIs[6]?.label}
+                                  value={dashboardData.gaugeKPIs[6]?.value}
+                                  target={dashboardData.gaugeKPIs[6]?.target}
+                                  percentage={dashboardData.gaugeKPIs[6]?.percentage}
+                                  isCurrency={dashboardData.gaugeKPIs[6]?.isCurrency}
+                                  warning={dashboardData.gaugeKPIs[6]?.warning}
+                                  size="sm"
+                                  showRemaining={true}
+                                  ritmoIdeal={dashboardData.ritmoIdeal}
+                                  additionalValue={dashboardData.gaugeKPIs[6]?.additionalValue}
+                                  backTitle="Receita Empilhada"
+                                  backData={assessorReceitaEmpilhada}
+                                  syncTick={flipTick}
+                                />
+                              </ExpandableCard>
+                            )}
                           </div>
                         )}
-                        {/* Graphs 8 and 9 - Habilitação and Ativação */}
+                      </div>
+                    )}
+
+                    {/* Column 3: Graph 3 + Sub-graphs 8, 9 */}
+                    {col3Visible && (
+                      <div className="flex flex-col gap-2 min-h-0">
+                        {visibility.graph3 && (
+                          <ExpandableCard>
+                            <GaugeChart
+                              label={dashboardData.gaugeKPIs[2]?.label}
+                              value={dashboardData.gaugeKPIs[2]?.value}
+                              target={dashboardData.gaugeKPIs[2]?.target}
+                              percentage={dashboardData.gaugeKPIs[2]?.percentage}
+                              isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
+                              warning={dashboardData.gaugeKPIs[2]?.warning}
+                              size="lg"
+                              showRemaining={true}
+                              ritmoIdeal={dashboardData.ritmoIdeal}
+                              weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label)}
+                            />
+                          </ExpandableCard>
+                        )}
                         {(visibility.graph8 || visibility.graph9) && (
-                          <div className="grid grid-cols-2 gap-2 flex-none" style={{ height: '15%' }}>
+                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
                             {visibility.graph8 && (
                               <ExpandableCard>
                                 <GaugeChart
@@ -562,71 +622,6 @@ const Index = () => {
                         )}
                       </div>
                     )}
-                  </div>
-                )}
-
-                {/* Second Row - Remaining gauges when cards are visible but gauges are in separate columns */}
-                {col2Visible && (
-                  <div className={`grid gap-3 min-h-0 flex-none ${gaugeGridCols}`} style={{ height: '35%' }}>
-                    {/* Column 2: Graph 2 + Sub-graphs 6, 7 */}
-                    <div className="flex flex-col gap-2 min-h-0">
-                      {visibility.graph2 && (
-                        <ExpandableCard>
-                          <GaugeChart
-                            label={dashboardData.gaugeKPIs[1]?.label}
-                            value={dashboardData.gaugeKPIs[1]?.value}
-                            target={dashboardData.gaugeKPIs[1]?.target}
-                            percentage={dashboardData.gaugeKPIs[1]?.percentage}
-                            isCurrency={dashboardData.gaugeKPIs[1]?.isCurrency}
-                            warning={dashboardData.gaugeKPIs[1]?.warning}
-                            size="lg"
-                            showRemaining={true}
-                            ritmoIdeal={dashboardData.ritmoIdeal}
-                            showAssessorList={true}
-                            assessorRemainingData={assessorRemainingReceita}
-                            weight={getWeightForLabel(dashboardData.gaugeKPIs[1]?.label)}
-                          />
-                        </ExpandableCard>
-                      )}
-                      {(visibility.graph6 || visibility.graph7) && (
-                        <div className="grid grid-cols-2 gap-2 flex-shrink-0">
-                          {visibility.graph6 && (
-                            <ExpandableCard>
-                              <GaugeChart
-                                label={dashboardData.gaugeKPIs[5]?.label}
-                                value={dashboardData.gaugeKPIs[5]?.value}
-                                target={dashboardData.gaugeKPIs[5]?.target}
-                                percentage={dashboardData.gaugeKPIs[5]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[5]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[5]?.warning}
-                                size="sm"
-                                showRemaining={true}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                              />
-                            </ExpandableCard>
-                          )}
-                          {visibility.graph7 && (
-                            <ExpandableCard>
-                              <FlipGaugeChart
-                                label={dashboardData.gaugeKPIs[6]?.label}
-                                value={dashboardData.gaugeKPIs[6]?.value}
-                                target={dashboardData.gaugeKPIs[6]?.target}
-                                percentage={dashboardData.gaugeKPIs[6]?.percentage}
-                                isCurrency={dashboardData.gaugeKPIs[6]?.isCurrency}
-                                warning={dashboardData.gaugeKPIs[6]?.warning}
-                                size="sm"
-                                showRemaining={true}
-                                ritmoIdeal={dashboardData.ritmoIdeal}
-                                additionalValue={dashboardData.gaugeKPIs[6]?.additionalValue}
-                                backTitle="Receita Empilhada"
-                                backData={assessorReceitaEmpilhada}
-                                syncTick={flipTick}
-                              />
-                            </ExpandableCard>
-                          )}
-                        </div>
-                      )}
-                    </div>
                   </div>
                 )}
               </div>
