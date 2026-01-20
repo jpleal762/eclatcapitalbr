@@ -456,6 +456,7 @@ const Index = () => {
                               data={dashboardData.assessorPerformance} 
                               ritmoIdeal={dashboardData.ritmoIdeal}
                               selectedAssessor={filters.assessor}
+                              agendadasData={assessorAgendadas}
                             />
                           </ExpandableCard>
                         )}
