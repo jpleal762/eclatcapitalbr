@@ -534,39 +534,40 @@ const Index = () => {
                   {(visibility.card3 || col3Visible) && (
                     <div className="flex flex-col gap-2 h-full min-h-0">
                       {/* AgendadasCard - top section */}
+                      {/* Wrapper: AgendadasCard + Primeiras Reuniões - flex-1 para igualar altura com Graph 2 */}
                       {visibility.card3 && (
-                        <div className="flex-1 min-h-0">
-                          <ExpandableCard>
-                            <AgendadasCard
-                              agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
-                              agendadasTarget={agendadasWeeklyTarget}
-                              agendadasPercentage={
-                                agendadasWeeklyTarget > 0 
-                                  ? Math.round(((dashboardData.gaugeKPIs[2]?.secondaryValue || 0) / agendadasWeeklyTarget) * 100) 
-                                  : 0
-                              }
-                              assessorData={assessorAgendadas}
-                            />
-                          </ExpandableCard>
-                        </div>
-                      )}
-                      {/* Primeiras Reuniões gauge */}
-                      {visibility.card3 && (
-                        <div className="flex-1 min-h-0">
-                          <ExpandableCard>
-                            <GaugeChart
-                              label={dashboardData.gaugeKPIs[2]?.label || "Primeiras Reuniões"}
-                              value={dashboardData.gaugeKPIs[2]?.value || 0}
-                              target={dashboardData.gaugeKPIs[2]?.target || 0}
-                              percentage={dashboardData.gaugeKPIs[2]?.percentage || 0}
-                              isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
-                              warning={dashboardData.gaugeKPIs[2]?.warning}
-                              size="lg"
-                              showRemaining={true}
-                              ritmoIdeal={dashboardData.ritmoIdeal}
-                              weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label || "")}
-                            />
-                          </ExpandableCard>
+                        <div className="flex-1 min-h-0 flex flex-col gap-2">
+                          <div className="flex-1 min-h-0">
+                            <ExpandableCard>
+                              <AgendadasCard
+                                agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
+                                agendadasTarget={agendadasWeeklyTarget}
+                                agendadasPercentage={
+                                  agendadasWeeklyTarget > 0 
+                                    ? Math.round(((dashboardData.gaugeKPIs[2]?.secondaryValue || 0) / agendadasWeeklyTarget) * 100) 
+                                    : 0
+                                }
+                                assessorData={assessorAgendadas}
+                              />
+                            </ExpandableCard>
+                          </div>
+                          {/* Primeiras Reuniões gauge */}
+                          <div className="flex-1 min-h-0">
+                            <ExpandableCard>
+                              <GaugeChart
+                                label={dashboardData.gaugeKPIs[2]?.label || "Primeiras Reuniões"}
+                                value={dashboardData.gaugeKPIs[2]?.value || 0}
+                                target={dashboardData.gaugeKPIs[2]?.target || 0}
+                                percentage={dashboardData.gaugeKPIs[2]?.percentage || 0}
+                                isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
+                                warning={dashboardData.gaugeKPIs[2]?.warning}
+                                size="lg"
+                                showRemaining={true}
+                                ritmoIdeal={dashboardData.ritmoIdeal}
+                                weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label || "")}
+                              />
+                            </ExpandableCard>
+                          </div>
                         </div>
                       )}
                       {/* Graph 3 - Captação NET */}
