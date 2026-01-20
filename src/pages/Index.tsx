@@ -466,18 +466,16 @@ const Index = () => {
                         {visibility.graph1 && (
                           <ExpandableCard>
                             <GaugeChart
-                              label={dashboardData.gaugeKPIs[0]?.label}
-                              value={dashboardData.gaugeKPIs[0]?.value}
-                              target={dashboardData.gaugeKPIs[0]?.target}
-                              percentage={dashboardData.gaugeKPIs[0]?.percentage}
-                              isCurrency={dashboardData.gaugeKPIs[0]?.isCurrency}
-                              warning={dashboardData.gaugeKPIs[0]?.warning}
+                              label={dashboardData.gaugeKPIs[2]?.label}
+                              value={dashboardData.gaugeKPIs[2]?.value}
+                              target={dashboardData.gaugeKPIs[2]?.target}
+                              percentage={dashboardData.gaugeKPIs[2]?.percentage}
+                              isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
+                              warning={dashboardData.gaugeKPIs[2]?.warning}
                               size="lg"
                               showRemaining={true}
                               ritmoIdeal={dashboardData.ritmoIdeal}
-                              showAssessorList={true}
-                              assessorRemainingData={assessorRemainingCaptacao}
-                              weight={getWeightForLabel(dashboardData.gaugeKPIs[0]?.label)}
+                              weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label)}
                             />
                           </ExpandableCard>
                         )}
@@ -593,16 +591,18 @@ const Index = () => {
                         {visibility.graph3 && (
                           <ExpandableCard>
                             <GaugeChart
-                              label={dashboardData.gaugeKPIs[2]?.label}
-                              value={dashboardData.gaugeKPIs[2]?.value}
-                              target={dashboardData.gaugeKPIs[2]?.target}
-                              percentage={dashboardData.gaugeKPIs[2]?.percentage}
-                              isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
-                              warning={dashboardData.gaugeKPIs[2]?.warning}
+                              label={dashboardData.gaugeKPIs[0]?.label}
+                              value={dashboardData.gaugeKPIs[0]?.value}
+                              target={dashboardData.gaugeKPIs[0]?.target}
+                              percentage={dashboardData.gaugeKPIs[0]?.percentage}
+                              isCurrency={dashboardData.gaugeKPIs[0]?.isCurrency}
+                              warning={dashboardData.gaugeKPIs[0]?.warning}
                               size="lg"
                               showRemaining={true}
                               ritmoIdeal={dashboardData.ritmoIdeal}
-                              weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label)}
+                              showAssessorList={true}
+                              assessorRemainingData={assessorRemainingCaptacao}
+                              weight={getWeightForLabel(dashboardData.gaugeKPIs[0]?.label)}
                             />
                           </ExpandableCard>
                         )}
