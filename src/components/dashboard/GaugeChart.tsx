@@ -298,9 +298,6 @@ export function GaugeChart({
             {showRemaining && remainingValue > 0 && (
               <span className="text-responsive-3xs text-muted-foreground font-medium">
                 Faltam: {formatNumber(remainingValue, isCurrency)}
-                {remainingImpact && (
-                  <span className="text-blue-500 ml-1">(+{remainingImpact}pp)</span>
-                )}
               </span>
             )}
           </div>
