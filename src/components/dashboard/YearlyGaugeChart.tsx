@@ -69,6 +69,13 @@ export function YearlyGaugeChart({
           </div>
         </div>
 
+        {/* Percentage label - acima do gauge */}
+        <div className="flex justify-center">
+          <span className="text-responsive-sm font-bold" style={{ color: "hsl(var(--chart-graphite))" }}>
+            {percentage}%
+          </span>
+        </div>
+
         <div className="relative" style={{ width: dynamicWidth, height: dynamicHeight }}>
           <svg
             width={dynamicWidth}
@@ -105,18 +112,6 @@ export function YearlyGaugeChart({
             </span>
           </div>
 
-          {/* Percentage label */}
-          <div 
-            className="absolute text-responsive-2xs font-medium"
-            style={{
-              top: "20%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              color: "hsl(var(--chart-graphite))",
-            }}
-          >
-            {percentage}%
-          </div>
         </div>
 
         {/* Min/Max labels */}

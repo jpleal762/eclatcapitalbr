@@ -190,6 +190,13 @@ export function GaugeChart({
             </div>
           </div>
 
+        {/* Percentage label - acima do gauge */}
+        <div className="flex justify-center">
+          <span className={`text-responsive-sm font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
+            {percentage}%
+          </span>
+        </div>
+
         {/* Dynamic SVG gauge */}
         <div className="relative flex-shrink-0" style={{
         width: dynamicWidth,
@@ -262,15 +269,6 @@ export function GaugeChart({
               </span>}
           </div>
 
-          {/* Percentage label */}
-          <div className="absolute text-responsive-xs font-bold pointer-events-none" style={{
-          top: "10%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          color: isHighlight ? "hsl(var(--card))" : "hsl(var(--muted-foreground))"
-        }}>
-            {percentage}%
-          </div>
         </div>
 
         {/* Min/Max labels */}
