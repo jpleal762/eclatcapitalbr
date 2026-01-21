@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { GaugeChart } from "./GaugeChart";
 import { formatNumber } from "@/lib/kpiUtils";
@@ -30,8 +30,8 @@ interface FlipGaugeChartProps {
   // Props para o verso
   backTitle: string;
   backData: FlipBackData[];
-  // Sync tick prop for synchronized flipping
-  syncTick?: number;
+  // Controlled flip state
+  isFlipped?: boolean;
 }
 
 export function FlipGaugeChart({
@@ -50,20 +50,19 @@ export function FlipGaugeChart({
   weight,
   backTitle,
   backData,
-  syncTick,
+  isFlipped: controlledFlipped,
 }: FlipGaugeChartProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
-
-  // Sync flip with global tick
-  useEffect(() => {
-    if (syncTick !== undefined && syncTick > 0) {
-      setIsFlipped(prev => !prev);
-    }
-  }, [syncTick]);
+  // Manual flip offset for user-initiated flips
+  const [manualFlipOffset, setManualFlipOffset] = useState(0);
+  
+  // Final flip state: controlled XOR manual offset
+  const isFlipped = controlledFlipped !== undefined 
+    ? (controlledFlipped !== (manualFlipOffset % 2 === 1))
+    : (manualFlipOffset % 2 === 1);
 
   // Handler para flip manual
   const handleFlip = () => {
-    setIsFlipped(prev => !prev);
+    setManualFlipOffset(prev => prev + 1);
   };
 
   return (

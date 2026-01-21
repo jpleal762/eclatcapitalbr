@@ -77,7 +77,7 @@ const Index = () => {
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentPage, setCurrentPage] = useState<"dashboard" | "analysis">("dashboard");
-  const [flipTick, setFlipTick] = useState(0);
+  const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
 
   // Fullscreen toggle with F11
   useEffect(() => {
@@ -250,12 +250,12 @@ const Index = () => {
     return () => clearInterval(interval);
   }, [hasData]);
 
-  // Global flip tick - increments every 30 seconds to sync all flip cards
+  // Global flip state - toggles every 30 seconds to sync all flip cards
   useEffect(() => {
     if (!hasData) return;
     
     const interval = setInterval(() => {
-      setFlipTick(prev => prev + 1);
+      setIsGlobalFlipped(prev => !prev);
     }, 30000); // 30 segundos
     
     return () => clearInterval(interval);
@@ -381,7 +381,7 @@ const Index = () => {
                     {visibility.card1 && (
                       <div className="h-full">
                         <ExpandableCard>
-                          <FlipICMCard
+                        <FlipICMCard
                             icmGeral={dashboardData.icmGeral}
                             ritmoIdeal={dashboardData.ritmoIdeal}
                             diasUteisRestantes={dashboardData.diasUteisRestantes}
@@ -392,7 +392,7 @@ const Index = () => {
                             onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
                             onMonthChange={(value) => setFilters({ ...filters, month: value })}
                             dashboardData={dashboardData}
-                            syncTick={flipTick}
+                            isFlipped={isGlobalFlipped}
                           />
                         </ExpandableCard>
                       </div>
@@ -404,7 +404,7 @@ const Index = () => {
                           realPercentage={dashboardData.metaSemanalReal}
                           selectedAssessor={filters.assessor}
                           weekToMonthPercentage={dashboardData.metaSemanalPercentage}
-                          syncTick={flipTick}
+                          isFlipped={isGlobalFlipped}
                         />
                       </ExpandableCard>
                     )}
@@ -499,7 +499,7 @@ const Index = () => {
                                   backData={assessorRemainingParceiros
                                     .filter(a => !a.achieved)
                                     .map(a => ({ name: a.name, value: a.remaining }))}
-                                  syncTick={flipTick}
+                                  isFlipped={isGlobalFlipped}
                                   weight={getWeightForLabel(dashboardData.gaugeKPIs[4]?.label)}
                                 />
                               </ExpandableCard>
@@ -564,7 +564,7 @@ const Index = () => {
                                   additionalValue={dashboardData.gaugeKPIs[6]?.additionalValue}
                                   backTitle="Receita Empilhada"
                                   backData={assessorReceitaEmpilhada}
-                                  syncTick={flipTick}
+                                  isFlipped={isGlobalFlipped}
                                 />
                               </ExpandableCard>
                             )}

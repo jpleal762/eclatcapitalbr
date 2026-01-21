@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { MetaSemanal } from "@/types/kpi";
 import { formatNumber } from "@/lib/kpiUtils";
@@ -9,8 +9,7 @@ interface FlipMetaTableProps {
   realPercentage: number;
   selectedAssessor?: string;
   weekToMonthPercentage?: number;
-  // Sync tick prop for synchronized flipping
-  syncTick?: number;
+  isFlipped?: boolean;
 }
 
 export function FlipMetaTable({
@@ -18,9 +17,15 @@ export function FlipMetaTable({
   realPercentage,
   selectedAssessor,
   weekToMonthPercentage,
-  syncTick,
+  isFlipped: controlledFlipped,
 }: FlipMetaTableProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
+  // Manual flip offset for user-initiated flips
+  const [manualFlipOffset, setManualFlipOffset] = useState(0);
+  
+  // Final flip state: controlled XOR manual offset
+  const isFlipped = controlledFlipped !== undefined 
+    ? (controlledFlipped !== (manualFlipOffset % 2 === 1))
+    : (manualFlipOffset % 2 === 1);
 
   // Calculate remaining value for each KPI
   const getRemainingValue = (item: MetaSemanal): number => {
@@ -37,16 +42,9 @@ export function FlipMetaTable({
     return item.realizedValue >= targetValue;
   };
 
-  // Sync flip with global tick
-  useEffect(() => {
-    if (syncTick !== undefined && syncTick > 0) {
-      setIsFlipped(prev => !prev);
-    }
-  }, [syncTick]);
-
   // Handler for manual flip
   const handleFlip = () => {
-    setIsFlipped(prev => !prev);
+    setManualFlipOffset(prev => prev + 1);
   };
 
   return (
