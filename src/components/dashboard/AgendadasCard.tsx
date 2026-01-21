@@ -29,7 +29,7 @@ export function AgendadasCard({
     <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-responsive-sm flex-shrink-0">
-        <h3 className="text-responsive-sm font-semibold text-white">
+        <h3 className="text-responsive-sm font-semibold text-white whitespace-nowrap truncate">
           Primeiras Reuniões Agendadas Semana
         </h3>
       </div>
@@ -62,14 +62,14 @@ export function AgendadasCard({
               <span className="text-responsive-xl font-bold text-white">{agendadasValue}</span>
             </div>
           </div>
-          <p className="text-responsive-xs text-white/70 mt-1 text-center flex-shrink-0">
+          <p className="text-responsive-xs text-white/70 mt-1 text-center flex-shrink-0 whitespace-nowrap">
             Meta: {agendadasTarget} ({agendadasPercentage}%)
           </p>
         </div>
 
         {/* Right: Assessor list */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <p className="text-responsive-xs text-white/70 mb-1 flex-shrink-0">Por Assessor</p>
+          <p className="text-responsive-xs text-white/70 mb-1 flex-shrink-0 whitespace-nowrap">Por Assessor</p>
           <div className="flex-1 overflow-y-auto min-h-0">
             <div className="space-y-0.5">
               {assessorData.map((assessor, index) => (
