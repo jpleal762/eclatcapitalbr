@@ -19,10 +19,17 @@ interface AnalysisPageProps {
   processedData: ProcessedKPI[];
   assessors: string[];
   availableYears: number[];
+  selectedAssessor: string;
+  onAssessorChange: (assessor: string) => void;
 }
 
-export function AnalysisPage({ processedData, assessors, availableYears }: AnalysisPageProps) {
-  const [selectedAssessor, setSelectedAssessor] = useState("all");
+export function AnalysisPage({ 
+  processedData, 
+  assessors, 
+  availableYears,
+  selectedAssessor,
+  onAssessorChange 
+}: AnalysisPageProps) {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedQuarter, setSelectedQuarter] = useState(getCurrentQuarter());
   const [sortOrder, setSortOrder] = useState<SortOrder>("default");
@@ -68,7 +75,7 @@ export function AnalysisPage({ processedData, assessors, availableYears }: Analy
           {/* Assessor Filter */}
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Assessor:</span>
-            <Select value={selectedAssessor} onValueChange={setSelectedAssessor}>
+            <Select value={selectedAssessor} onValueChange={onAssessorChange}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
