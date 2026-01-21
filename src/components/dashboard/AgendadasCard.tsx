@@ -16,13 +16,12 @@ export function AgendadasCard({
 }: AgendadasCardProps) {
   const { scale } = useResponsiveSize();
 
-  // Dynamic gauge sizing - COMPACT version for restricted space
-  // Reduced max scale from 1.8 to 1.3 to prevent clipping
-  const compactScale = Math.max(0.6, Math.min(scale * 0.9, 1.3));
-  const gaugeWidth = Math.round(140 * compactScale);
-  const gaugeHeight = Math.round(80 * compactScale);
-  const gaugeRadius = Math.round(60 * compactScale);
-  const strokeWidth = Math.round(12 * compactScale);
+  // Dynamic gauge sizing - COMPACT version reduced by 0.8x
+  const compactScale = Math.max(0.5, Math.min(scale * 0.8, 1.0));
+  const gaugeWidth = Math.round(112 * compactScale);
+  const gaugeHeight = Math.round(64 * compactScale);
+  const gaugeRadius = Math.round(48 * compactScale);
+  const strokeWidth = Math.round(10 * compactScale);
   const circumference = Math.PI * gaugeRadius;
   const progress = Math.min(agendadasPercentage, 100) / 100 * circumference;
 
