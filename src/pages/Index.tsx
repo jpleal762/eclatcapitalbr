@@ -31,7 +31,7 @@ import {
 } from "@/lib/yearlyKpiUtils";
 import { loadExcelData, saveExcelData } from "@/lib/storage";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Maximize2, Minimize2 } from "lucide-react";
+import { Menu, Maximize2, Minimize2, Play, Pause } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
 import eclatLogoDark from "@/assets/eclat-xp-logo-dark.svg";
 import { useTheme } from "next-themes";
@@ -78,6 +78,7 @@ const Index = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentPage, setCurrentPage] = useState<"dashboard" | "analysis">("dashboard");
   const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
+  const [isAutoRotationEnabled, setIsAutoRotationEnabled] = useState(true);
 
   // Fullscreen toggle with F11
   useEffect(() => {
@@ -241,25 +242,25 @@ const Index = () => {
 
   // Auto-rotate between dashboard and analysis pages every 90 seconds
   useEffect(() => {
-    if (!hasData) return;
+    if (!hasData || !isAutoRotationEnabled) return;
     
     const interval = setInterval(() => {
       setCurrentPage(prev => prev === "dashboard" ? "analysis" : "dashboard");
     }, 90000); // 1 minuto e 30 segundos
     
     return () => clearInterval(interval);
-  }, [hasData]);
+  }, [hasData, isAutoRotationEnabled]);
 
   // Global flip state - toggles every 30 seconds to sync all flip cards
   useEffect(() => {
-    if (!hasData) return;
+    if (!hasData || !isAutoRotationEnabled) return;
     
     const interval = setInterval(() => {
       setIsGlobalFlipped(prev => !prev);
     }, 30000); // 30 segundos
     
     return () => clearInterval(interval);
-  }, [hasData]);
+  }, [hasData, isAutoRotationEnabled]);
 
   // Calculate grid columns based on visible top cards
   const visibleTopCards = [visibility.card1, visibility.card2, visibility.card3].filter(Boolean).length;
@@ -312,13 +313,29 @@ const Index = () => {
                     className="h-8 object-contain"
                   />
                 </div>
-                <div className="w-40 flex justify-end items-center gap-2">
+                <div className="w-48 flex justify-end items-center gap-2">
                   {/* Page Toggle Button */}
                   {hasData && (
                     <PageToggle 
                       currentPage={currentPage} 
                       onPageChange={setCurrentPage} 
                     />
+                  )}
+                  {/* Auto Rotation Toggle Button */}
+                  {hasData && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsAutoRotationEnabled(prev => !prev)}
+                      className="h-8 w-8"
+                      title={isAutoRotationEnabled ? "Pausar Rotação Automática" : "Iniciar Rotação Automática"}
+                    >
+                      {isAutoRotationEnabled ? (
+                        <Pause className="h-4 w-4" />
+                      ) : (
+                        <Play className="h-4 w-4" />
+                      )}
+                    </Button>
                   )}
                   {/* Fullscreen Button */}
                   <Button 
