@@ -11,12 +11,11 @@ import {
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { BarChart3, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { BarChart3, ArrowUpDown, ArrowUp, ArrowDown, Layers } from "lucide-react";
 
-type SortOrder = "default" | "best-to-worst" | "worst-to-best";
-type CategoryFilter = "all" | "prospeccao" | "investimentos" | "receita";
+type ViewMode = "default" | "best-to-worst" | "worst-to-best" | "by-category";
 
-const CATEGORY_GROUPS: Record<Exclude<CategoryFilter, "all">, { label: string; kpis: string[] }> = {
+const CATEGORY_GROUPS = {
   prospeccao: {
     label: "Prospecção",
     kpis: ["Primeiras Reuniões", "Habilitação", "Ativação"]
@@ -29,7 +28,7 @@ const CATEGORY_GROUPS: Record<Exclude<CategoryFilter, "all">, { label: string; k
     label: "Receita",
     kpis: ["Receita XP", "Receita PJ1 XP", "Receita PJ2 XP", "Receita Parceiros"]
   }
-};
+} as const;
 
 interface AnalysisPageProps {
   processedData: ProcessedKPI[];
@@ -48,8 +47,7 @@ export function AnalysisPage({
 }: AnalysisPageProps) {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedQuarter, setSelectedQuarter] = useState(getCurrentQuarter());
-  const [sortOrder, setSortOrder] = useState<SortOrder>("default");
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("default");
 
   const quarterlyKPIs = useMemo(
     () => processQuarterlyDashboardData(processedData, selectedYear, selectedQuarter, selectedAssessor),
@@ -62,25 +60,30 @@ export function AnalysisPage({
     [selectedYear, selectedQuarter]
   );
 
-  // Filter KPIs by category
-  const filteredByCategory = useMemo(() => {
-    if (categoryFilter === "all") return quarterlyKPIs;
-    
-    const allowedKpis = CATEGORY_GROUPS[categoryFilter].kpis;
-    return quarterlyKPIs.filter(kpi => allowedKpis.includes(kpi.label));
-  }, [quarterlyKPIs, categoryFilter]);
+  // Group KPIs by category for "by-category" view mode
+  const kpisByCategory = useMemo(() => ({
+    prospeccao: quarterlyKPIs.filter(kpi => 
+      (CATEGORY_GROUPS.prospeccao.kpis as readonly string[]).includes(kpi.label)
+    ),
+    investimentos: quarterlyKPIs.filter(kpi => 
+      (CATEGORY_GROUPS.investimentos.kpis as readonly string[]).includes(kpi.label)
+    ),
+    receita: quarterlyKPIs.filter(kpi => 
+      (CATEGORY_GROUPS.receita.kpis as readonly string[]).includes(kpi.label)
+    )
+  }), [quarterlyKPIs]);
 
   // Sort KPIs based on selected order
   const sortedKPIs = useMemo(() => {
-    if (sortOrder === "default") return filteredByCategory;
+    if (viewMode === "default" || viewMode === "by-category") return quarterlyKPIs;
     
-    return [...filteredByCategory].sort((a, b) => {
-      if (sortOrder === "best-to-worst") {
+    return [...quarterlyKPIs].sort((a, b) => {
+      if (viewMode === "best-to-worst") {
         return b.percentage - a.percentage;
       }
       return a.percentage - b.percentage; // worst-to-best
     });
-  }, [filteredByCategory, sortOrder]);
+  }, [quarterlyKPIs, viewMode]);
 
   // Check if we have any data
   const hasData = quarterlyKPIs.some(kpi => kpi.target > 0 || kpi.value > 0);
@@ -143,26 +146,10 @@ export function AnalysisPage({
             </Select>
           </div>
 
-          {/* Category Filter */}
+          {/* View Mode */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Categoria:</span>
-            <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v as CategoryFilter)}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="prospeccao">Prospecção</SelectItem>
-                <SelectItem value="investimentos">Investimentos</SelectItem>
-                <SelectItem value="receita">Receita</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Sort Order */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Ordenar:</span>
-            <ToggleGroup type="single" value={sortOrder} onValueChange={(v) => v && setSortOrder(v as SortOrder)}>
+            <span className="text-sm text-muted-foreground">Visualizar:</span>
+            <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v as ViewMode)}>
               <ToggleGroupItem value="default" aria-label="Ordem padrão" className="px-2 gap-1">
                 <ArrowUpDown className="h-4 w-4" />
                 <span className="hidden sm:inline">Padrão</span>
@@ -175,6 +162,10 @@ export function AnalysisPage({
                 <ArrowDown className="h-4 w-4" />
                 <span className="hidden sm:inline">Pior</span>
               </ToggleGroupItem>
+              <ToggleGroupItem value="by-category" aria-label="Agrupar por categoria" className="px-2 gap-1">
+                <Layers className="h-4 w-4" />
+                <span className="hidden sm:inline">Categoria</span>
+              </ToggleGroupItem>
             </ToggleGroup>
           </div>
         </div>
@@ -182,13 +173,64 @@ export function AnalysisPage({
 
       {/* KPI Bars - Responsive layout without scroll on desktop/TV */}
       {hasData ? (
-        <div className="flex-1 min-h-0 flex flex-col gap-responsive-sm overflow-hidden lg:overflow-hidden overflow-y-auto">
-          {sortedKPIs.map((kpi) => (
-            <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-              <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
-            </div>
-          ))}
-        </div>
+        viewMode === "by-category" ? (
+          // Category grouped view - 3 cards side by side
+          <div className="flex-1 min-h-0 flex gap-4 overflow-hidden">
+            {/* Prospecção Card */}
+            <Card className="flex-1 p-4 flex flex-col min-w-0">
+              <h3 className="font-bold text-sm mb-3 text-primary flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-blue-500" />
+                {CATEGORY_GROUPS.prospeccao.label}
+              </h3>
+              <div className="flex-1 flex flex-col gap-2 min-h-0">
+                {kpisByCategory.prospeccao.map((kpi) => (
+                  <div key={kpi.label} className="flex-1 min-h-0">
+                    <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Investimentos Card */}
+            <Card className="flex-1 p-4 flex flex-col min-w-0">
+              <h3 className="font-bold text-sm mb-3 text-primary flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                {CATEGORY_GROUPS.investimentos.label}
+              </h3>
+              <div className="flex-1 flex flex-col gap-2 min-h-0">
+                {kpisByCategory.investimentos.map((kpi) => (
+                  <div key={kpi.label} className="flex-1 min-h-0">
+                    <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Receita Card */}
+            <Card className="flex-1 p-4 flex flex-col min-w-0">
+              <h3 className="font-bold text-sm mb-3 text-primary flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500" />
+                {CATEGORY_GROUPS.receita.label}
+              </h3>
+              <div className="flex-1 flex flex-col gap-2 min-h-0">
+                {kpisByCategory.receita.map((kpi) => (
+                  <div key={kpi.label} className="flex-1 min-h-0">
+                    <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        ) : (
+          // Default/sorted view - stacked bars
+          <div className="flex-1 min-h-0 flex flex-col gap-responsive-sm overflow-hidden lg:overflow-hidden overflow-y-auto">
+            {sortedKPIs.map((kpi) => (
+              <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
+              </div>
+            ))}
+          </div>
+        )
       ) : (
         <div className="flex-1 flex items-center justify-center">
           <Card className="p-8 text-center max-w-md">
