@@ -29,6 +29,8 @@ interface GaugeChartProps {
   additionalValue?: number;
   // Peso do KPI no cálculo do ICM (exibido ao lado do título)
   weight?: number;
+  // Modo compacto - reduz escala do gauge para caber em espaços restritos
+  compact?: boolean;
 }
 // Determina o alerta baseado na performance vs ritmo ideal
 const getGaugeAlert = (currentPercentage: number, ritmoIdeal?: number): "GREEN" | "ORANGE" | "RED" | undefined => {
@@ -119,7 +121,8 @@ export function GaugeChart({
   assessorRemainingData,
   showAssessorList = false,
   additionalValue,
-  weight
+  weight,
+  compact = false,
 }: GaugeChartProps) {
   const { theme } = useTheme();
   const {
@@ -140,11 +143,16 @@ export function GaugeChart({
     : null;
 
   // Dynamic sizing based on viewport
+  // Compact mode: reduce scale ceiling and apply reduction factor
+  const compactFactor = compact ? 0.8 : 1;
+  const maxScale = compact ? 1.15 : 1.5;
   const baseMultiplier = size === "sm" ? 0.7 : size === "md" ? 0.9 : 1.1;
-  const dynamicScale = Math.max(0.6, Math.min(scale * baseMultiplier, 1.5));
-  const dynamicWidth = Math.round(160 * dynamicScale);
-  const dynamicHeight = Math.round(90 * dynamicScale);
-  const dynamicStrokeWidth = Math.round(21 * dynamicScale);
+  const dynamicScale = Math.max(0.6, Math.min(scale * baseMultiplier, maxScale));
+  
+  // Proportional dimensions with compact factor
+  const dynamicWidth = Math.round(160 * dynamicScale * compactFactor);
+  const dynamicHeight = Math.round(90 * dynamicScale * compactFactor);
+  const dynamicStrokeWidth = Math.round(21 * dynamicScale * compactFactor);
 
   // Calcular alerta e diferença para o ritmo ideal
   const ritmoIdealValue = ritmoIdeal !== undefined && target > 0 
