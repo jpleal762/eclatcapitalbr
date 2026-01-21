@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ICMCard } from "@/components/dashboard/ICMCard";
+import { FlipICMCard } from "@/components/dashboard/FlipICMCard";
 import { FlipMetaTable } from "@/components/dashboard/FlipMetaTable";
 import { AssessorChart } from "@/components/dashboard/AssessorChart";
 import { GaugeChart } from "@/components/dashboard/GaugeChart";
@@ -380,7 +381,7 @@ const Index = () => {
                     {visibility.card1 && (
                       <div className="h-full">
                         <ExpandableCard>
-                          <ICMCard
+                          <FlipICMCard
                             icmGeral={dashboardData.icmGeral}
                             ritmoIdeal={dashboardData.ritmoIdeal}
                             diasUteisRestantes={dashboardData.diasUteisRestantes}
@@ -390,6 +391,8 @@ const Index = () => {
                             months={months}
                             onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
                             onMonthChange={(value) => setFilters({ ...filters, month: value })}
+                            dashboardData={dashboardData}
+                            syncTick={flipTick}
                           />
                         </ExpandableCard>
                       </div>
