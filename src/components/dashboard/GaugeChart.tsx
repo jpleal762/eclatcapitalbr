@@ -215,7 +215,7 @@ export function GaugeChart({
         <div className={`flex flex-col items-center justify-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1`}>
           {/* Header with title and alert */}
           <div className="flex items-center justify-between w-full mb-responsive flex-shrink-0">
-            <h4 className={`font-semibold text-responsive-3xs ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
+            <h4 className={`font-semibold text-responsive-3xs ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate whitespace-nowrap`}>
               {label}
               {weight !== undefined && (
                 <span className="ml-1 text-muted-foreground font-normal">
@@ -320,16 +320,16 @@ export function GaugeChart({
           </div>
 
           {/* Min/Max labels */}
-          <div className={`flex justify-between w-full text-responsive-3xs flex-shrink-0 ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
+          <div className={`flex justify-between w-full text-responsive-3xs flex-shrink-0 whitespace-nowrap ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
             <span>{isCurrency ? "0 Mi" : "0"}</span>
-            <span>{formatNumber(target, isCurrency)}</span>
+            <span className="truncate">{formatNumber(target, isCurrency)}</span>
           </div>
         </div>
 
         {/* Secondary bar - always reserve space */}
         <div className={`w-full mt-responsive space-y-1 flex-shrink-0 ${secondaryPercentage === undefined ? 'hidden' : ''}`}>
-            <div className={`flex justify-between text-responsive-3xs ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
-              <span>{secondaryLabel || "Agendadas"}</span>
+            <div className={`flex justify-between text-responsive-3xs whitespace-nowrap ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
+              <span className="truncate">{secondaryLabel || "Agendadas"}</span>
               <span className="font-medium">{secondaryPercentage ?? 0}%</span>
             </div>
             <div className="relative">
@@ -347,7 +347,7 @@ export function GaugeChart({
         {/* Lista de Falta por Assessor - always reserve space when showAssessorList is true */}
         {showAssessorList && (
           <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
-            <p className="text-responsive-3xs text-muted-foreground mb-1 flex-shrink-0 font-semibold truncate">
+            <p className="text-responsive-3xs text-muted-foreground mb-1 flex-shrink-0 font-semibold truncate whitespace-nowrap">
               Falta p/ Assessor
             </p>
             <div className="overflow-y-auto flex-1 min-h-0">
