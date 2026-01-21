@@ -198,9 +198,9 @@ export function GaugeChart({
   // Marker color - dark gray in light mode, light gray in dark mode
   const markerColor = theme === "dark" ? "#D1D5DB" : "#4B5563";
   return <Card className={`p-responsive shadow-card h-full flex flex-col overflow-hidden ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
-      <div className={`flex ${showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 ? 'flex-row gap-3' : 'flex-col'} flex-1 min-h-0`}>
+      <div className={`flex ${showAssessorList ? 'flex-row gap-3' : 'flex-col'} flex-1 min-h-0`}>
         {/* Gauge Container */}
-        <div className={`flex flex-col items-center ${showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 ? 'flex-1' : ''} min-h-0`}>
+        <div className={`flex flex-col items-center ${showAssessorList ? 'flex-1' : ''} min-h-0`}>
           <div className="flex items-center justify-between w-full mb-responsive">
             <h4 className={`font-semibold text-responsive-3xs ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
               {label}
@@ -295,9 +295,9 @@ export function GaugeChart({
             <span className={`text-responsive-lg font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
               {formatNumber(value, isCurrency)}
             </span>
-            {showRemaining && remainingValue > 0 && (
-              <span className="text-responsive-3xs text-muted-foreground font-medium">
-                Faltam: {formatNumber(remainingValue, isCurrency)}
+            {showRemaining && (
+              <span className={`text-responsive-3xs text-muted-foreground font-medium ${remainingValue <= 0 ? 'invisible' : ''}`}>
+                Faltam: {formatNumber(remainingValue || 0, isCurrency)}
               </span>
             )}
           </div>
@@ -310,33 +310,33 @@ export function GaugeChart({
           <span>{formatNumber(target, isCurrency)}</span>
         </div>
 
-        {/* Secondary bar */}
-        {secondaryPercentage !== undefined && <div className="w-full mt-responsive space-y-1 flex-shrink-0">
+        {/* Secondary bar - always reserve space */}
+        <div className={`w-full mt-responsive space-y-1 flex-shrink-0 ${secondaryPercentage === undefined ? 'hidden' : ''}`}>
             <div className={`flex justify-between text-responsive-3xs ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
               <span>{secondaryLabel || "Agendadas"}</span>
-              <span className="font-medium">{secondaryPercentage}%</span>
+              <span className="font-medium">{secondaryPercentage ?? 0}%</span>
             </div>
             <div className="relative">
               <div className="h-bar-responsive-sm bg-muted rounded-full overflow-hidden">
                 <div className="h-full rounded-full bg-gray-500 transition-all duration-500" style={{
-              width: `${Math.min(secondaryPercentage, 100)}%`
+              width: `${Math.min(secondaryPercentage ?? 0, 100)}%`
             }} />
               </div>
             </div>
-          </div>}
+          </div>
 
         {isHighlight && <p className="text-responsive-3xs text-card/70 mt-1 italic flex-shrink-0">Head Bruno</p>}
         </div>
 
-        {/* Lista de Falta por Assessor - integrada ao card */}
-        {showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 && (
+        {/* Lista de Falta por Assessor - always reserve space when showAssessorList is true */}
+        {showAssessorList && (
           <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
             <p className="text-responsive-3xs text-muted-foreground mb-1 flex-shrink-0 font-semibold truncate">
               Falta p/ Assessor
             </p>
             <div className="overflow-y-auto flex-1 min-h-0">
               <div className="space-y-0.5">
-                {assessorRemainingData.map((item, index) => (
+                {(assessorRemainingData || []).map((item, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between text-responsive-3xs gap-1"
