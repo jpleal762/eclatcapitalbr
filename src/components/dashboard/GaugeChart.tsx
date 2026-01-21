@@ -238,7 +238,7 @@ export function GaugeChart({
         <div className="flex flex-col items-center justify-center flex-1 min-h-0">
           {/* Percentage label - acima do gauge */}
           <div className="flex justify-center flex-shrink-0">
-            <span className={`text-responsive-sm font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
+            <span className={`text-responsive-sm font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"}`}>
               {percentage}%
             </span>
           </div>
@@ -307,11 +307,11 @@ export function GaugeChart({
 
           {/* Center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-end pb-1 pointer-events-none">
-            <span className={`text-responsive-lg font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
+            <span className={`text-responsive-lg font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"}`}>
               {formatNumber(value, isCurrency)}
             </span>
             {showRemaining && (
-              <span className={`text-responsive-3xs text-muted-foreground font-medium ${remainingValue <= 0 ? 'invisible' : ''}`}>
+              <span className={`text-responsive-3xs text-muted-foreground font-medium whitespace-nowrap ${remainingValue <= 0 ? 'invisible' : ''}`}>
                 Faltam: {formatNumber(remainingValue || 0, isCurrency)}
               </span>
             )}
