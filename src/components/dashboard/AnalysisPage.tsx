@@ -14,6 +14,22 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { BarChart3, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 type SortOrder = "default" | "best-to-worst" | "worst-to-best";
+type CategoryFilter = "all" | "prospeccao" | "investimentos" | "receita";
+
+const CATEGORY_GROUPS: Record<Exclude<CategoryFilter, "all">, { label: string; kpis: string[] }> = {
+  prospeccao: {
+    label: "Prospecção",
+    kpis: ["Primeiras Reuniões", "Habilitação", "Ativação"]
+  },
+  investimentos: {
+    label: "Investimentos",
+    kpis: ["Captação NET", "Diversificação"]
+  },
+  receita: {
+    label: "Receita",
+    kpis: ["Receita XP", "Receita PJ1 XP", "Receita PJ2 XP", "Receita Parceiros"]
+  }
+};
 
 interface AnalysisPageProps {
   processedData: ProcessedKPI[];
@@ -33,6 +49,7 @@ export function AnalysisPage({
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedQuarter, setSelectedQuarter] = useState(getCurrentQuarter());
   const [sortOrder, setSortOrder] = useState<SortOrder>("default");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
 
   const quarterlyKPIs = useMemo(
     () => processQuarterlyDashboardData(processedData, selectedYear, selectedQuarter, selectedAssessor),
@@ -45,17 +62,25 @@ export function AnalysisPage({
     [selectedYear, selectedQuarter]
   );
 
+  // Filter KPIs by category
+  const filteredByCategory = useMemo(() => {
+    if (categoryFilter === "all") return quarterlyKPIs;
+    
+    const allowedKpis = CATEGORY_GROUPS[categoryFilter].kpis;
+    return quarterlyKPIs.filter(kpi => allowedKpis.includes(kpi.label));
+  }, [quarterlyKPIs, categoryFilter]);
+
   // Sort KPIs based on selected order
   const sortedKPIs = useMemo(() => {
-    if (sortOrder === "default") return quarterlyKPIs;
+    if (sortOrder === "default") return filteredByCategory;
     
-    return [...quarterlyKPIs].sort((a, b) => {
+    return [...filteredByCategory].sort((a, b) => {
       if (sortOrder === "best-to-worst") {
         return b.percentage - a.percentage;
       }
       return a.percentage - b.percentage; // worst-to-best
     });
-  }, [quarterlyKPIs, sortOrder]);
+  }, [filteredByCategory, sortOrder]);
 
   // Check if we have any data
   const hasData = quarterlyKPIs.some(kpi => kpi.target > 0 || kpi.value > 0);
@@ -114,6 +139,22 @@ export function AnalysisPage({
                 {QUARTERS.map((q) => (
                   <SelectItem key={q.value} value={q.value}>{q.label}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Category Filter */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Categoria:</span>
+            <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v as CategoryFilter)}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="prospeccao">Prospecção</SelectItem>
+                <SelectItem value="investimentos">Investimentos</SelectItem>
+                <SelectItem value="receita">Receita</SelectItem>
               </SelectContent>
             </Select>
           </div>
