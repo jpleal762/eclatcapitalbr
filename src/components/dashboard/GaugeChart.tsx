@@ -200,8 +200,9 @@ export function GaugeChart({
   return <Card className={`p-responsive shadow-card h-full flex flex-col overflow-hidden ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
       <div className={`flex ${showAssessorList ? 'flex-row gap-3' : 'flex-col'} flex-1 min-h-0`}>
         {/* Gauge Container */}
-        <div className={`flex flex-col items-center ${showAssessorList ? 'flex-1' : ''} min-h-0`}>
-          <div className="flex items-center justify-between w-full mb-responsive">
+        <div className={`flex flex-col items-center justify-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1`}>
+          {/* Header with title and alert */}
+          <div className="flex items-center justify-between w-full mb-responsive flex-shrink-0">
             <h4 className={`font-semibold text-responsive-3xs ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate`}>
               {label}
               {weight !== undefined && (
@@ -221,18 +222,20 @@ export function GaugeChart({
             </div>
           </div>
 
-        {/* Percentage label - acima do gauge */}
-        <div className="flex justify-center">
-          <span className={`text-responsive-sm font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
-            {percentage}%
-          </span>
-        </div>
+        {/* Centered gauge wrapper */}
+        <div className="flex flex-col items-center justify-center flex-1 min-h-0">
+          {/* Percentage label - acima do gauge */}
+          <div className="flex justify-center flex-shrink-0">
+            <span className={`text-responsive-sm font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
+              {percentage}%
+            </span>
+          </div>
 
-        {/* Dynamic SVG gauge */}
-        <div className="relative flex-shrink-0" style={{
-        width: dynamicWidth,
-        height: dynamicHeight
-      }}>
+          {/* Dynamic SVG gauge */}
+          <div className="relative flex-shrink-0 my-auto" style={{
+          width: dynamicWidth,
+          height: dynamicHeight
+        }}>
           <svg width={dynamicWidth} height={dynamicHeight} viewBox={`0 0 ${dynamicWidth} ${dynamicHeight}`} overflow="visible">
             {/* Background arc */}
             <path d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
@@ -302,12 +305,13 @@ export function GaugeChart({
             )}
           </div>
 
-        </div>
+          </div>
 
-        {/* Min/Max labels */}
-        <div className={`flex justify-between w-full mt-auto text-responsive-3xs flex-shrink-0 ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
-          <span>{isCurrency ? "0 Mi" : "0"}</span>
-          <span>{formatNumber(target, isCurrency)}</span>
+          {/* Min/Max labels */}
+          <div className={`flex justify-between w-full text-responsive-3xs flex-shrink-0 ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
+            <span>{isCurrency ? "0 Mi" : "0"}</span>
+            <span>{formatNumber(target, isCurrency)}</span>
+          </div>
         </div>
 
         {/* Secondary bar - always reserve space */}
