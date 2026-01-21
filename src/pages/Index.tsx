@@ -458,6 +458,7 @@ const Index = () => {
                               showRemaining={true}
                               ritmoIdeal={dashboardData.ritmoIdeal}
                               weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label || "")}
+                              compact={true}
                             />
                           </ExpandableCard>
                         </div>
@@ -500,6 +501,7 @@ const Index = () => {
                                   showRemaining={true}
                                   ritmoIdeal={dashboardData.ritmoIdeal}
                                   weight={getWeightForLabel(dashboardData.gaugeKPIs[3]?.label)}
+                                  compact={true}
                                 />
                               </ExpandableCard>
                             )}
@@ -521,6 +523,7 @@ const Index = () => {
                                     .map(a => ({ name: a.name, value: a.remaining }))}
                                   isFlipped={isGlobalFlipped}
                                   weight={getWeightForLabel(dashboardData.gaugeKPIs[4]?.label)}
+                                  compact={true}
                                 />
                               </ExpandableCard>
                             )}
@@ -549,6 +552,7 @@ const Index = () => {
                               showAssessorList={true}
                               assessorRemainingData={assessorRemainingReceita}
                               weight={getWeightForLabel(dashboardData.gaugeKPIs[1]?.label)}
+                              compact={true}
                             />
                           </ExpandableCard>
                           </div>
@@ -568,6 +572,7 @@ const Index = () => {
                                   size="sm"
                                   showRemaining={true}
                                   ritmoIdeal={dashboardData.ritmoIdeal}
+                                  compact={true}
                                 />
                               </ExpandableCard>
                             )}
@@ -587,6 +592,7 @@ const Index = () => {
                                   backTitle="Receita Empilhada"
                                   backData={assessorReceitaEmpilhada}
                                   isFlipped={isGlobalFlipped}
+                                  compact={true}
                                 />
                               </ExpandableCard>
                             )}
@@ -615,6 +621,7 @@ const Index = () => {
                               showAssessorList={true}
                               assessorRemainingData={assessorRemainingCaptacao}
                               weight={getWeightForLabel(dashboardData.gaugeKPIs[0]?.label)}
+                              compact={true}
                             />
                           </ExpandableCard>
                           </div>
@@ -635,6 +642,7 @@ const Index = () => {
                                   showRemaining={true}
                                   ritmoIdeal={dashboardData.ritmoIdeal}
                                   weight={getWeightForLabel(dashboardData.gaugeKPIs[7]?.label)}
+                                  compact={true}
                                 />
                               </ExpandableCard>
                             )}
@@ -651,6 +659,7 @@ const Index = () => {
                                   showRemaining={true}
                                   ritmoIdeal={dashboardData.ritmoIdeal}
                                   weight={getWeightForLabel(dashboardData.gaugeKPIs[8]?.label)}
+                                  compact={true}
                                 />
                               </ExpandableCard>
                             )}
