@@ -485,7 +485,8 @@ const Index = () => {
                           </div>
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
-                          <div className="grid grid-cols-2 gap-2 flex-[35] min-h-0 overflow-hidden">
+                          <div className="flex-[35] min-h-0 overflow-hidden">
+                            <div className="grid grid-cols-2 gap-2 h-full">
                         {visibility.graph4 && (
                               <ExpandableCard>
                                 <GaugeChart
@@ -523,6 +524,7 @@ const Index = () => {
                                 />
                               </ExpandableCard>
                             )}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -552,7 +554,8 @@ const Index = () => {
                           </div>
                         )}
                         {(visibility.graph6 || visibility.graph7) && (
-                          <div className="grid grid-cols-2 gap-2 flex-[35] min-h-0 overflow-hidden">
+                          <div className="flex-[35] min-h-0 overflow-hidden">
+                            <div className="grid grid-cols-2 gap-2 h-full">
                             {visibility.graph6 && (
                               <ExpandableCard>
                                 <GaugeChart
@@ -587,6 +590,7 @@ const Index = () => {
                                 />
                               </ExpandableCard>
                             )}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -616,7 +620,8 @@ const Index = () => {
                           </div>
                         )}
                         {(visibility.graph8 || visibility.graph9) && (
-                          <div className="grid grid-cols-2 gap-2 flex-[35] min-h-0 overflow-hidden">
+                          <div className="flex-[35] min-h-0 overflow-hidden">
+                            <div className="grid grid-cols-2 gap-2 h-full">
                             {visibility.graph8 && (
                               <ExpandableCard>
                                 <GaugeChart
@@ -649,6 +654,7 @@ const Index = () => {
                                 />
                               </ExpandableCard>
                             )}
+                            </div>
                           </div>
                         )}
                       </div>

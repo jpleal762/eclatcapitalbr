@@ -197,7 +197,7 @@ export function GaugeChart({
 
   // Marker color - dark gray in light mode, light gray in dark mode
   const markerColor = theme === "dark" ? "#D1D5DB" : "#4B5563";
-  return <Card className={`p-responsive shadow-card h-full flex flex-col ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
+  return <Card className={`p-responsive shadow-card h-full flex flex-col overflow-hidden ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
       <div className={`flex ${showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 ? 'flex-row gap-3' : 'flex-col'} flex-1 min-h-0`}>
         {/* Gauge Container */}
         <div className={`flex flex-col items-center ${showAssessorList && assessorRemainingData && assessorRemainingData.length > 0 ? 'flex-1' : ''} min-h-0`}>
