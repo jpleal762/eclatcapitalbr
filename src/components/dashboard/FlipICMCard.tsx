@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { ICMCard } from "./ICMCard";
 import { DashboardData } from "@/types/kpi";
-import { RotateCcw, RefreshCw, CheckCircle, AlertTriangle, Sparkles } from "lucide-react";
+import { RotateCcw, RefreshCw, CheckCircle, AlertTriangle, Sparkles, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ interface FlipICMCardProps {
 interface AnalysisResult {
   positivos: string[];
   negativos: string[];
+  acoes48h: string[];
 }
 
 // Generate a hash of the data to detect changes
@@ -234,11 +235,11 @@ export function FlipICMCard({
                 <>
                   {/* Positive Points */}
                   <div>
-                    <div className="flex items-center gap-1 mb-1">
+                    <div className="flex items-center gap-1 mb-0.5">
                       <CheckCircle className="w-3 h-3 text-green-600" />
                       <span className="text-responsive-xs font-medium text-green-700 dark:text-green-400">Pontos Positivos</span>
                     </div>
-                    <ul className="space-y-0.5">
+                    <ul className="space-y-0">
                       {analysis.positivos.map((point, idx) => (
                         <li key={idx} className="text-responsive-xs text-foreground pl-4 relative before:content-['•'] before:absolute before:left-1 before:text-green-600">
                           {point}
@@ -249,11 +250,11 @@ export function FlipICMCard({
 
                   {/* Negative Points */}
                   <div>
-                    <div className="flex items-center gap-1 mb-1">
+                    <div className="flex items-center gap-1 mb-0.5">
                       <AlertTriangle className="w-3 h-3 text-orange-500" />
                       <span className="text-responsive-xs font-medium text-orange-600 dark:text-orange-400">Pontos de Atenção</span>
                     </div>
-                    <ul className="space-y-0.5">
+                    <ul className="space-y-0">
                       {analysis.negativos.map((point, idx) => (
                         <li key={idx} className="text-responsive-xs text-foreground pl-4 relative before:content-['•'] before:absolute before:left-1 before:text-orange-500">
                           {point}
@@ -261,6 +262,23 @@ export function FlipICMCard({
                       ))}
                     </ul>
                   </div>
+
+                  {/* 48h Actions */}
+                  {analysis.acoes48h && analysis.acoes48h.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <Zap className="w-3 h-3 text-blue-500" />
+                        <span className="text-responsive-xs font-medium text-blue-600 dark:text-blue-400">Ações Imediatas (48h)</span>
+                      </div>
+                      <ul className="space-y-0">
+                        {analysis.acoes48h.map((acao, idx) => (
+                          <li key={idx} className="text-responsive-xs text-foreground pl-4 relative before:content-['→'] before:absolute before:left-1 before:text-blue-500">
+                            {acao}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="text-center py-4 text-muted-foreground">
