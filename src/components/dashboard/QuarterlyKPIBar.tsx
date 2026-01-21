@@ -55,8 +55,8 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
         </span>
       </div>
 
-      {/* Progress bar container - with space for labels above/below */}
-      <div className="relative flex-1 min-h-[clamp(12px,1.5vh,24px)] my-[clamp(14px,1.8vh,22px)]">
+      {/* Progress bar container - with space for value below */}
+      <div className="relative flex-1 min-h-[clamp(12px,1.5vh,24px)] mt-[clamp(4px,0.5vh,8px)] mb-[clamp(14px,1.8vh,22px)]">
         {/* Actual progress bar */}
         <div className="absolute inset-0 bg-muted rounded-full overflow-hidden">
           <div
@@ -82,26 +82,21 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
           )}
         </div>
         
-        {/* Ideal Rhythm Marker - with percentage above and value below */}
+        {/* Ideal Rhythm Marker - value below only */}
         {ritmoIdeal > 0 && ritmoIdeal <= 100 && (
           <div 
             className="absolute flex flex-col items-center z-10"
             style={{ 
               left: `${ritmoIdeal}%`, 
               transform: "translateX(-50%)",
-              top: "-16px",
+              top: "0",
               bottom: "-20px"
             }}
           >
-            {/* Percentage above the line */}
-            <span className="text-responsive-3xs text-blue-500 font-bold whitespace-nowrap mb-0.5">
-              {ritmoIdeal}%
-            </span>
-            
             {/* Vertical blue line (crosses the bar) */}
             <div className="flex-1 w-0.5 bg-blue-500" />
             
-            {/* Triangle pointing up */}
+            {/* Triangle pointing down */}
             <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-blue-500" />
             
             {/* Missing value below */}

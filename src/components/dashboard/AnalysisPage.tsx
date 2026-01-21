@@ -98,6 +98,13 @@ export function AnalysisPage({
             <h2 className="text-lg font-bold text-foreground">Análise Trimestral</h2>
           </div>
           
+          {/* Ritmo Ideal Indicator */}
+          <div className="flex items-center gap-2 px-3 py-1 bg-blue-500/10 rounded-md border border-blue-500/20">
+            <span className="text-sm text-blue-600 dark:text-blue-400">
+              Ritmo Ideal: <span className="font-bold">{ritmoIdeal}%</span>
+            </span>
+          </div>
+          
           <div className="flex-1" />
           
           {/* Assessor Filter */}
