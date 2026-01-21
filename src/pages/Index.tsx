@@ -473,9 +473,9 @@ const Index = () => {
                     {col1Visible && (
                       <div className="flex flex-col gap-2 min-h-0 h-full overflow-hidden">
                         {visibility.graph1 && (
-                          <div className="flex-1 min-h-0 max-h-[65%]">
+                          <div className="flex-[65] min-h-0 overflow-hidden">
                           <ExpandableCard>
-                            <AssessorChart 
+                            <AssessorChart
                               data={dashboardData.assessorPerformance} 
                               ritmoIdeal={dashboardData.ritmoIdeal}
                               selectedAssessor={filters.assessor}
@@ -485,7 +485,7 @@ const Index = () => {
                           </div>
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
-                          <div className="grid grid-cols-2 gap-2 h-[35%] min-h-0">
+                          <div className="grid grid-cols-2 gap-2 flex-[35] min-h-0 overflow-hidden">
                         {visibility.graph4 && (
                               <ExpandableCard>
                                 <GaugeChart
@@ -532,7 +532,7 @@ const Index = () => {
                     {col2Visible && (
                       <div className="flex flex-col gap-2 min-h-0 h-full overflow-hidden">
                         {visibility.graph2 && (
-                          <div className="flex-1 min-h-0 max-h-[65%]">
+                          <div className="flex-[65] min-h-0 overflow-hidden">
                           <ExpandableCard>
                             <GaugeChart
                               label={dashboardData.gaugeKPIs[1]?.label}
@@ -552,7 +552,7 @@ const Index = () => {
                           </div>
                         )}
                         {(visibility.graph6 || visibility.graph7) && (
-                          <div className="grid grid-cols-2 gap-2 h-[35%] min-h-0">
+                          <div className="grid grid-cols-2 gap-2 flex-[35] min-h-0 overflow-hidden">
                             {visibility.graph6 && (
                               <ExpandableCard>
                                 <GaugeChart
@@ -596,7 +596,7 @@ const Index = () => {
                     {col3Visible && (
                       <div className="flex flex-col gap-2 min-h-0 h-full overflow-hidden">
                         {visibility.graph3 && (
-                          <div className="flex-1 min-h-0 max-h-[65%]">
+                          <div className="flex-[65] min-h-0 overflow-hidden">
                           <ExpandableCard>
                             <GaugeChart
                               label={dashboardData.gaugeKPIs[0]?.label}
@@ -616,7 +616,7 @@ const Index = () => {
                           </div>
                         )}
                         {(visibility.graph8 || visibility.graph9) && (
-                          <div className="grid grid-cols-2 gap-2 h-[35%] min-h-0">
+                          <div className="grid grid-cols-2 gap-2 flex-[35] min-h-0 overflow-hidden">
                             {visibility.graph8 && (
                               <ExpandableCard>
                                 <GaugeChart
