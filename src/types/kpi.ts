@@ -62,6 +62,8 @@ export interface DashboardData {
   icmGeral: number;
   ritmoIdeal: number;
   diasUteisRestantes: number;
+  totalDiasUteis: number;
+  diasUteisDecorridos: number;
   metaSemanalReal: number;
   metaSemanal: MetaSemanal[];
   metaSemanalPercentage: number;
