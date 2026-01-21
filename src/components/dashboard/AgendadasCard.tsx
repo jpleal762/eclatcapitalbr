@@ -36,10 +36,10 @@ export function AgendadasCard({
 
       {/* Content - Horizontal layout: Gauge left, Assessors right */}
       <div className="flex flex-row flex-1 gap-3 min-h-0 overflow-hidden">
-        {/* Left: Gauge */}
-        <div className="flex flex-col items-center justify-center flex-shrink-0">
-          <div className="relative" style={{ width: gaugeWidth, height: gaugeHeight }}>
-            <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
+        {/* Left: Gauge - vertically centered */}
+        <div className="flex flex-col items-center justify-center flex-shrink-0 min-h-0">
+          <div className="relative my-auto" style={{ width: gaugeWidth, height: gaugeHeight }}>
+            <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight}`} overflow="visible">
               <path
                 d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`}
                 fill="none"
@@ -62,7 +62,7 @@ export function AgendadasCard({
               <span className="text-responsive-xl font-bold text-white">{agendadasValue}</span>
             </div>
           </div>
-          <p className="text-responsive-xs text-white/70 mt-1 text-center">
+          <p className="text-responsive-xs text-white/70 mt-1 text-center flex-shrink-0">
             Meta: {agendadasTarget} ({agendadasPercentage}%)
           </p>
         </div>
