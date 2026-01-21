@@ -19,7 +19,7 @@ interface FlipICMCardProps {
   onAssessorChange: (value: string) => void;
   onMonthChange: (value: string) => void;
   dashboardData: DashboardData;
-  syncTick?: number;
+  isFlipped?: boolean;
 }
 
 interface AnalysisResult {
@@ -45,9 +45,16 @@ export function FlipICMCard({
   onAssessorChange,
   onMonthChange,
   dashboardData,
-  syncTick,
+  isFlipped: controlledFlipped,
 }: FlipICMCardProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
+  // Manual flip offset for user-initiated flips
+  const [manualFlipOffset, setManualFlipOffset] = useState(0);
+  
+  // Final flip state: controlled XOR manual offset
+  const isFlipped = controlledFlipped !== undefined 
+    ? (controlledFlipped !== (manualFlipOffset % 2 === 1))
+    : (manualFlipOffset % 2 === 1);
+    
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -136,15 +143,8 @@ export function FlipICMCard({
     return () => clearTimeout(timer);
   }, [fetchAnalysis]);
 
-  // Sync flip with global tick
-  useEffect(() => {
-    if (syncTick !== undefined && syncTick > 0) {
-      setIsFlipped(prev => !prev);
-    }
-  }, [syncTick]);
-
   const handleFlip = () => {
-    setIsFlipped(prev => !prev);
+    setManualFlipOffset(prev => prev + 1);
   };
 
   const handleRefresh = (e: React.MouseEvent) => {
