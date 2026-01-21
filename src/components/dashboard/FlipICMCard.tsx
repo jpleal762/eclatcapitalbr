@@ -209,7 +209,7 @@ export function FlipICMCard({
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto min-h-0 space-y-2">
+            <div className="flex-1 overflow-auto min-h-0 max-h-full space-y-2">
               {isLoading ? (
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-24" />

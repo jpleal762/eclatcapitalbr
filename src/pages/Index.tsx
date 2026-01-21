@@ -377,9 +377,9 @@ const Index = () => {
               <div className="h-full flex flex-col gap-3 animate-fade-in">
                 {/* Top Row - ICM with Filters, Meta, Assessor Ranking */}
                 {visibleTopCards > 0 && (
-                  <div className={`grid gap-3 flex-[45] min-h-0 ${topGridCols}`}>
+                  <div className={`grid gap-3 flex-[45] min-h-0 overflow-hidden ${topGridCols}`}>
                     {visibility.card1 && (
-                      <div className="h-full">
+                      <div className="h-full overflow-hidden">
                         <ExpandableCard>
                         <FlipICMCard
                             icmGeral={dashboardData.icmGeral}
@@ -409,7 +409,7 @@ const Index = () => {
                       </ExpandableCard>
                     )}
                     {visibility.card3 && (
-                      <div className="flex flex-col gap-3 h-full">
+                      <div className="flex flex-col gap-3 h-full overflow-hidden">
                         {/* AgendadasCard (metade superior) */}
                         <div className="flex-1 min-h-0">
                           <ExpandableCard>
