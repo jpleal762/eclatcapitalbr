@@ -449,10 +449,10 @@ const Index = () => {
 
                 {/* KPI Gauges - Main graphs with sub-graphs */}
                 {(col1Visible || col2Visible || col3Visible) && (
-                  <div className={`grid gap-3 flex-[55] min-h-0 ${gaugeGridCols}`}>
+                  <div className={`grid gap-3 flex-[55] min-h-0 overflow-hidden ${gaugeGridCols}`}>
                     {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
                     {col1Visible && (
-                      <div className="flex flex-col gap-2 min-h-0 h-full">
+                      <div className="flex flex-col gap-2 min-h-0 h-full overflow-hidden">
                         {visibility.graph1 && (
                           <div className="flex-1 min-h-0 max-h-[65%]">
                           <ExpandableCard>
@@ -466,7 +466,7 @@ const Index = () => {
                           </div>
                         )}
                         {(visibility.graph4 || visibility.graph5) && (
-                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+                          <div className="grid grid-cols-2 gap-2 h-[35%] min-h-0">
                         {visibility.graph4 && (
                               <ExpandableCard>
                                 <GaugeChart
@@ -511,7 +511,7 @@ const Index = () => {
 
                     {/* Column 2: Graph 2 + Sub-graphs 6, 7 */}
                     {col2Visible && (
-                      <div className="flex flex-col gap-2 min-h-0 h-full">
+                      <div className="flex flex-col gap-2 min-h-0 h-full overflow-hidden">
                         {visibility.graph2 && (
                           <div className="flex-1 min-h-0 max-h-[65%]">
                           <ExpandableCard>
@@ -533,7 +533,7 @@ const Index = () => {
                           </div>
                         )}
                         {(visibility.graph6 || visibility.graph7) && (
-                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+                          <div className="grid grid-cols-2 gap-2 h-[35%] min-h-0">
                             {visibility.graph6 && (
                               <ExpandableCard>
                                 <GaugeChart
@@ -575,7 +575,7 @@ const Index = () => {
 
                     {/* Column 3: Graph 3 + Sub-graphs 8, 9 */}
                     {col3Visible && (
-                      <div className="flex flex-col gap-2 min-h-0 h-full">
+                      <div className="flex flex-col gap-2 min-h-0 h-full overflow-hidden">
                         {visibility.graph3 && (
                           <div className="flex-1 min-h-0 max-h-[65%]">
                           <ExpandableCard>
@@ -597,7 +597,7 @@ const Index = () => {
                           </div>
                         )}
                         {(visibility.graph8 || visibility.graph9) && (
-                          <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+                          <div className="grid grid-cols-2 gap-2 h-[35%] min-h-0">
                             {visibility.graph8 && (
                               <ExpandableCard>
                                 <GaugeChart
