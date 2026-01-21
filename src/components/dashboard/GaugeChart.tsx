@@ -47,18 +47,29 @@ const getGaugeAlert = (currentPercentage: number, ritmoIdeal?: number): "GREEN" 
   return "ORANGE";
 };
 
+const TOTAL_ICM_WEIGHT = 9.5;
+
 function RitmoAlertDisplay({
   alertType,
   difference,
-  isCurrency
+  isCurrency,
+  weight,
+  gapPercentage
 }: {
   alertType?: "GREEN" | "ORANGE" | "RED";
   difference?: number;
   isCurrency?: boolean;
+  weight?: number;
+  gapPercentage?: number;
 }) {
   if (!alertType) return null;
   
   const showDifference = difference !== undefined && difference < 0;
+  
+  // Calcular impacto no ICM se atingir o ritmo
+  const icmImpact = weight && gapPercentage && gapPercentage > 0
+    ? ((weight / TOTAL_ICM_WEIGHT) * gapPercentage).toFixed(1)
+    : null;
   
   const iconElement = (() => {
     switch (alertType) {
@@ -77,9 +88,16 @@ function RitmoAlertDisplay({
     <div className="flex flex-col items-center">
       {iconElement}
       {showDifference && (
-        <span className={`text-responsive-4xs font-bold ${alertType === "RED" ? "text-red-500" : "text-orange-500"}`}>
-          {formatNumber(difference, isCurrency)}
-        </span>
+        <>
+          <span className={`text-responsive-4xs font-bold ${alertType === "RED" ? "text-red-500" : "text-orange-500"}`}>
+            {formatNumber(difference, isCurrency)}
+          </span>
+          {icmImpact && (
+            <span className="text-responsive-4xs font-medium text-blue-500">
+              +{icmImpact}pp
+            </span>
+          )}
+        </>
       )}
     </div>
   );
@@ -109,6 +127,17 @@ export function GaugeChart({
   } = useResponsiveSize();
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   const remainingValue = Math.max(target - value, 0);
+  
+  // Calcular gap em percentual para impacto no ICM
+  const gapPercentage = ritmoIdeal !== undefined && percentage < ritmoIdeal
+    ? ritmoIdeal - percentage
+    : 0;
+  
+  // Calcular impacto total no ICM se atingir 100% da meta
+  const remainingPercentage = target > 0 ? ((target - value) / target) * 100 : 0;
+  const remainingImpact = weight && remainingValue > 0 && target > 0
+    ? ((weight / TOTAL_ICM_WEIGHT) * remainingPercentage).toFixed(1)
+    : null;
 
   // Dynamic sizing based on viewport
   const baseMultiplier = size === "sm" ? 0.7 : size === "md" ? 0.9 : 1.1;
@@ -186,6 +215,8 @@ export function GaugeChart({
                 alertType={alertType} 
                 difference={ritmoIdealDifference}
                 isCurrency={isCurrency}
+                weight={weight}
+                gapPercentage={gapPercentage}
               />
             </div>
           </div>
@@ -264,9 +295,14 @@ export function GaugeChart({
             <span className={`text-responsive-lg font-bold ${isHighlight ? "text-card" : "text-foreground"}`}>
               {formatNumber(value, isCurrency)}
             </span>
-            {showRemaining && remainingValue > 0 && <span className="text-responsive-3xs text-muted-foreground font-medium">
+            {showRemaining && remainingValue > 0 && (
+              <span className="text-responsive-3xs text-muted-foreground font-medium">
                 Faltam: {formatNumber(remainingValue, isCurrency)}
-              </span>}
+                {remainingImpact && (
+                  <span className="text-blue-500 ml-1">(+{remainingImpact}pp)</span>
+                )}
+              </span>
+            )}
           </div>
 
         </div>
