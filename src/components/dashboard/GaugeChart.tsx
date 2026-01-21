@@ -143,16 +143,20 @@ export function GaugeChart({
     : null;
 
   // Dynamic sizing based on viewport
-  // Compact mode: reduce scale ceiling and apply reduction factor
+  // Compact mode: reduce scale ceiling AND base dimensions by 0.8x
   const compactFactor = compact ? 0.8 : 1;
-  const maxScale = compact ? 1.15 : 1.5;
+  const maxScale = compact ? 1.0 : 1.5;
   const baseMultiplier = size === "sm" ? 0.7 : size === "md" ? 0.9 : 1.1;
-  const dynamicScale = Math.max(0.6, Math.min(scale * baseMultiplier, maxScale));
+  const dynamicScale = Math.max(0.5, Math.min(scale * baseMultiplier * compactFactor, maxScale));
   
-  // Proportional dimensions with compact factor
-  const dynamicWidth = Math.round(160 * dynamicScale * compactFactor);
-  const dynamicHeight = Math.round(90 * dynamicScale * compactFactor);
-  const dynamicStrokeWidth = Math.round(21 * dynamicScale * compactFactor);
+  // Base dimensions reduced by 0.8x for compact mode
+  const baseWidth = compact ? 128 : 160;
+  const baseHeight = compact ? 72 : 90;
+  const baseStroke = compact ? 17 : 21;
+  
+  const dynamicWidth = Math.round(baseWidth * dynamicScale);
+  const dynamicHeight = Math.round(baseHeight * dynamicScale);
+  const dynamicStrokeWidth = Math.round(baseStroke * dynamicScale);
 
   // Calcular alerta e diferença para o ritmo ideal
   const ritmoIdealValue = ritmoIdeal !== undefined && target > 0 
