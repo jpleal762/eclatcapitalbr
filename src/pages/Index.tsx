@@ -388,6 +388,8 @@ const Index = () => {
                 processedData={processedData}
                 assessors={assessors}
                 availableYears={availableYears}
+                selectedAssessor={filters.assessor}
+                onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
               />
             ) : (
               // MONTHLY VIEW
