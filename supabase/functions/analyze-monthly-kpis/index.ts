@@ -82,8 +82,19 @@ serve(async (req) => {
           ? `METADE DO MÊS: ${monthlyData.diasUteisDecorridos} de ${monthlyData.totalDiasUteis} dias úteis decorridos (${percentualMes}%). Momento de avaliar ritmo.`
           : `INÍCIO DO MÊS: ${monthlyData.diasUteisDecorridos} de ${monthlyData.totalDiasUteis} dias úteis decorridos (${percentualMes}%). Bom momento para ajustar estratégias.`;
 
+    // Identify top gaps for actionable insights
+    const kpiGaps = monthlyData.gaugeKPIs
+      .map(kpi => ({ label: kpi.label, gap: kpi.target - kpi.value, percentage: kpi.percentage }))
+      .filter(k => k.gap > 0)
+      .sort((a, b) => a.percentage - b.percentage)
+      .slice(0, 3);
+    
+    const gapContext = kpiGaps.length > 0 
+      ? `KPIs com maior gap: ${kpiGaps.map(k => `${k.label} (${k.percentage}%)`).join(', ')}`
+      : 'Todos os KPIs acima da meta';
+
     const systemPrompt = `Você é um analista financeiro especializado em assessorias de investimento e mercado financeiro brasileiro. 
-Analise os dados de KPIs mensais fornecidos e identifique pontos positivos e pontos de atenção.
+Analise os dados de KPIs mensais fornecidos e identifique pontos positivos, pontos de atenção, e AÇÕES PRÁTICAS para as próximas 48 horas.
 
 Contexto da empresa:
 - Empresa de assessoria de investimentos
@@ -98,6 +109,17 @@ ${urgencyContext}
 IMPORTANTE: O ritmo ideal de ${monthlyData.ritmoIdeal}% significa que já passaram ${monthlyData.ritmoIdeal}% dos dias úteis do mês.
 - Se ICM Geral > Ritmo Ideal: equipe está ACIMA do esperado para este ponto do mês
 - Se ICM Geral < Ritmo Ideal: equipe está ABAIXO do esperado e precisa acelerar
+
+${gapContext}
+
+REGRAS PARA AÇÕES 48H:
+- Devem ser ESPECÍFICAS e MENSURÁVEIS (ex: "Ligar para 5 clientes PJ", não "Fazer mais ligações")
+- Incluir NÚMEROS quando possível (quantidade de ligações, reuniões, propostas)
+- Focar nos KPIs com maior gap vs meta
+- Priorizar ações de ALTO IMPACTO e rápida execução
+${percentualMes >= 90 ? '- URGENTE: Foco em FECHAMENTO de negócios em andamento' : ''}
+${percentualMes >= 70 && percentualMes < 90 ? '- Mix de prospecção rápida + fechamento de pipeline' : ''}
+${percentualMes < 70 ? '- Estratégias de volume e construção de pipeline' : ''}
 
 Seja direto, objetivo e use linguagem profissional do mercado financeiro.
 Responda APENAS em JSON válido no formato especificado.`;
@@ -124,11 +146,16 @@ Top performers: ${topPerformers}
 Retorne um JSON com exatamente este formato:
 {
   "positivos": ["ponto positivo 1", "ponto positivo 2", "ponto positivo 3"],
-  "negativos": ["ponto de atenção 1", "ponto de atenção 2", "ponto de atenção 3"]
+  "negativos": ["ponto de atenção 1", "ponto de atenção 2", "ponto de atenção 3"],
+  "acoes48h": ["ação específica 1", "ação específica 2", "ação específica 3"]
 }
 
-Cada ponto deve ter no máximo 60 caracteres. Identifique 2-4 pontos em cada categoria baseado nos dados.
-Foque em insights acionáveis considerando que estamos no ${percentualMes >= 90 ? 'FECHAMENTO' : percentualMes >= 70 ? 'TERÇO FINAL' : percentualMes >= 40 ? 'MEIO' : 'INÍCIO'} do mês.`;
+Regras:
+- positivos/negativos: 2-4 pontos, máximo 60 caracteres cada
+- acoes48h: 2-4 ações ESPECÍFICAS, máximo 50 caracteres cada, verbos no infinitivo
+- acoes48h devem ter NÚMEROS (ex: "Ligar para 5 clientes PJ top")
+- Foque nas métricas com maior gap: ${gapContext}
+- Considere que estamos no ${percentualMes >= 90 ? 'FECHAMENTO' : percentualMes >= 70 ? 'TERÇO FINAL' : percentualMes >= 40 ? 'MEIO' : 'INÍCIO'} do mês.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
