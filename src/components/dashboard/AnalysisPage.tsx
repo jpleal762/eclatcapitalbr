@@ -174,52 +174,49 @@ export function AnalysisPage({
       {/* KPI Bars - Responsive layout without scroll on desktop/TV */}
       {hasData ? (
         viewMode === "by-category" ? (
-          // Category grouped view - 3 cards side by side
-          <div className="flex-1 min-h-0 flex gap-4 overflow-hidden">
-            {/* Prospecção Card */}
-            <Card className="flex-1 p-4 flex flex-col min-w-0">
-              <h3 className="font-bold text-sm mb-3 text-primary flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-500" />
+          // Category grouped view - single column with section headers
+          <div className="flex-1 min-h-0 flex flex-col gap-responsive-sm overflow-hidden lg:overflow-hidden overflow-y-auto">
+            {/* Prospecção Section */}
+            <div className="flex items-center gap-2 px-1 shrink-0">
+              <span className="w-2 h-2 rounded-full bg-blue-500" />
+              <span className="text-xs font-bold text-primary uppercase tracking-wide">
                 {CATEGORY_GROUPS.prospeccao.label}
-              </h3>
-              <div className="flex-1 flex flex-col gap-2 min-h-0">
-                {kpisByCategory.prospeccao.map((kpi) => (
-                  <div key={kpi.label} className="flex-1 min-h-0">
-                    <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
-                  </div>
-                ))}
+              </span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+            {kpisByCategory.prospeccao.map((kpi) => (
+              <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
               </div>
-            </Card>
+            ))}
 
-            {/* Investimentos Card */}
-            <Card className="flex-1 p-4 flex flex-col min-w-0">
-              <h3 className="font-bold text-sm mb-3 text-primary flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-500" />
+            {/* Investimentos Section */}
+            <div className="flex items-center gap-2 px-1 shrink-0">
+              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <span className="text-xs font-bold text-primary uppercase tracking-wide">
                 {CATEGORY_GROUPS.investimentos.label}
-              </h3>
-              <div className="flex-1 flex flex-col gap-2 min-h-0">
-                {kpisByCategory.investimentos.map((kpi) => (
-                  <div key={kpi.label} className="flex-1 min-h-0">
-                    <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
-                  </div>
-                ))}
+              </span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+            {kpisByCategory.investimentos.map((kpi) => (
+              <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
               </div>
-            </Card>
+            ))}
 
-            {/* Receita Card */}
-            <Card className="flex-1 p-4 flex flex-col min-w-0">
-              <h3 className="font-bold text-sm mb-3 text-primary flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-500" />
+            {/* Receita Section */}
+            <div className="flex items-center gap-2 px-1 shrink-0">
+              <span className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="text-xs font-bold text-primary uppercase tracking-wide">
                 {CATEGORY_GROUPS.receita.label}
-              </h3>
-              <div className="flex-1 flex flex-col gap-2 min-h-0">
-                {kpisByCategory.receita.map((kpi) => (
-                  <div key={kpi.label} className="flex-1 min-h-0">
-                    <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
-                  </div>
-                ))}
+              </span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+            {kpisByCategory.receita.map((kpi) => (
+              <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
               </div>
-            </Card>
+            ))}
           </div>
         ) : (
           // Default/sorted view - stacked bars
