@@ -91,6 +91,8 @@ export function FlipICMCard({
             icmGeral: dashboardData.icmGeral,
             ritmoIdeal: dashboardData.ritmoIdeal,
             diasUteisRestantes: dashboardData.diasUteisRestantes,
+            totalDiasUteis: dashboardData.totalDiasUteis,
+            diasUteisDecorridos: dashboardData.diasUteisDecorridos,
             gaugeKPIs: dashboardData.gaugeKPIs,
             metaSemanal: dashboardData.metaSemanal,
             assessorPerformance: dashboardData.assessorPerformance,

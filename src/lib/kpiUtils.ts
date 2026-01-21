@@ -679,6 +679,8 @@ export function processDashboardData(
   // Ritmo Ideal = percentage of elapsed business days in the selected month
   const ritmoIdeal = calculateIdealRhythm(selectedMonth);
   const diasUteisRestantes = getWorkingDaysRemaining(selectedMonth);
+  const totalDiasUteis = getTotalBusinessDaysInMonth(selectedMonth);
+  const diasUteisDecorridos = getElapsedBusinessDays(selectedMonth);
 
   // Meta Semanal - Categorias específicas com Planejado Semana na nova ordem
   // Ordem: Captação NET → Receita → Diversificação → Primeiras Reuniões → Habilitação → Ativação
@@ -887,6 +889,8 @@ export function processDashboardData(
     icmGeral,
     ritmoIdeal,
     diasUteisRestantes,
+    totalDiasUteis,
+    diasUteisDecorridos,
     metaSemanalReal: icmGeral,
     metaSemanal,
     metaSemanalPercentage,

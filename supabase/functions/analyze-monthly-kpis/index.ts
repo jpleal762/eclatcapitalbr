@@ -31,6 +31,8 @@ interface MonthlyData {
   icmGeral: number;
   ritmoIdeal: number;
   diasUteisRestantes: number;
+  totalDiasUteis: number;
+  diasUteisDecorridos: number;
   gaugeKPIs: GaugeKPI[];
   metaSemanal: MetaSemanal[];
   assessorPerformance: AssessorPerformance[];
@@ -70,11 +72,15 @@ serve(async (req) => {
       .map(a => `${a.name}: ${a.geralPercentage}%`)
       .join(', ');
 
-    const urgencyContext = monthlyData.diasUteisRestantes <= 5 
-      ? "URGÊNCIA: Restam poucos dias úteis para fechar o mês!" 
-      : monthlyData.diasUteisRestantes <= 10 
-        ? "Atenção: Segunda metade do mês, hora de acelerar." 
-        : "Início do mês, bom momento para ajustar estratégias.";
+    // Use ritmoIdeal (percentage of elapsed days) for temporal context - NOT fixed day thresholds
+    const percentualMes = monthlyData.ritmoIdeal;
+    const urgencyContext = percentualMes >= 90
+      ? `URGÊNCIA MÁXIMA: ${monthlyData.diasUteisRestantes} dias úteis restantes de ${monthlyData.totalDiasUteis}. Fechamento iminente do mês!`
+      : percentualMes >= 70
+        ? `TERÇO FINAL DO MÊS: ${monthlyData.diasUteisDecorridos} de ${monthlyData.totalDiasUteis} dias úteis já passaram (${percentualMes}%). Restam ${monthlyData.diasUteisRestantes} dias para fechar.`
+        : percentualMes >= 40
+          ? `METADE DO MÊS: ${monthlyData.diasUteisDecorridos} de ${monthlyData.totalDiasUteis} dias úteis decorridos (${percentualMes}%). Momento de avaliar ritmo.`
+          : `INÍCIO DO MÊS: ${monthlyData.diasUteisDecorridos} de ${monthlyData.totalDiasUteis} dias úteis decorridos (${percentualMes}%). Bom momento para ajustar estratégias.`;
 
     const systemPrompt = `Você é um analista financeiro especializado em assessorias de investimento e mercado financeiro brasileiro. 
 Analise os dados de KPIs mensais fornecidos e identifique pontos positivos e pontos de atenção.
@@ -83,19 +89,29 @@ Contexto da empresa:
 - Empresa de assessoria de investimentos
 - Métricas principais: Receita, NNM (Net New Money), Captação, Reuniões, COE, Previdência, Câmbio, Seguros
 - O ICM (Índice de Conquista de Metas) mede o percentual de atingimento das metas
-- Ritmo Ideal indica o percentual esperado considerando os dias úteis decorridos no mês
+- Ritmo Ideal indica o percentual esperado considerando os dias úteis decorridos no mês (ex: se passou 80% do mês, o ritmo ideal é 80%)
 - Meta semanal é o objetivo acumulado da semana atual
 
+CONTEXTO TEMPORAL CRÍTICO:
 ${urgencyContext}
+
+IMPORTANTE: O ritmo ideal de ${monthlyData.ritmoIdeal}% significa que já passaram ${monthlyData.ritmoIdeal}% dos dias úteis do mês.
+- Se ICM Geral > Ritmo Ideal: equipe está ACIMA do esperado para este ponto do mês
+- Se ICM Geral < Ritmo Ideal: equipe está ABAIXO do esperado e precisa acelerar
 
 Seja direto, objetivo e use linguagem profissional do mercado financeiro.
 Responda APENAS em JSON válido no formato especificado.`;
 
     const userPrompt = `Analise os dados do mês ${monthlyData.selectedMonth} para ${assessorContext}:
 
-ICM Geral: ${monthlyData.icmGeral}%
-Ritmo Ideal: ${monthlyData.ritmoIdeal}%
-Dias úteis restantes: ${monthlyData.diasUteisRestantes}
+SITUAÇÃO TEMPORAL:
+- Dias úteis decorridos: ${monthlyData.diasUteisDecorridos} de ${monthlyData.totalDiasUteis} (${monthlyData.ritmoIdeal}% do mês)
+- Dias úteis restantes: ${monthlyData.diasUteisRestantes}
+
+DESEMPENHO:
+- ICM Geral: ${monthlyData.icmGeral}%
+- Ritmo Ideal: ${monthlyData.ritmoIdeal}%
+- Diferença: ${monthlyData.icmGeral >= monthlyData.ritmoIdeal ? `ACIMA do ritmo em ${monthlyData.icmGeral - monthlyData.ritmoIdeal}pp` : `ABAIXO do ritmo em ${monthlyData.ritmoIdeal - monthlyData.icmGeral}pp`}
 
 KPIs do mês:
 ${kpiSummary}
@@ -112,7 +128,7 @@ Retorne um JSON com exatamente este formato:
 }
 
 Cada ponto deve ter no máximo 60 caracteres. Identifique 2-4 pontos em cada categoria baseado nos dados.
-Foque em insights acionáveis para o fechamento do mês.`;
+Foque em insights acionáveis considerando que estamos no ${percentualMes >= 90 ? 'FECHAMENTO' : percentualMes >= 70 ? 'TERÇO FINAL' : percentualMes >= 40 ? 'MEIO' : 'INÍCIO'} do mês.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
