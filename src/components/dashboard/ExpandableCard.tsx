@@ -81,7 +81,7 @@ export function ExpandableCard({ children, className = "" }: ExpandableCardProps
 
   return (
     <>
-      <div className={`relative h-full ${className}`}>
+      <div className={`relative h-full overflow-hidden ${className}`}>
         {expandButton}
         {children}
       </div>
