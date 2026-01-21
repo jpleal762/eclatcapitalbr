@@ -40,6 +40,121 @@ interface MonthlyData {
   selectedAssessor: string;
 }
 
+// Playbook de táticas específicas por KPI - conhecimento de mercado de assessoria
+const KPI_PLAYBOOK: Record<string, { significado: string; taticas: string[]; benchmark: string }> = {
+  "Captação NET": {
+    significado: "Net New Money - entrada líquida de recursos",
+    taticas: [
+      "Follow-up em propostas de aporte pendentes",
+      "Contatar clientes com CDB/LCI vencendo para reinvestir",
+      "Abordar top 10 clientes por patrimônio para aporte adicional",
+      "Converter saldo em conta corrente em investimentos"
+    ],
+    benchmark: "Top performers: R$ 2M+/mês por carteira de 50 clientes"
+  },
+  "Primeira reuniao": {
+    significado: "Reuniões de prospecção com novos clientes",
+    taticas: [
+      "Blitz de ligações: 30 calls em 2h = ~5 agendamentos",
+      "Reativar leads quentes dos últimos 30 dias via WhatsApp",
+      "Pedir 2 indicações para cada cliente satisfeito",
+      "Agendar cafés com contatos de networking pendentes"
+    ],
+    benchmark: "Conversão média: 10 ligações = 1 reunião"
+  },
+  "Receita": {
+    significado: "Receita total gerada (corretagem + gestão + performance)",
+    taticas: [
+      "Propor rebalanceamento para produtos de maior fee",
+      "Identificar clientes para migração RF → Fundos",
+      "Revisar carteiras com baixo giro para oportunidades",
+      "Oferecer estruturadas para clientes com perfil"
+    ],
+    benchmark: "ROA saudável: 1,5% ao ano sobre AuC"
+  },
+  "COE": {
+    significado: "Certificados de Operações Estruturadas",
+    taticas: [
+      "Listar clientes moderados com CDBs vencendo",
+      "Apresentar COE como alternativa ao CDI com proteção",
+      "Recontatar clientes que já investiram em COE",
+      "Usar cases: 'Cliente X teve retorno de Y% em Z meses'"
+    ],
+    benchmark: "Ticket médio ideal: R$ 50-100k por operação"
+  },
+  "Previdência": {
+    significado: "Captação em planos PGBL/VGBL",
+    taticas: [
+      "Identificar clientes CLT para benefício fiscal PGBL (12% IRPF)",
+      "Abordar clientes com dependentes para sucessão",
+      "Propor portabilidade de planos antigos com taxas altas",
+      "Campanha de aporte extra em outubro-dezembro"
+    ],
+    benchmark: "Janela de ouro: out-dez (dedução IRPF)"
+  },
+  "Câmbio": {
+    significado: "Operações de câmbio e remessas",
+    taticas: [
+      "Mapear clientes com viagens internacionais marcadas",
+      "Oferecer conta global para clientes frequentes",
+      "Identificar clientes com filhos estudando no exterior",
+      "Abordar empresários com operações de importação"
+    ],
+    benchmark: "Spread competitivo: 1-2% sobre comercial"
+  },
+  "Seguros": {
+    significado: "Seguros de vida, patrimonial e empresarial",
+    taticas: [
+      "Mapear clientes sem seguro de vida com dependentes",
+      "Oferecer seguro patrimonial para imóveis de alto valor",
+      "Abordar empresários para seguro empresarial/D&O",
+      "Cross-sell: cliente que fez previdência → seguro de vida"
+    ],
+    benchmark: "Penetração ideal: 30% da base com seguro"
+  },
+  "Diversificação": {
+    significado: "Clientes com ROA > 1,5% (carteira diversificada)",
+    taticas: [
+      "Propor 10% em FIIs para clientes 100% em RF",
+      "Apresentar multimercado para conservadores",
+      "Oferecer proteção cambial via fundos dólar",
+      "Revisar concentração excessiva em único ativo"
+    ],
+    benchmark: "Ideal: 60% RF, 25% RV, 10% Alt, 5% Internacional"
+  },
+  "NNM": {
+    significado: "Net New Money - captação líquida",
+    taticas: [
+      "Follow-up em propostas de aporte pendentes",
+      "Contatar clientes com aplicações vencendo",
+      "Abordar top 10 por patrimônio para novo aporte",
+      "Campanha de aporte para clientes inativos"
+    ],
+    benchmark: "Top 10%: R$ 3M+/mês de captação líquida"
+  }
+};
+
+function getPlaybookContext(kpiLabels: string[]): string {
+  const relevantPlaybooks = kpiLabels
+    .map(label => {
+      // Match partial labels
+      const key = Object.keys(KPI_PLAYBOOK).find(k => 
+        label.toLowerCase().includes(k.toLowerCase()) || 
+        k.toLowerCase().includes(label.toLowerCase().split(' ')[0])
+      );
+      if (key) {
+        const p = KPI_PLAYBOOK[key];
+        return `${label}:\n  - O que é: ${p.significado}\n  - Táticas: ${p.taticas.slice(0, 2).join('; ')}\n  - Benchmark: ${p.benchmark}`;
+      }
+      return null;
+    })
+    .filter(Boolean);
+  
+  return relevantPlaybooks.length > 0 
+    ? `\nPLAYBOOK DOS KPIs COM GAP:\n${relevantPlaybooks.join('\n\n')}`
+    : '';
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -72,90 +187,127 @@ serve(async (req) => {
       .map(a => `${a.name}: ${a.geralPercentage}%`)
       .join(', ');
 
-    // Use ritmoIdeal (percentage of elapsed days) for temporal context - NOT fixed day thresholds
+    // Use ritmoIdeal (percentage of elapsed days) for temporal context
     const percentualMes = monthlyData.ritmoIdeal;
-    const urgencyContext = percentualMes >= 90
-      ? `URGÊNCIA MÁXIMA: ${monthlyData.diasUteisRestantes} dias úteis restantes de ${monthlyData.totalDiasUteis}. Fechamento iminente do mês!`
+    const diasRestantes = monthlyData.diasUteisRestantes;
+    
+    const faseDoMes = percentualMes >= 90
+      ? 'FECHAMENTO'
       : percentualMes >= 70
-        ? `TERÇO FINAL DO MÊS: ${monthlyData.diasUteisDecorridos} de ${monthlyData.totalDiasUteis} dias úteis já passaram (${percentualMes}%). Restam ${monthlyData.diasUteisRestantes} dias para fechar.`
+        ? 'SPRINT_FINAL'
         : percentualMes >= 40
-          ? `METADE DO MÊS: ${monthlyData.diasUteisDecorridos} de ${monthlyData.totalDiasUteis} dias úteis decorridos (${percentualMes}%). Momento de avaliar ritmo.`
-          : `INÍCIO DO MÊS: ${monthlyData.diasUteisDecorridos} de ${monthlyData.totalDiasUteis} dias úteis decorridos (${percentualMes}%). Bom momento para ajustar estratégias.`;
+          ? 'MEIO_DO_MES'
+          : 'INICIO';
 
-    // Identify top gaps for actionable insights
+    const urgencyContext = {
+      FECHAMENTO: `URGÊNCIA MÁXIMA: ${diasRestantes} dias úteis restantes. Foco em FECHAR negócios em andamento. Não é hora de prospectar, é hora de converter!`,
+      SPRINT_FINAL: `TERÇO FINAL: ${diasRestantes} dias restantes (${percentualMes}% do mês). Mix de fechamento + aceleração de pipeline quente.`,
+      MEIO_DO_MES: `METADE DO MÊS: ${monthlyData.diasUteisDecorridos}/${monthlyData.totalDiasUteis} dias (${percentualMes}%). Momento de avaliar ritmo e ajustar estratégia.`,
+      INICIO: `INÍCIO DO MÊS: ${monthlyData.diasUteisDecorridos}/${monthlyData.totalDiasUteis} dias. Foco em construção de pipeline e prospecção ativa.`
+    }[faseDoMes];
+
+    // Identify top gaps with labels for playbook matching
     const kpiGaps = monthlyData.gaugeKPIs
-      .map(kpi => ({ label: kpi.label, gap: kpi.target - kpi.value, percentage: kpi.percentage }))
+      .map(kpi => ({ label: kpi.label, gap: kpi.target - kpi.value, percentage: kpi.percentage, target: kpi.target, value: kpi.value }))
       .filter(k => k.gap > 0)
       .sort((a, b) => a.percentage - b.percentage)
       .slice(0, 3);
     
+    const gapLabels = kpiGaps.map(k => k.label);
     const gapContext = kpiGaps.length > 0 
-      ? `KPIs com maior gap: ${kpiGaps.map(k => `${k.label} (${k.percentage}%)`).join(', ')}`
-      : 'Todos os KPIs acima da meta';
+      ? `KPIs PRIORITÁRIOS (maior gap):\n${kpiGaps.map(k => `• ${k.label}: ${k.percentage}% da meta (faltam ${k.gap.toLocaleString('pt-BR')} para bater)`).join('\n')}`
+      : 'Todos os KPIs acima da meta - foco em superação!';
 
-    const systemPrompt = `Você é um analista financeiro especializado em assessorias de investimento e mercado financeiro brasileiro. 
-Analise os dados de KPIs mensais fornecidos e identifique pontos positivos, pontos de atenção, e AÇÕES PRÁTICAS para as próximas 48 horas.
+    // Get specific playbook for the gap KPIs
+    const playbookContext = getPlaybookContext(gapLabels);
 
-Contexto da empresa:
-- Empresa de assessoria de investimentos
-- Métricas principais: Receita, NNM (Net New Money), Captação, Reuniões, COE, Previdência, Câmbio, Seguros
-- O ICM (Índice de Conquista de Metas) mede o percentual de atingimento das metas
-- Ritmo Ideal indica o percentual esperado considerando os dias úteis decorridos no mês (ex: se passou 80% do mês, o ritmo ideal é 80%)
-- Meta semanal é o objetivo acumulado da semana atual
+    const systemPrompt = `Você é um CONSULTOR SÊNIOR de assessorias de investimentos com 15 anos de experiência no mercado brasileiro, especialista em gestão de metas e performance comercial.
 
-CONTEXTO TEMPORAL CRÍTICO:
+CONTEXTO DO NEGÓCIO:
+- Assessoria de investimentos vinculada à XP
+- Modelo de remuneração: comissão sobre produtos + taxa de gestão
+- Foco em clientes PF de alta renda e PJ
+
+MÉTRICAS E SIGNIFICADOS:
+- Captação/NNM: Entrada líquida de recursos (aportes - resgates)
+- Receita: Receita gerada via corretagem, gestão, performance
+- Primeiras Reuniões: Prospecção ativa - motor de crescimento
+- COE: Estruturadas com proteção - bom para moderados
+- Previdência: PGBL/VGBL - benefício fiscal + sucessão
+- Câmbio/Seguros: Cross-sell - aumenta receita por cliente
+- Diversificação: ROA > 1,5% indica carteira saudável
+
+BOAS PRÁTICAS DE ALTA PERFORMANCE:
+1. Regra 80/20: 80% do tempo nos 20% de maior potencial
+2. Follow-up em 48h: Lead quente perde 90% de conversão após isso
+3. Blitz de ligações: 2h focadas = 30 ligações = 3-5 reuniões
+4. Cross-sell progressivo: RF → FII → RV → Internacional
+5. Campanha de vencimentos: CDBs/LCIs vencendo = oportunidade de reaplicação
+6. Referral: Cada cliente satisfeito pode indicar 2-3 novos
+7. Revisão de carteira: Motivo legítimo para contato e identificação de oportunidades
+
+${playbookContext}
+
+REGRAS CRÍTICAS PARA AÇÕES 48H:
+- OBRIGATÓRIO: Incluir NÚMEROS específicos (ex: "Ligar para 5 clientes", "Agendar 3 reuniões")
+- OBRIGATÓRIO: Incluir CANAL de ação (ligação, WhatsApp, e-mail, Calendly)
+- OBRIGATÓRIO: Vincular ao KPI com problema (não ações genéricas)
+- OBRIGATÓRIO: Ação deve ser executável em 48h com resultado mensurável
+- PROIBIDO: "Aumentar X", "Focar em Y", "Melhorar Z" (isso não é ação, é desejo)
+
+EXEMPLOS DE AÇÕES EXCELENTES:
+✅ "Ligar para 8 clientes com CDB vencendo esta semana"
+✅ "Enviar WhatsApp para top 10 inativos com oportunidade FII 1%/mês"
+✅ "Agendar 3 revisões de carteira via Calendly para diversificação"
+✅ "Follow-up em 5 propostas de previdência pendentes"
+✅ "Pedir 2 indicações para cada um dos 3 clientes que fecharam este mês"
+
+EXEMPLOS DE AÇÕES RUINS (NÃO USAR):
+❌ "Prospectar mais clientes" (vago, sem número)
+❌ "Aumentar captação" (é meta, não ação)
+❌ "Focar em previdência" (intenção, não ação)
+❌ "Melhorar performance" (não é executável)
+
+FASE ATUAL DO MÊS: ${faseDoMes}
+${faseDoMes === 'FECHAMENTO' ? 'FOCO: Fechar negócios em andamento, follow-up de propostas, última chance!' : ''}
+${faseDoMes === 'SPRINT_FINAL' ? 'FOCO: Mix de fechamento + aceleração de leads quentes' : ''}
+${faseDoMes === 'MEIO_DO_MES' ? 'FOCO: Avaliar ritmo e intensificar ações nos gaps' : ''}
+${faseDoMes === 'INICIO' ? 'FOCO: Construção de pipeline, prospecção ativa, volume de atividades' : ''}
+
+Seja DIRETO e ESPECÍFICO. Responda APENAS em JSON válido.`;
+
+    const userPrompt = `ANÁLISE DO MÊS ${monthlyData.selectedMonth} - ${assessorContext}
+
+SITUAÇÃO TEMPORAL:
 ${urgencyContext}
 
-IMPORTANTE: O ritmo ideal de ${monthlyData.ritmoIdeal}% significa que já passaram ${monthlyData.ritmoIdeal}% dos dias úteis do mês.
-- Se ICM Geral > Ritmo Ideal: equipe está ACIMA do esperado para este ponto do mês
-- Se ICM Geral < Ritmo Ideal: equipe está ABAIXO do esperado e precisa acelerar
+PERFORMANCE:
+- ICM Geral: ${monthlyData.icmGeral}% | Ritmo Ideal: ${monthlyData.ritmoIdeal}%
+- Status: ${monthlyData.icmGeral >= monthlyData.ritmoIdeal ? `✓ ACIMA do ritmo em ${(monthlyData.icmGeral - monthlyData.ritmoIdeal).toFixed(1)}pp` : `⚠ ABAIXO do ritmo em ${(monthlyData.ritmoIdeal - monthlyData.icmGeral).toFixed(1)}pp - ATENÇÃO`}
+
+KPIs DETALHADOS:
+${kpiSummary}
 
 ${gapContext}
 
-REGRAS PARA AÇÕES 48H:
-- Devem ser ESPECÍFICAS e MENSURÁVEIS (ex: "Ligar para 5 clientes PJ", não "Fazer mais ligações")
-- Incluir NÚMEROS quando possível (quantidade de ligações, reuniões, propostas)
-- Focar nos KPIs com maior gap vs meta
-- Priorizar ações de ALTO IMPACTO e rápida execução
-${percentualMes >= 90 ? '- URGENTE: Foco em FECHAMENTO de negócios em andamento' : ''}
-${percentualMes >= 70 && percentualMes < 90 ? '- Mix de prospecção rápida + fechamento de pipeline' : ''}
-${percentualMes < 70 ? '- Estratégias de volume e construção de pipeline' : ''}
-
-Seja direto, objetivo e use linguagem profissional do mercado financeiro.
-Responda APENAS em JSON válido no formato especificado.`;
-
-    const userPrompt = `Analise os dados do mês ${monthlyData.selectedMonth} para ${assessorContext}:
-
-SITUAÇÃO TEMPORAL:
-- Dias úteis decorridos: ${monthlyData.diasUteisDecorridos} de ${monthlyData.totalDiasUteis} (${monthlyData.ritmoIdeal}% do mês)
-- Dias úteis restantes: ${monthlyData.diasUteisRestantes}
-
-DESEMPENHO:
-- ICM Geral: ${monthlyData.icmGeral}%
-- Ritmo Ideal: ${monthlyData.ritmoIdeal}%
-- Diferença: ${monthlyData.icmGeral >= monthlyData.ritmoIdeal ? `ACIMA do ritmo em ${monthlyData.icmGeral - monthlyData.ritmoIdeal}pp` : `ABAIXO do ritmo em ${monthlyData.ritmoIdeal - monthlyData.icmGeral}pp`}
-
-KPIs do mês:
-${kpiSummary}
-
-Meta semanal acumulada:
+META SEMANAL:
 ${metaSemanalSummary}
 
-Top performers: ${topPerformers}
+TOP PERFORMERS: ${topPerformers}
 
-Retorne um JSON com exatamente este formato:
+Retorne JSON com EXATAMENTE este formato:
 {
-  "positivos": ["ponto positivo 1", "ponto positivo 2", "ponto positivo 3"],
-  "negativos": ["ponto de atenção 1", "ponto de atenção 2", "ponto de atenção 3"],
-  "acoes48h": ["ação específica 1", "ação específica 2", "ação específica 3"]
+  "positivos": ["insight específico 1", "insight específico 2"],
+  "negativos": ["ponto de atenção 1 com contexto", "ponto 2"],
+  "acoes48h": ["VERBO + NÚMERO + ALVO + CANAL específico"]
 }
 
-Regras:
-- positivos/negativos: 2-4 pontos, máximo 60 caracteres cada
-- acoes48h: 2-4 ações ESPECÍFICAS, máximo 50 caracteres cada, verbos no infinitivo
-- acoes48h devem ter NÚMEROS (ex: "Ligar para 5 clientes PJ top")
-- Foque nas métricas com maior gap: ${gapContext}
-- Considere que estamos no ${percentualMes >= 90 ? 'FECHAMENTO' : percentualMes >= 70 ? 'TERÇO FINAL' : percentualMes >= 40 ? 'MEIO' : 'INÍCIO'} do mês.`;
+REGRAS RÍGIDAS:
+- positivos: 2-3 insights com NÚMEROS e contexto de mercado, max 70 chars
+- negativos: 2-3 pontos com IMPACTO no negócio, max 70 chars
+- acoes48h: 2-4 ações ULTRA ESPECÍFICAS com número+canal, max 55 chars, verbos no INFINITIVO
+- acoes48h DEVEM endereçar os KPIs com gap: ${gapLabels.join(', ') || 'manutenção'}
+- Considere a FASE do mês: ${faseDoMes}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -211,6 +363,7 @@ Regras:
       analysis = {
         positivos: ["Dados em análise"],
         negativos: ["Aguardando mais informações"],
+        acoes48h: ["Verificar dados do mês"]
       };
     }
 
