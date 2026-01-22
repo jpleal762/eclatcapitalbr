@@ -277,3 +277,12 @@
 .animate-trophy-celebrate {
   animation: trophy-celebrate 1.5s ease-in-out infinite;
 }
+
+/* Gradiente Azul para ICM Semanal */
+.bg-blue-gradient {
+  background: linear-gradient(180deg, #60A5FA 0%, #2563EB 100%);
+}
+
+.bg-blue-gradient-horizontal {
+  background: linear-gradient(90deg, #60A5FA 0%, #2563EB 100%);
+}

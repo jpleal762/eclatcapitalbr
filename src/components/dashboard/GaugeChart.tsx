@@ -249,16 +249,28 @@ export function GaugeChart({
           height: dynamicHeight
         }}>
           <svg width={dynamicWidth} height={dynamicHeight} viewBox={`0 0 ${dynamicWidth} ${dynamicHeight}`} overflow="visible">
+            {/* Definições de gradientes SVG */}
+            <defs>
+              <linearGradient id="eclat-arc-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#FFE066" />
+                <stop offset="100%" stopColor="#E6A800" />
+              </linearGradient>
+              <linearGradient id="dark-gold-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#C9A227" />
+                <stop offset="100%" stopColor="#A67C00" />
+              </linearGradient>
+            </defs>
+            
             {/* Background arc */}
             <path d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
                   A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} fill="none" stroke={isHighlight ? "hsl(0, 0%, 50%)" : "hsl(var(--muted))"} strokeWidth={dynamicStrokeWidth} strokeLinecap="round" />
-            {/* Additional value arc (darker yellow/gold for Receita Empilhada) - vem primeiro */}
+            {/* Additional value arc (darker gold gradient for Receita Empilhada) - vem primeiro */}
             {hasSegmentedBar && (
               <path 
                 d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
                     A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} 
                 fill="none" 
-                stroke="#A67C00"
+                stroke="url(#dark-gold-gradient)"
                 strokeWidth={dynamicStrokeWidth} 
                 strokeLinecap="butt" 
                 strokeDasharray={circumference} 
@@ -267,12 +279,12 @@ export function GaugeChart({
               />
             )}
             
-            {/* Progress arc - base value (PJ2 XP amarelo) - vem depois */}
+            {/* Progress arc - base value (gold gradient) - vem depois */}
             <path 
               d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
                   A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} 
               fill="none" 
-              stroke="hsl(var(--primary))" 
+              stroke="url(#eclat-arc-gradient)" 
               strokeWidth={dynamicStrokeWidth} 
               strokeLinecap="round" 
               strokeDasharray={circumference} 
