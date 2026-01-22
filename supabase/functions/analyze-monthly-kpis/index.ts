@@ -40,97 +40,97 @@ interface MonthlyData {
   selectedAssessor: string;
 }
 
-// Playbook de táticas específicas por KPI - conhecimento de mercado de assessoria
-const KPI_PLAYBOOK: Record<string, { significado: string; taticas: string[]; benchmark: string }> = {
+// Playbook de táticas específicas por KPI - técnicas validadas de mercado
+const KPI_PLAYBOOK: Record<string, { significado: string; taticas: string[]; benchmark: string; acaoRapida: string }> = {
   "Captação NET": {
     significado: "Net New Money - entrada líquida de recursos",
     taticas: [
-      "Follow-up em propostas de aporte pendentes",
-      "Contatar clientes com CDB/LCI vencendo para reinvestir",
-      "Abordar top 10 clientes por patrimônio para aporte adicional",
-      "Converter saldo em conta corrente em investimentos"
+      "Listar top 5 clientes com CDB/LCI vencendo nos próximos 5 dias e propor rebalanceamento",
+      "Enviar Champion Letter (resumo + próximo passo) para propostas de aporte pendentes há +48h",
+      "Abordar 3 clientes com saldo parado em conta corrente >R$50k via ligação"
     ],
-    benchmark: "Top performers: R$ 2M+/mês por carteira de 50 clientes"
+    benchmark: "Top performers: R$ 2M+/mês | Conversão: proposta com follow-up 48h = 3x mais fechamento",
+    acaoRapida: "Ligar para 5 clientes com CDB vencendo esta semana e propor reinvestimento"
   },
   "Primeira reuniao": {
     significado: "Reuniões de prospecção com novos clientes",
     taticas: [
-      "Blitz de ligações: 30 calls em 2h = ~5 agendamentos",
-      "Reativar leads quentes dos últimos 30 dias via WhatsApp",
-      "Pedir 2 indicações para cada cliente satisfeito",
-      "Agendar cafés com contatos de networking pendentes"
+      "Blitz de ligações: 2h focadas (10h-12h) = 20 calls = ~3 agendamentos (regra 10-3-1)",
+      "Ligar (não WhatsApp!) para 10 leads do pipeline frio - ligação converte 3x mais que mensagem",
+      "Pedir 2 indicações para os últimos 3 clientes que fecharam negócio"
     ],
-    benchmark: "Conversão média: 10 ligações = 1 reunião"
+    benchmark: "Regra 10-3-1: 10 ligações = 3 reuniões = 1 fechamento | Ligação > WhatsApp para prospecção",
+    acaoRapida: "Bloquear 2h amanhã (10h-12h) para fazer 20 ligações focadas em agendamento"
   },
   "Receita": {
     significado: "Receita total gerada (corretagem + gestão + performance)",
     taticas: [
-      "Propor rebalanceamento para produtos de maior fee",
-      "Identificar clientes para migração RF → Fundos",
-      "Revisar carteiras com baixo giro para oportunidades",
-      "Oferecer estruturadas para clientes com perfil"
+      "Identificar 5 clientes com carteira 100% RF e propor 10% em FIIs (aumenta ROA)",
+      "Revisar 3 carteiras com ROA <0,8% e propor migração para fundos de gestão ativa",
+      "Enviar proposta de estruturada para clientes moderados com patrimônio >R$200k"
     ],
-    benchmark: "ROA saudável: 1,5% ao ano sobre AuC"
+    benchmark: "ROA saudável: 1,5%/ano | Cada 0,5pp de ROA extra = +50% de receita por cliente",
+    acaoRapida: "Ligar para 3 clientes com carteira concentrada e propor diversificação"
   },
   "COE": {
     significado: "Certificados de Operações Estruturadas",
     taticas: [
-      "Listar clientes moderados com CDBs vencendo",
-      "Apresentar COE como alternativa ao CDI com proteção",
-      "Recontatar clientes que já investiram em COE",
-      "Usar cases: 'Cliente X teve retorno de Y% em Z meses'"
+      "Listar 5 clientes moderados com CDBs >R$50k vencendo e apresentar COE com proteção",
+      "Recontatar 3 clientes que já investiram em COE nos últimos 6 meses",
+      "Usar gatilho de escassez: 'Últimas 48h para entrar nesta série com proteção de 100%'"
     ],
-    benchmark: "Ticket médio ideal: R$ 50-100k por operação"
+    benchmark: "Ticket médio ideal: R$50-100k | Argumento: CDI + proteção de capital",
+    acaoRapida: "Enviar WhatsApp para 5 clientes com perfil moderado sobre COE da semana"
   },
   "Previdência": {
     significado: "Captação em planos PGBL/VGBL",
     taticas: [
-      "Identificar clientes CLT para benefício fiscal PGBL (12% IRPF)",
-      "Abordar clientes com dependentes para sucessão",
-      "Propor portabilidade de planos antigos com taxas altas",
-      "Campanha de aporte extra em outubro-dezembro"
+      "Ligar para 5 clientes CLT com renda >R$20k e apresentar PGBL (economia de até 12% no IR)",
+      "Abordar 3 clientes com filhos menores para VGBL como sucessão patrimonial",
+      "Propor portabilidade para 3 clientes com planos antigos (taxa de carregamento >3%)"
     ],
-    benchmark: "Janela de ouro: out-dez (dedução IRPF)"
+    benchmark: "Janela de ouro: out-dez | PGBL: economia de 12% do IRPF para CLT",
+    acaoRapida: "Ligar para 5 clientes CLT e calcular economia de IR com PGBL em tempo real"
   },
   "Câmbio": {
     significado: "Operações de câmbio e remessas",
     taticas: [
-      "Mapear clientes com viagens internacionais marcadas",
-      "Oferecer conta global para clientes frequentes",
-      "Identificar clientes com filhos estudando no exterior",
-      "Abordar empresários com operações de importação"
+      "Mapear 5 clientes com viagens internacionais nos próximos 60 dias",
+      "Identificar 3 clientes com filhos estudando no exterior para remessa programada",
+      "Abordar 3 empresários com operações de importação para conta global"
     ],
-    benchmark: "Spread competitivo: 1-2% sobre comercial"
+    benchmark: "Spread competitivo: 1-2% | Cross-sell natural com conta internacional",
+    acaoRapida: "Enviar mensagem para 5 clientes perguntando sobre viagens planejadas"
   },
   "Seguros": {
     significado: "Seguros de vida, patrimonial e empresarial",
     taticas: [
-      "Mapear clientes sem seguro de vida com dependentes",
-      "Oferecer seguro patrimonial para imóveis de alto valor",
-      "Abordar empresários para seguro empresarial/D&O",
-      "Cross-sell: cliente que fez previdência → seguro de vida"
+      "Ligar para 5 clientes com previdência ativa e oferecer seguro de vida (cross-sell natural)",
+      "Mapear 3 clientes com imóveis de alto valor sem seguro patrimonial",
+      "Abordar 3 empresários para seguro D&O (responsabilidade de administradores)"
     ],
-    benchmark: "Penetração ideal: 30% da base com seguro"
+    benchmark: "Penetração ideal: 30% da base | Cross-sell previdência → seguro = 70% conversão",
+    acaoRapida: "Ligar para 5 clientes com previdência e ofertar seguro de vida vinculado"
   },
   "Diversificação": {
     significado: "Clientes com ROA > 1,5% (carteira diversificada)",
     taticas: [
-      "Propor 10% em FIIs para clientes 100% em RF",
-      "Apresentar multimercado para conservadores",
-      "Oferecer proteção cambial via fundos dólar",
-      "Revisar concentração excessiva em único ativo"
+      "Identificar 5 clientes 100% em RF e propor alocação de 10% em FIIs",
+      "Propor 5% em fundos dólar para 3 clientes sem exposição internacional",
+      "Revisar 3 carteiras concentradas >50% em único ativo"
     ],
-    benchmark: "Ideal: 60% RF, 25% RV, 10% Alt, 5% Internacional"
+    benchmark: "Alocação ideal: 60% RF, 25% RV, 10% Alt, 5% Internacional",
+    acaoRapida: "Ligar para 3 clientes com carteira 100% RF e propor FIIs com yield de 1%/mês"
   },
   "NNM": {
     significado: "Net New Money - captação líquida",
     taticas: [
-      "Follow-up em propostas de aporte pendentes",
-      "Contatar clientes com aplicações vencendo",
-      "Abordar top 10 por patrimônio para novo aporte",
-      "Campanha de aporte para clientes inativos"
+      "Follow-up via ligação em propostas de aporte enviadas há mais de 48h (90% esfriam após isso)",
+      "Contatar top 5 clientes por patrimônio e propor aporte adicional",
+      "Reativar 5 clientes inativos há 6+ meses com oportunidade específica"
     ],
-    benchmark: "Top 10%: R$ 3M+/mês de captação líquida"
+    benchmark: "Top 10%: R$3M+/mês | Regra: 48h sem follow-up = 90% de perda",
+    acaoRapida: "Ligar para 3 clientes com propostas pendentes e agendar horário de assinatura"
   }
 };
 
@@ -221,58 +221,37 @@ serve(async (req) => {
     // Get specific playbook for the gap KPIs
     const playbookContext = getPlaybookContext(gapLabels);
 
-    const systemPrompt = `Você é um CONSULTOR SÊNIOR de assessorias de investimentos com 15 anos de experiência no mercado brasileiro, especialista em gestão de metas e performance comercial.
+    const systemPrompt = `Você é um CONSULTOR SÊNIOR de assessorias de investimentos com 15 anos de experiência no mercado brasileiro (XP, BTG, Safra).
 
-CONTEXTO DO NEGÓCIO:
-- Assessoria de investimentos vinculada à XP
-- Modelo de remuneração: comissão sobre produtos + taxa de gestão
-- Foco em clientes PF de alta renda e PJ
+TÉCNICAS DE ALTO IMPACTO VALIDADAS:
+1. REGRA 10-3-1: 10 ligações = 3 reuniões = 1 fechamento
+2. LIGAÇÃO > WHATSAPP: Para prospecção fria, ligação converte 3x mais
+3. REGRA DAS 48H: 90% das conversões morrem após 48h sem follow-up
+4. CHAMPION LETTER: E-mail pós-reunião com resumo + próximo passo definido
+5. GATILHO DE VENCIMENTO: CDBs/LCIs vencendo = oportunidade de ouro
+6. ESCASSEZ: "Últimas 48h para esta série" aumenta urgência
 
-MÉTRICAS E SIGNIFICADOS:
-- Captação/NNM: Entrada líquida de recursos (aportes - resgates)
-- Receita: Receita gerada via corretagem, gestão, performance
-- Primeiras Reuniões: Prospecção ativa - motor de crescimento
-- COE: Estruturadas com proteção - bom para moderados
-- Previdência: PGBL/VGBL - benefício fiscal + sucessão
-- Câmbio/Seguros: Cross-sell - aumenta receita por cliente
-- Diversificação: ROA > 1,5% indica carteira saudável
+FÓRMULA DA AÇÃO PERFEITA (48H):
+[VERBO AÇÃO] + [NÚMERO ESPECÍFICO] + [ALVO QUALIFICADO] + [CANAL] + [RESULTADO ESPERADO]
 
-BOAS PRÁTICAS DE ALTA PERFORMANCE:
-1. Regra 80/20: 80% do tempo nos 20% de maior potencial
-2. Follow-up em 48h: Lead quente perde 90% de conversão após isso
-3. Blitz de ligações: 2h focadas = 30 ligações = 3-5 reuniões
-4. Cross-sell progressivo: RF → FII → RV → Internacional
-5. Campanha de vencimentos: CDBs/LCIs vencendo = oportunidade de reaplicação
-6. Referral: Cada cliente satisfeito pode indicar 2-3 novos
-7. Revisão de carteira: Motivo legítimo para contato e identificação de oportunidades
+EXEMPLOS EXCELENTES:
+✅ "Ligar para 5 clientes com CDB vencendo esta semana (meta: 2 aportes)"
+✅ "Bloquear 2h amanhã (10h-12h) para 20 ligações de prospecção (meta: 3 reuniões)"
+✅ "Enviar Champion Letter para 3 propostas pendentes com data/hora para assinatura"
+✅ "Pedir 2 indicações para cada um dos 3 clientes que fecharam (meta: 6 leads)"
+
+EXEMPLOS RUINS (PROIBIDO):
+❌ "Prospectar mais" (vago)
+❌ "Aumentar captação" (meta, não ação)
+❌ "Entrar em contato com clientes" (sem número/canal)
+❌ "Focar em previdência" (intenção, não ação)
 
 ${playbookContext}
 
-REGRAS CRÍTICAS PARA AÇÕES 48H:
-- OBRIGATÓRIO: Incluir NÚMEROS específicos (ex: "Ligar para 5 clientes", "Agendar 3 reuniões")
-- OBRIGATÓRIO: Incluir CANAL de ação (ligação, WhatsApp, e-mail, Calendly)
-- OBRIGATÓRIO: Vincular ao KPI com problema (não ações genéricas)
-- OBRIGATÓRIO: Ação deve ser executável em 48h com resultado mensurável
-- PROIBIDO: "Aumentar X", "Focar em Y", "Melhorar Z" (isso não é ação, é desejo)
+FASE DO MÊS: ${faseDoMes}
+${urgencyContext}
 
-EXEMPLOS DE AÇÕES EXCELENTES:
-✅ "Ligar para 8 clientes com CDB vencendo esta semana"
-✅ "Enviar WhatsApp para top 10 inativos com oportunidade FII 1%/mês"
-✅ "Agendar 3 revisões de carteira via Calendly para diversificação"
-✅ "Follow-up em 5 propostas de previdência pendentes"
-✅ "Pedir 2 indicações para cada um dos 3 clientes que fecharam este mês"
-
-EXEMPLOS DE AÇÕES RUINS (NÃO USAR):
-❌ "Prospectar mais clientes" (vago, sem número)
-❌ "Aumentar captação" (é meta, não ação)
-❌ "Focar em previdência" (intenção, não ação)
-❌ "Melhorar performance" (não é executável)
-
-FASE ATUAL DO MÊS: ${faseDoMes}
-${faseDoMes === 'FECHAMENTO' ? 'FOCO: Fechar negócios em andamento, follow-up de propostas, última chance!' : ''}
-${faseDoMes === 'SPRINT_FINAL' ? 'FOCO: Mix de fechamento + aceleração de leads quentes' : ''}
-${faseDoMes === 'MEIO_DO_MES' ? 'FOCO: Avaliar ritmo e intensificar ações nos gaps' : ''}
-${faseDoMes === 'INICIO' ? 'FOCO: Construção de pipeline, prospecção ativa, volume de atividades' : ''}
+REGRA DE OURO: Cada ação deve ter potencial de impactar diretamente o KPI com maior gap em até 48h.
 
 Seja DIRETO e ESPECÍFICO. Responda APENAS em JSON válido.`;
 
@@ -297,17 +276,21 @@ TOP PERFORMERS: ${topPerformers}
 
 Retorne JSON com EXATAMENTE este formato:
 {
-  "positivos": ["insight específico 1", "insight específico 2"],
-  "negativos": ["ponto de atenção 1 com contexto", "ponto 2"],
-  "acoes48h": ["VERBO + NÚMERO + ALVO + CANAL específico"]
+  "positivos": ["insight específico 1 com número", "insight específico 2"],
+  "negativos": ["ponto de atenção 1 com impacto quantificado", "ponto 2"],
+  "acoes48h": ["ação 1", "ação 2", "ação 3"]
 }
 
-REGRAS RÍGIDAS:
-- positivos: 2-3 insights com NÚMEROS e contexto de mercado, max 70 chars
-- negativos: 2-3 pontos com IMPACTO no negócio, max 70 chars
-- acoes48h: 2-4 ações ULTRA ESPECÍFICAS com número+canal, max 55 chars, verbos no INFINITIVO
-- acoes48h DEVEM endereçar os KPIs com gap: ${gapLabels.join(', ') || 'manutenção'}
-- Considere a FASE do mês: ${faseDoMes}`;
+REGRAS RÍGIDAS PARA AÇÕES 48H:
+- EXATAMENTE 3 ações (nem mais, nem menos)
+- Cada ação deve endereçar um dos KPIs com gap: ${gapLabels.slice(0, 3).join(', ') || 'manutenção'}
+- Priorizar: ${gapLabels[0] || 'manutenção do ritmo'} (maior gap)
+- Formato: [VERBO] + [NÚMERO] + [ALVO] + [CANAL] + [META]
+- Máximo 65 caracteres por ação
+- Usar técnicas: Regra 10-3-1, Champion Letter, Gatilho de vencimento
+
+positivos: 2-3 insights com NÚMEROS, máximo 70 caracteres
+negativos: 2-3 pontos com IMPACTO quantificado, máximo 70 caracteres`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
