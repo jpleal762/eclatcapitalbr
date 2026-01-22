@@ -44,11 +44,11 @@ import { AnalysisPage } from "@/components/dashboard/AnalysisPage";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 
-// Função para obter o mês atual no formato "jan/26"
+// Função para obter o mês atual no formato "jan-26"
 const getCurrentMonthValue = () => {
   const now = new Date();
   const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-  return `${monthNames[now.getMonth()]}/${now.getFullYear().toString().slice(-2)}`;
+  return `${monthNames[now.getMonth()]}-${now.getFullYear().toString().slice(-2)}`;
 };
 
 const Index = () => {
