@@ -285,7 +285,7 @@ const Index = () => {
   const col3Visible = visibility.graph3 || visibility.graph8 || visibility.graph9;
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="h-screen bg-background flex w-full overflow-hidden">
         {!isFullscreen && (
           <DashboardSidebar 
