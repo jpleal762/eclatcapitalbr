@@ -61,13 +61,13 @@ export function YearlyAssessorChart({ data, ritmoIdeal }: YearlyAssessorChartPro
                   </span>
                 </div>
                 <div className="text-right ml-2">
-                  <span className="text-responsive-sm font-bold text-chart-graphite">
-                    {assessor.geralPercentage}%
-                  </span>
-                  <span className="text-responsive-xs font-medium text-gray-500 block">
-                    {assessor.semanaPercentage}%
-                  </span>
-                </div>
+                    <span className="text-responsive-sm font-bold text-chart-graphite">
+                      {assessor.geralPercentage}%
+                    </span>
+                    <span className="text-responsive-xs font-medium text-blue-500 block">
+                      {assessor.semanaPercentage}%
+                    </span>
+                  </div>
               </div>
               {/* Barra ICM Geral */}
               <div className="h-bar-responsive w-full rounded-full bg-muted overflow-hidden">
@@ -76,10 +76,10 @@ export function YearlyAssessorChart({ data, ritmoIdeal }: YearlyAssessorChartPro
                   style={{ width: `${Math.min(assessor.geralPercentage, 100)}%` }}
                 />
               </div>
-              {/* Barra ICM Semanal (cinza) */}
+              {/* Barra ICM Semanal (azul degradê) */}
               <div className="h-bar-responsive-sm w-full rounded-full bg-muted overflow-hidden mt-responsive-sm">
                 <div
-                  className="h-full rounded-full bg-gray-500 transition-all duration-500"
+                  className="h-full rounded-full bg-blue-gradient-horizontal transition-all duration-500"
                   style={{ width: `${Math.min(assessor.semanaPercentage, 100)}%` }}
                 />
               </div>
@@ -108,7 +108,7 @@ export function YearlyAssessorChart({ data, ritmoIdeal }: YearlyAssessorChartPro
                     <span className="text-responsive-xs font-medium text-muted-foreground">
                       {assessor.geralPercentage}%
                     </span>
-                    <span className="text-responsive-3xs text-gray-500 block">
+                    <span className="text-responsive-3xs text-blue-500 block">
                       {assessor.semanaPercentage}%
                     </span>
                   </div>
@@ -120,10 +120,10 @@ export function YearlyAssessorChart({ data, ritmoIdeal }: YearlyAssessorChartPro
                     style={{ width: `${Math.min(assessor.geralPercentage, 100)}%` }}
                   />
                 </div>
-                {/* Barra ICM Semanal (cinza) */}
+                {/* Barra ICM Semanal (azul degradê) */}
                 <div className="h-bar-responsive-sm w-full rounded-full bg-muted overflow-hidden mt-responsive-sm">
                   <div
-                    className="h-full rounded-full bg-gray-400 transition-all duration-500"
+                    className="h-full rounded-full bg-blue-gradient-horizontal transition-all duration-500"
                     style={{ width: `${Math.min(assessor.semanaPercentage, 100)}%` }}
                   />
                 </div>

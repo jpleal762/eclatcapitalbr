@@ -124,9 +124,9 @@ export function AssessorChart({
               </Tooltip>
             </TooltipProvider>
           </div>
-          {/* Barra ICM Semanal (cinza) */}
+{/* Barra ICM Semanal (azul degradê) */}
           <div className="w-full h-1 bg-muted rounded-full overflow-hidden mt-0.5">
-            <div className="h-full rounded-l-full transition-all duration-500 bg-gray-500" style={{
+            <div className="h-full rounded-l-full transition-all duration-500 bg-blue-gradient-horizontal" style={{
               width: `${Math.min(assessor.semanaPercentage, 100)}%`
             }} />
           </div>
@@ -136,7 +136,7 @@ export function AssessorChart({
           <span className="text-responsive-3xs font-bold text-eclat-gold">
             {assessor.geralPercentage}%
           </span>
-          <span className="text-[9px] font-medium text-gray-500 block leading-tight">
+          <span className="text-[9px] font-medium text-blue-500 block leading-tight">
             {assessor.semanaPercentage}%
           </span>
         </div>
