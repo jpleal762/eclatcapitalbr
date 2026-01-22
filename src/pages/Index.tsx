@@ -153,7 +153,24 @@ const Index = () => {
     return years.length > 0 ? years : [new Date().getFullYear()];
   }, [processedData]);
 
-
+  // Sincronizar mês selecionado com meses disponíveis ao carregar dados
+  useEffect(() => {
+    if (months.length > 0) {
+      const currentMonthValue = getCurrentMonthValue();
+      
+      // Busca exata do mês atual nos dados (case-insensitive)
+      const exactMatch = months.find(m => m.toLowerCase() === currentMonthValue.toLowerCase());
+      
+      if (exactMatch) {
+        // Se o mês atual existe nos dados, seleciona ele
+        setFilters(prev => ({ ...prev, month: exactMatch }));
+      } else if (!months.includes(filters.month)) {
+        // Se o mês atual não existe E o mês selecionado também não existe,
+        // seleciona o mês mais recente (último da lista)
+        setFilters(prev => ({ ...prev, month: months[months.length - 1] }));
+      }
+    }
+  }, [months]);
 
   const dashboardData = useMemo(
     () => processDashboardData(processedData, filters.month, filters.assessor),
