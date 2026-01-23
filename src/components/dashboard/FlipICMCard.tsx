@@ -20,6 +20,7 @@ interface FlipICMCardProps {
   onMonthChange: (value: string) => void;
   dashboardData: DashboardData;
   isFlipped?: boolean;
+  isLocked?: boolean;
 }
 
 interface AnalysisResult {
@@ -46,6 +47,7 @@ export function FlipICMCard({
   onMonthChange,
   dashboardData,
   isFlipped: controlledFlipped,
+  isLocked = false,
 }: FlipICMCardProps) {
   // Manual flip offset for user-initiated flips
   const [manualFlipOffset, setManualFlipOffset] = useState(0);
@@ -175,6 +177,7 @@ export function FlipICMCard({
               months={months}
               onAssessorChange={onAssessorChange}
               onMonthChange={onMonthChange}
+              isLocked={isLocked}
             />
             <div className="absolute top-2 right-2 p-1 rounded-full bg-muted/50 opacity-50 hover:opacity-100 transition-opacity z-10">
               <RotateCcw className="w-3 h-3 text-muted-foreground" />
