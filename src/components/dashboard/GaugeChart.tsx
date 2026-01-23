@@ -31,6 +31,8 @@ interface GaugeChartProps {
   weight?: number;
   // Modo compacto - reduz escala do gauge para caber em espaços restritos
   compact?: boolean;
+  // Nome do head responsável pelo KPI (exibido abaixo do título em caixa alta)
+  headName?: string;
 }
 // Determina o alerta baseado na performance vs ritmo ideal
 const getGaugeAlert = (currentPercentage: number, ritmoIdeal?: number): "GREEN" | "ORANGE" | "RED" | undefined => {
@@ -123,6 +125,7 @@ export function GaugeChart({
   additionalValue,
   weight,
   compact = false,
+  headName,
 }: GaugeChartProps) {
   const { theme } = useTheme();
   const {
@@ -215,14 +218,21 @@ export function GaugeChart({
         <div className={`flex flex-col items-center justify-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1`}>
           {/* Header with title and alert */}
           <div className="flex items-center justify-between w-full mb-responsive flex-shrink-0">
-            <h4 className={`font-semibold text-responsive-3xs ${isHighlight ? "text-card" : "text-foreground"} flex-1 truncate whitespace-nowrap`}>
-              {label}
-              {weight !== undefined && (
-                <span className="ml-1 text-muted-foreground font-normal">
-                  x{weight}
+            <div className="flex flex-col flex-1 min-w-0">
+              <h4 className={`font-semibold text-responsive-3xs ${isHighlight ? "text-card" : "text-foreground"} truncate whitespace-nowrap`}>
+                {label}
+                {weight !== undefined && (
+                  <span className="ml-1 text-muted-foreground font-normal">
+                    x{weight}
+                  </span>
+                )}
+              </h4>
+              {headName && (
+                <span className="text-responsive-4xs text-muted-foreground font-medium uppercase tracking-wide">
+                  HEAD {headName}
                 </span>
               )}
-            </h4>
+            </div>
             <div className="flex-shrink-0 ml-1">
               <RitmoAlertDisplay 
                 alertType={alertType} 

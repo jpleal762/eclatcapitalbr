@@ -60,7 +60,7 @@ const GRAPH_ITEMS: { key: keyof DashboardVisibility; label: string }[] = [
   { key: "graph3", label: "Gráfico 3 - Primeiras Reuniões" },
   { key: "graph4", label: "Gráfico 4 - Diversificação" },
   { key: "graph5", label: "Gráfico 5 - Receita Parceiros" },
-  { key: "graph6", label: "Gráfico 6 - Receita PJ1 XP" },
+  { key: "graph6", label: "Gráfico 6 - Receita PJ1 XP (HEAD BRUNO)" },
   { key: "graph7", label: "Gráfico 7 - Receita PJ2 XP" },
   { key: "graph8", label: "Gráfico 8 - Habilitação" },
   { key: "graph9", label: "Gráfico 9 - Ativação" },
