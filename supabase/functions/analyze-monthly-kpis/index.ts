@@ -304,6 +304,7 @@ negativos: 2-3 pontos com IMPACTO quantificado, máximo 70 caracteres`;
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
+        max_tokens: 1024,
       }),
     });
 
@@ -337,16 +338,44 @@ negativos: 2-3 pontos com IMPACTO quantificado, máximo 70 caracteres`;
       // Try to extract JSON from the response (handles markdown code blocks)
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        analysis = JSON.parse(jsonMatch[0]);
+        let jsonStr = jsonMatch[0];
+        
+        // Try to repair truncated JSON by ensuring arrays are closed
+        if (!jsonStr.includes('"acoes48h"')) {
+          throw new Error("Incomplete response - missing acoes48h");
+        }
+        
+        // Count brackets to detect truncation
+        const openBrackets = (jsonStr.match(/\[/g) || []).length;
+        const closeBrackets = (jsonStr.match(/\]/g) || []).length;
+        const openBraces = (jsonStr.match(/\{/g) || []).length;
+        const closeBraces = (jsonStr.match(/\}/g) || []).length;
+        
+        // If unbalanced, try to close
+        if (openBrackets > closeBrackets || openBraces > closeBraces) {
+          console.warn("Detected truncated JSON, attempting repair");
+          // Remove trailing incomplete content and close properly
+          jsonStr = jsonStr.replace(/,?\s*"[^"]*$/, ''); // Remove incomplete string
+          jsonStr = jsonStr.replace(/,?\s*$/, ''); // Remove trailing comma
+          for (let i = 0; i < openBrackets - closeBrackets; i++) jsonStr += ']';
+          for (let i = 0; i < openBraces - closeBraces; i++) jsonStr += '}';
+        }
+        
+        analysis = JSON.parse(jsonStr);
+        
+        // Validate required fields
+        if (!analysis.positivos || !analysis.negativos || !analysis.acoes48h) {
+          throw new Error("Missing required fields");
+        }
       } else {
         throw new Error("No JSON found in response");
       }
     } catch (parseError) {
-      console.error("Failed to parse AI response:", content);
+      console.error("Failed to parse AI response:", content.substring(0, 500));
       analysis = {
-        positivos: ["Dados em análise"],
-        negativos: ["Aguardando mais informações"],
-        acoes48h: ["Verificar dados do mês"]
+        positivos: ["Análise em processamento"],
+        negativos: ["Tente novamente em alguns segundos"],
+        acoes48h: ["Revisar metas do mês", "Verificar KPIs prioritários", "Agendar reunião de acompanhamento"]
       };
     }
 
