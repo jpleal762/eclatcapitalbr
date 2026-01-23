@@ -16,6 +16,7 @@ interface ICMCardProps {
   months: string[];
   onAssessorChange: (value: string) => void;
   onMonthChange: (value: string) => void;
+  isLocked?: boolean;
 }
 export function ICMCard({
   icmGeral,
@@ -26,7 +27,8 @@ export function ICMCard({
   selectedMonth,
   months,
   onAssessorChange,
-  onMonthChange
+  onMonthChange,
+  isLocked = false
 }: ICMCardProps) {
   const {
     height,
@@ -79,8 +81,8 @@ export function ICMCard({
           ICM Geral
         </h3>
         <div className="flex items-center gap-2 flex-wrap">
-          <Select value={selectedAssessor} onValueChange={onAssessorChange}>
-            <SelectTrigger className="w-[120px] bg-background text-responsive-xs h-7 py-0.5">
+          <Select value={selectedAssessor} onValueChange={onAssessorChange} disabled={isLocked}>
+            <SelectTrigger className={`w-[120px] bg-background text-responsive-xs h-7 py-0.5 ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}`}>
               <SelectValue placeholder="TODOS" />
             </SelectTrigger>
             <SelectContent>

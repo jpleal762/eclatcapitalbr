@@ -14,6 +14,7 @@ import { YearlyGaugeChart } from "@/components/dashboard/YearlyGaugeChart";
 import { YearlyAnalysisCard } from "@/components/dashboard/YearlyAnalysisCard";
 import { DashboardSidebar, DashboardVisibility, defaultVisibility } from "@/components/dashboard/DashboardSidebar";
 import { ExpandableCard } from "@/components/dashboard/ExpandableCard";
+import { AssessorSelector } from "@/components/dashboard/AssessorSelector";
 import { KPIRecord, DashboardFilters, YearlyDashboardFilters } from "@/types/kpi";
 import {
   processKPIData,
@@ -31,7 +32,7 @@ import {
 } from "@/lib/yearlyKpiUtils";
 import { loadExcelData, saveExcelData } from "@/lib/storage";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Maximize2, Minimize2, Play, Pause } from "lucide-react";
+import { Menu, Maximize2, Minimize2, Play, Pause, ArrowLeft } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
 import eclatLogoDark from "@/assets/eclat-xp-logo-dark.svg";
 import { useTheme } from "next-themes";
@@ -79,6 +80,13 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState<"dashboard" | "analysis">("dashboard");
   const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
   const [isAutoRotationEnabled, setIsAutoRotationEnabled] = useState(true);
+  
+  // Estado para controle da tela de seleção inicial
+  // undefined = ainda não selecionou (mostra tela de seleção)
+  // null = selecionou "Escritório" (filtros livres)
+  // "Nome Assessor" = selecionou assessor específico (filtro bloqueado)
+  const [selectedView, setSelectedView] = useState<string | null | undefined>(undefined);
+  const isViewLocked = selectedView !== null && selectedView !== undefined;
 
   // Fullscreen toggle with F11
   useEffect(() => {
@@ -117,6 +125,24 @@ const Index = () => {
 
   const handleVisibilityChange = (key: keyof DashboardVisibility, value: boolean) => {
     setVisibility(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Handler para seleção de visão (assessor específico ou escritório)
+  const handleViewSelection = (assessor: string | null) => {
+    setSelectedView(assessor);
+    if (assessor) {
+      // Se selecionou assessor, já aplica o filtro
+      setFilters(prev => ({ ...prev, assessor: assessor }));
+    } else {
+      // Se selecionou escritório, reseta para "all"
+      setFilters(prev => ({ ...prev, assessor: "all" }));
+    }
+  };
+
+  // Handler para voltar à tela de seleção
+  const handleBackToSelection = () => {
+    setSelectedView(undefined);
+    setFilters(prev => ({ ...prev, assessor: "all" }));
   };
 
   // Load data from storage on mount
@@ -301,6 +327,17 @@ const Index = () => {
   const col2Visible = visibility.graph2 || visibility.graph6 || visibility.graph7;
   const col3Visible = visibility.graph3 || visibility.graph8 || visibility.graph9;
 
+  // Se ainda não selecionou visão E há dados carregados, mostra seletor
+  if (selectedView === undefined && !isLoading && rawData.length > 0) {
+    return (
+      <AssessorSelector 
+        assessors={assessors}
+        onSelectAssessor={handleViewSelection}
+        isLoading={isLoading}
+      />
+    );
+  }
+
   return (
     <SidebarProvider defaultOpen={false}>
       <div className="h-screen bg-background flex w-full overflow-hidden">
@@ -316,11 +353,24 @@ const Index = () => {
           <header className="bg-card border-b border-border shadow-sm flex-shrink-0">
             <div className="container mx-auto px-4 py-2">
               <div className="flex items-center justify-between">
-                <div className="w-32 flex items-center gap-2">
+                <div className="w-40 flex items-center gap-2">
                   {!isFullscreen && (
                     <SidebarTrigger className="p-2 hover:bg-muted rounded-md">
                       <Menu className="h-5 w-5" />
                     </SidebarTrigger>
+                  )}
+                  {/* Botão voltar para tela de seleção */}
+                  {hasData && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleBackToSelection}
+                      className="gap-1 text-xs"
+                      title="Voltar para seleção de visão"
+                    >
+                      <ArrowLeft className="h-3 w-3" />
+                      Trocar
+                    </Button>
                   )}
                 </div>
                 <div className="flex-1 flex flex-col items-center">
@@ -407,6 +457,7 @@ const Index = () => {
                 availableYears={availableYears}
                 selectedAssessor={filters.assessor}
                 onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
+                isAssessorLocked={isViewLocked}
               />
             ) : (
               // MONTHLY VIEW
@@ -429,6 +480,7 @@ const Index = () => {
                             onMonthChange={(value) => setFilters({ ...filters, month: value })}
                             dashboardData={dashboardData}
                             isFlipped={isGlobalFlipped}
+                            isLocked={isViewLocked}
                           />
                         </ExpandableCard>
                       </div>

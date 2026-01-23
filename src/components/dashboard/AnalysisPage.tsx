@@ -41,6 +41,7 @@ interface AnalysisPageProps {
   availableYears: number[];
   selectedAssessor: string;
   onAssessorChange: (assessor: string) => void;
+  isAssessorLocked?: boolean;
 }
 
 export function AnalysisPage({ 
@@ -48,7 +49,8 @@ export function AnalysisPage({
   assessors, 
   availableYears,
   selectedAssessor,
-  onAssessorChange 
+  onAssessorChange,
+  isAssessorLocked = false
 }: AnalysisPageProps) {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedQuarter, setSelectedQuarter] = useState(getCurrentQuarter());
@@ -115,8 +117,8 @@ export function AnalysisPage({
           {/* Assessor Filter */}
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Assessor:</span>
-            <Select value={selectedAssessor} onValueChange={onAssessorChange}>
-              <SelectTrigger className="w-[160px]">
+            <Select value={selectedAssessor} onValueChange={onAssessorChange} disabled={isAssessorLocked}>
+              <SelectTrigger className={`w-[160px] ${isAssessorLocked ? 'opacity-70 cursor-not-allowed' : ''}`}>
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent>
