@@ -1,4 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ICMCard } from "@/components/dashboard/ICMCard";
 import { FlipICMCard } from "@/components/dashboard/FlipICMCard";
@@ -54,8 +56,12 @@ const getCurrentMonthValue = () => {
 
 const Index = () => {
   const { resolvedTheme } = useTheme();
+  const [searchParams] = useSearchParams();
   const [rawData, setRawData] = useState<KPIRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [tokenError, setTokenError] = useState<string | null>(null);
+  const [isTokenValidating, setIsTokenValidating] = useState(false);
+  const [tokenValidated, setTokenValidated] = useState(false);
   
   const [filters, setFilters] = useState<DashboardFilters>({
     assessor: "all",
@@ -86,7 +92,56 @@ const Index = () => {
   // null = selecionou "Escritório" (filtros livres)
   // "Nome Assessor" = selecionou assessor específico (filtro bloqueado)
   const [selectedView, setSelectedView] = useState<string | null | undefined>(undefined);
-  const isViewLocked = selectedView !== null && selectedView !== undefined;
+  const [isTokenLocked, setIsTokenLocked] = useState(false); // Token via URL bloqueia permanentemente
+  const isViewLocked = (selectedView !== null && selectedView !== undefined) || isTokenLocked;
+
+  // Validação de token via URL
+  useEffect(() => {
+    const token = searchParams.get("token");
+    if (!token || tokenValidated) return;
+
+    const validateToken = async () => {
+      setIsTokenValidating(true);
+      setTokenError(null);
+      
+      try {
+        const { data, error } = await supabase
+          .from("assessor_tokens")
+          .select("assessor_name, is_active")
+          .eq("token", token)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Erro ao validar token:", error);
+          setTokenError("Erro ao validar acesso. Tente novamente.");
+          return;
+        }
+
+        if (!data) {
+          setTokenError("Token inválido. Verifique o link de acesso.");
+          return;
+        }
+
+        if (!data.is_active) {
+          setTokenError("Este link de acesso foi desativado.");
+          return;
+        }
+
+        // Token válido - bloqueia visão para este assessor
+        setSelectedView(data.assessor_name);
+        setFilters(prev => ({ ...prev, assessor: data.assessor_name }));
+        setIsTokenLocked(true);
+        setTokenValidated(true);
+      } catch (err) {
+        console.error("Erro inesperado:", err);
+        setTokenError("Erro inesperado. Tente novamente.");
+      } finally {
+        setIsTokenValidating(false);
+      }
+    };
+
+    validateToken();
+  }, [searchParams, tokenValidated]);
 
   // Fullscreen toggle with F11
   useEffect(() => {
@@ -327,8 +382,47 @@ const Index = () => {
   const col2Visible = visibility.graph2 || visibility.graph6 || visibility.graph7;
   const col3Visible = visibility.graph3 || visibility.graph8 || visibility.graph9;
 
-  // Se ainda não selecionou visão E há dados carregados, mostra seletor
-  if (selectedView === undefined && !isLoading && rawData.length > 0) {
+  // Tela de erro para token inválido
+  if (tokenError) {
+    return (
+      <div className="h-screen bg-background flex items-center justify-center">
+        <div className="text-center max-w-md p-8">
+          <div className="mb-6">
+            <img 
+              src={resolvedTheme === 'dark' ? eclatLogoDark : eclatLogo} 
+              alt="Éclat XP Logo" 
+              className="h-12 mx-auto object-contain"
+            />
+          </div>
+          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6 mb-6">
+            <h2 className="text-xl font-bold text-destructive mb-2">Acesso Negado</h2>
+            <p className="text-muted-foreground">{tokenError}</p>
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => window.location.href = window.location.origin}
+          >
+            Ir para página inicial
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Tela de loading para validação de token
+  if (isTokenValidating) {
+    return (
+      <div className="h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Validando acesso...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se ainda não selecionou visão E há dados carregados E não está via token, mostra seletor
+  if (selectedView === undefined && !isLoading && rawData.length > 0 && !searchParams.get("token")) {
     return (
       <AssessorSelector 
         assessors={assessors}
@@ -359,8 +453,8 @@ const Index = () => {
                       <Menu className="h-5 w-5" />
                     </SidebarTrigger>
                   )}
-                  {/* Botão voltar para tela de seleção */}
-                  {hasData && (
+                  {/* Botão voltar para tela de seleção - oculto quando via token */}
+                  {hasData && !isTokenLocked && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -371,6 +465,12 @@ const Index = () => {
                       <ArrowLeft className="h-3 w-3" />
                       Trocar
                     </Button>
+                  )}
+                  {/* Badge indicando sessão bloqueada via token */}
+                  {isTokenLocked && selectedView && (
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full flex items-center gap-1">
+                      🔒 {selectedView.split(' ')[0]}
+                    </span>
                   )}
                 </div>
                 <div className="flex-1 flex flex-col items-center">
