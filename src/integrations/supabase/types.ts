@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      assessor_tokens: {
+        Row: {
+          assessor_name: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          token: string
+        }
+        Insert: {
+          assessor_name: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          token: string
+        }
+        Update: {
+          assessor_name?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          token?: string
+        }
+        Relationships: []
+      }
       kpi_records: {
         Row: {
           assessor: string
