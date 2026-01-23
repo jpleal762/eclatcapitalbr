@@ -16,7 +16,7 @@ import { YearlyGaugeChart } from "@/components/dashboard/YearlyGaugeChart";
 import { YearlyAnalysisCard } from "@/components/dashboard/YearlyAnalysisCard";
 import { DashboardSidebar, DashboardVisibility, defaultVisibility } from "@/components/dashboard/DashboardSidebar";
 import { ExpandableCard } from "@/components/dashboard/ExpandableCard";
-import { AssessorSelector } from "@/components/dashboard/AssessorSelector";
+// AssessorSelector removed - direct access to dashboard
 import { KPIRecord, DashboardFilters, YearlyDashboardFilters } from "@/types/kpi";
 import {
   processKPIData,
@@ -34,7 +34,7 @@ import {
 } from "@/lib/yearlyKpiUtils";
 import { loadExcelData, saveExcelData } from "@/lib/storage";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Maximize2, Minimize2, Play, Pause, ArrowLeft } from "lucide-react";
+import { Menu, Maximize2, Minimize2, Play, Pause } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
 import eclatLogoDark from "@/assets/eclat-xp-logo-dark.svg";
 import { useTheme } from "next-themes";
@@ -87,13 +87,12 @@ const Index = () => {
   const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
   const [isAutoRotationEnabled, setIsAutoRotationEnabled] = useState(true);
   
-  // Estado para controle da tela de seleção inicial
-  // undefined = ainda não selecionou (mostra tela de seleção)
-  // null = selecionou "Escritório" (filtros livres)
-  // "Nome Assessor" = selecionou assessor específico (filtro bloqueado)
-  const [selectedView, setSelectedView] = useState<string | null | undefined>(undefined);
+  // Estado para controle da visão
+  // null = Escritório (filtros livres) - padrão
+  // "Nome Assessor" = assessor específico (filtro bloqueado via token)
+  const [selectedView, setSelectedView] = useState<string | null>(null);
   const [isTokenLocked, setIsTokenLocked] = useState(false); // Token via URL bloqueia permanentemente
-  const isViewLocked = (selectedView !== null && selectedView !== undefined) || isTokenLocked;
+  const isViewLocked = isTokenLocked; // Só bloqueia quando acesso via token
 
   // Validação de token via URL
   useEffect(() => {
@@ -182,23 +181,7 @@ const Index = () => {
     setVisibility(prev => ({ ...prev, [key]: value }));
   };
 
-  // Handler para seleção de visão (assessor específico ou escritório)
-  const handleViewSelection = (assessor: string | null) => {
-    setSelectedView(assessor);
-    if (assessor) {
-      // Se selecionou assessor, já aplica o filtro
-      setFilters(prev => ({ ...prev, assessor: assessor }));
-    } else {
-      // Se selecionou escritório, reseta para "all"
-      setFilters(prev => ({ ...prev, assessor: "all" }));
-    }
-  };
-
-  // Handler para voltar à tela de seleção
-  const handleBackToSelection = () => {
-    setSelectedView(undefined);
-    setFilters(prev => ({ ...prev, assessor: "all" }));
-  };
+  // Handlers de seleção de visão removidos - acesso direto ao dashboard
 
   // Load data from storage on mount
   useEffect(() => {
@@ -421,16 +404,7 @@ const Index = () => {
     );
   }
 
-  // Se ainda não selecionou visão E há dados carregados E não está via token, mostra seletor
-  if (selectedView === undefined && !isLoading && rawData.length > 0 && !searchParams.get("token")) {
-    return (
-      <AssessorSelector 
-        assessors={assessors}
-        onSelectAssessor={handleViewSelection}
-        isLoading={isLoading}
-      />
-    );
-  }
+  // Tela de seleção removida - acesso direto ao dashboard
 
   return (
     <SidebarProvider defaultOpen={false}>
@@ -452,19 +426,6 @@ const Index = () => {
                     <SidebarTrigger className="p-2 hover:bg-muted rounded-md">
                       <Menu className="h-5 w-5" />
                     </SidebarTrigger>
-                  )}
-                  {/* Botão voltar para tela de seleção - oculto quando via token */}
-                  {hasData && !isTokenLocked && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleBackToSelection}
-                      className="gap-1 text-xs"
-                      title="Voltar para seleção de visão"
-                    >
-                      <ArrowLeft className="h-3 w-3" />
-                      Trocar
-                    </Button>
                   )}
                   {/* Badge indicando sessão bloqueada via token */}
                   {isTokenLocked && selectedView && (
