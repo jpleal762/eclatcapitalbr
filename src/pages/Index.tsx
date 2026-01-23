@@ -590,6 +590,7 @@ const Index = () => {
                                   showRemaining={true}
                                   ritmoIdeal={dashboardData.ritmoIdeal}
                                   compact={true}
+                                  headName="BRUNO"
                                 />
                               </ExpandableCard>
                             )}
