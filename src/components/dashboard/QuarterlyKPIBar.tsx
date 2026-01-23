@@ -2,6 +2,7 @@ import { QuarterlyKPI } from "@/lib/quarterlyKpiUtils";
 
 interface QuarterlyKPIBarProps extends QuarterlyKPI {
   ritmoIdeal: number;
+  headName?: string;
 }
 
 // Format value for display
@@ -35,7 +36,7 @@ function getTextColor(percentage: number, ritmoIdeal: number): string {
   return "text-red-600 dark:text-red-400";
 }
 
-export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, ritmoIdeal }: QuarterlyKPIBarProps) {
+export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, ritmoIdeal, headName }: QuarterlyKPIBarProps) {
   const barWidth = Math.min(percentage, 100);
   const barColor = getBarColor(percentage, ritmoIdeal);
   const textColor = getTextColor(percentage, ritmoIdeal);
@@ -49,7 +50,14 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
     <div className="bg-card rounded-lg p-responsive-sm lg:p-responsive h-full flex flex-col border border-border shadow-sm">
       {/* Label and percentage */}
       <div className="flex justify-between items-center mb-responsive">
-        <span className="font-semibold text-foreground text-responsive-xs">{label}</span>
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-foreground text-responsive-xs">{label}</span>
+          {headName && (
+            <span className="inline-flex items-center text-responsive-4xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-500/10 px-1.5 py-0.5 rounded-md border border-blue-500/20">
+              HEAD {headName}
+            </span>
+          )}
+        </div>
         <span className={`font-bold text-responsive-sm ${textColor}`}>
           {percentage}%
         </span>

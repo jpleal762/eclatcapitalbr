@@ -228,7 +228,7 @@ export function GaugeChart({
                 )}
               </h4>
               {headName && (
-                <span className="text-responsive-4xs text-muted-foreground font-medium uppercase tracking-wide">
+                <span className="inline-flex items-center text-responsive-4xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-500/10 px-1.5 py-0.5 rounded-md border border-blue-500/20">
                   HEAD {headName}
                 </span>
               )}

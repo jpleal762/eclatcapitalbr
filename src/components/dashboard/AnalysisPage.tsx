@@ -15,6 +15,11 @@ import { BarChart3, ArrowUpDown, ArrowUp, ArrowDown, Layers } from "lucide-react
 
 type ViewMode = "default" | "best-to-worst" | "worst-to-best" | "by-category";
 
+// Mapeamento de KPIs para seus heads responsáveis
+const KPI_HEADS: Record<string, string> = {
+  "Receita PJ1 XP": "BRUNO",
+};
+
 const CATEGORY_GROUPS = {
   prospeccao: {
     label: "Prospecção",
@@ -193,7 +198,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.prospeccao.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} />
               </div>
             ))}
 
@@ -207,7 +212,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.investimentos.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} />
               </div>
             ))}
 
@@ -221,7 +226,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.receita.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} />
               </div>
             ))}
           </div>
@@ -230,7 +235,7 @@ export function AnalysisPage({
           <div className="flex-1 min-h-0 flex flex-col gap-responsive-sm overflow-hidden lg:overflow-hidden overflow-y-auto">
             {sortedKPIs.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} />
               </div>
             ))}
           </div>
