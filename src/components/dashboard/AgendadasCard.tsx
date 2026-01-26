@@ -1,30 +1,14 @@
 import { Card } from "@/components/ui/card";
-import { useResponsiveSize } from "@/hooks/use-responsive-size";
 
 interface AgendadasCardProps {
   agendadasValue: number;
-  agendadasTarget: number;
-  agendadasPercentage: number;
   assessorData: Array<{ name: string; value: number }>;
 }
 
 export function AgendadasCard({
   agendadasValue,
-  agendadasTarget,
-  agendadasPercentage,
   assessorData
 }: AgendadasCardProps) {
-  const { scale } = useResponsiveSize();
-
-  // Dynamic gauge sizing - COMPACT version reduced by 0.8x
-  const compactScale = Math.max(0.5, Math.min(scale * 0.8, 1.0));
-  const gaugeWidth = Math.round(112 * compactScale);
-  const gaugeHeight = Math.round(64 * compactScale);
-  const gaugeRadius = Math.round(48 * compactScale);
-  const strokeWidth = Math.round(10 * compactScale);
-  const circumference = Math.PI * gaugeRadius;
-  const progress = Math.min(agendadasPercentage, 100) / 100 * circumference;
-
   return (
     <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
       {/* Header */}
@@ -34,37 +18,16 @@ export function AgendadasCard({
         </h3>
       </div>
 
-      {/* Content - Horizontal layout: Gauge left, Assessors right */}
+      {/* Content - Horizontal layout: Number left, Assessors right */}
       <div className="flex flex-row flex-1 gap-3 min-h-0 overflow-hidden">
-        {/* Left: Gauge - vertically centered */}
-        <div className="flex flex-col items-center justify-center flex-shrink-0 min-h-0">
-          <div className="relative my-auto" style={{ width: gaugeWidth, height: gaugeHeight }}>
-            <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight}`} overflow="visible">
-              <path
-                d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`}
-                fill="none"
-                stroke="rgba(255,255,255,0.2)"
-                strokeWidth={strokeWidth}
-                strokeLinecap="round"
-              />
-              <path
-                d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`}
-                fill="none"
-                stroke="white"
-                strokeWidth={strokeWidth}
-                strokeLinecap="round"
-                strokeDasharray={circumference}
-                strokeDashoffset={circumference - progress}
-                style={{ transition: "stroke-dashoffset 0.8s ease-out" }}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
-              <span className="text-responsive-xl font-bold text-white">{agendadasValue}</span>
-            </div>
-          </div>
-          <p className="text-responsive-xs text-white/70 mt-1 text-center flex-shrink-0 whitespace-nowrap">
-            Meta: {agendadasTarget} ({agendadasPercentage}%)
-          </p>
+        {/* Left: Large number - vertically centered */}
+        <div className="flex flex-col items-center justify-center flex-shrink-0 min-w-[80px]">
+          <span className="text-responsive-3xl font-bold text-white whitespace-nowrap">
+            {agendadasValue}
+          </span>
+          <span className="text-responsive-xs text-white/70 mt-1">
+            reuniões
+          </span>
         </div>
 
         {/* Right: Assessor list */}
