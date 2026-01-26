@@ -189,11 +189,11 @@ export function AnalysisPage({
       {hasData ? (
         viewMode === "by-category" ? (
           // Category grouped view - single column with section headers
-          <div className="flex-1 min-h-0 flex flex-col gap-1 lg:gap-1.5 overflow-hidden lg:overflow-hidden overflow-y-auto">
+          <div className="flex-1 min-h-0 flex flex-col gap-0.5 lg:gap-1 overflow-hidden lg:overflow-hidden overflow-y-auto">
             {/* Prospecção Section */}
-            <div className="flex items-center gap-2 px-1 shrink-0">
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
-              <span className="text-xs font-bold text-primary uppercase tracking-wide">
+            <div className="flex items-center gap-1 px-1 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-[10px] font-bold text-primary uppercase tracking-wide">
                 {CATEGORY_GROUPS.prospeccao.label}
               </span>
               <div className="flex-1 h-px bg-border" />
@@ -205,9 +205,9 @@ export function AnalysisPage({
             ))}
 
             {/* Investimentos Section */}
-            <div className="flex items-center gap-2 px-1 shrink-0">
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
-              <span className="text-xs font-bold text-primary uppercase tracking-wide">
+            <div className="flex items-center gap-1 px-1 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              <span className="text-[10px] font-bold text-primary uppercase tracking-wide">
                 {CATEGORY_GROUPS.investimentos.label}
               </span>
               <div className="flex-1 h-px bg-border" />
@@ -219,9 +219,9 @@ export function AnalysisPage({
             ))}
 
             {/* Receita Section */}
-            <div className="flex items-center gap-2 px-1 shrink-0">
-              <span className="w-2 h-2 rounded-full bg-green-500" />
-              <span className="text-xs font-bold text-primary uppercase tracking-wide">
+            <div className="flex items-center gap-1 px-1 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+              <span className="text-[10px] font-bold text-primary uppercase tracking-wide">
                 {CATEGORY_GROUPS.receita.label}
               </span>
               <div className="flex-1 h-px bg-border" />
@@ -234,7 +234,7 @@ export function AnalysisPage({
           </div>
         ) : (
           // Default/sorted view - stacked bars
-          <div className="flex-1 min-h-0 flex flex-col gap-1 lg:gap-1.5 overflow-hidden lg:overflow-hidden overflow-y-auto">
+          <div className="flex-1 min-h-0 flex flex-col gap-0.5 lg:gap-1 overflow-hidden lg:overflow-hidden overflow-y-auto">
             {sortedKPIs.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
                 <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} />
