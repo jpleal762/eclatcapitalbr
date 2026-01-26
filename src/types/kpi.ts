@@ -141,7 +141,7 @@ export const SPRINT_PRODUCTS: SprintProductConfig[] = [
   { category: "Captação net", label: "Captação NET", isCurrency: true },
   { category: "Receita", label: "Receita", isCurrency: true },
   { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
-  { category: "Primeira reunião", label: "Reuniões", isCurrency: false },
-  { category: "Habilitação", label: "Habilitação", isCurrency: false },
-  { category: "Ativação", label: "Ativação", isCurrency: false },
+  { category: "Primeira reuniao", label: "Reuniões", isCurrency: false },
+  { category: "Habilitacao", label: "Habilitação", isCurrency: false },
+  { category: "Ativacao", label: "Ativação", isCurrency: false },
 ];

@@ -1,8 +1,7 @@
 import { Target, TrendingUp, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { SprintGlobalStats, SprintEvolution48h, SprintProductConfig } from "@/types/kpi";
+import { SprintGlobalStats, SprintEvolution48h } from "@/types/kpi";
 
 interface SprintHeaderProps {
   globalStats: SprintGlobalStats;
@@ -14,9 +13,6 @@ interface SprintHeaderProps {
   onMonthChange: (month: string) => void;
   isLocked?: boolean;
   evolution48h?: SprintEvolution48h | null;
-  availableProducts: SprintProductConfig[];
-  selectedProducts: string[];
-  onProductToggle: (category: string) => void;
 }
 
 function formatValue(value: number): string {
@@ -38,9 +34,6 @@ export function SprintHeader({
   onMonthChange,
   isLocked = false,
   evolution48h,
-  availableProducts,
-  selectedProducts,
-  onProductToggle,
 }: SprintHeaderProps) {
   const {
     totalObjective,
@@ -102,20 +95,6 @@ export function SprintHeader({
         </div>
       </div>
 
-      {/* Product Selection Checkboxes */}
-      <div className="flex flex-wrap items-center gap-2 lg:gap-3 mb-3 p-2 bg-muted/20 rounded-lg">
-        <span className="text-[10px] lg:text-xs text-muted-foreground font-medium mr-1">Produtos:</span>
-        {availableProducts?.map(product => (
-          <label key={product.category} className="flex items-center gap-1.5 cursor-pointer hover:bg-muted/30 px-2 py-1 rounded">
-            <Checkbox 
-              checked={selectedProducts?.includes(product.category) ?? false}
-              onCheckedChange={() => onProductToggle(product.category)}
-              className="h-3.5 w-3.5"
-            />
-            <span className="text-[10px] lg:text-xs text-foreground">{product.label}</span>
-          </label>
-        ))}
-      </div>
 
       {/* Stats Cards Row */}
       <div className="grid grid-cols-4 gap-2 lg:gap-3 mb-3">

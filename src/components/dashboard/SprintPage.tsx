@@ -1,5 +1,4 @@
-import { useState, useCallback } from "react";
-import { SprintKPIData, SprintGlobalStats, SprintEvolution, SprintEvolution48h, SPRINT_PRODUCTS } from "@/types/kpi";
+import { SprintKPIData, SprintGlobalStats, SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import { SprintKPIBar } from "./SprintKPIBar";
 import { SprintHeader } from "./SprintHeader";
 
@@ -54,33 +53,11 @@ export function SprintPage({
   evolutionMap,
   evolution48h,
 }: SprintPageProps) {
-  // State for selected products - default all enabled
-  const [selectedProducts, setSelectedProducts] = useState<string[]>(
-    SPRINT_PRODUCTS.map(p => p.category)
-  );
-
-  // Toggle product selection
-  const handleProductToggle = useCallback((category: string) => {
-    setSelectedProducts(prev => {
-      if (prev.includes(category)) {
-        // Don't allow deselecting all products
-        if (prev.length === 1) return prev;
-        return prev.filter(c => c !== category);
-      }
-      return [...prev, category];
-    });
-  }, []);
-
-  // Filter sprint data based on selected products
-  const filteredSprintData = sprintData.filter(kpi => 
-    selectedProducts.includes(kpi.category)
-  );
-
-  // Calculate global stats from filtered data
-  const globalStats = calculateGlobalStats(filteredSprintData);
+  // Calculate global stats from all sprint data
+  const globalStats = calculateGlobalStats(sprintData);
 
   // Sort by remaining (highest first), completed at end
-  const sortedData = [...filteredSprintData].sort((a, b) => {
+  const sortedData = [...sprintData].sort((a, b) => {
     if (a.isCompleted && !b.isCompleted) return 1;
     if (!a.isCompleted && b.isCompleted) return -1;
     return b.totalRemaining - a.totalRemaining;
@@ -99,9 +76,6 @@ export function SprintPage({
         onMonthChange={onMonthChange}
         isLocked={isLocked}
         evolution48h={evolution48h}
-        availableProducts={SPRINT_PRODUCTS}
-        selectedProducts={selectedProducts}
-        onProductToggle={handleProductToggle}
       />
 
       {/* KPI Bars - Vertical List */}
