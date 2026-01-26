@@ -82,3 +82,23 @@ export interface YearlyDashboardData {
   assessorPerformance: AssessorPerformance[];
   gaugeKPIs: GaugeKPI[];
 }
+
+// ============= SPRINT PAGE TYPES =============
+export interface AssessorWeeklyRemaining {
+  name: string;           // Primeiro nome do assessor
+  remaining: number;      // Quanto falta para bater a meta semanal individual
+  achieved: boolean;      // Se já atingiu a meta
+  contribution?: number;  // Quanto já contribuiu
+}
+
+export interface SprintKPIData {
+  label: string;                          // "Captação NET", "Receita", etc.
+  category: string;                       // Categoria interna
+  totalRemaining: number;                 // Total que falta (objetivo da barra)
+  totalRealized: number;                  // Total já realizado nesta semana
+  totalTarget: number;                    // Meta semanal total
+  progressPercentage: number;             // % do objetivo já produzido
+  isCurrency: boolean;                    // Se é valor monetário
+  isCompleted: boolean;                   // Se objetivo foi zerado
+  assessorBreakdown: AssessorWeeklyRemaining[]; // Falta por assessor
+}

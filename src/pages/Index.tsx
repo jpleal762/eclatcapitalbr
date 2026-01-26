@@ -27,6 +27,7 @@ import {
   calculateAssessorAgendadasForKPI,
   calculateAssessorReceitaEmpilhada,
   getWeightForLabel,
+  calculateSprintData,
 } from "@/lib/kpiUtils";
 import { 
   processYearlyDashboardData, 
@@ -42,8 +43,9 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card } from "@/components/ui/card";
-import { PageToggle } from "@/components/dashboard/PageToggle";
+import { PageToggle, PageType } from "@/components/dashboard/PageToggle";
 import { AnalysisPage } from "@/components/dashboard/AnalysisPage";
+import { SprintPage } from "@/components/dashboard/SprintPage";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 
@@ -83,7 +85,7 @@ const Index = () => {
     return defaultVisibility;
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<"dashboard" | "analysis">("dashboard");
+  const [currentPage, setCurrentPage] = useState<PageType>("dashboard");
   const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
   const [isAutoRotationEnabled, setIsAutoRotationEnabled] = useState(true);
   
@@ -246,6 +248,12 @@ const Index = () => {
     [processedData, yearlyFilters.year, yearlyFilters.assessor]
   );
 
+  // Calculate sprint data
+  const sprintData = useMemo(
+    () => calculateSprintData(processedData, filters.month, filters.assessor),
+    [processedData, filters.month, filters.assessor]
+  );
+
   // Calculate assessor remaining data for TV mode (graphs 1 and 2)
   const assessorRemainingCaptacao = useMemo(
     () => calculateAssessorRemainingForKPI(processedData, "Captação net", filters.month),
@@ -300,12 +308,17 @@ const Index = () => {
 
   const hasData = rawData.length > 0;
 
-  // Auto-rotate between dashboard and analysis pages every 90 seconds
+  // Auto-rotate between dashboard, analysis, and sprint pages every 90 seconds
   useEffect(() => {
     if (!hasData || !isAutoRotationEnabled) return;
     
+    const pageOrder: PageType[] = ["dashboard", "analysis", "sprint"];
     const interval = setInterval(() => {
-      setCurrentPage(prev => prev === "dashboard" ? "analysis" : "dashboard");
+      setCurrentPage(prev => {
+        const currentIndex = pageOrder.indexOf(prev);
+        const nextIndex = (currentIndex + 1) % pageOrder.length;
+        return pageOrder[nextIndex];
+      });
     }, 90000); // 1 minuto e 30 segundos
     
     return () => clearInterval(interval);
@@ -498,6 +511,18 @@ const Index = () => {
                 selectedAssessor={filters.assessor}
                 onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
                 isAssessorLocked={isViewLocked}
+              />
+            ) : currentPage === "sprint" ? (
+              // SPRINT PAGE
+              <SprintPage
+                sprintData={sprintData}
+                assessors={assessors}
+                months={months}
+                selectedAssessor={filters.assessor}
+                selectedMonth={filters.month}
+                onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
+                onMonthChange={(value) => setFilters({ ...filters, month: value })}
+                isLocked={isViewLocked}
               />
             ) : (
               // MONTHLY VIEW
