@@ -47,24 +47,24 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
   const atingiuRitmo = percentage >= ritmoIdeal;
 
   return (
-    <div className="bg-card rounded-lg p-2 lg:p-3 h-full flex flex-col border border-border shadow-sm overflow-hidden">
-      {/* Label and percentage */}
-      <div className="flex justify-between items-center mb-1">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-foreground text-xs lg:text-sm truncate">{label}</span>
+    <div className="bg-card rounded-lg p-1.5 lg:p-2 h-full flex flex-col border border-border shadow-sm overflow-hidden">
+      {/* Label and percentage - compact */}
+      <div className="flex justify-between items-center mb-0.5">
+        <div className="flex items-center gap-1">
+          <span className="font-semibold text-foreground text-[10px] lg:text-xs truncate">{label}</span>
           {headName && (
-            <span className="inline-flex items-center text-[9px] lg:text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-500/10 px-1 py-0.5 rounded border border-blue-500/20">
+            <span className="inline-flex items-center text-[8px] lg:text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-500/10 px-0.5 py-0.5 rounded border border-blue-500/20">
               HEAD {headName}
             </span>
           )}
         </div>
-        <span className={`font-bold text-sm lg:text-base ${textColor}`}>
+        <span className={`font-bold text-xs lg:text-sm ${textColor}`}>
           {percentage}%
         </span>
       </div>
 
-      {/* Progress bar - fixed height, minimal margins */}
-      <div className="relative h-3 lg:h-4 my-1">
+      {/* Progress bar - smaller height */}
+      <div className="relative h-2 lg:h-3 my-0.5">
         {/* Actual progress bar */}
         <div className="absolute inset-0 bg-muted rounded-full overflow-hidden">
           <div
@@ -96,8 +96,8 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
         )}
       </div>
 
-      {/* Values - ALL in one line */}
-      <div className="flex justify-between items-center text-[10px] lg:text-xs text-muted-foreground mt-1">
+      {/* Values - compact font */}
+      <div className="flex justify-between items-center text-[9px] lg:text-[10px] text-muted-foreground mt-0.5">
         <span>
           <span className="font-medium text-foreground">{formatValue(value, isCurrency)}</span>
           {" / "}
