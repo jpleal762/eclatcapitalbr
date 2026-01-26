@@ -53,7 +53,7 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
         <div className="flex items-center gap-1">
           <span className="font-semibold text-foreground text-[10px] lg:text-xs truncate">{label}</span>
           {headName && (
-            <span className="inline-flex items-center text-[8px] lg:text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-500/10 px-0.5 py-0.5 rounded border border-blue-500/20">
+            <span className="inline-flex items-center text-[8px] lg:text-[9px] font-bold text-eclat-gold uppercase tracking-wide bg-yellow-500/10 px-0.5 py-0.5 rounded border border-yellow-500/20">
               HEAD {headName}
             </span>
           )}
@@ -108,8 +108,8 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
         {atingiuRitmo ? (
           <span className="text-green-500 font-medium">✓ OK</span>
         ) : faltaParaRitmo > 0 ? (
-          <span className="text-blue-500 font-medium whitespace-nowrap">
-            Ritmo: -{formatValue(faltaParaRitmo, isCurrency)}
+          <span className={`font-medium whitespace-nowrap ${textColor.includes("red") ? "text-red-500" : "text-blue-500"}`}>
+            {textColor.includes("red") && "! "}Ritmo: -{formatValue(faltaParaRitmo, isCurrency)}
           </span>
         ) : null}
         

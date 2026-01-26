@@ -94,7 +94,7 @@ function RitmoAlertDisplay({
       {showDifference && (
         <>
           <span className={`text-responsive-4xs font-bold ${alertType === "RED" ? "text-red-500" : "text-orange-500"}`}>
-            {formatNumber(difference, isCurrency)}
+            {alertType === "RED" && "! "}{formatNumber(difference, isCurrency)}
           </span>
           {icmImpact && (
             <span className="text-responsive-4xs font-medium text-blue-500">
@@ -228,7 +228,7 @@ export function GaugeChart({
                 )}
               </h4>
               {headName && (
-                <span className="inline-flex items-center text-responsive-4xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-500/10 px-1.5 py-0.5 rounded-md border border-blue-500/20">
+                <span className="inline-flex items-center text-responsive-4xs font-bold text-eclat-gold uppercase tracking-wide bg-yellow-500/10 px-1.5 py-0.5 rounded-md border border-yellow-500/20">
                   HEAD {headName}
                 </span>
               )}
@@ -363,7 +363,7 @@ export function GaugeChart({
             </div>
           </div>
 
-        {isHighlight && <p className="text-responsive-3xs text-card/70 mt-1 italic flex-shrink-0">Head Bruno</p>}
+        {isHighlight && <p className="text-responsive-3xs text-eclat-gold mt-1 italic flex-shrink-0">Head Bruno</p>}
         </div>
 
         {/* Lista de Falta por Assessor - always reserve space when showAssessorList is true */}
