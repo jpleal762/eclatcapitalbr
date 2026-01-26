@@ -28,8 +28,7 @@ import {
   calculateAssessorReceitaEmpilhada,
   getWeightForLabel,
   calculateSprintData,
-  getPreviousMonths,
-  getAssessorHistoricalICM,
+  getAssessorHistoricalICMFromCurrent,
 } from "@/lib/kpiUtils";
 import { 
   processYearlyDashboardData, 
@@ -310,15 +309,10 @@ const Index = () => {
     [processedData, filters.month, filters.assessor]
   );
 
-  // Calculate previous months and assessor historical ICM
-  const previousMonths = useMemo(
-    () => getPreviousMonths(filters.month, months, 2),
-    [filters.month, months]
-  );
-
+  // Calculate assessor historical ICM based on CURRENT month (not selected month)
   const assessorHistoricalICM = useMemo(
-    () => getAssessorHistoricalICM(processedData, filters.assessor, filters.month, previousMonths),
-    [processedData, filters.assessor, filters.month, previousMonths]
+    () => getAssessorHistoricalICMFromCurrent(processedData, filters.assessor, months, 2),
+    [processedData, filters.assessor, months]
   );
 
   const yearlyDashboardData = useMemo(

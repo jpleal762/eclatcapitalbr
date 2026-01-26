@@ -462,8 +462,89 @@ export function calculateICMGeral(data: ProcessedKPI[], month: string): number {
 }
 
 // ============= HISTORICAL ICM DATA =============
+
 /**
- * Get the previous N months from the selected month
+ * Get the current month in the format used by the data (e.g., "jan-26")
+ */
+export function getCurrentMonthFormatted(): string {
+  const now = new Date();
+  const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  return `${monthNames[now.getMonth()]}-${now.getFullYear().toString().slice(-2)}`;
+}
+
+/**
+ * Get the previous N months from the CURRENT month (not selected month)
+ * @param availableMonths - Array of available months in the data
+ * @param count - Number of previous months to get (default: 2)
+ * @returns Array of previous month strings in chronological order, plus current month
+ */
+export function getHistoricalMonthsFromCurrent(
+  availableMonths: string[], 
+  count: number = 2
+): string[] {
+  const currentMonth = getCurrentMonthFormatted();
+  
+  if (availableMonths.length === 0) return [];
+  
+  const normalizeMonth = (m: string) => m.toLowerCase().replace("-", "/");
+  const normalizedCurrent = normalizeMonth(currentMonth);
+  
+  const currentIndex = availableMonths.findIndex(m => 
+    normalizeMonth(m) === normalizedCurrent
+  );
+  
+  if (currentIndex === -1) {
+    // Current month not in data, use most recent available
+    const lastIndex = availableMonths.length - 1;
+    const result: string[] = [];
+    for (let i = count; i >= 1 && lastIndex - i >= 0; i--) {
+      result.push(availableMonths[lastIndex - i]);
+    }
+    result.push(availableMonths[lastIndex]);
+    return result;
+  }
+  
+  // Get previous months + current month
+  const result: string[] = [];
+  for (let i = count; i >= 1 && currentIndex - i >= 0; i--) {
+    result.push(availableMonths[currentIndex - i]);
+  }
+  result.push(availableMonths[currentIndex]);
+  
+  return result;
+}
+
+export interface HistoricalICMData {
+  month: string;
+  icmGeral: number;
+  isCurrent?: boolean;
+}
+
+/**
+ * Calculate historical ICM data for a specific assessor based on CURRENT month
+ */
+export function getAssessorHistoricalICMFromCurrent(
+  data: ProcessedKPI[],
+  assessor: string,
+  availableMonths: string[],
+  count: number = 2
+): HistoricalICMData[] {
+  if (assessor === "all" || !assessor) return [];
+  
+  const historicalMonths = getHistoricalMonthsFromCurrent(availableMonths, count);
+  if (historicalMonths.length === 0) return [];
+  
+  const assessorData = filterByAssessor(data, assessor);
+  
+  return historicalMonths.map((month, idx) => ({
+    month: month.toUpperCase().split("/")[0].split("-")[0],
+    icmGeral: calculateICMGeral(assessorData, month),
+    isCurrent: idx === historicalMonths.length - 1
+  }));
+}
+
+/**
+ * Get the previous N months from the selected month (legacy function)
  * @param selectedMonth - Current selected month (e.g., "jan-26")
  * @param availableMonths - Array of available months in the data
  * @param count - Number of previous months to get (default: 2)
@@ -487,7 +568,6 @@ export function getPreviousMonths(
   );
   
   if (currentIndex === -1) return [];
-  
   // Get previous months (as many as available, up to count)
   const previousMonths: string[] = [];
   for (let i = 1; i <= count && currentIndex - i >= 0; i++) {
