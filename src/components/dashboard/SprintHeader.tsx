@@ -105,10 +105,10 @@ export function SprintHeader({
       {/* Product Selection Checkboxes */}
       <div className="flex flex-wrap items-center gap-2 lg:gap-3 mb-3 p-2 bg-muted/20 rounded-lg">
         <span className="text-[10px] lg:text-xs text-muted-foreground font-medium mr-1">Produtos:</span>
-        {availableProducts.map(product => (
+        {availableProducts?.map(product => (
           <label key={product.category} className="flex items-center gap-1.5 cursor-pointer hover:bg-muted/30 px-2 py-1 rounded">
             <Checkbox 
-              checked={selectedProducts.includes(product.category)}
+              checked={selectedProducts?.includes(product.category) ?? false}
               onCheckedChange={() => onProductToggle(product.category)}
               className="h-3.5 w-3.5"
             />
