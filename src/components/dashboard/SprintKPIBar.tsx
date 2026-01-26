@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Check, AlertTriangle, Flame, Timer, Target, Trophy, PartyPopper, TrendingUp } from "lucide-react";
+import { Check, Flame, Timer, Target, Trophy, PartyPopper, TrendingUp } from "lucide-react";
 import { SprintKPIData, SprintEvolution } from "@/types/kpi";
 import { cn } from "@/lib/utils";
 import { ConfettiCelebration } from "./ConfettiCelebration";
@@ -25,18 +25,18 @@ function getUrgencyIcon(progressPercentage: number, isCompleted: boolean) {
   if (isCompleted) {
     return (
       <div className="flex items-center gap-1">
-        <Trophy className="h-4 w-4 text-green-500 animate-trophy-celebrate" />
-        <PartyPopper className="h-4 w-4 text-green-500 animate-celebrate-pop" />
+        <Trophy className="h-3 w-3 lg:h-4 lg:w-4 text-green-500 animate-trophy-celebrate" />
+        <PartyPopper className="h-3 w-3 lg:h-4 lg:w-4 text-green-500 animate-celebrate-pop" />
       </div>
     );
   }
   if (progressPercentage >= 80) {
-    return <Target className="h-4 w-4 text-green-400" />;
+    return <Target className="h-3 w-3 lg:h-4 lg:w-4 text-green-400" />;
   }
   if (progressPercentage >= 50) {
-    return <Timer className="h-4 w-4 text-yellow-500" />;
+    return <Timer className="h-3 w-3 lg:h-4 lg:w-4 text-yellow-500" />;
   }
-  return <Flame className="h-4 w-4 text-destructive animate-pulse" />;
+  return <Flame className="h-3 w-3 lg:h-4 lg:w-4 text-destructive animate-pulse" />;
 }
 
 export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
@@ -71,64 +71,43 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
     return "bg-red-gradient";
   };
 
-  // Format the objective display
-  const objectiveDisplay = isCompleted
-    ? "ZERADO!"
-    : `Objetivo: ${formatValue(totalRemaining, isCurrency)}`;
-
   return (
-    <div className="p-3 lg:p-4 bg-card rounded-lg border border-border flex-1 flex flex-col min-h-0">
+    <div className="p-2 lg:p-3 bg-card rounded-lg border border-border flex-1 flex flex-col min-h-0 overflow-hidden">
       <ConfettiCelebration trigger={justCompleted} />
       
-      {/* Header: Label + Urgency Icon */}
-      <div className="flex items-center justify-between mb-2">
+      {/* Header: Icon + Label + Percentage */}
+      <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
           {getUrgencyIcon(progressPercentage, isCompleted)}
-          <span className="text-sm lg:text-base font-semibold text-foreground truncate">
+          <span className="text-xs lg:text-sm font-semibold text-foreground truncate">
             {label}
           </span>
         </div>
+        <span className={cn(
+          "font-bold text-sm lg:text-base",
+          isCompleted ? "text-green-500" : progressPercentage >= 50 ? "text-eclat-gold" : "text-destructive"
+        )}>
+          {Math.round(progressPercentage)}%
+        </span>
       </div>
 
-      {/* Highlight Section: Meta | Realizado | Falta */}
-      <div className="grid grid-cols-3 gap-2 mb-2 p-2 bg-muted/10 rounded-lg border border-border/50">
-        {/* Meta Semanal */}
-        <div className="text-center">
-          <p className="text-[9px] lg:text-[10px] text-muted-foreground uppercase">Meta</p>
-          <p className="text-xs lg:text-sm font-semibold text-foreground">
-            {formatValue(totalTarget, isCurrency)}
-          </p>
+      {/* Compact Values Row: Meta | Realizado | Falta */}
+      <div className="grid grid-cols-3 gap-1 mb-1 text-center text-[9px] lg:text-[10px]">
+        <div>
+          <span className="text-muted-foreground">Meta: </span>
+          <span className="font-medium text-foreground">{formatValue(totalTarget, isCurrency)}</span>
         </div>
-        
-        {/* Realizado */}
-        <div className="text-center">
-          <p className="text-[9px] lg:text-[10px] text-muted-foreground uppercase">Realizado</p>
-          <p className="text-xs lg:text-sm font-semibold text-green-500">
-            {formatValue(totalRealized, isCurrency)}
-          </p>
+        <div>
+          <span className="text-muted-foreground">Real: </span>
+          <span className="font-medium text-green-500">{formatValue(totalRealized, isCurrency)}</span>
         </div>
-        
-        {/* O QUE FALTA - Highlighted */}
-        <div className={cn(
-          "text-center rounded px-2 py-1",
-          isCompleted 
-            ? "bg-green-500/20" 
-            : "bg-destructive/10 border border-destructive/30"
-        )}>
-          <p className="text-[9px] lg:text-[10px] uppercase font-bold">
-            {isCompleted ? "Zerado" : "Falta"}
-          </p>
-          <p className={cn(
-            "text-xs lg:text-sm font-black",
-            isCompleted ? "text-green-500" : "text-destructive"
-          )}>
-            {isCompleted ? "✓" : formatValue(totalRemaining, isCurrency)}
-          </p>
+        <div className={cn(isCompleted ? "text-green-500" : "text-destructive font-bold")}>
+          {isCompleted ? "✓ Zerado" : `Falta: ${formatValue(totalRemaining, isCurrency)}`}
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="relative h-4 lg:h-5 w-full rounded-full bg-muted/30 overflow-hidden mb-2">
+      <div className="relative h-3 lg:h-4 w-full rounded-full bg-muted/30 overflow-hidden mb-1">
         <div
           className={cn(
             "h-full rounded-full transition-all duration-500",
@@ -136,15 +115,11 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
           )}
           style={{ width: `${Math.min(progressPercentage, 100)}%` }}
         />
-        {/* Percentage overlay */}
-        <span className="absolute inset-0 flex items-center justify-end pr-2 text-[10px] lg:text-xs font-bold text-foreground/80">
-          {Math.round(progressPercentage)}%
-        </span>
       </div>
 
       {/* Evolution indicator (48h) */}
       {evolution && evolution.difference !== 0 && (
-        <div className="flex items-center gap-1 text-[10px] lg:text-xs mb-2">
+        <div className="flex items-center gap-1 text-[9px] lg:text-[10px] mb-1">
           <TrendingUp className={cn(
             "h-3 w-3",
             evolution.difference > 0 ? "text-green-500" : "text-destructive"
@@ -160,33 +135,26 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
         </div>
       )}
 
-      {/* Assessor Breakdown */}
+      {/* Assessor Breakdown - compact, single line */}
       {assessorBreakdown.length > 0 && (
-        <div className="mt-auto">
-          <span className="text-[10px] lg:text-xs text-muted-foreground block mb-1">
-            Falta por Assessor:
-          </span>
-          <div className="flex flex-wrap gap-x-3 gap-y-1">
-            {assessorBreakdown.slice(0, 6).map((assessor, idx) => (
-              <span key={idx} className="text-[10px] lg:text-xs">
-                <span className="font-medium text-foreground">{assessor.name}</span>
-                <span className="text-muted-foreground">
-                  {" "}-{formatValue(assessor.remaining, isCurrency)}
-                </span>
-              </span>
-            ))}
-            {assessorBreakdown.length > 6 && (
-              <span className="text-[10px] lg:text-xs text-muted-foreground">
-                +{assessorBreakdown.length - 6} mais
-              </span>
-            )}
-          </div>
+        <div className="flex flex-wrap gap-x-2 text-[9px] lg:text-[10px] text-muted-foreground mt-auto">
+          <span className="font-medium text-foreground">Falta:</span>
+          {assessorBreakdown.slice(0, 4).map((assessor, idx) => (
+            <span key={idx} className="whitespace-nowrap">
+              {assessor.name} -{formatValue(assessor.remaining, isCurrency)}
+            </span>
+          ))}
+          {assessorBreakdown.length > 4 && (
+            <span className="text-muted-foreground">
+              +{assessorBreakdown.length - 4}
+            </span>
+          )}
         </div>
       )}
 
       {/* Message when all achieved */}
       {isCompleted && assessorBreakdown.length === 0 && (
-        <div className="mt-auto text-[10px] lg:text-xs text-green-500 font-medium">
+        <div className="mt-auto text-[9px] lg:text-[10px] text-green-500 font-medium">
           ✓ Todos os assessores atingiram a meta!
         </div>
       )}

@@ -569,7 +569,6 @@ const Index = () => {
                 onMonthChange={(value) => setFilters({ ...filters, month: value })}
                 isLocked={isViewLocked}
                 evolutionMap={evolutionMap}
-                evolution48h={evolution48h}
               />
             ) : (
               // MONTHLY VIEW

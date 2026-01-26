@@ -1,6 +1,6 @@
-import { SprintKPIData, SprintGlobalStats, SprintEvolution, SprintEvolution48h } from "@/types/kpi";
+import { SprintKPIData, SprintEvolution } from "@/types/kpi";
 import { SprintKPIBar } from "./SprintKPIBar";
-import { SprintHeader } from "./SprintHeader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface SprintPageProps {
   sprintData: SprintKPIData[];
@@ -12,33 +12,6 @@ interface SprintPageProps {
   onMonthChange: (month: string) => void;
   isLocked?: boolean;
   evolutionMap?: Map<string, SprintEvolution>;
-  evolution48h?: SprintEvolution48h | null;
-}
-
-// Calculate global stats from sprint data
-function calculateGlobalStats(sprintData: SprintKPIData[]): SprintGlobalStats {
-  // Only consider currency KPIs for monetary totals
-  const currencyKPIs = sprintData.filter(k => k.isCurrency);
-  
-  const totalObjective = currencyKPIs.reduce((sum, k) => sum + k.totalTarget, 0);
-  const totalProduced = currencyKPIs.reduce((sum, k) => sum + k.totalRealized, 0);
-  const totalStillMissing = currencyKPIs.reduce((sum, k) => sum + k.totalRemaining, 0);
-  
-  const globalProgressPercentage = totalObjective > 0 
-    ? (totalProduced / totalObjective) * 100 
-    : 100;
-  
-  const kpisCompleted = sprintData.filter(k => k.isCompleted).length;
-  const kpisTotal = sprintData.length;
-
-  return {
-    totalObjective,
-    totalProduced,
-    totalStillMissing,
-    globalProgressPercentage,
-    kpisCompleted,
-    kpisTotal,
-  };
 }
 
 export function SprintPage({
@@ -51,11 +24,7 @@ export function SprintPage({
   onMonthChange,
   isLocked = false,
   evolutionMap,
-  evolution48h,
 }: SprintPageProps) {
-  // Calculate global stats from all sprint data
-  const globalStats = calculateGlobalStats(sprintData);
-
   // Sort by remaining (highest first), completed at end
   const sortedData = [...sprintData].sort((a, b) => {
     if (a.isCompleted && !b.isCompleted) return 1;
@@ -65,21 +34,42 @@ export function SprintPage({
 
   return (
     <div className="h-full flex flex-col animate-fade-in">
-      {/* Hero Header */}
-      <SprintHeader
-        globalStats={globalStats}
-        assessors={assessors}
-        months={months}
-        selectedAssessor={selectedAssessor}
-        selectedMonth={selectedMonth}
-        onAssessorChange={onAssessorChange}
-        onMonthChange={onMonthChange}
-        isLocked={isLocked}
-        evolution48h={evolution48h}
-      />
+      {/* Filtros simples no topo */}
+      <div className="flex items-center justify-end gap-2 mb-2 flex-shrink-0">
+        <Select
+          value={selectedAssessor}
+          onValueChange={onAssessorChange}
+          disabled={isLocked}
+        >
+          <SelectTrigger className="w-[140px] lg:w-[180px] h-8 text-xs lg:text-sm">
+            <SelectValue placeholder="Assessor" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos Assessores</SelectItem>
+            {assessors.map((assessor) => (
+              <SelectItem key={assessor} value={assessor}>
+                {assessor}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={selectedMonth} onValueChange={onMonthChange}>
+          <SelectTrigger className="w-[100px] lg:w-[120px] h-8 text-xs lg:text-sm">
+            <SelectValue placeholder="Mês" />
+          </SelectTrigger>
+          <SelectContent>
+            {months.map((month) => (
+              <SelectItem key={month} value={month}>
+                {month}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* KPI Bars - Vertical List */}
-      <div className="flex-1 flex flex-col gap-2 lg:gap-3 min-h-0 overflow-hidden lg:overflow-hidden">
+      <div className="flex-1 flex flex-col gap-1 lg:gap-1.5 min-h-0 overflow-hidden">
         {sortedData.length > 0 ? (
           sortedData.map((kpi) => (
             <SprintKPIBar 
