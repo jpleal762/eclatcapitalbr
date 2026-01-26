@@ -1,24 +1,33 @@
 
 
-## Plano: Adicionar Seleção de Produtos na Tela Sprint
+## Plano: Separar Controle de Rotação de Páginas e Flip de Cards
 
-### Objetivo
+### Problema Atual
 
-Adicionar checkboxes para que o usuário possa selecionar quais KPIs (produtos) deseja visualizar na tela Sprint, similar ao padrão já existente no DashboardSidebar.
+Existe um único botão Play/Pause (`isAutoRotationEnabled`) que controla **ambos**:
+1. **Rotação de páginas** - Alterna entre Dashboard → Análises → Sprint a cada 90s
+2. **Flip de cards** - Vira os cards (FlipICMCard, FlipMetaTable, etc.) a cada 30s
 
-### Arquitetura Proposta
+O usuário quer controles **independentes** para cada funcionalidade.
+
+### Solução Proposta
+
+Separar o estado único em dois estados independentes com dois botões no header:
 
 ```text
-┌───────────────────────────────────────────────────────────────────────────────┐
-│  [Assessor ▼]  [Mês ▼]     ☑ Captação ☑ Receita ☑ Diversificação ☐ Reuniões  │
-│                            ☑ Habilitação ☑ Ativação                           │
-├───────────────────────────────────────────────────────────────────────────────┤
-│  🔥 Captação NET                                                         45%  │
-│  ...                                                                          │
-├───────────────────────────────────────────────────────────────────────────────┤
-│  🔥 Receita                                                              62%  │
-│  ...                                                                          │
-└───────────────────────────────────────────────────────────────────────────────┘
+ANTES:
+┌────────────────────────────────────────────────────────────────┐
+│  [Logo]  [Dashboard ▼]  [⏸ Pausar]  [⬜ Fullscreen]  [🌙]    │
+│                          ↑                                     │
+│                    Controla TUDO                               │
+└────────────────────────────────────────────────────────────────┘
+
+DEPOIS:
+┌────────────────────────────────────────────────────────────────┐
+│  [Logo]  [Dashboard ▼]  [📄 Páginas] [🔄 Cards]  [⬜]  [🌙]   │
+│                          ↑            ↑                        │
+│              Rotação Páginas    Flip Cards                     │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -27,159 +36,125 @@ Adicionar checkboxes para que o usuário possa selecionar quais KPIs (produtos) 
 
 | Arquivo | Ação |
 |---------|------|
-| `src/components/dashboard/SprintPage.tsx` | **MODIFICAR** - Adicionar checkboxes de seleção de produtos |
-| `src/pages/Index.tsx` | **MODIFICAR** - Gerenciar estado de produtos selecionados e persistir no localStorage |
+| `src/pages/Index.tsx` | **MODIFICAR** - Separar estados e adicionar segundo botão |
 
 ---
 
 ### Detalhes Técnicos
 
-#### 1. Adicionar Estado de Seleção no Index.tsx
+#### 1. Separar Estados
 
-Criar estado para controlar quais produtos estão selecionados, com persistência no localStorage:
-
+**Antes:**
 ```tsx
-const SPRINT_PRODUCTS_STORAGE_KEY = "sprint-selected-products";
+const [isAutoRotationEnabled, setIsAutoRotationEnabled] = useState(true);
+```
 
-// Estado inicial: todos selecionados
-const [selectedSprintProducts, setSelectedSprintProducts] = useState<Set<string>>(() => {
-  const saved = localStorage.getItem(SPRINT_PRODUCTS_STORAGE_KEY);
-  if (saved) {
-    try {
-      return new Set(JSON.parse(saved));
-    } catch {
-      return new Set(SPRINT_PRODUCTS.map(p => p.category));
-    }
-  }
-  return new Set(SPRINT_PRODUCTS.map(p => p.category));
-});
+**Depois:**
+```tsx
+const [isPageRotationEnabled, setIsPageRotationEnabled] = useState(true);
+const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(true);
+```
 
-// Persistir no localStorage
+#### 2. Atualizar Effects
+
+**Effect de Rotação de Páginas (90s):**
+```tsx
 useEffect(() => {
-  localStorage.setItem(SPRINT_PRODUCTS_STORAGE_KEY, JSON.stringify([...selectedSprintProducts]));
-}, [selectedSprintProducts]);
-
-// Filtrar sprintData pelos produtos selecionados
-const filteredSprintData = useMemo(
-  () => sprintData.filter(kpi => selectedSprintProducts.has(kpi.category)),
-  [sprintData, selectedSprintProducts]
-);
-```
-
-#### 2. Modificar SprintPage.tsx
-
-Adicionar props e UI de checkboxes:
-
-```tsx
-interface SprintPageProps {
-  sprintData: SprintKPIData[];
-  assessors: string[];
-  months: string[];
-  selectedAssessor: string;
-  selectedMonth: string;
-  onAssessorChange: (assessor: string) => void;
-  onMonthChange: (month: string) => void;
-  isLocked?: boolean;
-  evolutionMap?: Map<string, SprintEvolution>;
-  // Novos props para seleção de produtos
-  selectedProducts: Set<string>;
-  onProductToggle: (category: string) => void;
-}
-```
-
-Adicionar seção de checkboxes compactos no header:
-
-```tsx
-import { SPRINT_PRODUCTS } from "@/types/kpi";
-import { Checkbox } from "@/components/ui/checkbox";
-
-// Na área de filtros, adicionar linha de checkboxes:
-<div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0 flex-wrap">
-  {/* Checkboxes de produtos - linha compacta */}
-  <div className="flex items-center gap-3 flex-wrap">
-    {SPRINT_PRODUCTS.map((product) => (
-      <label 
-        key={product.category} 
-        className="flex items-center gap-1.5 cursor-pointer text-[10px] lg:text-xs"
-      >
-        <Checkbox
-          checked={selectedProducts.has(product.category)}
-          onCheckedChange={() => onProductToggle(product.category)}
-          className="h-3 w-3 lg:h-4 lg:w-4"
-        />
-        <span className="text-muted-foreground hover:text-foreground transition-colors">
-          {product.label}
-        </span>
-      </label>
-    ))}
-  </div>
+  if (!hasData || !isPageRotationEnabled) return;  // ← Usa estado específico
   
-  {/* Filtros existentes */}
-  <div className="flex items-center gap-2">
-    <Select ... />
-    <Select ... />
-  </div>
-</div>
+  const pageOrder: PageType[] = ["dashboard", "analysis", "sprint"];
+  const interval = setInterval(() => {
+    setCurrentPage(prev => {
+      const currentIndex = pageOrder.indexOf(prev);
+      const nextIndex = (currentIndex + 1) % pageOrder.length;
+      return pageOrder[nextIndex];
+    });
+  }, 90000);
+  
+  return () => clearInterval(interval);
+}, [hasData, isPageRotationEnabled]);
 ```
 
-#### 3. Atualizar Chamada do SprintPage no Index.tsx
+**Effect de Flip de Cards (30s):**
+```tsx
+useEffect(() => {
+  if (!hasData || !isCardFlippingEnabled) return;  // ← Usa estado específico
+  
+  const interval = setInterval(() => {
+    setIsGlobalFlipped(prev => !prev);
+  }, 30000);
+  
+  return () => clearInterval(interval);
+}, [hasData, isCardFlippingEnabled]);
+```
 
-Passar os novos props:
+#### 3. Adicionar Dois Botões no Header
 
 ```tsx
-<SprintPage
-  sprintData={filteredSprintData}  // ← Dados filtrados
-  assessors={assessors}
-  months={months}
-  selectedAssessor={filters.assessor}
-  selectedMonth={filters.month}
-  onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
-  onMonthChange={(value) => setFilters({ ...filters, month: value })}
-  isLocked={isViewLocked}
-  evolutionMap={evolutionMap}
-  selectedProducts={selectedSprintProducts}  // ← Novo
-  onProductToggle={(category) => {           // ← Novo
-    setSelectedSprintProducts(prev => {
-      const next = new Set(prev);
-      if (next.has(category)) {
-        next.delete(category);
-      } else {
-        next.add(category);
-      }
-      return next;
-    });
-  }}
-/>
+import { Menu, Maximize2, Minimize2, Play, Pause, RotateCcw, Layers } from "lucide-react";
+
+// No header, substituir o botão único por dois:
+{hasData && (
+  <>
+    {/* Botão de Rotação de Páginas */}
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setIsPageRotationEnabled(prev => !prev)}
+      className="h-8 w-8"
+      title={isPageRotationEnabled ? "Pausar Rotação de Páginas" : "Iniciar Rotação de Páginas"}
+    >
+      {isPageRotationEnabled ? (
+        <Layers className="h-4 w-4 text-primary" />
+      ) : (
+        <Layers className="h-4 w-4 text-muted-foreground" />
+      )}
+    </Button>
+    
+    {/* Botão de Flip de Cards */}
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setIsCardFlippingEnabled(prev => !prev)}
+      className="h-8 w-8"
+      title={isCardFlippingEnabled ? "Pausar Flip de Cards" : "Iniciar Flip de Cards"}
+    >
+      {isCardFlippingEnabled ? (
+        <RotateCcw className="h-4 w-4 text-primary" />
+      ) : (
+        <RotateCcw className="h-4 w-4 text-muted-foreground" />
+      )}
+    </Button>
+  </>
+)}
 ```
 
 ---
 
-### Layout Visual
+### Ícones Sugeridos
 
-```text
-ANTES:
-┌──────────────────────────────────────────────────────────────────────┐
-│                                            [Assessor ▼] [Mês ▼]     │
-├──────────────────────────────────────────────────────────────────────┤
-│  (6 KPIs sempre visíveis)                                            │
-└──────────────────────────────────────────────────────────────────────┘
+| Funcionalidade | Ícone Ativo | Ícone Inativo | Descrição |
+|----------------|-------------|---------------|-----------|
+| Rotação Páginas | `Layers` (colorido) | `Layers` (cinza) | Representa múltiplas páginas |
+| Flip Cards | `RotateCcw` (colorido) | `RotateCcw` (cinza) | Representa rotação/flip |
 
-DEPOIS:
-┌──────────────────────────────────────────────────────────────────────┐
-│  ☑ Captação ☑ Receita ☑ Diversificação      [Assessor ▼] [Mês ▼]    │
-│  ☑ Reuniões ☑ Habilitação ☑ Ativação                                │
-├──────────────────────────────────────────────────────────────────────┤
-│  (Apenas KPIs selecionados aparecem)                                 │
-└──────────────────────────────────────────────────────────────────────┘
-```
+---
+
+### Comportamento
+
+| Estado Páginas | Estado Cards | Resultado |
+|----------------|--------------|-----------|
+| ✅ Ativo | ✅ Ativo | Tudo automático (padrão) |
+| ❌ Pausado | ✅ Ativo | Página fixa, cards viram |
+| ✅ Ativo | ❌ Pausado | Páginas alternam, cards fixos |
+| ❌ Pausado | ❌ Pausado | Tudo parado (modo apresentação manual) |
 
 ---
 
 ### Benefícios
 
-1. **Flexibilidade** - Usuário escolhe quais KPIs visualizar
-2. **Persistência** - Seleção salva no localStorage, mantém preferências
-3. **Design compacto** - Checkboxes pequenos, não ocupam muito espaço
-4. **Consistência** - Segue padrão já existente no DashboardSidebar
-5. **Mensagem amigável** - Se nenhum produto selecionado, mostra "Selecione ao menos um produto"
+1. **Flexibilidade** - Usuário pode pausar páginas enquanto mantém cards virando
+2. **Clareza visual** - Ícones diferentes indicam claramente cada funcionalidade
+3. **Feedback visual** - Cor do ícone indica estado (primary vs muted)
+4. **Tooltips descritivos** - Usuário entende o que cada botão faz
 
