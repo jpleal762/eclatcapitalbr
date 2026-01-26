@@ -68,6 +68,27 @@ export type Database = {
         }
         Relationships: []
       }
+      sprint_snapshots: {
+        Row: {
+          created_at: string | null
+          id: string
+          month: string
+          snapshot_data: Json
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          month: string
+          snapshot_data: Json
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          month?: string
+          snapshot_data?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

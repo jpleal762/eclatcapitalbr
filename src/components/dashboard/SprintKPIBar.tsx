@@ -1,9 +1,12 @@
-import { Check, AlertTriangle } from "lucide-react";
-import { SprintKPIData } from "@/types/kpi";
+import { useState, useEffect, useRef } from "react";
+import { Check, AlertTriangle, Flame, Timer, Target, Trophy, PartyPopper, TrendingUp } from "lucide-react";
+import { SprintKPIData, SprintEvolution } from "@/types/kpi";
 import { cn } from "@/lib/utils";
+import { ConfettiCelebration } from "./ConfettiCelebration";
 
 interface SprintKPIBarProps {
   data: SprintKPIData;
+  evolution?: SprintEvolution;
 }
 
 function formatValue(value: number, isCurrency: boolean): string {
@@ -18,7 +21,25 @@ function formatValue(value: number, isCurrency: boolean): string {
   return value.toString();
 }
 
-export function SprintKPIBar({ data }: SprintKPIBarProps) {
+function getUrgencyIcon(progressPercentage: number, isCompleted: boolean) {
+  if (isCompleted) {
+    return (
+      <div className="flex items-center gap-1">
+        <Trophy className="h-4 w-4 text-green-500 animate-trophy-celebrate" />
+        <PartyPopper className="h-4 w-4 text-green-500 animate-celebrate-pop" />
+      </div>
+    );
+  }
+  if (progressPercentage >= 80) {
+    return <Target className="h-4 w-4 text-green-400" />;
+  }
+  if (progressPercentage >= 50) {
+    return <Timer className="h-4 w-4 text-yellow-500" />;
+  }
+  return <Flame className="h-4 w-4 text-destructive animate-pulse" />;
+}
+
+export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
   const {
     label,
     totalRemaining,
@@ -29,6 +50,19 @@ export function SprintKPIBar({ data }: SprintKPIBarProps) {
     isCompleted,
     assessorBreakdown,
   } = data;
+
+  // Confetti trigger logic
+  const [justCompleted, setJustCompleted] = useState(false);
+  const wasCompletedRef = useRef(isCompleted);
+
+  useEffect(() => {
+    if (isCompleted && !wasCompletedRef.current) {
+      setJustCompleted(true);
+      const timer = setTimeout(() => setJustCompleted(false), 3000);
+      return () => clearTimeout(timer);
+    }
+    wasCompletedRef.current = isCompleted;
+  }, [isCompleted]);
 
   // Determine bar color based on progress
   const getBarColorClass = () => {
@@ -44,11 +78,16 @@ export function SprintKPIBar({ data }: SprintKPIBarProps) {
 
   return (
     <div className="p-3 lg:p-4 bg-card rounded-lg border border-border flex-1 flex flex-col min-h-0">
-      {/* Header: Label + Objective */}
+      <ConfettiCelebration trigger={justCompleted} />
+      
+      {/* Header: Label + Urgency Icon + Objective */}
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm lg:text-base font-semibold text-foreground truncate">
-          {label}
-        </span>
+        <div className="flex items-center gap-2">
+          {getUrgencyIcon(progressPercentage, isCompleted)}
+          <span className="text-sm lg:text-base font-semibold text-foreground truncate">
+            {label}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           {isCompleted ? (
             <span className="flex items-center gap-1 text-green-500 text-xs lg:text-sm font-bold">
@@ -87,6 +126,24 @@ export function SprintKPIBar({ data }: SprintKPIBarProps) {
         <span>Realizado: {formatValue(totalRealized, isCurrency)}</span>
         <span>Meta Semanal: {formatValue(totalTarget, isCurrency)}</span>
       </div>
+
+      {/* Evolution indicator (48h) */}
+      {evolution && evolution.difference !== 0 && (
+        <div className="flex items-center gap-1 text-[10px] lg:text-xs mb-2">
+          <TrendingUp className={cn(
+            "h-3 w-3",
+            evolution.difference > 0 ? "text-green-500" : "text-destructive"
+          )} />
+          <span className={evolution.difference > 0 ? "text-green-500" : "text-destructive"}>
+            {evolution.difference > 0 ? "+" : ""}{formatValue(evolution.difference, isCurrency)} em {evolution.hoursAgo}h
+            {evolution.percentageChange !== 0 && (
+              <span className="text-muted-foreground ml-1">
+                ({evolution.difference > 0 ? "↑" : "↓"}{Math.abs(Math.round(evolution.percentageChange))}%)
+              </span>
+            )}
+          </span>
+        </div>
+      )}
 
       {/* Assessor Breakdown */}
       {assessorBreakdown.length > 0 && (

@@ -102,3 +102,29 @@ export interface SprintKPIData {
   isCompleted: boolean;                   // Se objetivo foi zerado
   assessorBreakdown: AssessorWeeklyRemaining[]; // Falta por assessor
 }
+
+// ============= SPRINT EVOLUTION TYPES =============
+export interface SprintEvolution {
+  difference: number;         // Diferença no valor realizado
+  percentageChange: number;   // Variação percentual
+  hoursAgo: number;           // Horas desde o snapshot anterior
+}
+
+export interface SprintEvolution48h {
+  hoursAgo: number;
+  totalProducedBefore: number;
+  totalProducedNow: number;
+  totalProducedDiff: number;
+  kpisCompletedBefore: number;
+  kpisCompletedNow: number;
+  kpisCompletedDiff: number;
+}
+
+export interface SprintGlobalStats {
+  totalObjective: number;         // Soma de todos totalRemaining (meta total)
+  totalProduced: number;          // Soma de todos totalRealized
+  totalStillMissing: number;      // totalObjective que ainda falta
+  globalProgressPercentage: number;
+  kpisCompleted: number;          // Quantos KPIs zerados
+  kpisTotal: number;
+}
