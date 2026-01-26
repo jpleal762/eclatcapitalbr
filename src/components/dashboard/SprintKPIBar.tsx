@@ -80,7 +80,7 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
     <div className="p-3 lg:p-4 bg-card rounded-lg border border-border flex-1 flex flex-col min-h-0">
       <ConfettiCelebration trigger={justCompleted} />
       
-      {/* Header: Label + Urgency Icon + Objective */}
+      {/* Header: Label + Urgency Icon */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           {getUrgencyIcon(progressPercentage, isCompleted)}
@@ -88,21 +88,42 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
             {label}
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          {isCompleted ? (
-            <span className="flex items-center gap-1 text-green-500 text-xs lg:text-sm font-bold">
-              <Check className="h-4 w-4" />
-              {objectiveDisplay}
-            </span>
-          ) : (
-            <span className={cn(
-              "text-xs lg:text-sm font-medium",
-              progressPercentage < 50 ? "text-destructive" : "text-muted-foreground"
-            )}>
-              {progressPercentage < 50 && <AlertTriangle className="h-3 w-3 inline mr-1" />}
-              {objectiveDisplay}
-            </span>
-          )}
+      </div>
+
+      {/* Highlight Section: Meta | Realizado | Falta */}
+      <div className="grid grid-cols-3 gap-2 mb-2 p-2 bg-muted/10 rounded-lg border border-border/50">
+        {/* Meta Semanal */}
+        <div className="text-center">
+          <p className="text-[9px] lg:text-[10px] text-muted-foreground uppercase">Meta</p>
+          <p className="text-xs lg:text-sm font-semibold text-foreground">
+            {formatValue(totalTarget, isCurrency)}
+          </p>
+        </div>
+        
+        {/* Realizado */}
+        <div className="text-center">
+          <p className="text-[9px] lg:text-[10px] text-muted-foreground uppercase">Realizado</p>
+          <p className="text-xs lg:text-sm font-semibold text-green-500">
+            {formatValue(totalRealized, isCurrency)}
+          </p>
+        </div>
+        
+        {/* O QUE FALTA - Highlighted */}
+        <div className={cn(
+          "text-center rounded px-2 py-1",
+          isCompleted 
+            ? "bg-green-500/20" 
+            : "bg-destructive/10 border border-destructive/30"
+        )}>
+          <p className="text-[9px] lg:text-[10px] uppercase font-bold">
+            {isCompleted ? "Zerado" : "Falta"}
+          </p>
+          <p className={cn(
+            "text-xs lg:text-sm font-black",
+            isCompleted ? "text-green-500" : "text-destructive"
+          )}>
+            {isCompleted ? "✓" : formatValue(totalRemaining, isCurrency)}
+          </p>
         </div>
       </div>
 
@@ -119,12 +140,6 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
         <span className="absolute inset-0 flex items-center justify-end pr-2 text-[10px] lg:text-xs font-bold text-foreground/80">
           {Math.round(progressPercentage)}%
         </span>
-      </div>
-
-      {/* Meta vs Realizado */}
-      <div className="flex items-center justify-between text-[10px] lg:text-xs text-muted-foreground mb-2">
-        <span>Realizado: {formatValue(totalRealized, isCurrency)}</span>
-        <span>Meta Semanal: {formatValue(totalTarget, isCurrency)}</span>
       </div>
 
       {/* Evolution indicator (48h) */}
