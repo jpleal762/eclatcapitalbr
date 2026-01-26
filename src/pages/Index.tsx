@@ -34,6 +34,13 @@ import {
   getAvailableYears 
 } from "@/lib/yearlyKpiUtils";
 import { loadExcelData, saveExcelData } from "@/lib/storage";
+import { 
+  saveSprintSnapshot, 
+  getLatestSnapshot, 
+  calculateEvolution, 
+  calculateEvolution48h 
+} from "@/lib/sprintStorage";
+import { SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu, Maximize2, Minimize2, Play, Pause } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
@@ -88,6 +95,10 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState<PageType>("dashboard");
   const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
   const [isAutoRotationEnabled, setIsAutoRotationEnabled] = useState(true);
+  
+  // Sprint evolution state
+  const [evolutionMap, setEvolutionMap] = useState<Map<string, SprintEvolution> | undefined>(undefined);
+  const [evolution48h, setEvolution48h] = useState<SprintEvolution48h | null>(null);
   
   // Estado para controle da visão
   // null = Escritório (filtros livres) - padrão
@@ -207,6 +218,33 @@ const Index = () => {
   const handleDataLoaded = async (data: KPIRecord[]) => {
     setRawData(data);
     await saveExcelData(data);
+    
+    // Save sprint snapshot for evolution tracking
+    const currentMonth = getCurrentMonthValue();
+    const currentSprintData = calculateSprintData(processKPIData(data), currentMonth, "all");
+    await saveSprintSnapshot(currentMonth, currentSprintData);
+    
+    // Load evolution from previous snapshot
+    await loadEvolutionData(currentMonth, currentSprintData);
+  };
+
+  // Load evolution data from previous snapshot
+  const loadEvolutionData = async (month: string, currentSprintData: ReturnType<typeof calculateSprintData>) => {
+    try {
+      const previousSnapshot = await getLatestSnapshot(month, 24);
+      if (previousSnapshot) {
+        const evoMap = calculateEvolution(currentSprintData, previousSnapshot);
+        setEvolutionMap(evoMap);
+        
+        const evo48h = calculateEvolution48h(currentSprintData, previousSnapshot);
+        setEvolution48h(evo48h);
+      } else {
+        setEvolutionMap(undefined);
+        setEvolution48h(null);
+      }
+    } catch (err) {
+      console.error("Error loading evolution data:", err);
+    }
   };
 
   const processedData = useMemo(() => processKPIData(rawData), [rawData]);
@@ -237,6 +275,13 @@ const Index = () => {
       }
     }
   }, [months]);
+
+  // Load evolution data when sprint data changes (e.g., on initial load)
+  useEffect(() => {
+    if (sprintData.length > 0 && filters.month) {
+      loadEvolutionData(filters.month, sprintData);
+    }
+  }, [filters.month]);
 
   const dashboardData = useMemo(
     () => processDashboardData(processedData, filters.month, filters.assessor),
@@ -523,6 +568,8 @@ const Index = () => {
                 onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
                 onMonthChange={(value) => setFilters({ ...filters, month: value })}
                 isLocked={isViewLocked}
+                evolutionMap={evolutionMap}
+                evolution48h={evolution48h}
               />
             ) : (
               // MONTHLY VIEW

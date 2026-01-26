@@ -278,6 +278,23 @@
   animation: trophy-celebrate 1.5s ease-in-out infinite;
 }
 
+/* Party popper celebration animation */
+@keyframes celebrate-pop {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg); 
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.3) rotate(15deg); 
+    opacity: 0.9;
+  }
+}
+
+.animate-celebrate-pop {
+  animation: celebrate-pop 0.8s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
 /* Gradiente Azul para ICM Semanal */
 .bg-blue-gradient {
   background: linear-gradient(180deg, #60A5FA 0%, #2563EB 100%);
