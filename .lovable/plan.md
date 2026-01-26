@@ -1,36 +1,29 @@
 
 
-## Plano: Adicionar Histórico de Desempenho por Assessor no ICM Geral
+## Plano: Ajustar Histórico para Usar Mês Atual e Melhorar Layout Visual
 
-### Objetivo
+### Problema Identificado
 
-Quando um assessor específico for selecionado (não "TODOS"), exibir o desempenho do ICM do mês atual e dos dois meses anteriores no card ICM Geral, permitindo visualizar a evolução do assessor ao longo do tempo.
+Atualmente o histórico é calculado a partir do **mês selecionado** no filtro. O correto é usar o **mês atual do sistema** como referência e mostrar os dois meses anteriores a ele, independente do mês selecionado no filtro.
 
-### Arquitetura da Solução
+### Alterações Visuais
+
+O layout atual está muito comprimido em uma única linha. Vamos reorganizar para ficar mais claro:
 
 ```text
-QUANDO ASSESSOR = "TODOS":
-┌─────────────────────────────────────────────────────────────────┐
-│  ICM Geral                          [Assessor ▼] [Mês ▼]        │
-│                                                                 │
-│      [===GAUGE===]        Dias Úteis    Ritmo                  │
-│         72%               Restantes     Ideal                   │
-│                              8          65%                     │
-│                                                                 │
-│  ⚠️ Abaixo do esperado                                          │
-└─────────────────────────────────────────────────────────────────┘
+LAYOUT ATUAL (confuso):
+┌──────────────────────────────────────────────────────────┐
+│  📊 NOV: 85% │ DEZ: 92% │ JAN: 72%                      │
+└──────────────────────────────────────────────────────────┘
 
-QUANDO ASSESSOR = "Bruno Silva" (específico):
-┌─────────────────────────────────────────────────────────────────┐
-│  ICM Geral                          [Assessor ▼] [Mês ▼]        │
-│                                                                 │
-│      [===GAUGE===]        Dias Úteis    Ritmo                  │
-│         72%               Restantes     Ideal                   │
-│                              8          65%                     │
-│                                                                 │
-│  📊 NOV: 85% │ DEZ: 92% │ JAN: 72%                             │
-│  ⚠️ Abaixo do esperado                                          │
-└─────────────────────────────────────────────────────────────────┘
+LAYOUT NOVO (organizado):
+┌──────────────────────────────────────────────────────────┐
+│  📊 Histórico                                            │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐                  │
+│  │   NOV   │  │   DEZ   │  │   JAN   │  ← mês atual     │
+│  │   85%   │  │   92%   │  │   72%   │    em destaque   │
+│  └─────────┘  └─────────┘  └─────────┘                  │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -39,216 +32,185 @@ QUANDO ASSESSOR = "Bruno Silva" (específico):
 
 | Arquivo | Ação |
 |---------|------|
-| `src/lib/kpiUtils.ts` | **ADICIONAR** - Função `getPreviousMonths()` e `getAssessorHistoricalICM()` |
-| `src/components/dashboard/ICMCard.tsx` | **MODIFICAR** - Adicionar seção de histórico quando assessor selecionado |
-| `src/components/dashboard/FlipICMCard.tsx` | **MODIFICAR** - Passar dados históricos para ICMCard |
-| `src/pages/Index.tsx` | **MODIFICAR** - Calcular e passar dados históricos |
+| `src/lib/kpiUtils.ts` | **MODIFICAR** - Usar mês atual do sistema como referência |
+| `src/components/dashboard/ICMCard.tsx` | **MODIFICAR** - Melhorar layout visual do histórico |
+| `src/pages/Index.tsx` | **MODIFICAR** - Ajustar cálculo para usar mês atual |
 
 ---
 
 ### Detalhes Técnicos
 
-#### 1. Criar Função para Obter Meses Anteriores (kpiUtils.ts)
+#### 1. Modificar kpiUtils.ts - Nova função para obter mês atual formatado
 
 ```typescript
 /**
- * Get the previous N months from the selected month
- * @param selectedMonth - Current selected month (e.g., "jan-26")
- * @param availableMonths - Array of available months in the data
- * @param count - Number of previous months to get (default: 2)
- * @returns Array of previous month strings in chronological order
+ * Get the current month in the format used by the data (e.g., "jan-26")
  */
-export function getPreviousMonths(
-  selectedMonth: string, 
-  availableMonths: string[], 
-  count: number = 2
-): string[] {
-  if (!selectedMonth || selectedMonth === "all" || availableMonths.length === 0) {
-    return [];
-  }
-  
-  // Find the index of the selected month
-  const normalizedSelected = selectedMonth.toLowerCase().replace("-", "/");
-  const currentIndex = availableMonths.findIndex(m => 
-    m.toLowerCase().replace("-", "/") === normalizedSelected
-  );
-  
-  if (currentIndex === -1) return [];
-  
-  // Get previous months (as many as available, up to count)
-  const previousMonths: string[] = [];
-  for (let i = 1; i <= count && currentIndex - i >= 0; i++) {
-    previousMonths.unshift(availableMonths[currentIndex - i]);
-  }
-  
-  return previousMonths;
+export function getCurrentMonthFormatted(): string {
+  const now = new Date();
+  const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  return `${monthNames[now.getMonth()]}-${now.getFullYear().toString().slice(-2)}`;
 }
 
 /**
- * Calculate historical ICM data for a specific assessor
+ * Get the previous N months from the CURRENT month (not selected month)
+ * @param availableMonths - Array of available months in the data
+ * @param count - Number of previous months to get (default: 2)
+ * @returns Array of previous month strings in chronological order, plus current month
  */
-export interface HistoricalICMData {
-  month: string;
-  icmGeral: number;
+export function getHistoricalMonthsFromCurrent(
+  availableMonths: string[], 
+  count: number = 2
+): string[] {
+  const currentMonth = getCurrentMonthFormatted();
+  
+  if (availableMonths.length === 0) return [];
+  
+  const normalizeMonth = (m: string) => m.toLowerCase().replace("-", "/");
+  const normalizedCurrent = normalizeMonth(currentMonth);
+  
+  const currentIndex = availableMonths.findIndex(m => 
+    normalizeMonth(m) === normalizedCurrent
+  );
+  
+  if (currentIndex === -1) {
+    // Current month not in data, use most recent available
+    const lastMonth = availableMonths[availableMonths.length - 1];
+    const lastIndex = availableMonths.length - 1;
+    const result: string[] = [];
+    for (let i = count; i >= 1 && lastIndex - i >= 0; i--) {
+      result.push(availableMonths[lastIndex - i]);
+    }
+    result.push(lastMonth);
+    return result;
+  }
+  
+  // Get previous months + current month
+  const result: string[] = [];
+  for (let i = count; i >= 1 && currentIndex - i >= 0; i--) {
+    result.push(availableMonths[currentIndex - i]);
+  }
+  result.push(availableMonths[currentIndex]);
+  
+  return result;
 }
 
-export function getAssessorHistoricalICM(
+/**
+ * Calculate historical ICM data for a specific assessor based on CURRENT month
+ */
+export function getAssessorHistoricalICMFromCurrent(
   data: ProcessedKPI[],
   assessor: string,
-  selectedMonth: string,
-  previousMonths: string[]
+  availableMonths: string[],
+  count: number = 2
 ): HistoricalICMData[] {
   if (assessor === "all" || !assessor) return [];
   
-  const assessorData = filterByAssessor(data, assessor);
-  const allMonths = [...previousMonths, selectedMonth];
+  const historicalMonths = getHistoricalMonthsFromCurrent(availableMonths, count);
+  if (historicalMonths.length === 0) return [];
   
-  return allMonths.map(month => ({
-    month: month.toUpperCase().split("/")[0].split("-")[0], // "JAN"
-    icmGeral: calculateICMGeral(assessorData, month)
+  const assessorData = filterByAssessor(data, assessor);
+  
+  return historicalMonths.map((month, idx) => ({
+    month: month.toUpperCase().split("/")[0].split("-")[0],
+    icmGeral: calculateICMGeral(assessorData, month),
+    isCurrent: idx === historicalMonths.length - 1
   }));
 }
 ```
 
-#### 2. Atualizar Props do ICMCard (ICMCard.tsx)
+#### 2. Atualizar Interface HistoricalICMData
 
 ```typescript
-interface ICMCardProps {
+export interface HistoricalICMData {
+  month: string;
   icmGeral: number;
-  ritmoIdeal: number;
-  diasUteisRestantes: number;
-  assessors: string[];
-  selectedAssessor: string;
-  selectedMonth: string;
-  months: string[];
-  onAssessorChange: (value: string) => void;
-  onMonthChange: (value: string) => void;
-  isLocked?: boolean;
-  // Novo: dados históricos
-  historicalData?: { month: string; icmGeral: number }[];
+  isCurrent?: boolean;
 }
 ```
 
-#### 3. Adicionar Seção de Histórico no ICMCard (ICMCard.tsx)
-
-Inserir entre o gauge e o indicador de performance:
+#### 3. Modificar ICMCard.tsx - Novo Layout Visual
 
 ```tsx
 {/* Historical Performance - only when specific assessor is selected */}
 {selectedAssessor !== "all" && historicalData && historicalData.length > 0 && (
-  <div className="flex items-center justify-center gap-3 py-1 px-2 bg-muted/30 rounded-md flex-shrink-0">
-    <span className="text-responsive-xs text-muted-foreground">📊</span>
-    {historicalData.map((data, idx) => (
-      <span 
-        key={data.month} 
-        className={`text-responsive-xs font-medium ${
-          idx === historicalData.length - 1 
-            ? 'text-primary font-bold' 
-            : 'text-muted-foreground'
-        }`}
-      >
-        {data.month}: {data.icmGeral}%
-        {idx < historicalData.length - 1 && (
-          <span className="text-muted-foreground/50 ml-2">│</span>
-        )}
-      </span>
-    ))}
+  <div className="flex flex-col items-center py-1.5 px-2 bg-muted/30 rounded-md flex-shrink-0">
+    <span className="text-responsive-4xs text-muted-foreground mb-1">Histórico ICM</span>
+    <div className="flex items-center justify-center gap-3">
+      {historicalData.map((data, idx) => (
+        <div 
+          key={data.month} 
+          className={`flex flex-col items-center px-2 py-0.5 rounded ${
+            data.isCurrent 
+              ? 'bg-primary/10 border border-primary/30' 
+              : ''
+          }`}
+        >
+          <span className="text-responsive-4xs text-muted-foreground uppercase">
+            {data.month}
+          </span>
+          <span 
+            className={`text-responsive-sm font-bold ${
+              data.isCurrent 
+                ? 'text-primary' 
+                : 'text-foreground'
+            }`}
+          >
+            {data.icmGeral}%
+          </span>
+        </div>
+      ))}
+    </div>
   </div>
 )}
 ```
 
-#### 4. Atualizar FlipICMCard (FlipICMCard.tsx)
-
-Adicionar prop `historicalData` e passá-la para o ICMCard:
+#### 4. Modificar Index.tsx - Usar nova função
 
 ```typescript
-interface FlipICMCardProps {
-  // ... props existentes
-  historicalData?: { month: string; icmGeral: number }[];
-}
+import { 
+  // ... imports existentes
+  getAssessorHistoricalICMFromCurrent,
+} from "@/lib/kpiUtils";
 
-// No componente:
-<ICMCard
-  icmGeral={icmGeral}
-  ritmoIdeal={ritmoIdeal}
-  // ... outras props
-  historicalData={historicalData}
-/>
-```
-
-#### 5. Calcular Histórico no Index.tsx
-
-```typescript
-import { getPreviousMonths, getAssessorHistoricalICM } from "@/lib/kpiUtils";
-
-// Calcular meses anteriores e histórico do assessor
-const previousMonths = useMemo(
-  () => getPreviousMonths(filters.month, months, 2),
-  [filters.month, months]
-);
-
+// Substituir:
 const assessorHistoricalICM = useMemo(
-  () => getAssessorHistoricalICM(
-    processedData, 
-    filters.assessor, 
-    filters.month, 
-    previousMonths
-  ),
-  [processedData, filters.assessor, filters.month, previousMonths]
+  () => getAssessorHistoricalICMFromCurrent(processedData, filters.assessor, months, 2),
+  [processedData, filters.assessor, months]
 );
 
-// Passar para FlipICMCard:
-<FlipICMCard
-  icmGeral={dashboardData.icmGeral}
-  ritmoIdeal={dashboardData.ritmoIdeal}
-  // ... outras props
-  historicalData={assessorHistoricalICM}
-/>
+// Remover previousMonths se não for mais usado
 ```
 
 ---
 
-### Layout Visual Final
+### Comparativo Visual
 
-```text
-ASSESSOR SELECIONADO - "Bruno Silva" em JAN/26:
-┌─────────────────────────────────────────────────────────────────┐
-│  ICM Geral                         [Bruno ▼] [JAN-26 ▼]         │
-│                                                                 │
-│      [===GAUGE===]        Dias Úteis    Ritmo                   │
-│         72%               Restantes     Ideal                   │
-│                              8          65%                     │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │  📊 NOV: 85%  │  DEZ: 92%  │  JAN: 72%                  │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  ⚠️ Abaixo do esperado                                          │
-└─────────────────────────────────────────────────────────────────┘
-
-Cores:
-- Meses anteriores: text-muted-foreground
-- Mês atual: text-primary font-bold
-- Separador: │ em cinza claro
-```
+| Antes | Depois |
+|-------|--------|
+| `📊 NOV: 85% │ DEZ: 92% │ JAN: 72%` | Layout em colunas com header "Histórico ICM" |
+| Texto em linha única confuso | Cada mês em bloco separado |
+| Mês atual apenas em negrito | Mês atual com background e borda destacados |
+| Baseado no mês selecionado | Sempre baseado no mês atual do sistema |
 
 ---
 
-### Comportamento
+### Comportamento Final
 
-| Seleção Assessor | Resultado |
-|------------------|-----------|
-| "TODOS (Escritório)" | Histórico NÃO aparece |
-| "Bruno Silva" | Mostra NOV, DEZ, JAN (ou quantos meses anteriores existirem) |
-| Menos de 3 meses disponíveis | Mostra apenas os meses que existem |
+| Cenário | Histórico Exibido |
+|---------|-------------------|
+| Hoje = Janeiro 2026 | NOV 85% → DEZ 92% → **JAN 72%** |
+| Dados só até Dezembro | OUT 78% → NOV 85% → **DEZ 92%** |
+| Apenas 1 mês de dados | **JAN 72%** (sem meses anteriores) |
+| Assessor = TODOS | Histórico não aparece |
 
 ---
 
 ### Benefícios
 
-1. **Visão de Evolução** - Permite ver tendência de performance do assessor
-2. **Contexto Temporal** - Compara mês atual com meses anteriores
-3. **Destaque Visual** - Mês atual em destaque com cor primária
-4. **Não Invasivo** - Só aparece quando relevante (assessor específico selecionado)
+1. **Clareza Visual** - Cada mês em um bloco separado, fácil de ler
+2. **Consistência** - Sempre mostra os mesmos meses independente do filtro
+3. **Destaque Claro** - Mês atual com background e borda para identificação rápida
+4. **Header Explicativo** - "Histórico ICM" deixa claro o propósito da seção
 5. **Responsivo** - Usa classes text-responsive para adaptar ao tamanho da tela
 
