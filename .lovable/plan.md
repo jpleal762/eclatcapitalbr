@@ -1,34 +1,24 @@
 
 
-## Plano: Reduzir Tamanho dos Cards na Análise Trimestral
+## Plano: Adicionar Seleção de Produtos na Tela Sprint
 
-### Problema Identificado
+### Objetivo
 
-Os 9 KPIs + 3 cabeçalhos de categoria estão ocupando muito espaço vertical, fazendo os gráficos ficarem ocultos. Atualmente cada card tem:
-- Padding `p-2 lg:p-3` (8-12px)
-- Altura da barra de progresso `h-3 lg:h-4` (12-16px)
-- Margens entre elementos `mb-1`, `my-1`, `mt-1`
+Adicionar checkboxes para que o usuário possa selecionar quais KPIs (produtos) deseja visualizar na tela Sprint, similar ao padrão já existente no DashboardSidebar.
 
-### Solução Proposta
-
-Reduzir ainda mais o tamanho de cada componente:
+### Arquitetura Proposta
 
 ```text
-ANTES (cada card ~60px):
-┌─────────────────────────────────────────────┐
-│  Receita XP                           59%   │ (padding 12px)
-│                                             │ (margem 4px)
-│  ████████████████▏                         │ (barra 16px + margem)
-│                                             │ (margem 4px)
-│  R$ 36Mi / R$ 61Mi       Falta: R$ 25 Mil  │ (padding 12px)
-└─────────────────────────────────────────────┘
-
-DEPOIS (cada card ~40px):
-┌────────────────────────────────────────────┐
-│ Receita XP                           59%  │ (padding 4-6px)
-│ ████████████████▏                         │ (barra 8-12px)
-│ R$36Mi/R$61Mi          Falta: R$25Mi      │ (padding 4-6px)
-└────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  [Assessor ▼]  [Mês ▼]     ☑ Captação ☑ Receita ☑ Diversificação ☐ Reuniões  │
+│                            ☑ Habilitação ☑ Ativação                           │
+├───────────────────────────────────────────────────────────────────────────────┤
+│  🔥 Captação NET                                                         45%  │
+│  ...                                                                          │
+├───────────────────────────────────────────────────────────────────────────────┤
+│  🔥 Receita                                                              62%  │
+│  ...                                                                          │
+└───────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -37,106 +27,159 @@ DEPOIS (cada card ~40px):
 
 | Arquivo | Ação |
 |---------|------|
-| `src/components/dashboard/QuarterlyKPIBar.tsx` | **MODIFICAR** - Reduzir padding, margens e altura da barra |
-| `src/components/dashboard/AnalysisPage.tsx` | **MODIFICAR** - Reduzir gaps e compactar cabeçalhos de categoria |
+| `src/components/dashboard/SprintPage.tsx` | **MODIFICAR** - Adicionar checkboxes de seleção de produtos |
+| `src/pages/Index.tsx` | **MODIFICAR** - Gerenciar estado de produtos selecionados e persistir no localStorage |
 
 ---
 
 ### Detalhes Técnicos
 
-#### 1. QuarterlyKPIBar.tsx - Compactar Layout
+#### 1. Adicionar Estado de Seleção no Index.tsx
 
-**Mudanças:**
-
-| Elemento | Antes | Depois |
-|----------|-------|--------|
-| Padding do card | `p-2 lg:p-3` | `p-1.5 lg:p-2` |
-| Altura da barra | `h-3 lg:h-4` | `h-2 lg:h-3` |
-| Margem da barra | `my-1` | `my-0.5` |
-| Margem do header | `mb-1` | `mb-0.5` |
-| Margem dos valores | `mt-1` | `mt-0.5` |
-| Fonte do label | `text-xs lg:text-sm` | `text-[10px] lg:text-xs` |
-| Fonte da % | `text-sm lg:text-base` | `text-xs lg:text-sm` |
-| Fonte dos valores | `text-[10px] lg:text-xs` | `text-[9px] lg:text-[10px]` |
-
-**Código resultante:**
+Criar estado para controlar quais produtos estão selecionados, com persistência no localStorage:
 
 ```tsx
-<div className="bg-card rounded-lg p-1.5 lg:p-2 h-full flex flex-col border border-border shadow-sm overflow-hidden">
-  {/* Label and percentage - mais compacto */}
-  <div className="flex justify-between items-center mb-0.5">
-    <div className="flex items-center gap-1">
-      <span className="font-semibold text-foreground text-[10px] lg:text-xs truncate">{label}</span>
-      {headName && (
-        <span className="inline-flex items-center text-[8px] lg:text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-500/10 px-0.5 py-0.5 rounded border border-blue-500/20">
-          HEAD {headName}
+const SPRINT_PRODUCTS_STORAGE_KEY = "sprint-selected-products";
+
+// Estado inicial: todos selecionados
+const [selectedSprintProducts, setSelectedSprintProducts] = useState<Set<string>>(() => {
+  const saved = localStorage.getItem(SPRINT_PRODUCTS_STORAGE_KEY);
+  if (saved) {
+    try {
+      return new Set(JSON.parse(saved));
+    } catch {
+      return new Set(SPRINT_PRODUCTS.map(p => p.category));
+    }
+  }
+  return new Set(SPRINT_PRODUCTS.map(p => p.category));
+});
+
+// Persistir no localStorage
+useEffect(() => {
+  localStorage.setItem(SPRINT_PRODUCTS_STORAGE_KEY, JSON.stringify([...selectedSprintProducts]));
+}, [selectedSprintProducts]);
+
+// Filtrar sprintData pelos produtos selecionados
+const filteredSprintData = useMemo(
+  () => sprintData.filter(kpi => selectedSprintProducts.has(kpi.category)),
+  [sprintData, selectedSprintProducts]
+);
+```
+
+#### 2. Modificar SprintPage.tsx
+
+Adicionar props e UI de checkboxes:
+
+```tsx
+interface SprintPageProps {
+  sprintData: SprintKPIData[];
+  assessors: string[];
+  months: string[];
+  selectedAssessor: string;
+  selectedMonth: string;
+  onAssessorChange: (assessor: string) => void;
+  onMonthChange: (month: string) => void;
+  isLocked?: boolean;
+  evolutionMap?: Map<string, SprintEvolution>;
+  // Novos props para seleção de produtos
+  selectedProducts: Set<string>;
+  onProductToggle: (category: string) => void;
+}
+```
+
+Adicionar seção de checkboxes compactos no header:
+
+```tsx
+import { SPRINT_PRODUCTS } from "@/types/kpi";
+import { Checkbox } from "@/components/ui/checkbox";
+
+// Na área de filtros, adicionar linha de checkboxes:
+<div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0 flex-wrap">
+  {/* Checkboxes de produtos - linha compacta */}
+  <div className="flex items-center gap-3 flex-wrap">
+    {SPRINT_PRODUCTS.map((product) => (
+      <label 
+        key={product.category} 
+        className="flex items-center gap-1.5 cursor-pointer text-[10px] lg:text-xs"
+      >
+        <Checkbox
+          checked={selectedProducts.has(product.category)}
+          onCheckedChange={() => onProductToggle(product.category)}
+          className="h-3 w-3 lg:h-4 lg:w-4"
+        />
+        <span className="text-muted-foreground hover:text-foreground transition-colors">
+          {product.label}
         </span>
-      )}
-    </div>
-    <span className={`font-bold text-xs lg:text-sm ${textColor}`}>
-      {percentage}%
-    </span>
+      </label>
+    ))}
   </div>
-
-  {/* Progress bar - menor */}
-  <div className="relative h-2 lg:h-3 my-0.5">
-    {/* ... conteúdo mantido ... */}
-  </div>
-
-  {/* Values - fonte menor */}
-  <div className="flex justify-between items-center text-[9px] lg:text-[10px] text-muted-foreground mt-0.5">
-    {/* ... conteúdo mantido ... */}
+  
+  {/* Filtros existentes */}
+  <div className="flex items-center gap-2">
+    <Select ... />
+    <Select ... />
   </div>
 </div>
 ```
 
-#### 2. AnalysisPage.tsx - Compactar Container e Headers
+#### 3. Atualizar Chamada do SprintPage no Index.tsx
 
-**Mudanças:**
-
-| Elemento | Antes | Depois |
-|----------|-------|--------|
-| Gap entre cards | `gap-1 lg:gap-1.5` | `gap-0.5 lg:gap-1` |
-| Headers de categoria | `text-xs` + dots `w-2 h-2` | `text-[10px]` + dots `w-1.5 h-1.5` |
-| Gap do header | `gap-2` | `gap-1` |
-
-**Código resultante:**
+Passar os novos props:
 
 ```tsx
-{/* Container principal com gap menor */}
-<div className="flex-1 min-h-0 flex flex-col gap-0.5 lg:gap-1 overflow-hidden lg:overflow-hidden overflow-y-auto">
-  
-  {/* Category headers mais compactos */}
-  <div className="flex items-center gap-1 px-1 shrink-0">
-    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-    <span className="text-[10px] font-bold text-primary uppercase tracking-wide">
-      {CATEGORY_GROUPS.prospeccao.label}
-    </span>
-    <div className="flex-1 h-px bg-border" />
-  </div>
-  
-  {/* KPI bars */}
-  ...
-</div>
+<SprintPage
+  sprintData={filteredSprintData}  // ← Dados filtrados
+  assessors={assessors}
+  months={months}
+  selectedAssessor={filters.assessor}
+  selectedMonth={filters.month}
+  onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
+  onMonthChange={(value) => setFilters({ ...filters, month: value })}
+  isLocked={isViewLocked}
+  evolutionMap={evolutionMap}
+  selectedProducts={selectedSprintProducts}  // ← Novo
+  onProductToggle={(category) => {           // ← Novo
+    setSelectedSprintProducts(prev => {
+      const next = new Set(prev);
+      if (next.has(category)) {
+        next.delete(category);
+      } else {
+        next.add(category);
+      }
+      return next;
+    });
+  }}
+/>
 ```
 
 ---
 
-### Comparação de Espaço
+### Layout Visual
 
-| Métrica | Antes | Depois | Economia |
-|---------|-------|--------|----------|
-| Altura de cada card | ~60px | ~40px | ~33% |
-| Gap entre cards | 4-6px | 2-4px | ~40% |
-| Headers de categoria | ~20px | ~14px | ~30% |
-| **Total para 9 KPIs + 3 headers** | ~600px | ~400px | **~33%** |
+```text
+ANTES:
+┌──────────────────────────────────────────────────────────────────────┐
+│                                            [Assessor ▼] [Mês ▼]     │
+├──────────────────────────────────────────────────────────────────────┤
+│  (6 KPIs sempre visíveis)                                            │
+└──────────────────────────────────────────────────────────────────────┘
+
+DEPOIS:
+┌──────────────────────────────────────────────────────────────────────┐
+│  ☑ Captação ☑ Receita ☑ Diversificação      [Assessor ▼] [Mês ▼]    │
+│  ☑ Reuniões ☑ Habilitação ☑ Ativação                                │
+├──────────────────────────────────────────────────────────────────────┤
+│  (Apenas KPIs selecionados aparecem)                                 │
+└──────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ### Benefícios
 
-1. **Todos os KPIs visíveis** - Cabem na tela sem scroll
-2. **Informação preservada** - Nenhum dado removido, apenas compactado
-3. **Legibilidade mantida** - Fontes ainda legíveis com tamanhos mínimos apropriados
-4. **Consistência** - Proporções mantidas entre elementos
+1. **Flexibilidade** - Usuário escolhe quais KPIs visualizar
+2. **Persistência** - Seleção salva no localStorage, mantém preferências
+3. **Design compacto** - Checkboxes pequenos, não ocupam muito espaço
+4. **Consistência** - Segue padrão já existente no DashboardSidebar
+5. **Mensagem amigável** - Se nenhum produto selecionado, mostra "Selecione ao menos um produto"
 
