@@ -189,7 +189,7 @@ export function AnalysisPage({
       {hasData ? (
         viewMode === "by-category" ? (
           // Category grouped view - single column with section headers
-          <div className="flex-1 min-h-0 flex flex-col gap-responsive-sm overflow-hidden lg:overflow-hidden overflow-y-auto">
+          <div className="flex-1 min-h-0 flex flex-col gap-1 lg:gap-1.5 overflow-hidden lg:overflow-hidden overflow-y-auto">
             {/* Prospecção Section */}
             <div className="flex items-center gap-2 px-1 shrink-0">
               <span className="w-2 h-2 rounded-full bg-blue-500" />
@@ -234,7 +234,7 @@ export function AnalysisPage({
           </div>
         ) : (
           // Default/sorted view - stacked bars
-          <div className="flex-1 min-h-0 flex flex-col gap-responsive-sm overflow-hidden lg:overflow-hidden overflow-y-auto">
+          <div className="flex-1 min-h-0 flex flex-col gap-1 lg:gap-1.5 overflow-hidden lg:overflow-hidden overflow-y-auto">
             {sortedKPIs.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
                 <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} />

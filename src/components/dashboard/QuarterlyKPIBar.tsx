@@ -47,24 +47,24 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
   const atingiuRitmo = percentage >= ritmoIdeal;
 
   return (
-    <div className="bg-card rounded-lg p-responsive-sm lg:p-responsive h-full flex flex-col border border-border shadow-sm">
+    <div className="bg-card rounded-lg p-2 lg:p-3 h-full flex flex-col border border-border shadow-sm overflow-hidden">
       {/* Label and percentage */}
-      <div className="flex justify-between items-center mb-responsive">
+      <div className="flex justify-between items-center mb-1">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-foreground text-responsive-xs">{label}</span>
+          <span className="font-semibold text-foreground text-xs lg:text-sm truncate">{label}</span>
           {headName && (
-            <span className="inline-flex items-center text-responsive-4xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-500/10 px-1.5 py-0.5 rounded-md border border-blue-500/20">
+            <span className="inline-flex items-center text-[9px] lg:text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-500/10 px-1 py-0.5 rounded border border-blue-500/20">
               HEAD {headName}
             </span>
           )}
         </div>
-        <span className={`font-bold text-responsive-sm ${textColor}`}>
+        <span className={`font-bold text-sm lg:text-base ${textColor}`}>
           {percentage}%
         </span>
       </div>
 
-      {/* Progress bar container - with space for value below */}
-      <div className="relative flex-1 min-h-[clamp(12px,1.5vh,24px)] mt-[clamp(4px,0.5vh,8px)] mb-[clamp(14px,1.8vh,22px)]">
+      {/* Progress bar - fixed height, minimal margins */}
+      <div className="relative h-3 lg:h-4 my-1">
         {/* Actual progress bar */}
         <div className="absolute inset-0 bg-muted rounded-full overflow-hidden">
           <div
@@ -80,61 +80,42 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
             className="absolute top-0 h-full w-px bg-foreground/20"
             style={{ left: "66.66%" }}
           />
-          
-          {/* 100% marker */}
-          {percentage < 100 && (
-            <div 
-              className="absolute top-0 h-full w-0.5 bg-foreground/30"
-              style={{ left: "100%" }}
-            />
-          )}
         </div>
         
-        {/* Ideal Rhythm Marker - value below only */}
+        {/* Ideal Rhythm Marker - line only, no text below */}
         {ritmoIdeal > 0 && ritmoIdeal <= 100 && (
           <div 
-            className="absolute flex flex-col items-center z-10"
-            style={{ 
-              left: `${ritmoIdeal}%`, 
-              transform: "translateX(-50%)",
-              top: "0",
-              bottom: "-20px"
-            }}
+            className="absolute top-0 h-full flex flex-col items-center z-10"
+            style={{ left: `${ritmoIdeal}%`, transform: "translateX(-50%)" }}
           >
-            {/* Vertical blue line (crosses the bar) */}
+            {/* Vertical blue line */}
             <div className="flex-1 w-0.5 bg-blue-500" />
-            
             {/* Triangle pointing down */}
-            <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-blue-500" />
-            
-            {/* Missing value below */}
-            {!atingiuRitmo && faltaParaRitmo > 0 ? (
-              <span className="text-responsive-4xs text-blue-500 font-medium whitespace-nowrap mt-0.5">
-                Falta: {formatValue(faltaParaRitmo, isCurrency)}
-              </span>
-            ) : atingiuRitmo ? (
-              <span className="text-responsive-4xs text-green-500 font-medium whitespace-nowrap mt-0.5">
-                ✓ OK
-              </span>
-            ) : null}
+            <div className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[4px] border-t-blue-500" />
           </div>
         )}
       </div>
 
-      {/* Values */}
-      <div className="flex justify-between items-center text-responsive-2xs text-muted-foreground mt-responsive">
+      {/* Values - ALL in one line */}
+      <div className="flex justify-between items-center text-[10px] lg:text-xs text-muted-foreground mt-1">
         <span>
           <span className="font-medium text-foreground">{formatValue(value, isCurrency)}</span>
           {" / "}
           {formatValue(target, isCurrency)}
         </span>
-        {percentage > 100 && (
-          <span className="text-green-600 dark:text-green-400 font-medium">
-            +{formatValue(value - target, isCurrency)}
+        
+        {/* Rhythm status indicator */}
+        {atingiuRitmo ? (
+          <span className="text-green-500 font-medium">✓ OK</span>
+        ) : faltaParaRitmo > 0 ? (
+          <span className="text-blue-500 font-medium whitespace-nowrap">
+            Ritmo: -{formatValue(faltaParaRitmo, isCurrency)}
           </span>
-        )}
+        ) : null}
+        
+        {/* Total remaining */}
         {percentage < 100 && target > 0 && (
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground whitespace-nowrap">
             Falta: {formatValue(target - value, isCurrency)}
           </span>
         )}
