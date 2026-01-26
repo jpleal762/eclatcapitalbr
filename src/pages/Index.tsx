@@ -282,27 +282,6 @@ const Index = () => {
     [processedData, filters.month]
   );
 
-  // Calculate weekly target for Primeira reunião (Planejado Semana) - Card 4
-  const agendadasWeeklyTarget = useMemo(() => {
-    if (!processedData || processedData.length === 0 || filters.month === "all") return 0;
-    
-    // Filter by selected assessor if applicable
-    const filteredData = filters.assessor === "all" 
-      ? processedData 
-      : processedData.filter(d => d.assessor === filters.assessor);
-    
-    // Find "Primeira reuniao" with "Planejado Semana" status
-    const primeiraReuniao = filteredData.filter(
-      d => d.category.toLowerCase().includes("primeira reuni") && 
-           d.status.toLowerCase().includes("planejado s")
-    );
-    
-    // Sum the value for the selected month
-    return primeiraReuniao.reduce((sum, item) => {
-      const monthData = item.monthlyData.find(m => m.month === filters.month);
-      return sum + (monthData?.value || 0);
-    }, 0);
-  }, [processedData, filters.month, filters.assessor]);
 
   // Debug: Log completo para diagnóstico
   useEffect(() => {
@@ -563,15 +542,9 @@ const Index = () => {
                         <div className="flex-1 min-h-0">
                           <ExpandableCard>
                             <AgendadasCard
-                          agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
-                          agendadasTarget={agendadasWeeklyTarget}
-                          agendadasPercentage={
-                            agendadasWeeklyTarget > 0 
-                              ? Math.round(((dashboardData.gaugeKPIs[2]?.secondaryValue || 0) / agendadasWeeklyTarget) * 100) 
-                              : 0
-                          }
-                          assessorData={assessorAgendadas}
-                        />
+                              agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
+                              assessorData={assessorAgendadas}
+                            />
                           </ExpandableCard>
                         </div>
                         {/* Gráfico Primeiras Reuniões (metade inferior) */}
