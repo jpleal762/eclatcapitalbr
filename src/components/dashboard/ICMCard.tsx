@@ -6,6 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useResponsiveSize } from "@/hooks/use-responsive-size";
 import { useTheme } from "next-themes";
+interface HistoricalICMData {
+  month: string;
+  icmGeral: number;
+}
+
 interface ICMCardProps {
   icmGeral: number;
   ritmoIdeal: number;
@@ -17,6 +22,7 @@ interface ICMCardProps {
   onAssessorChange: (value: string) => void;
   onMonthChange: (value: string) => void;
   isLocked?: boolean;
+  historicalData?: HistoricalICMData[];
 }
 export function ICMCard({
   icmGeral,
@@ -28,7 +34,8 @@ export function ICMCard({
   months,
   onAssessorChange,
   onMonthChange,
-  isLocked = false
+  isLocked = false,
+  historicalData
 }: ICMCardProps) {
   const {
     height,
@@ -140,8 +147,31 @@ export function ICMCard({
           <div className="text-center">
             <p className="text-responsive-xs text-muted-foreground mb-1">Ritmo<br />Ideal</p>
             <p className="text-responsive-xl font-bold text-foreground">{ritmoIdeal}%</p>
-          </div>
         </div>
+      </div>
+
+      {/* Historical Performance - only when specific assessor is selected */}
+      {selectedAssessor !== "all" && historicalData && historicalData.length > 0 && (
+        <div className="flex items-center justify-center gap-2 py-1 px-2 bg-muted/30 rounded-md flex-shrink-0">
+          <span className="text-responsive-xs text-muted-foreground">📊</span>
+          {historicalData.map((data, idx) => (
+            <span key={data.month} className="flex items-center">
+              <span 
+                className={`text-responsive-xs font-medium ${
+                  idx === historicalData.length - 1 
+                    ? 'text-primary font-bold' 
+                    : 'text-muted-foreground'
+                }`}
+              >
+                {data.month}: {data.icmGeral}%
+              </span>
+              {idx < historicalData.length - 1 && (
+                <span className="text-muted-foreground/50 mx-2">│</span>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
       </div>
 
       {/* Dynamic Performance Indicator */}

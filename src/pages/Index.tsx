@@ -28,6 +28,8 @@ import {
   calculateAssessorReceitaEmpilhada,
   getWeightForLabel,
   calculateSprintData,
+  getPreviousMonths,
+  getAssessorHistoricalICM,
 } from "@/lib/kpiUtils";
 import { 
   processYearlyDashboardData, 
@@ -306,6 +308,17 @@ const Index = () => {
   const dashboardData = useMemo(
     () => processDashboardData(processedData, filters.month, filters.assessor),
     [processedData, filters.month, filters.assessor]
+  );
+
+  // Calculate previous months and assessor historical ICM
+  const previousMonths = useMemo(
+    () => getPreviousMonths(filters.month, months, 2),
+    [filters.month, months]
+  );
+
+  const assessorHistoricalICM = useMemo(
+    () => getAssessorHistoricalICM(processedData, filters.assessor, filters.month, previousMonths),
+    [processedData, filters.assessor, filters.month, previousMonths]
   );
 
   const yearlyDashboardData = useMemo(
@@ -638,6 +651,7 @@ const Index = () => {
                             dashboardData={dashboardData}
                             isFlipped={isGlobalFlipped}
                             isLocked={isViewLocked}
+                            historicalData={assessorHistoricalICM}
                           />
                         </ExpandableCard>
                       </div>

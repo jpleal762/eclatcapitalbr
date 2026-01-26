@@ -8,6 +8,11 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
+interface HistoricalICMData {
+  month: string;
+  icmGeral: number;
+}
+
 interface FlipICMCardProps {
   icmGeral: number;
   ritmoIdeal: number;
@@ -21,6 +26,7 @@ interface FlipICMCardProps {
   dashboardData: DashboardData;
   isFlipped?: boolean;
   isLocked?: boolean;
+  historicalData?: HistoricalICMData[];
 }
 
 interface AnalysisResult {
@@ -48,6 +54,7 @@ export function FlipICMCard({
   dashboardData,
   isFlipped: controlledFlipped,
   isLocked = false,
+  historicalData,
 }: FlipICMCardProps) {
   // Manual flip offset for user-initiated flips
   const [manualFlipOffset, setManualFlipOffset] = useState(0);
@@ -178,6 +185,7 @@ export function FlipICMCard({
               onAssessorChange={onAssessorChange}
               onMonthChange={onMonthChange}
               isLocked={isLocked}
+              historicalData={historicalData}
             />
             <div className="absolute top-2 right-2 p-1 rounded-full bg-muted/50 opacity-50 hover:opacity-100 transition-opacity z-10">
               <RotateCcw className="w-3 h-3 text-muted-foreground" />
