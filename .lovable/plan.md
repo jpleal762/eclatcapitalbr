@@ -1,326 +1,301 @@
 
 
-## Plano: Objetivo Sprint Evidente + Evolução 48h + Confetti Animation
+## Plano: Tela Sprint com Seleção de Produtos e Destaque em "O que Falta"
 
 ### Visão Geral
 
-Três melhorias principais para a tela Sprint:
-1. **Objetivo Mais Evidente**: Header hero com métricas agregadas e indicadores visuais de urgência
-2. **Evolução em 48h**: Comparação com snapshot anterior após atualização de dados
-3. **Confetti Animation**: Efeito visual celebratório quando um KPI é zerado
+Três melhorias para a tela Sprint:
+1. **Checkboxes para seleção de produtos**: Permitir escolher quais KPIs/produtos aparecem nas barras
+2. **Destaque no "O que Falta"**: Tornar o objetivo e o valor restante muito mais evidentes visualmente
+3. **Cálculos globais filtrados**: Recalcular stats do header baseado apenas nos produtos selecionados
 
 ---
 
-### 1. Animação de Confetti
-
-#### 1.1 Instalar Biblioteca
-
-Adicionar `canvas-confetti` - biblioteca leve (~3KB gzipped) para efeitos de confetti:
-
-```bash
-npm install canvas-confetti
-npm install -D @types/canvas-confetti
-```
-
-#### 1.2 Componente de Confetti
-
-**Novo arquivo: `src/components/dashboard/ConfettiCelebration.tsx`**
-
-```typescript
-import { useEffect, useRef } from "react";
-import confetti from "canvas-confetti";
-
-interface ConfettiCelebrationProps {
-  trigger: boolean;
-  origin?: { x: number; y: number };
-}
-
-export function ConfettiCelebration({ trigger, origin }: ConfettiCelebrationProps) {
-  const hasTriggered = useRef(false);
-  
-  useEffect(() => {
-    if (trigger && !hasTriggered.current) {
-      hasTriggered.current = true;
-      
-      // Burst de confetti dourado (cores da marca)
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: origin || { y: 0.6 },
-        colors: ['#FFE066', '#E6A800', '#22C55E', '#FFFFFF'],
-        gravity: 0.8,
-        scalar: 1.2,
-      });
-      
-      // Segunda explosão menor após delay
-      setTimeout(() => {
-        confetti({
-          particleCount: 50,
-          spread: 100,
-          origin: origin || { y: 0.6 },
-          colors: ['#FFE066', '#22C55E'],
-        });
-      }, 150);
-    }
-  }, [trigger, origin]);
-  
-  return null;
-}
-```
-
-#### 1.3 Integração no SprintKPIBar
-
-Adicionar o componente de confetti que dispara quando `isCompleted` muda para `true`:
-
-```typescript
-// SprintKPIBar.tsx
-import { ConfettiCelebration } from "./ConfettiCelebration";
-import { Trophy, PartyPopper } from "lucide-react";
-
-// Dentro do componente:
-const [justCompleted, setJustCompleted] = useState(false);
-const wasCompletedRef = useRef(isCompleted);
-
-useEffect(() => {
-  if (isCompleted && !wasCompletedRef.current) {
-    setJustCompleted(true);
-    // Reset após animação
-    const timer = setTimeout(() => setJustCompleted(false), 3000);
-    return () => clearTimeout(timer);
-  }
-  wasCompletedRef.current = isCompleted;
-}, [isCompleted]);
-
-// No render:
-<ConfettiCelebration trigger={justCompleted} />
-
-{isCompleted && (
-  <span className="flex items-center gap-1 text-green-500 text-xs lg:text-sm font-bold">
-    <Trophy className="h-4 w-4 animate-trophy-celebrate" />
-    <PartyPopper className="h-4 w-4 animate-celebrate-pop" />
-    ZERADO!
-  </span>
-)}
-```
-
----
-
-### 2. Header Hero com Objetivo Evidente
-
-#### 2.1 Novo Componente: `SprintHeader.tsx`
-
-**Arquivo: `src/components/dashboard/SprintHeader.tsx`**
-
-Layout visual:
+### Visualização Proposta
 
 ```text
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  🎯 SPRINT SEMANAL                                                           │
-│  ═══════════════════════════════════════════════════════════════════════════ │
-│  MISSÃO: Zerar o gap entre META e REALIZADO                                  │
-│                                                                              │
-│  ┌────────────────┐   ┌────────────────┐   ┌────────────────┐   ✓ 2/6 KPIs  │
-│  │  OBJETIVO TOTAL │   │   PRODUZIDO   │   │  AINDA FALTA  │    ZERADOS    │
-│  │    R$ 145K     │   │    R$ 82K     │   │    R$ 63K     │               │
-│  └────────────────┘   └────────────────┘   └────────────────┘               │
-│                                                                              │
-│  [████████████████████████████░░░░░░░░░░░░░░░] 56% concluído                 │
-└──────────────────────────────────────────────────────────────────────────────┘
-```
-
-Props:
-```typescript
-interface SprintHeaderProps {
-  globalStats: SprintGlobalStats;
-  assessors: string[];
-  months: string[];
-  selectedAssessor: string;
-  selectedMonth: string;
-  onAssessorChange: (assessor: string) => void;
-  onMonthChange: (month: string) => void;
-  isLocked?: boolean;
-}
-
-interface SprintGlobalStats {
-  totalObjective: number;
-  totalProduced: number;
-  totalStillMissing: number;
-  globalProgressPercentage: number;
-  kpisCompleted: number;
-  kpisTotal: number;
-}
-```
-
-#### 2.2 Indicadores de Urgência nas Barras
-
-Adicionar ícones visuais em cada barra:
-
-| Progresso | Ícone | Cor |
-|-----------|-------|-----|
-| < 50% | 🔥 `Flame` | Vermelho |
-| 50-80% | ⏱️ `Timer` | Amarelo |
-| 80-99% | 🎯 `Target` | Verde claro |
-| 100% | 🏆 `Trophy` + 🎉 `PartyPopper` | Verde |
-
----
-
-### 3. Sistema de Evolução em 48h
-
-#### 3.1 Nova Tabela no Banco de Dados
-
-```sql
-CREATE TABLE public.sprint_snapshots (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  month VARCHAR(10) NOT NULL,
-  snapshot_data JSONB NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_sprint_snapshots_month ON public.sprint_snapshots(month);
-CREATE INDEX idx_sprint_snapshots_created ON public.sprint_snapshots(created_at DESC);
-
-ALTER TABLE public.sprint_snapshots ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow all access to sprint_snapshots"
-  ON public.sprint_snapshots FOR ALL
-  USING (true)
-  WITH CHECK (true);
-```
-
-#### 3.2 Funções de Storage
-
-**Novo arquivo: `src/lib/sprintStorage.ts`**
-
-```typescript
-export async function saveSprintSnapshot(
-  month: string,
-  sprintData: SprintKPIData[]
-): Promise<void>;
-
-export async function getLatestSnapshot(
-  month: string,
-  minHoursAgo: number = 24
-): Promise<SprintSnapshot | null>;
-
-export function calculateEvolution(
-  currentData: SprintKPIData[],
-  previousSnapshot: SprintSnapshot
-): SprintEvolution;
-```
-
-#### 3.3 Interface de Evolução
-
-```typescript
-export interface SprintEvolution {
-  difference: number;
-  percentageChange: number;
-  hoursAgo: number;
-}
-
-export interface SprintKPIDataWithEvolution extends SprintKPIData {
-  evolution?: SprintEvolution;
-}
-```
-
-#### 3.4 Exibição no SprintKPIBar
-
-Quando houver dados de evolução, mostrar linha adicional:
-
-```text
-📈 +R$ 8.300 em 48h (↑22%)
++-------------------------------------------------------------------------+
+|  SPRINT SEMANAL - MISSÃO: Zerar o gap                                    |
+|                                                                         |
+|  ┌─────────────────────────────────────────────────────────────────────┐|
+|  │  SELECIONAR PRODUTOS:                                               ||
+|  │  [✓] Captação NET   [✓] Receita   [✓] Diversificação               ||
+|  │  [✓] Primeiras Reuniões   [ ] Habilitação   [ ] Ativação           ||
+|  └─────────────────────────────────────────────────────────────────────┘|
+|                                                                         |
+|  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────────┐ |
+|  │   META TOTAL     │   │   PRODUZIDO      │   │   O QUE FALTA        │ |
+|  │   R$ 145K        │   │   R$ 82K         │   │ ███  R$ 63K  ███     │ |
+|  │   (objetivo)     │   │   (realizado)    │   │ !!! ZERAR !!!        │ |
+|  └──────────────────┘   └──────────────────┘   └──────────────────────┘ |
+|                                                                         |
++-------------------------------------------------------------------------+
+|                                                                         |
+|  ┌─────────────────────────────────────────────────────────────────────┐|
+|  │  🔥 Receita                                                         ||
+|  │  ╔══════════════════════════════════════════════════════════════╗  ||
+|  │  ║  META: R$ 85.000   │   REALIZADO: R$ 42.300   │  FALTA: R$ 42.7K ║||
+|  │  ╚══════════════════════════════════════════════════════════════╝  ||
+|  │  [████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 49%       ||
+|  │                                                                     ||
+|  │  📈 +R$ 8.300 em 48h                                               ||
+|  │  Falta: Hingrid -R$ 18.5K | Jose -R$ 12.7K                         ||
+|  └─────────────────────────────────────────────────────────────────────┘|
+|                                                                         |
++-------------------------------------------------------------------------+
 ```
 
 ---
 
 ### Arquivos a Criar/Modificar
 
-| Arquivo | Ação |
+| Arquivo | Acao |
 |---------|------|
-| `package.json` | **MODIFICAR** - Adicionar `canvas-confetti` |
-| `src/components/dashboard/ConfettiCelebration.tsx` | **CRIAR** |
-| `src/components/dashboard/SprintHeader.tsx` | **CRIAR** |
-| `src/components/dashboard/SprintKPIBar.tsx` | **MODIFICAR** - Confetti + ícones de urgência |
-| `src/components/dashboard/SprintPage.tsx` | **MODIFICAR** - Integrar header + stats globais |
-| `src/types/kpi.ts` | **MODIFICAR** - Adicionar interfaces de evolução |
-| `src/lib/sprintStorage.ts` | **CRIAR** - Funções de snapshot |
-| `src/lib/kpiUtils.ts` | **MODIFICAR** - Função `calculateGlobalSprintStats` |
-| `src/pages/Index.tsx` | **MODIFICAR** - Salvar snapshot ao carregar dados |
-| `supabase/migrations/xxx.sql` | **CRIAR** - Tabela `sprint_snapshots` |
+| `src/components/dashboard/SprintPage.tsx` | **MODIFICAR** - Adicionar estado de produtos selecionados e filtrar dados |
+| `src/components/dashboard/SprintHeader.tsx` | **MODIFICAR** - Adicionar checkboxes de produtos e destaque visual |
+| `src/components/dashboard/SprintKPIBar.tsx` | **MODIFICAR** - Redesign para destacar Meta/Realizado/Falta |
+| `src/types/kpi.ts` | **MODIFICAR** - Adicionar interface para configuracao de produtos |
 
 ---
 
-### Fluxo de Dados Completo
+### Detalhes Tecnicos
+
+#### 1. Nova Interface para Produtos Selecionaveis
+
+**Arquivo: `src/types/kpi.ts`**
+
+```typescript
+export interface SprintProductConfig {
+  category: string;
+  label: string;
+  isCurrency: boolean;
+  enabled: boolean;  // Novo - se esta selecionado
+}
+
+// Lista padrao de produtos para Sprint
+export const SPRINT_PRODUCTS: SprintProductConfig[] = [
+  { category: "Captacao net", label: "Captacao NET", isCurrency: true, enabled: true },
+  { category: "Receita", label: "Receita", isCurrency: true, enabled: true },
+  { category: "Diversificada ( ROA>1,5)", label: "Diversificacao", isCurrency: true, enabled: true },
+  { category: "Primeira reuniao", label: "Primeiras Reunioes", isCurrency: false, enabled: true },
+  { category: "Habilitacao", label: "Habilitacao", isCurrency: false, enabled: true },
+  { category: "Ativacao", label: "Ativacao", isCurrency: false, enabled: true },
+];
+```
+
+#### 2. Estado de Selecao no SprintPage
+
+**Arquivo: `src/components/dashboard/SprintPage.tsx`**
+
+Adicionar estado para gerenciar quais produtos estao selecionados:
+
+```typescript
+interface SprintPageProps {
+  // ... props existentes
+  selectedProducts: string[];              // Novo - categorias selecionadas
+  onProductToggle: (category: string) => void;  // Novo - callback para toggle
+}
+```
+
+Logica de filtragem:
+```typescript
+// Filtrar dados baseado nos produtos selecionados
+const filteredSprintData = sprintData.filter(
+  kpi => selectedProducts.includes(kpi.category)
+);
+
+// Recalcular stats globais apenas com produtos selecionados
+const globalStats = calculateGlobalStats(filteredSprintData);
+```
+
+#### 3. Checkboxes no SprintHeader
+
+**Arquivo: `src/components/dashboard/SprintHeader.tsx`**
+
+Adicionar nova props e secao de checkboxes:
+
+```typescript
+interface SprintHeaderProps {
+  // ... props existentes
+  availableProducts: SprintProductConfig[];
+  selectedProducts: string[];
+  onProductToggle: (category: string) => void;
+}
+```
+
+Renderizar checkboxes em linha horizontal:
+
+```tsx
+<div className="flex flex-wrap gap-2 lg:gap-3 mb-3 p-2 bg-muted/20 rounded-lg">
+  <span className="text-xs text-muted-foreground mr-2">Produtos:</span>
+  {availableProducts.map(product => (
+    <label key={product.category} className="flex items-center gap-1 cursor-pointer">
+      <Checkbox 
+        checked={selectedProducts.includes(product.category)}
+        onCheckedChange={() => onProductToggle(product.category)}
+      />
+      <span className="text-xs lg:text-sm">{product.label}</span>
+    </label>
+  ))}
+</div>
+```
+
+#### 4. Destaque Visual no "O que Falta" (Header)
+
+**Arquivo: `src/components/dashboard/SprintHeader.tsx`**
+
+Redesign do card "Ainda Falta" para maior destaque:
+
+```tsx
+{/* Card O QUE FALTA - com destaque visual */}
+<div className={cn(
+  "rounded-lg p-3 lg:p-4 text-center relative overflow-hidden",
+  totalStillMissing > 0 
+    ? "bg-gradient-to-br from-red-500/20 to-orange-500/20 border-2 border-destructive/50" 
+    : "bg-green-500/20 border-2 border-green-500/50"
+)}>
+  {/* Icone de alerta pulsante se falta algo */}
+  {totalStillMissing > 0 && (
+    <div className="absolute top-1 right-1">
+      <AlertTriangle className="h-4 w-4 text-destructive animate-pulse" />
+    </div>
+  )}
+  
+  <p className="text-[10px] lg:text-xs uppercase tracking-wide mb-1 font-bold">
+    O QUE FALTA
+  </p>
+  <p className={cn(
+    "text-lg lg:text-2xl font-black",  // Maior e mais bold
+    totalStillMissing > 0 ? "text-destructive" : "text-green-500"
+  )}>
+    {totalStillMissing > 0 ? formatValue(totalStillMissing) : "ZERADO!"}
+  </p>
+  {totalStillMissing > 0 && (
+    <p className="text-[9px] lg:text-[10px] text-destructive/80 font-medium mt-1">
+      OBJETIVO: ZERAR
+    </p>
+  )}
+</div>
+```
+
+#### 5. Redesign do SprintKPIBar com Destaque
+
+**Arquivo: `src/components/dashboard/SprintKPIBar.tsx`**
+
+Adicionar secao proeminente com Meta/Realizado/Falta:
+
+```tsx
+{/* Secao de Destaque: Meta | Realizado | Falta */}
+<div className="grid grid-cols-3 gap-2 mb-2 p-2 bg-muted/10 rounded-lg border border-border/50">
+  {/* Meta Semanal */}
+  <div className="text-center">
+    <p className="text-[9px] lg:text-[10px] text-muted-foreground uppercase">Meta</p>
+    <p className="text-xs lg:text-sm font-semibold text-foreground">
+      {formatValue(totalTarget, isCurrency)}
+    </p>
+  </div>
+  
+  {/* Realizado */}
+  <div className="text-center">
+    <p className="text-[9px] lg:text-[10px] text-muted-foreground uppercase">Realizado</p>
+    <p className="text-xs lg:text-sm font-semibold text-green-500">
+      {formatValue(totalRealized, isCurrency)}
+    </p>
+  </div>
+  
+  {/* O QUE FALTA - Destaque */}
+  <div className={cn(
+    "text-center rounded px-2 py-1",
+    isCompleted 
+      ? "bg-green-500/20" 
+      : "bg-destructive/10 border border-destructive/30"
+  )}>
+    <p className="text-[9px] lg:text-[10px] uppercase font-bold">
+      {isCompleted ? "Zerado" : "Falta"}
+    </p>
+    <p className={cn(
+      "text-xs lg:text-sm font-black",
+      isCompleted ? "text-green-500" : "text-destructive"
+    )}>
+      {isCompleted ? "✓" : formatValue(totalRemaining, isCurrency)}
+    </p>
+  </div>
+</div>
+```
+
+---
+
+### Fluxo de Dados
 
 ```text
-Upload Excel / Carregamento
-         │
-         ▼
-  handleDataLoaded()
-         │
-         ├─► calculateSprintData()
-         │         │
-         │         ▼
-         │   Retorna SprintKPIData[]
-         │
-         ├─► saveSprintSnapshot() → Supabase
-         │
-         └─► getLatestSnapshot(>24h)
-                   │
-                   ▼
-           calculateEvolution()
-                   │
-                   ▼
-           SprintKPIDataWithEvolution[]
-                   │
-                   ▼
-             SprintPage
-               ├─► SprintHeader (métricas globais)
-               └─► SprintKPIBar[] (com evolução + confetti)
+Index.tsx
+    │
+    ├─► Estado: selectedProducts = ["Captacao net", "Receita", ...]
+    │
+    └─► SprintPage
+            │
+            ├─► Filtra sprintData por selectedProducts
+            │
+            ├─► Calcula globalStats (apenas produtos selecionados)
+            │
+            └─► SprintHeader
+                    │
+                    ├─► Checkboxes para toggle de produtos
+                    │
+                    └─► Card "O QUE FALTA" com destaque visual
 ```
+
+---
+
+### Comportamento da Selecao de Produtos
+
+| Acao | Resultado |
+|------|-----------|
+| Marcar/Desmarcar checkbox | Toggle produto na lista |
+| Produto desmarcado | Barra nao aparece, stats globais recalculados |
+| Todos desmarcados | Mostrar mensagem "Selecione ao menos um produto" |
+| Reset | Botao para selecionar todos novamente |
 
 ---
 
 ### Resultado Visual Final
 
 ```text
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  🎯 SPRINT SEMANAL                                    [Assessor ▼] [Mês ▼]   │
-│  MISSÃO: Zerar o gap até a meta                                              │
-│                                                                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   ✓ 2/6 ZERADOS       │
-│  │   OBJETIVO   │  │  PRODUZIDO   │  │ AINDA FALTA │                        │
-│  │   R$ 145K    │  │   R$ 82K     │  │   R$ 63K    │                        │
-│  └──────────────┘  └──────────────┘  └──────────────┘                        │
-│                                                                              │
-│  [████████████████████████████░░░░░░░░░░░░░░] 56% zerado                     │
-│  📊 Evolução 48h: +R$ 28.500 produzidos | +1 KPI zerado                      │
-├──────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  🔥 Receita                                         Objetivo: R$ 45.200      │
-│  ███████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  42%                    │
-│  📈 +R$ 8.300 em 48h (↑22%)                                                  │
-│  Falta: Hingrid -R$ 18.5K | Jose -R$ 12.7K                                   │
-│                                                                              │
-│  🎯 Diversificação                                  Objetivo: R$ 8.100       │
-│  ██████████████████████████████████████░░░░░░░░░░░░  82%                     │
-│  📈 +R$ 4.200 em 48h (↑52%)                                                  │
-│  Falta: Marcela -R$ 5.2K                                                     │
-│                                                                              │
-│  🏆🎉 Captação NET                                      ZERADO!              │  
-│  ████████████████████████████████████████████████████  100%   ✨ CONFETTI ✨ │
-│  ✓ Meta atingida! +R$ 12.000 em 48h finalizou o sprint                       │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
++-------------------------------------------------------------------------+
+|  SPRINT SEMANAL - MISSAO: Zerar o gap                                    |
+|  Produtos: [✓] Captacao NET  [✓] Receita  [ ] Diversificacao  ...       |
+|                                                                         |
+|  ┌────────────┐  ┌────────────┐  ╔════════════════════════════════════╗ |
+|  │   META     │  │ PRODUZIDO  │  ║      O QUE FALTA                   ║ |
+|  │  R$ 145K   │  │  R$ 82K    │  ║  !!!  R$ 63K  !!!                  ║ |
+|  └────────────┘  └────────────┘  ║   OBJETIVO: ZERAR                  ║ |
+|                                  ╚════════════════════════════════════╝ |
++-------------------------------------------------------------------------+
+|                                                                         |
+|  🔥 Receita                                                             |
+|  ┌──────────────────────────────────────────────────────────────────┐   |
+|  │  META: R$ 85K  │  REALIZADO: R$ 42.3K  │  ⚠ FALTA: R$ 42.7K      │   |
+|  └──────────────────────────────────────────────────────────────────┘   |
+|  [████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 49%            |
+|  Falta: Hingrid -R$ 18.5K | Jose -R$ 12.7K                              |
+|                                                                         |
+|  🏆 Captacao NET                                     ✓ ZERADO!          |
+|  ┌──────────────────────────────────────────────────────────────────┐   |
+|  │  META: R$ 60K  │  REALIZADO: R$ 65K    │  ✓ ZERADO               │   |
+|  └──────────────────────────────────────────────────────────────────┘   |
+|  [████████████████████████████████████████████████████████] 100%        |
+|  Todos os assessores atingiram a meta!                                  |
+|                                                                         |
++-------------------------------------------------------------------------+
 ```
 
 ---
 
-### Comportamento do Confetti
+### Beneficios
 
-1. **Trigger**: Quando `isCompleted` muda de `false` para `true`
-2. **Cores**: Dourado (#FFE066, #E6A800), Verde (#22C55E), Branco
-3. **Duração**: ~2 segundos com partículas caindo
-4. **Dupla explosão**: Burst principal + burst secundário menor após 150ms
-5. **Posição**: Originando do centro da barra que foi zerada
-6. **Controle**: Só dispara uma vez por KPI (não re-dispara ao navegar)
+1. **Flexibilidade**: Usuario escolhe quais produtos acompanhar
+2. **Foco**: Pode focar apenas em KPIs prioritarios
+3. **Clareza Visual**: "O que falta" fica impossivel de ignorar
+4. **Contexto Completo**: Meta/Realizado/Falta sempre visiveis em cada barra
+5. **Stats Dinamicos**: Header recalcula baseado na selecao
 
