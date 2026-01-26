@@ -952,3 +952,113 @@ export function calculateAssessorAgendadasForKPI(
     .filter(r => r.value > 0)
     .sort((a, b) => b.value - a.value);
 }
+
+// ============= SPRINT DATA CALCULATION =============
+import { AssessorWeeklyRemaining, SprintKPIData } from "@/types/kpi";
+
+/**
+ * Calculate weekly remaining for each assessor for a specific KPI
+ */
+export function calculateWeeklyRemainingByAssessor(
+  data: ProcessedKPI[],
+  category: string,
+  month: string,
+  includeEmpilhada: boolean = false
+): AssessorWeeklyRemaining[] {
+  if (!data || data.length === 0 || month === "all") return [];
+
+  const allAssessors = [...new Set(data.map(d => d.assessor))]
+    .filter(a => a && a !== "Socios");
+
+  return allAssessors.map(assessor => {
+    const assessorData = filterByAssessor(data, assessor);
+    
+    // Meta semanal individual
+    const catData = filterByCategory(assessorData, category);
+    const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
+    const target = getMonthValue(weeklyPlanned, month);
+    
+    // Realizado individual
+    const realizedData = catData.filter(d => isRealizedStatus(d.status));
+    let value = getMonthValue(realizedData, month);
+    
+    // Adicionar Receita Empilhada se aplicável
+    if (includeEmpilhada) {
+      const empilhadaData = filterByCategory(assessorData, "Receita Empilhada");
+      const empilhadaRealized = empilhadaData.filter(d => isRealizedStatus(d.status));
+      value += getMonthValue(empilhadaRealized, month);
+    }
+    
+    const remaining = Math.max(target - value, 0);
+    
+    return {
+      name: assessor.split(" ")[0],
+      remaining,
+      achieved: target > 0 && value >= target,
+      contribution: value
+    };
+  })
+  .filter(a => !a.achieved) // Só mostrar quem ainda precisa produzir
+  .sort((a, b) => b.remaining - a.remaining); // Maior falta primeiro
+}
+
+/**
+ * Calculate sprint data for all KPIs
+ */
+export function calculateSprintData(
+  data: ProcessedKPI[],
+  selectedMonth: string,
+  selectedAssessor: string
+): SprintKPIData[] {
+  const categories = [
+    { category: "Captação net", label: "Captação NET", isCurrency: true, includeEmpilhada: false },
+    { category: "Receita", label: "Receita", isCurrency: true, includeEmpilhada: true },
+    { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true, includeEmpilhada: false },
+    { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false, includeEmpilhada: false },
+    { category: "Habilitacao", label: "Habilitação", isCurrency: false, includeEmpilhada: false },
+    { category: "Ativacao", label: "Ativação", isCurrency: false, includeEmpilhada: false },
+  ];
+  
+  return categories.map(item => {
+    // Filtrar por assessor se selecionado
+    const filteredData = selectedAssessor === "all" 
+      ? data 
+      : filterByAssessor(data, selectedAssessor);
+    
+    // Calcular totais
+    const catData = filterByCategory(filteredData, item.category);
+    const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
+    const realizedData = catData.filter(d => isRealizedStatus(d.status));
+    
+    const totalTarget = getMonthValue(weeklyPlanned, selectedMonth);
+    let totalRealized = getMonthValue(realizedData, selectedMonth);
+    
+    if (item.includeEmpilhada) {
+      const empilhadaData = filterByCategory(filteredData, "Receita Empilhada");
+      const empilhadaRealized = empilhadaData.filter(d => isRealizedStatus(d.status));
+      totalRealized += getMonthValue(empilhadaRealized, selectedMonth);
+    }
+    
+    const totalRemaining = Math.max(totalTarget - totalRealized, 0);
+    const progressPercentage = totalTarget > 0 
+      ? Math.min((totalRealized / totalTarget) * 100, 100) 
+      : 100;
+    
+    // Breakdown por assessor (apenas se "all" selecionado)
+    const assessorBreakdown = selectedAssessor === "all"
+      ? calculateWeeklyRemainingByAssessor(data, item.category, selectedMonth, item.includeEmpilhada)
+      : [];
+    
+    return {
+      label: item.label,
+      category: item.category,
+      totalRemaining,
+      totalRealized,
+      totalTarget,
+      progressPercentage,
+      isCurrency: item.isCurrency,
+      isCompleted: totalRemaining === 0,
+      assessorBreakdown
+    };
+  });
+}
