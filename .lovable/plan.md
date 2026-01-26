@@ -1,34 +1,11 @@
 
 
-## Plano: Separar Controle de Rotação de Páginas e Flip de Cards
+## Plano: Mudar Cor do HEAD BRUNO para Amarelo e Adicionar Exclamação em Alertas Vermelhos
 
-### Problema Atual
+### Alterações Solicitadas
 
-Existe um único botão Play/Pause (`isAutoRotationEnabled`) que controla **ambos**:
-1. **Rotação de páginas** - Alterna entre Dashboard → Análises → Sprint a cada 90s
-2. **Flip de cards** - Vira os cards (FlipICMCard, FlipMetaTable, etc.) a cada 30s
-
-O usuário quer controles **independentes** para cada funcionalidade.
-
-### Solução Proposta
-
-Separar o estado único em dois estados independentes com dois botões no header:
-
-```text
-ANTES:
-┌────────────────────────────────────────────────────────────────┐
-│  [Logo]  [Dashboard ▼]  [⏸ Pausar]  [⬜ Fullscreen]  [🌙]    │
-│                          ↑                                     │
-│                    Controla TUDO                               │
-└────────────────────────────────────────────────────────────────┘
-
-DEPOIS:
-┌────────────────────────────────────────────────────────────────┐
-│  [Logo]  [Dashboard ▼]  [📄 Páginas] [🔄 Cards]  [⬜]  [🌙]   │
-│                          ↑            ↑                        │
-│              Rotação Páginas    Flip Cards                     │
-└────────────────────────────────────────────────────────────────┘
-```
+1. **HEAD BRUNO** - Mudar a cor azul para amarelo/dourado (mesma cor dos nomes de assessores)
+2. **Exclamação em alertas vermelhos** - Adicionar `!` quando o status de "abaixo do ritmo" for vermelho
 
 ---
 
@@ -36,125 +13,114 @@ DEPOIS:
 
 | Arquivo | Ação |
 |---------|------|
-| `src/pages/Index.tsx` | **MODIFICAR** - Separar estados e adicionar segundo botão |
+| `src/components/dashboard/GaugeChart.tsx` | **MODIFICAR** - Badge HEAD BRUNO + exclamação em alerta vermelho |
+| `src/components/dashboard/QuarterlyKPIBar.tsx` | **MODIFICAR** - Badge HEAD BRUNO + exclamação em alerta vermelho |
 
 ---
 
 ### Detalhes Técnicos
 
-#### 1. Separar Estados
+#### 1. GaugeChart.tsx - Badge HEAD BRUNO (linha 231)
 
 **Antes:**
 ```tsx
-const [isAutoRotationEnabled, setIsAutoRotationEnabled] = useState(true);
+<span className="inline-flex items-center text-responsive-4xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-500/10 px-1.5 py-0.5 rounded-md border border-blue-500/20">
+  HEAD {headName}
+</span>
 ```
 
 **Depois:**
 ```tsx
-const [isPageRotationEnabled, setIsPageRotationEnabled] = useState(true);
-const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(true);
+<span className="inline-flex items-center text-responsive-4xs font-bold text-eclat-gold uppercase tracking-wide bg-yellow-500/10 px-1.5 py-0.5 rounded-md border border-yellow-500/20">
+  HEAD {headName}
+</span>
 ```
 
-#### 2. Atualizar Effects
+#### 2. GaugeChart.tsx - Adicionar Exclamação em Alertas Vermelhos (linha 96-98)
 
-**Effect de Rotação de Páginas (90s):**
+**Antes:**
 ```tsx
-useEffect(() => {
-  if (!hasData || !isPageRotationEnabled) return;  // ← Usa estado específico
-  
-  const pageOrder: PageType[] = ["dashboard", "analysis", "sprint"];
-  const interval = setInterval(() => {
-    setCurrentPage(prev => {
-      const currentIndex = pageOrder.indexOf(prev);
-      const nextIndex = (currentIndex + 1) % pageOrder.length;
-      return pageOrder[nextIndex];
-    });
-  }, 90000);
-  
-  return () => clearInterval(interval);
-}, [hasData, isPageRotationEnabled]);
+<span className={`text-responsive-4xs font-bold ${alertType === "RED" ? "text-red-500" : "text-orange-500"}`}>
+  {formatNumber(difference, isCurrency)}
+</span>
 ```
 
-**Effect de Flip de Cards (30s):**
+**Depois:**
 ```tsx
-useEffect(() => {
-  if (!hasData || !isCardFlippingEnabled) return;  // ← Usa estado específico
-  
-  const interval = setInterval(() => {
-    setIsGlobalFlipped(prev => !prev);
-  }, 30000);
-  
-  return () => clearInterval(interval);
-}, [hasData, isCardFlippingEnabled]);
+<span className={`text-responsive-4xs font-bold ${alertType === "RED" ? "text-red-500" : "text-orange-500"}`}>
+  {alertType === "RED" && "! "}{formatNumber(difference, isCurrency)}
+</span>
 ```
 
-#### 3. Adicionar Dois Botões no Header
+#### 3. GaugeChart.tsx - Texto "Head Bruno" na variante highlight (linha 366)
 
+**Antes:**
 ```tsx
-import { Menu, Maximize2, Minimize2, Play, Pause, RotateCcw, Layers } from "lucide-react";
+<p className="text-responsive-3xs text-card/70 mt-1 italic flex-shrink-0">Head Bruno</p>
+```
 
-// No header, substituir o botão único por dois:
-{hasData && (
-  <>
-    {/* Botão de Rotação de Páginas */}
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setIsPageRotationEnabled(prev => !prev)}
-      className="h-8 w-8"
-      title={isPageRotationEnabled ? "Pausar Rotação de Páginas" : "Iniciar Rotação de Páginas"}
-    >
-      {isPageRotationEnabled ? (
-        <Layers className="h-4 w-4 text-primary" />
-      ) : (
-        <Layers className="h-4 w-4 text-muted-foreground" />
-      )}
-    </Button>
-    
-    {/* Botão de Flip de Cards */}
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setIsCardFlippingEnabled(prev => !prev)}
-      className="h-8 w-8"
-      title={isCardFlippingEnabled ? "Pausar Flip de Cards" : "Iniciar Flip de Cards"}
-    >
-      {isCardFlippingEnabled ? (
-        <RotateCcw className="h-4 w-4 text-primary" />
-      ) : (
-        <RotateCcw className="h-4 w-4 text-muted-foreground" />
-      )}
-    </Button>
-  </>
-)}
+**Depois:**
+```tsx
+<p className="text-responsive-3xs text-eclat-gold mt-1 italic flex-shrink-0">Head Bruno</p>
+```
+
+#### 4. QuarterlyKPIBar.tsx - Badge HEAD BRUNO (linha 56)
+
+**Antes:**
+```tsx
+<span className="inline-flex items-center text-[8px] lg:text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-500/10 px-0.5 py-0.5 rounded border border-blue-500/20">
+  HEAD {headName}
+</span>
+```
+
+**Depois:**
+```tsx
+<span className="inline-flex items-center text-[8px] lg:text-[9px] font-bold text-eclat-gold uppercase tracking-wide bg-yellow-500/10 px-0.5 py-0.5 rounded border border-yellow-500/20">
+  HEAD {headName}
+</span>
+```
+
+#### 5. QuarterlyKPIBar.tsx - Adicionar Exclamação em Alertas Vermelhos (linha 110-113)
+
+Para adicionar exclamação quando o status é vermelho, precisamos verificar se `textColor` contém "red":
+
+**Antes:**
+```tsx
+{atingiuRitmo ? (
+  <span className="text-green-500 font-medium">✓ OK</span>
+) : faltaParaRitmo > 0 ? (
+  <span className="text-blue-500 font-medium whitespace-nowrap">
+    Ritmo: -{formatValue(faltaParaRitmo, isCurrency)}
+  </span>
+) : null}
+```
+
+**Depois:**
+```tsx
+{atingiuRitmo ? (
+  <span className="text-green-500 font-medium">✓ OK</span>
+) : faltaParaRitmo > 0 ? (
+  <span className={`font-medium whitespace-nowrap ${textColor.includes("red") ? "text-red-500" : "text-blue-500"}`}>
+    {textColor.includes("red") && "! "}Ritmo: -{formatValue(faltaParaRitmo, isCurrency)}
+  </span>
+) : null}
 ```
 
 ---
 
-### Ícones Sugeridos
+### Resumo Visual
 
-| Funcionalidade | Ícone Ativo | Ícone Inativo | Descrição |
-|----------------|-------------|---------------|-----------|
-| Rotação Páginas | `Layers` (colorido) | `Layers` (cinza) | Representa múltiplas páginas |
-| Flip Cards | `RotateCcw` (colorido) | `RotateCcw` (cinza) | Representa rotação/flip |
-
----
-
-### Comportamento
-
-| Estado Páginas | Estado Cards | Resultado |
-|----------------|--------------|-----------|
-| ✅ Ativo | ✅ Ativo | Tudo automático (padrão) |
-| ❌ Pausado | ✅ Ativo | Página fixa, cards viram |
-| ✅ Ativo | ❌ Pausado | Páginas alternam, cards fixos |
-| ❌ Pausado | ❌ Pausado | Tudo parado (modo apresentação manual) |
+| Elemento | Antes | Depois |
+|----------|-------|--------|
+| Badge HEAD BRUNO | `text-blue-600`, `bg-blue-500/10` | `text-eclat-gold`, `bg-yellow-500/10` |
+| Alerta Abaixo Ritmo (vermelho) | `-R$ 150K` | `! -R$ 150K` |
+| Alerta Abaixo Ritmo (laranja) | `-R$ 50K` | `-R$ 50K` (sem exclamação) |
 
 ---
 
 ### Benefícios
 
-1. **Flexibilidade** - Usuário pode pausar páginas enquanto mantém cards virando
-2. **Clareza visual** - Ícones diferentes indicam claramente cada funcionalidade
-3. **Feedback visual** - Cor do ícone indica estado (primary vs muted)
-4. **Tooltips descritivos** - Usuário entende o que cada botão faz
+1. **Consistência visual** - HEAD BRUNO agora usa a mesma paleta dourada da marca
+2. **Destaque para urgência** - A exclamação `!` sinaliza claramente os alertas críticos (vermelhos)
+3. **Hierarquia de atenção** - Laranja = atenção moderada, Vermelho + `!` = atenção crítica
 
