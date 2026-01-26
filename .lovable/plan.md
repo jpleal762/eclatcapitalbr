@@ -1,36 +1,45 @@
 
 
-## Plano: Corrigir Overflow de Informações nos Cards da Análise Trimestral
+## Plano: Simplificar Sprint Page e Corrigir Overflow
 
-### Problema Identificado
+### Problemas Identificados
 
-Na página de Análise Trimestral, algumas informações estão vazando para fora dos cards devido a:
-
-1. **Marcador de "Ritmo Ideal"** usa `bottom: "-20px"` fazendo o texto "Falta:" aparecer fora do card
-2. **Espaçamentos muito grandes** entre elementos internos do card
-3. **Margem inferior da barra de progresso** muito ampla, empurrando o texto de valores para fora
+1. **Remover barra "Sprint Semanal"** - O header grande com estatísticas globais ocupa muito espaço
+2. **"Falta por Assessor" atrás do card** - O texto está vazando para fora do card (mesmo problema do QuarterlyKPIBar)
 
 ### Diagrama do Problema Atual
 
 ```text
-┌─────────────────────────────────────────────┐
-│  Receita XP                           59%   │ ← OK dentro do card
-│  ════════════════════▏══════════════════════│ ← Barra de progresso
-│                      │                      │
-│                      │ Falta: R$ 150K       │ ← PROBLEMA: texto fora
-└─────────────────────────────────────────────┘
-                       ↓
-         (texto aparece atrás do próximo card)
+┌─────────────────────────────────────────────────────────────────┐
+│  SPRINT SEMANAL - MISSÃO: Zerar o gap                          │
+│  ┌────────┐ ┌────────┐ ┌────────────┐ ┌────────┐               │  ← REMOVER
+│  │Meta    │ │Produzido│ │O QUE FALTA │ │Zerados │               │
+│  └────────┘ └────────┘ └────────────┘ └────────┘               │
+│  ███████████████████████████████████░░░░░░░░░░░░░░ 65%          │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  🔥 Receita                                                     │
+│  ┌────────┬───────────┬─────────┐                              │
+│  │ Meta   │ Realizado │ Falta   │                              │
+│  └────────┴───────────┴─────────┘                              │
+│  ████████████████░░░░░░░░░░░░░░░░░░░░░░░ 49%                   │
+│  Falta por Assessor:                                            │
+│  Hingrid -R$ 18.5K | Jose -R$ 12.7K | ...                      │ ← VAZANDO
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Solução Proposta
 
 ```text
-┌─────────────────────────────────────────────┐
-│  Receita XP                           59%   │
-│  ════════════════════▏══════════════════════│ ← Barra + marcador embutido
-│  R$ 36 Mil / R$ 61 Mil    Falta: R$ 25 Mil │ ← Tudo dentro do card
-└─────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  🔥 Receita                                                              49%  │
+│  ┌────────────────┬─────────────────┬─────────────────┐                       │
+│  │ Meta: R$ 85K   │ Real: R$ 42.3K  │ ⚠ Falta: R$ 42.7K│                      │
+│  └────────────────┴─────────────────┴─────────────────┘                       │
+│  ████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░                    │
+│  Falta: Hingrid -R$ 18.5K | Jose -R$ 12.7K                                   │
+└───────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -39,97 +48,124 @@ Na página de Análise Trimestral, algumas informações estão vazando para for
 
 | Arquivo | Ação |
 |---------|------|
-| `src/components/dashboard/QuarterlyKPIBar.tsx` | **MODIFICAR** - Reestruturar layout interno |
-| `src/components/dashboard/AnalysisPage.tsx` | **MODIFICAR** - Reduzir gaps entre cards |
+| `src/components/dashboard/SprintPage.tsx` | **MODIFICAR** - Remover SprintHeader, manter apenas filtros |
+| `src/components/dashboard/SprintKPIBar.tsx` | **MODIFICAR** - Adicionar overflow-hidden, compactar layout |
 
 ---
 
 ### Detalhes Técnicos
 
-#### 1. Reestruturar QuarterlyKPIBar
+#### 1. Remover SprintHeader e Manter Apenas Filtros
 
-**Mudanças principais:**
+**Arquivo: `src/components/dashboard/SprintPage.tsx`**
 
-1. **Remover posicionamento absoluto do marcador de ritmo** - O texto "Falta: R$ X" que aparece abaixo do marcador será movido para a linha de valores na parte inferior do card
-
-2. **Reduzir padding do card** - Usar `p-2 lg:p-3` em vez de `p-responsive-sm lg:p-responsive`
-
-3. **Reduzir margem inferior da barra de progresso** - De `mb-[clamp(14px,1.8vh,22px)]` para `mb-1`
-
-4. **Adicionar overflow-hidden** ao card para garantir que nada vaze
-
-5. **Mover indicador "Falta para Ritmo"** para a linha de valores existente
-
-**Estrutura nova:**
+Remover o componente SprintHeader e adicionar apenas os filtros diretamente:
 
 ```tsx
-<div className="bg-card rounded-lg p-2 lg:p-3 h-full flex flex-col border border-border shadow-sm overflow-hidden">
-  {/* Header: Label + Percentage */}
-  <div className="flex justify-between items-center mb-1">
-    <span className="font-semibold text-foreground text-xs lg:text-sm truncate">{label}</span>
-    <span className={`font-bold text-sm lg:text-base ${textColor}`}>
-      {percentage}%
-    </span>
-  </div>
+export function SprintPage({ ... }: SprintPageProps) {
+  const sortedData = [...sprintData].sort((a, b) => {
+    if (a.isCompleted && !b.isCompleted) return 1;
+    if (!a.isCompleted && b.isCompleted) return -1;
+    return b.totalRemaining - a.totalRemaining;
+  });
 
-  {/* Progress bar - altura fixa, sem margem excessiva */}
-  <div className="relative h-3 lg:h-4 my-1">
-    <div className="absolute inset-0 bg-muted rounded-full overflow-hidden">
-      <div className={`h-full ${barColor} rounded-full`} style={{ width: `${barWidth}%` }} />
-      {/* Divisores de mês */}
-      <div className="absolute h-full w-px bg-foreground/20" style={{ left: "33.33%" }} />
-      <div className="absolute h-full w-px bg-foreground/20" style={{ left: "66.66%" }} />
-    </div>
-    
-    {/* Marcador de Ritmo Ideal - sem texto abaixo */}
-    {ritmoIdeal > 0 && ritmoIdeal <= 100 && (
-      <div 
-        className="absolute top-0 h-full flex items-center z-10"
-        style={{ left: `${ritmoIdeal}%`, transform: "translateX(-50%)" }}
-      >
-        <div className="w-0.5 h-full bg-blue-500" />
-        <div className="absolute -bottom-1 w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[4px] border-t-blue-500" />
+  return (
+    <div className="h-full flex flex-col animate-fade-in">
+      {/* Filtros simples no topo */}
+      <div className="flex items-center justify-end gap-2 mb-2 flex-shrink-0">
+        <Select value={selectedAssessor} onValueChange={onAssessorChange} disabled={isLocked}>
+          <SelectTrigger className="w-[140px] lg:w-[180px] h-8 text-xs lg:text-sm">
+            <SelectValue placeholder="Assessor" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos Assessores</SelectItem>
+            {assessors.map((assessor) => (
+              <SelectItem key={assessor} value={assessor}>{assessor}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={selectedMonth} onValueChange={onMonthChange}>
+          <SelectTrigger className="w-[100px] lg:w-[120px] h-8 text-xs lg:text-sm">
+            <SelectValue placeholder="Mês" />
+          </SelectTrigger>
+          <SelectContent>
+            {months.map((month) => (
+              <SelectItem key={month} value={month}>{month}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
-    )}
-  </div>
 
-  {/* Valores - TUDO em uma linha */}
-  <div className="flex justify-between items-center text-[10px] lg:text-xs text-muted-foreground mt-1">
-    <span>
-      <span className="font-medium text-foreground">{formatValue(value, isCurrency)}</span>
-      {" / "}
-      {formatValue(target, isCurrency)}
-    </span>
-    
-    {/* Indicador de status */}
-    {atingiuRitmo ? (
-      <span className="text-green-500 font-medium">✓ OK</span>
-    ) : faltaParaRitmo > 0 ? (
-      <span className="text-blue-500 font-medium">
-        Ritmo: -{formatValue(faltaParaRitmo, isCurrency)}
-      </span>
-    ) : null}
-    
-    {/* Falta total */}
-    {percentage < 100 && target > 0 && (
-      <span className="text-muted-foreground">
-        Falta: {formatValue(target - value, isCurrency)}
-      </span>
-    )}
-  </div>
-</div>
+      {/* KPI Bars */}
+      <div className="flex-1 flex flex-col gap-1 lg:gap-1.5 min-h-0 overflow-hidden">
+        {sortedData.map((kpi) => (
+          <SprintKPIBar key={kpi.category} data={kpi} evolution={evolutionMap?.get(kpi.category)} />
+        ))}
+      </div>
+    </div>
+  );
+}
 ```
 
-#### 2. Ajustar AnalysisPage
+#### 2. Corrigir Overflow no SprintKPIBar
 
-**Reduzir gaps entre cards:**
+**Arquivo: `src/components/dashboard/SprintKPIBar.tsx`**
+
+Aplicar as mesmas correções do QuarterlyKPIBar:
+
+1. **Adicionar `overflow-hidden`** ao container principal
+2. **Reduzir padding e margens** 
+3. **Compactar seção de valores** - Meta/Realizado/Falta em uma linha mais compacta
+4. **Mover "Falta por Assessor"** para a mesma linha de valores ou reduzi-lo
+
+**Estrutura nova do card:**
 
 ```tsx
-// De:
-<div className="flex-1 min-h-0 flex flex-col gap-responsive-sm overflow-hidden">
+<div className="p-2 lg:p-3 bg-card rounded-lg border border-border flex-1 flex flex-col min-h-0 overflow-hidden">
+  {/* Header: Icon + Label + Percentage */}
+  <div className="flex items-center justify-between mb-1">
+    <div className="flex items-center gap-2">
+      {getUrgencyIcon(progressPercentage, isCompleted)}
+      <span className="text-xs lg:text-sm font-semibold text-foreground truncate">{label}</span>
+    </div>
+    <span className={cn("font-bold text-sm lg:text-base", isCompleted ? "text-green-500" : progressPercentage >= 50 ? "text-eclat-gold" : "text-destructive")}>
+      {Math.round(progressPercentage)}%
+    </span>
+  </div>
 
-// Para:
-<div className="flex-1 min-h-0 flex flex-col gap-1 lg:gap-1.5 overflow-hidden">
+  {/* Compact Values Row: Meta | Realizado | Falta */}
+  <div className="grid grid-cols-3 gap-1 mb-1 text-center text-[9px] lg:text-[10px]">
+    <div>
+      <span className="text-muted-foreground">Meta: </span>
+      <span className="font-medium text-foreground">{formatValue(totalTarget, isCurrency)}</span>
+    </div>
+    <div>
+      <span className="text-muted-foreground">Real: </span>
+      <span className="font-medium text-green-500">{formatValue(totalRealized, isCurrency)}</span>
+    </div>
+    <div className={cn(isCompleted ? "text-green-500" : "text-destructive font-bold")}>
+      {isCompleted ? "✓ Zerado" : `Falta: ${formatValue(totalRemaining, isCurrency)}`}
+    </div>
+  </div>
+
+  {/* Progress Bar */}
+  <div className="relative h-3 lg:h-4 w-full rounded-full bg-muted/30 overflow-hidden mb-1">
+    <div className={cn("h-full rounded-full transition-all duration-500", getBarColorClass())}
+         style={{ width: `${Math.min(progressPercentage, 100)}%` }} />
+  </div>
+
+  {/* Assessor Breakdown - compact, single line */}
+  {assessorBreakdown.length > 0 && (
+    <div className="flex flex-wrap gap-x-2 text-[9px] lg:text-[10px] text-muted-foreground truncate">
+      <span className="font-medium">Falta:</span>
+      {assessorBreakdown.slice(0, 4).map((a, i) => (
+        <span key={i}>{a.name} -{formatValue(a.remaining, isCurrency)}</span>
+      ))}
+      {assessorBreakdown.length > 4 && <span>+{assessorBreakdown.length - 4}</span>}
+    </div>
+  )}
+</div>
 ```
 
 ---
@@ -138,32 +174,39 @@ Na página de Análise Trimestral, algumas informações estão vazando para for
 
 **Antes:**
 ```text
-┌────────────────────────────────┐
-│ Receita XP              59%   │ (padding grande)
-│                               │
-│ █████████████▏                │ (margem grande abaixo)
-│              │                │
-│              └─ Falta: 150K   │ ← FORA DO CARD
-├────────────────────────────────┤
-│ Captação NET            21%   │
+┌────────────────────────────────────────────┐
+│        SPRINT SEMANAL HEADER               │  ← GRANDE, ocupando espaço
+│  [Meta] [Produzido] [Falta] [Zerados]     │
+│  ████████████████████████░░░░░░░░ 65%      │
+└────────────────────────────────────────────┘
+┌────────────────────────────────────────────┐
+│ 🔥 Receita                                 │
+│ ┌───────┬───────────┬─────────┐           │
+│ │ Meta  │ Realizado │ Falta   │           │
+│ └───────┴───────────┴─────────┘           │  ← Cards com margem excessiva
+│ ██████████████████░░░░░░░░░░░ 49%          │
+│ Falta por Assessor:                        │
+│ Hingrid -R$ 18.5K | Jose -R$ 12.7K        │ ← VAZANDO
+└────────────────────────────────────────────┘
 ```
 
 **Depois:**
 ```text
-┌────────────────────────────────┐
-│ Receita XP              59%   │ (compacto)
-│ █████████████▏                │ (margem mínima)
-│ R$36Mi/R$61Mi  Ritmo:-25K     │ ← DENTRO DO CARD
-├────────────────────────────────┤
-│ Captação NET            21%   │
+         [Assessor ▼] [Mês ▼]                  ← Filtros compactos apenas
+┌────────────────────────────────────────────┐
+│ 🔥 Receita                           49%   │ ← Header com %
+│ Meta: R$85K | Real: R$42K | Falta: R$43K  │ ← Valores em 1 linha
+│ ████████████████████░░░░░░░░░░░░░░░░░░    │ ← Barra
+│ Falta: Hingrid -18.5K | Jose -12.7K +2    │ ← Assessores compacto
+└────────────────────────────────────────────┘
 ```
 
 ---
 
 ### Benefícios
 
-1. **Todas as informações dentro dos cards** - Nenhum elemento vazando
-2. **Layout mais compacto** - Cabe mais KPIs na tela sem scroll
-3. **Overflow controlado** - `overflow-hidden` previne vazamentos
-4. **Responsivo** - Funciona em desktop e TV
+1. **Mais espaço para KPIs** - Sem header grande, cabem mais barras na tela
+2. **Sem overflow** - `overflow-hidden` e layout compacto garantem que tudo fica dentro
+3. **Informação preservada** - Mesmos dados, só mais compactos
+4. **Consistência** - Mesmo estilo visual do QuarterlyKPIBar
 
