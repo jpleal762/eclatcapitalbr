@@ -1,98 +1,57 @@
 
-## Plano: Simplificar Card de Primeiras Reuniões Agendadas Semana
 
-### Objetivo
-Remover o gráfico gauge e a meta do card, exibindo apenas:
-1. O número total de reuniões realizadas (destaque grande)
-2. Lista de assessores com suas quantidades
+## Plano: Incluir Receita Empilhada no Card "Meta Semanal Acumulada"
+
+### Problema Identificado
+
+O card "Meta Semanal Acumulada" (e seu verso "Falta para Meta Semanal") calcula o valor realizado de "Receita" apenas com a categoria base, sem incluir a "Receita Empilhada" (de PJ2 XP).
 
 ---
 
-### Mudanças no Componente
+### Mudança Necessária
 
-**Arquivo: `src/components/dashboard/AgendadasCard.tsx`**
+**Arquivo:** `src/lib/kpiUtils.ts`
 
-#### 1. Simplificar Props (remover target e percentage)
+**Localização:** Linhas 696-710 (cálculo de `metaSemanal`)
+
+**Alteração:** Adicionar lógica condicional para somar "Receita Empilhada" ao `realizedValue` quando a categoria for "Receita"
+
 ```typescript
-// ANTES:
-interface AgendadasCardProps {
-  agendadasValue: number;
-  agendadasTarget: number;
-  agendadasPercentage: number;
-  assessorData: Array<{ name: string; value: number }>;
-}
-
-// DEPOIS:
-interface AgendadasCardProps {
-  agendadasValue: number;
-  assessorData: Array<{ name: string; value: number }>;
-}
+const metaSemanal: MetaSemanal[] = metaSemanalCategories.map(item => {
+  const catData = filterByCategory(filteredByAssessor, item.category);
+  const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
+  const realizedData = catData.filter(d => isRealizedStatus(d.status));
+  
+  const value = selectedMonth !== "all" 
+    ? getMonthValue(weeklyPlanned, selectedMonth)
+    : weeklyPlanned.reduce((s, d) => s + d.total, 0);
+  
+  let realizedValue = selectedMonth !== "all"
+    ? getMonthValue(realizedData, selectedMonth)
+    : realizedData.reduce((s, d) => s + d.total, 0);
+  
+  // Para Receita, adicionar também a Receita Empilhada
+  if (item.category === "Receita") {
+    const empilhadaData = filterByCategory(filteredByAssessor, "Receita Empilhada");
+    const empilhadaRealized = empilhadaData.filter(d => isRealizedStatus(d.status));
+    realizedValue += selectedMonth !== "all"
+      ? getMonthValue(empilhadaRealized, selectedMonth)
+      : empilhadaRealized.reduce((s, d) => s + d.total, 0);
+  }
+    
+  return { label: item.label, value, realizedValue, isCurrency: item.isCurrency };
+});
 ```
-
-#### 2. Substituir Gauge por Número Grande
-Remover todo o SVG do gauge e exibir apenas o número de forma destacada:
-
-```text
-┌─────────────────────────────────────────────┐
-│ Primeiras Reuniões Agendadas Semana         │
-├───────────────┬─────────────────────────────┤
-│               │  Por Assessor               │
-│     12        │  Hingrid ............... 3  │
-│   reuniões    │  José Júlio ............ 4  │
-│               │  Marcela ............... 2  │
-│               │  Onacilda .............. 1  │
-│               │  Rômulo ................ 2  │
-└───────────────┴─────────────────────────────┘
-```
-
-#### 3. Estrutura do Novo Layout
-- **Lado esquerdo**: Número grande centralizado com label "reuniões" abaixo
-- **Lado direito**: Lista de assessores (mantém comportamento atual)
-- Remover: gauge SVG, texto de meta, cálculos de circumference/progress
 
 ---
 
-### Mudanças no Index.tsx
+### Resultado
 
-**Arquivo: `src/pages/Index.tsx`**
+| Coluna | Antes | Depois |
+|--------|-------|--------|
+| **Meta** | Categoria "Receita" (Planejado Semana) | Sem alteração |
+| **Realizado** | Apenas "Receita" (Realizado) | "Receita" + "Receita Empilhada" (Realizado) |
+| **Falta** (verso) | Calculado incorretamente | Calculado corretamente |
 
-#### 1. Remover props não utilizados
-```typescript
-// ANTES (linhas 565-574):
-<AgendadasCard
-  agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
-  agendadasTarget={agendadasWeeklyTarget}
-  agendadasPercentage={...}
-  assessorData={assessorAgendadas}
-/>
-
-// DEPOIS:
-<AgendadasCard
-  agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
-  assessorData={assessorAgendadas}
-/>
-```
-
-#### 2. Remover cálculo de agendadasWeeklyTarget
-O `useMemo` nas linhas 286-305 pode ser removido, pois não será mais utilizado.
-
----
-
-### Arquivos Afetados
-
-| Arquivo | Ação |
-|---------|------|
-| `src/components/dashboard/AgendadasCard.tsx` | Simplificar - remover gauge, manter número e lista |
-| `src/pages/Index.tsx` | Remover props de target/percentage e useMemo de target |
-
----
-
-### Resultado Visual
-
-O card mantém o layout horizontal (número à esquerda, lista à direita), mas agora:
-- Exibe apenas o número total em destaque grande
-- Mostra o label "reuniões" abaixo do número
-- Lista de assessores permanece igual
-- Sem gráfico gauge
-- Sem informação de meta
+Isso alinha o card com a lógica já usada no ICM Geral, ICM Semanal e Gauge de Receita XP.
 
