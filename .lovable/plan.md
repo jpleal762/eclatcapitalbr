@@ -1,63 +1,37 @@
 
-## Plano: Corrigir Produtos que Não Aparecem e Remover Menu de Seleção
+
+## Plano: Corrigir Overflow de Informações nos Cards da Análise Trimestral
 
 ### Problema Identificado
 
-Os produtos "Ativação", "Habilitação" e "Reuniões" não aparecem porque há uma **incompatibilidade nos nomes das categorias**:
+Na página de Análise Trimestral, algumas informações estão vazando para fora dos cards devido a:
 
-| Em `SPRINT_PRODUCTS` (types/kpi.ts) | Em `calculateSprintData` (kpiUtils.ts) |
-|-------------------------------------|----------------------------------------|
-| `"Primeira reunião"` (com acento)   | `"Primeira reuniao"` (sem acento)      |
-| `"Habilitação"` (com acento)        | `"Habilitacao"` (sem acento)           |
-| `"Ativação"` (com acento)           | `"Ativacao"` (sem acento)              |
+1. **Marcador de "Ritmo Ideal"** usa `bottom: "-20px"` fazendo o texto "Falta:" aparecer fora do card
+2. **Espaçamentos muito grandes** entre elementos internos do card
+3. **Margem inferior da barra de progresso** muito ampla, empurrando o texto de valores para fora
 
-O filtro `selectedProducts.includes(kpi.category)` falha porque os nomes não batem.
+### Diagrama do Problema Atual
 
----
-
-### Correções
-
-#### 1. Corrigir Nomes das Categorias em `SPRINT_PRODUCTS`
-
-**Arquivo: `src/types/kpi.ts`**
-
-Alterar as categorias para usar os mesmos nomes sem acento que o resto do sistema usa:
-
-```typescript
-export const SPRINT_PRODUCTS: SprintProductConfig[] = [
-  { category: "Captação net", label: "Captação NET", isCurrency: true },
-  { category: "Receita", label: "Receita", isCurrency: true },
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
-  { category: "Primeira reuniao", label: "Reuniões", isCurrency: false },      // Corrigido
-  { category: "Habilitacao", label: "Habilitação", isCurrency: false },        // Corrigido
-  { category: "Ativacao", label: "Ativação", isCurrency: false },              // Corrigido
-];
+```text
+┌─────────────────────────────────────────────┐
+│  Receita XP                           59%   │ ← OK dentro do card
+│  ════════════════════▏══════════════════════│ ← Barra de progresso
+│                      │                      │
+│                      │ Falta: R$ 150K       │ ← PROBLEMA: texto fora
+└─────────────────────────────────────────────┘
+                       ↓
+         (texto aparece atrás do próximo card)
 ```
 
-#### 2. Remover Menu de Seleção de Produtos do Header
+### Solução Proposta
 
-**Arquivo: `src/components/dashboard/SprintHeader.tsx`**
-
-Remover a seção de checkboxes de seleção de produtos (linhas 105-118):
-
-```tsx
-// REMOVER esta seção inteira:
-{/* Product Selection Checkboxes */}
-<div className="flex flex-wrap items-center gap-2 lg:gap-3 mb-3 p-2 bg-muted/20 rounded-lg">
-  ...
-</div>
+```text
+┌─────────────────────────────────────────────┐
+│  Receita XP                           59%   │
+│  ════════════════════▏══════════════════════│ ← Barra + marcador embutido
+│  R$ 36 Mil / R$ 61 Mil    Falta: R$ 25 Mil │ ← Tudo dentro do card
+└─────────────────────────────────────────────┘
 ```
-
-Também remover as props desnecessárias:
-- `availableProducts`
-- `selectedProducts`
-- `onProductToggle`
-
-**Arquivo: `src/components/dashboard/SprintPage.tsx`**
-
-- Remover o estado `selectedProducts` e a função `handleProductToggle`
-- Mostrar todos os produtos (sem filtro)
-- Simplificar as props passadas para o `SprintHeader`
 
 ---
 
@@ -65,14 +39,131 @@ Também remover as props desnecessárias:
 
 | Arquivo | Ação |
 |---------|------|
-| `src/types/kpi.ts` | **MODIFICAR** - Corrigir nomes das categorias (remover acentos) |
-| `src/components/dashboard/SprintHeader.tsx` | **MODIFICAR** - Remover seção de checkboxes e props relacionadas |
-| `src/components/dashboard/SprintPage.tsx` | **MODIFICAR** - Remover estado de seleção e mostrar todos os produtos |
+| `src/components/dashboard/QuarterlyKPIBar.tsx` | **MODIFICAR** - Reestruturar layout interno |
+| `src/components/dashboard/AnalysisPage.tsx` | **MODIFICAR** - Reduzir gaps entre cards |
 
 ---
 
-### Resultado Esperado
+### Detalhes Técnicos
 
-- Todos os 6 KPIs (Captação NET, Receita, Diversificação, Reuniões, Habilitação, Ativação) aparecerão
-- O header ficará mais limpo, sem o menu de seleção de produtos
-- A área de "Meta Total", "Produzido", "O que Falta" ficará em destaque
+#### 1. Reestruturar QuarterlyKPIBar
+
+**Mudanças principais:**
+
+1. **Remover posicionamento absoluto do marcador de ritmo** - O texto "Falta: R$ X" que aparece abaixo do marcador será movido para a linha de valores na parte inferior do card
+
+2. **Reduzir padding do card** - Usar `p-2 lg:p-3` em vez de `p-responsive-sm lg:p-responsive`
+
+3. **Reduzir margem inferior da barra de progresso** - De `mb-[clamp(14px,1.8vh,22px)]` para `mb-1`
+
+4. **Adicionar overflow-hidden** ao card para garantir que nada vaze
+
+5. **Mover indicador "Falta para Ritmo"** para a linha de valores existente
+
+**Estrutura nova:**
+
+```tsx
+<div className="bg-card rounded-lg p-2 lg:p-3 h-full flex flex-col border border-border shadow-sm overflow-hidden">
+  {/* Header: Label + Percentage */}
+  <div className="flex justify-between items-center mb-1">
+    <span className="font-semibold text-foreground text-xs lg:text-sm truncate">{label}</span>
+    <span className={`font-bold text-sm lg:text-base ${textColor}`}>
+      {percentage}%
+    </span>
+  </div>
+
+  {/* Progress bar - altura fixa, sem margem excessiva */}
+  <div className="relative h-3 lg:h-4 my-1">
+    <div className="absolute inset-0 bg-muted rounded-full overflow-hidden">
+      <div className={`h-full ${barColor} rounded-full`} style={{ width: `${barWidth}%` }} />
+      {/* Divisores de mês */}
+      <div className="absolute h-full w-px bg-foreground/20" style={{ left: "33.33%" }} />
+      <div className="absolute h-full w-px bg-foreground/20" style={{ left: "66.66%" }} />
+    </div>
+    
+    {/* Marcador de Ritmo Ideal - sem texto abaixo */}
+    {ritmoIdeal > 0 && ritmoIdeal <= 100 && (
+      <div 
+        className="absolute top-0 h-full flex items-center z-10"
+        style={{ left: `${ritmoIdeal}%`, transform: "translateX(-50%)" }}
+      >
+        <div className="w-0.5 h-full bg-blue-500" />
+        <div className="absolute -bottom-1 w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[4px] border-t-blue-500" />
+      </div>
+    )}
+  </div>
+
+  {/* Valores - TUDO em uma linha */}
+  <div className="flex justify-between items-center text-[10px] lg:text-xs text-muted-foreground mt-1">
+    <span>
+      <span className="font-medium text-foreground">{formatValue(value, isCurrency)}</span>
+      {" / "}
+      {formatValue(target, isCurrency)}
+    </span>
+    
+    {/* Indicador de status */}
+    {atingiuRitmo ? (
+      <span className="text-green-500 font-medium">✓ OK</span>
+    ) : faltaParaRitmo > 0 ? (
+      <span className="text-blue-500 font-medium">
+        Ritmo: -{formatValue(faltaParaRitmo, isCurrency)}
+      </span>
+    ) : null}
+    
+    {/* Falta total */}
+    {percentage < 100 && target > 0 && (
+      <span className="text-muted-foreground">
+        Falta: {formatValue(target - value, isCurrency)}
+      </span>
+    )}
+  </div>
+</div>
+```
+
+#### 2. Ajustar AnalysisPage
+
+**Reduzir gaps entre cards:**
+
+```tsx
+// De:
+<div className="flex-1 min-h-0 flex flex-col gap-responsive-sm overflow-hidden">
+
+// Para:
+<div className="flex-1 min-h-0 flex flex-col gap-1 lg:gap-1.5 overflow-hidden">
+```
+
+---
+
+### Comparação Visual
+
+**Antes:**
+```text
+┌────────────────────────────────┐
+│ Receita XP              59%   │ (padding grande)
+│                               │
+│ █████████████▏                │ (margem grande abaixo)
+│              │                │
+│              └─ Falta: 150K   │ ← FORA DO CARD
+├────────────────────────────────┤
+│ Captação NET            21%   │
+```
+
+**Depois:**
+```text
+┌────────────────────────────────┐
+│ Receita XP              59%   │ (compacto)
+│ █████████████▏                │ (margem mínima)
+│ R$36Mi/R$61Mi  Ritmo:-25K     │ ← DENTRO DO CARD
+├────────────────────────────────┤
+│ Captação NET            21%   │
+```
+
+---
+
+### Benefícios
+
+1. **Todas as informações dentro dos cards** - Nenhum elemento vazando
+2. **Layout mais compacto** - Cabe mais KPIs na tela sem scroll
+3. **Overflow controlado** - `overflow-hidden` previne vazamentos
+4. **Responsivo** - Funciona em desktop e TV
+
