@@ -42,7 +42,7 @@ import {
 } from "@/lib/sprintStorage";
 import { SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Maximize2, Minimize2, Play, Pause } from "lucide-react";
+import { Menu, Maximize2, Minimize2, Layers, RotateCcw } from "lucide-react";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
 import eclatLogoDark from "@/assets/eclat-xp-logo-dark.svg";
 import { useTheme } from "next-themes";
@@ -95,7 +95,8 @@ const Index = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentPage, setCurrentPage] = useState<PageType>("dashboard");
   const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
-  const [isAutoRotationEnabled, setIsAutoRotationEnabled] = useState(true);
+  const [isPageRotationEnabled, setIsPageRotationEnabled] = useState(true);
+  const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(true);
   
   // Sprint product selection state with localStorage persistence
   const [selectedSprintProducts, setSelectedSprintProducts] = useState<Set<string>>(() => {
@@ -380,7 +381,7 @@ const Index = () => {
 
   // Auto-rotate between dashboard, analysis, and sprint pages every 90 seconds
   useEffect(() => {
-    if (!hasData || !isAutoRotationEnabled) return;
+    if (!hasData || !isPageRotationEnabled) return;
     
     const pageOrder: PageType[] = ["dashboard", "analysis", "sprint"];
     const interval = setInterval(() => {
@@ -392,18 +393,18 @@ const Index = () => {
     }, 90000); // 1 minuto e 30 segundos
     
     return () => clearInterval(interval);
-  }, [hasData, isAutoRotationEnabled]);
+  }, [hasData, isPageRotationEnabled]);
 
   // Global flip state - toggles every 30 seconds to sync all flip cards
   useEffect(() => {
-    if (!hasData || !isAutoRotationEnabled) return;
+    if (!hasData || !isCardFlippingEnabled) return;
     
     const interval = setInterval(() => {
       setIsGlobalFlipped(prev => !prev);
     }, 30000); // 30 segundos
     
     return () => clearInterval(interval);
-  }, [hasData, isAutoRotationEnabled]);
+  }, [hasData, isCardFlippingEnabled]);
 
   // Calculate grid columns based on visible top cards
   const visibleTopCards = [visibility.card1, visibility.card2, visibility.card3].filter(Boolean).length;
@@ -511,20 +512,28 @@ const Index = () => {
                       onPageChange={setCurrentPage} 
                     />
                   )}
-                  {/* Auto Rotation Toggle Button */}
+                  {/* Page Rotation Toggle Button */}
                   {hasData && (
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => setIsAutoRotationEnabled(prev => !prev)}
+                      onClick={() => setIsPageRotationEnabled(prev => !prev)}
                       className="h-8 w-8"
-                      title={isAutoRotationEnabled ? "Pausar Rotação Automática" : "Iniciar Rotação Automática"}
+                      title={isPageRotationEnabled ? "Pausar Rotação de Páginas" : "Iniciar Rotação de Páginas"}
                     >
-                      {isAutoRotationEnabled ? (
-                        <Pause className="h-4 w-4" />
-                      ) : (
-                        <Play className="h-4 w-4" />
-                      )}
+                      <Layers className={`h-4 w-4 ${isPageRotationEnabled ? "text-primary" : "text-muted-foreground"}`} />
+                    </Button>
+                  )}
+                  {/* Card Flipping Toggle Button */}
+                  {hasData && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsCardFlippingEnabled(prev => !prev)}
+                      className="h-8 w-8"
+                      title={isCardFlippingEnabled ? "Pausar Flip de Cards" : "Iniciar Flip de Cards"}
+                    >
+                      <RotateCcw className={`h-4 w-4 ${isCardFlippingEnabled ? "text-primary" : "text-muted-foreground"}`} />
                     </Button>
                   )}
                   {/* Fullscreen Button */}
