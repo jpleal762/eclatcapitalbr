@@ -461,6 +461,71 @@ export function calculateICMGeral(data: ProcessedKPI[], month: string): number {
   return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
 }
 
+// ============= HISTORICAL ICM DATA =============
+/**
+ * Get the previous N months from the selected month
+ * @param selectedMonth - Current selected month (e.g., "jan-26")
+ * @param availableMonths - Array of available months in the data
+ * @param count - Number of previous months to get (default: 2)
+ * @returns Array of previous month strings in chronological order
+ */
+export function getPreviousMonths(
+  selectedMonth: string, 
+  availableMonths: string[], 
+  count: number = 2
+): string[] {
+  if (!selectedMonth || selectedMonth === "all" || availableMonths.length === 0) {
+    return [];
+  }
+  
+  // Normalize the selected month for comparison
+  const normalizeMonth = (m: string) => m.toLowerCase().replace("-", "/");
+  const normalizedSelected = normalizeMonth(selectedMonth);
+  
+  const currentIndex = availableMonths.findIndex(m => 
+    normalizeMonth(m) === normalizedSelected
+  );
+  
+  if (currentIndex === -1) return [];
+  
+  // Get previous months (as many as available, up to count)
+  const previousMonths: string[] = [];
+  for (let i = 1; i <= count && currentIndex - i >= 0; i++) {
+    previousMonths.unshift(availableMonths[currentIndex - i]);
+  }
+  
+  return previousMonths;
+}
+
+/**
+ * Historical ICM data for a specific assessor
+ */
+export interface HistoricalICMData {
+  month: string;
+  icmGeral: number;
+}
+
+/**
+ * Calculate historical ICM data for a specific assessor
+ */
+export function getAssessorHistoricalICM(
+  data: ProcessedKPI[],
+  assessor: string,
+  selectedMonth: string,
+  previousMonths: string[]
+): HistoricalICMData[] {
+  if (assessor === "all" || !assessor) return [];
+  
+  const assessorData = filterByAssessor(data, assessor);
+  const allMonths = [...previousMonths, selectedMonth];
+  
+  return allMonths.map(month => ({
+    // Extract month abbreviation: "jan/26" -> "JAN", "jan-26" -> "JAN"
+    month: month.toUpperCase().split("/")[0].split("-")[0],
+    icmGeral: calculateICMGeral(assessorData, month)
+  }));
+}
+
 // CRITICAL: Cap individual KPI percentages at 120% before weighted average
 // Calculate ICM Semanal (Realizado vs Planejado Semana) with same weights as ICM Geral
 export function calculateICMSemanal(data: ProcessedKPI[], month: string): number {
