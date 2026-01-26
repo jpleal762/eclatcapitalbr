@@ -17,7 +17,7 @@ import { YearlyAnalysisCard } from "@/components/dashboard/YearlyAnalysisCard";
 import { DashboardSidebar, DashboardVisibility, defaultVisibility } from "@/components/dashboard/DashboardSidebar";
 import { ExpandableCard } from "@/components/dashboard/ExpandableCard";
 // AssessorSelector removed - direct access to dashboard
-import { KPIRecord, DashboardFilters, YearlyDashboardFilters } from "@/types/kpi";
+import { KPIRecord, DashboardFilters, YearlyDashboardFilters, SPRINT_PRODUCTS } from "@/types/kpi";
 import {
   processKPIData,
   getUniqueValues,
@@ -55,6 +55,7 @@ import { AnalysisPage } from "@/components/dashboard/AnalysisPage";
 import { SprintPage } from "@/components/dashboard/SprintPage";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
+const SPRINT_PRODUCTS_STORAGE_KEY = "sprint-selected-products";
 
 // Função para obter o mês atual no formato "jan-26"
 const getCurrentMonthValue = () => {
@@ -95,6 +96,19 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState<PageType>("dashboard");
   const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
   const [isAutoRotationEnabled, setIsAutoRotationEnabled] = useState(true);
+  
+  // Sprint product selection state with localStorage persistence
+  const [selectedSprintProducts, setSelectedSprintProducts] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem(SPRINT_PRODUCTS_STORAGE_KEY);
+    if (saved) {
+      try {
+        return new Set(JSON.parse(saved));
+      } catch {
+        return new Set(SPRINT_PRODUCTS.map(p => p.category));
+      }
+    }
+    return new Set(SPRINT_PRODUCTS.map(p => p.category));
+  });
   
   // Sprint evolution state
   const [evolutionMap, setEvolutionMap] = useState<Map<string, SprintEvolution> | undefined>(undefined);
@@ -189,6 +203,11 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem(VISIBILITY_STORAGE_KEY, JSON.stringify(visibility));
   }, [visibility]);
+
+  // Save sprint products selection to localStorage
+  useEffect(() => {
+    localStorage.setItem(SPRINT_PRODUCTS_STORAGE_KEY, JSON.stringify([...selectedSprintProducts]));
+  }, [selectedSprintProducts]);
 
   const handleVisibilityChange = (key: keyof DashboardVisibility, value: boolean) => {
     setVisibility(prev => ({ ...prev, [key]: value }));
@@ -297,6 +316,12 @@ const Index = () => {
   const sprintData = useMemo(
     () => calculateSprintData(processedData, filters.month, filters.assessor),
     [processedData, filters.month, filters.assessor]
+  );
+
+  // Filter sprint data by selected products
+  const filteredSprintData = useMemo(
+    () => sprintData.filter(kpi => selectedSprintProducts.has(kpi.category)),
+    [sprintData, selectedSprintProducts]
   );
 
   // Calculate assessor remaining data for TV mode (graphs 1 and 2)
@@ -560,7 +585,7 @@ const Index = () => {
             ) : currentPage === "sprint" ? (
               // SPRINT PAGE
               <SprintPage
-                sprintData={sprintData}
+                sprintData={filteredSprintData}
                 assessors={assessors}
                 months={months}
                 selectedAssessor={filters.assessor}
@@ -569,6 +594,18 @@ const Index = () => {
                 onMonthChange={(value) => setFilters({ ...filters, month: value })}
                 isLocked={isViewLocked}
                 evolutionMap={evolutionMap}
+                selectedProducts={selectedSprintProducts}
+                onProductToggle={(category) => {
+                  setSelectedSprintProducts(prev => {
+                    const next = new Set(prev);
+                    if (next.has(category)) {
+                      next.delete(category);
+                    } else {
+                      next.add(category);
+                    }
+                    return next;
+                  });
+                }}
               />
             ) : (
               // MONTHLY VIEW
