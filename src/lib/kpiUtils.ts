@@ -702,9 +702,18 @@ export function processDashboardData(
       ? getMonthValue(weeklyPlanned, selectedMonth)
       : weeklyPlanned.reduce((s, d) => s + d.total, 0);
     
-    const realizedValue = selectedMonth !== "all"
+    let realizedValue = selectedMonth !== "all"
       ? getMonthValue(realizedData, selectedMonth)
       : realizedData.reduce((s, d) => s + d.total, 0);
+    
+    // Para Receita, adicionar também a Receita Empilhada
+    if (item.category === "Receita") {
+      const empilhadaData = filterByCategory(filteredByAssessor, "Receita Empilhada");
+      const empilhadaRealized = empilhadaData.filter(d => isRealizedStatus(d.status));
+      realizedValue += selectedMonth !== "all"
+        ? getMonthValue(empilhadaRealized, selectedMonth)
+        : empilhadaRealized.reduce((s, d) => s + d.total, 0);
+    }
       
     return { label: item.label, value, realizedValue, isCurrency: item.isCurrency };
   });
