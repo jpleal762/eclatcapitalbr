@@ -1,153 +1,129 @@
 
 
-## Plano: Corrigir Histórico ICM para Usar Calendário Real
+## Plano: Melhorar Visualização "Falta por Assessor" na Página Sprint
 
-### Problema Identificado
+### Situação Atual
 
-A função `getHistoricalMonthsFromCurrent` busca meses anteriores baseada no **índice do array** de meses disponíveis, não no **calendário real**. Isso causa problemas quando:
+O relatório Sprint **já possui** a informação "Falta por Assessor" (`assessorBreakdown`), mas está limitada:
 
-1. O array não contém todos os meses consecutivos
-2. A ordenação do array tem falhas
-3. A transição de ano (Jan-26 → Dez-25 → Nov-25) não é calculada corretamente
+1. **Exibição compacta**: Apenas 4 assessores aparecem numa única linha
+2. **Só quando "Todos" selecionado**: Quando um assessor específico é filtrado, o breakdown não aparece
+3. **Texto pequeno**: Difícil de ler em telas maiores
 
-**Exemplo do bug:**
-- Mês atual: Janeiro 2026
-- Array de meses: `["nov-25", "dez-25", "jan-26", "fev-26"]`
-- Se a busca por índice falha, pode retornar "fev-26" em vez de "nov-25"
+### Solução Proposta
 
-### Solução
-
-Modificar `getHistoricalMonthsFromCurrent` para **calcular os meses anteriores baseado no calendário**, independente de como os dados estão no array.
+Melhorar a visualização do breakdown para mostrar **todos os assessores** de forma clara e organizada.
 
 ---
 
-### Arquivo a Modificar
+### Arquivos a Modificar
 
 | Arquivo | Ação |
 |---------|------|
-| `src/lib/kpiUtils.ts` | **MODIFICAR** - Função `getHistoricalMonthsFromCurrent` para usar cálculo de calendário |
+| `src/components/dashboard/SprintKPIBar.tsx` | **MODIFICAR** - Expandir visualização do breakdown |
+
+---
+
+### Layout Proposto
+
+```text
+ANTES (linha compacta):
+┌─────────────────────────────────────────────────────────────┐
+│ Falta: Marcelo -R$ 6 Mi  José -R$ 6 Mi  Hingrid -R$ 6 Mi +2 │
+└─────────────────────────────────────────────────────────────┘
+
+DEPOIS (lista organizada):
+┌─────────────────────────────────────────────────────────────┐
+│ 📋 Falta por Assessor:                                      │
+│ ┌────────────┬────────────┬────────────┬────────────┐      │
+│ │ Marcelo    │ José       │ Hingrid    │ Onacilda   │      │
+│ │ R$ 6 Mi    │ R$ 6 Mi    │ R$ 6 Mi    │ R$ 5 Mi    │      │
+│ └────────────┴────────────┴────────────┴────────────┘      │
+│ ┌────────────┬────────────┐                                 │
+│ │ Rômulo     │ ✓ Marcela  │                                 │
+│ │ R$ 1 Mi    │ Meta       │                                 │
+│ └────────────┴────────────┘                                 │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ### Detalhes Técnicos
 
-#### Modificar função `getHistoricalMonthsFromCurrent` (linhas 501-535)
+#### Modificar SprintKPIBar.tsx - Novo layout para breakdown
 
-**Antes (usa índice do array):**
-```typescript
-export function getHistoricalMonthsFromCurrent(
-  availableMonths: string[], 
-  count: number = 2
-): string[] {
-  const currentMonth = getCurrentMonthFormatted();
-  
-  if (availableMonths.length === 0) return [];
-  
-  const normalizeMonth = (m: string) => m.toLowerCase().replace("-", "/");
-  const normalizedCurrent = normalizeMonth(currentMonth);
-  
-  const currentIndex = availableMonths.findIndex(m => 
-    normalizeMonth(m) === normalizedCurrent
-  );
-  
-  if (currentIndex === -1) {
-    // Current month not in data, use most recent available
-    const lastIndex = availableMonths.length - 1;
-    const result: string[] = [];
-    for (let i = count; i >= 1 && lastIndex - i >= 0; i--) {
-      result.push(availableMonths[lastIndex - i]);
-    }
-    result.push(availableMonths[lastIndex]);
-    return result;
-  }
-  
-  // Get previous months + current month
-  const result: string[] = [];
-  for (let i = count; i >= 1 && currentIndex - i >= 0; i--) {
-    result.push(availableMonths[currentIndex - i]);
-  }
-  result.push(availableMonths[currentIndex]);
-  
-  return result;
-}
-```
-
-**Depois (usa cálculo de calendário):**
-```typescript
-export function getHistoricalMonthsFromCurrent(
-  availableMonths: string[], 
-  count: number = 2
-): string[] {
-  if (availableMonths.length === 0) return [];
-  
-  const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-  const now = new Date();
-  const currentMonthIdx = now.getMonth(); // 0-11
-  const currentYear = now.getFullYear() % 100; // 26 para 2026
-  
-  const normalizeMonth = (m: string) => m.toLowerCase().replace("-", "/");
-  
-  // Calculate the previous N months based on calendar (not array index)
-  const calendarMonths: string[] = [];
-  for (let i = count; i >= 0; i--) {
-    let targetMonthIdx = currentMonthIdx - i;
-    let targetYear = currentYear;
-    
-    // Handle year rollback (e.g., January - 2 = November of previous year)
-    while (targetMonthIdx < 0) {
-      targetMonthIdx += 12;
-      targetYear -= 1;
-    }
-    
-    const monthStr = `${monthNames[targetMonthIdx]}-${targetYear.toString().padStart(2, '0')}`;
-    calendarMonths.push(monthStr);
-  }
-  
-  // Find matching months in availableMonths (case-insensitive, separator-agnostic)
-  const result: string[] = [];
-  for (const calMonth of calendarMonths) {
-    const normalizedCal = normalizeMonth(calMonth);
-    const found = availableMonths.find(m => normalizeMonth(m) === normalizedCal);
-    if (found) {
-      result.push(found);
-    }
-  }
-  
-  return result;
-}
+```tsx
+{/* Assessor Breakdown - grid format showing all assessors */}
+{assessorBreakdown.length > 0 && (
+  <div className="mt-auto pt-1 border-t border-border/50">
+    <span className="text-[8px] lg:text-[9px] text-muted-foreground mb-1 block">
+      Falta por Assessor:
+    </span>
+    <div className="grid grid-cols-4 lg:grid-cols-6 gap-1">
+      {assessorBreakdown.map((assessor, idx) => (
+        <div 
+          key={idx} 
+          className={cn(
+            "flex flex-col items-center px-1 py-0.5 rounded text-center",
+            assessor.achieved 
+              ? "bg-green-500/10 text-green-500" 
+              : "bg-destructive/10 text-destructive"
+          )}
+        >
+          <span className="text-[8px] lg:text-[9px] font-medium truncate w-full">
+            {assessor.name}
+          </span>
+          <span className="text-[9px] lg:text-[10px] font-bold">
+            {assessor.achieved 
+              ? "✓" 
+              : formatValue(assessor.remaining, isCurrency)
+            }
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 ```
 
 ---
 
-### Lógica do Cálculo de Calendário
+### Cálculo do Breakdown
 
-```text
-Mês atual: Janeiro 2026 (monthIdx = 0, year = 26)
+A função `calculateWeeklyRemainingByAssessor` em `kpiUtils.ts` já calcula corretamente:
 
-Cálculo dos 2 meses anteriores + atual:
-├── i = 2: monthIdx = 0 - 2 = -2 → -2 + 12 = 10, year = 25 → "nov-25"
-├── i = 1: monthIdx = 0 - 1 = -1 → -1 + 12 = 11, year = 25 → "dez-25"
-└── i = 0: monthIdx = 0 - 0 = 0, year = 26 → "jan-26"
+1. Para cada assessor, calcula `meta semanal - realizado`
+2. Filtra assessores que já atingiram meta (`!a.achieved`)
+3. Ordena por maior falta primeiro
 
-Resultado: ["nov-25", "dez-25", "jan-26"] ✅
-```
+**Observação**: Atualmente só mostra assessores que **não** atingiram a meta. Se quiser mostrar todos (incluindo os que bateram com ✓), precisamos ajustar a função.
 
 ---
 
-### Comportamento Final
+### Opção Adicional: Mostrar Todos Assessores
 
-| Mês Atual | Histórico Calculado |
-|-----------|---------------------|
-| Janeiro 2026 | NOV-25 → DEZ-25 → **JAN-26** |
-| Fevereiro 2026 | DEZ-25 → JAN-26 → **FEV-26** |
-| Março 2026 | JAN-26 → FEV-26 → **MAR-26** |
+Se quiser ver também quem já bateu a meta:
+
+**Modificar kpiUtils.ts linha 1172:**
+
+```typescript
+// ANTES: Só mostrar quem ainda precisa produzir
+.filter(a => !a.achieved)
+
+// DEPOIS: Mostrar todos, ordenando por falta (quem bateu vai pro final)
+.sort((a, b) => {
+  if (a.achieved && !b.achieved) return 1;
+  if (!a.achieved && b.achieved) return -1;
+  return b.remaining - a.remaining;
+});
+```
 
 ---
 
 ### Benefícios
 
-1. **Calendário Real** - Calcula meses baseado na data atual, não no array
-2. **Transição de Ano** - Funciona corretamente na virada de ano (Jan → Dez → Nov)
-3. **Robustez** - Não depende da ordem ou completude do array de meses
-4. **Flexibilidade** - Se um mês não existe nos dados, simplesmente não é incluído no resultado
+1. **Visualização completa** - Todos os assessores visíveis em grade organizada
+2. **Cores indicativas** - Vermelho para quem falta, verde para quem bateu
+3. **Compacto mas legível** - Grid responsivo de 4-6 colunas
+4. **Consistência visual** - Mantém o padrão do dashboard principal
 
