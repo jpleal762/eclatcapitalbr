@@ -1,20 +1,23 @@
 
 
-## Plano: Corrigir Ordenação dos Meses Históricos
+## Plano: Corrigir Histórico ICM para Usar Calendário Real
 
 ### Problema Identificado
 
-A função `getAvailableMonths` usa `.split("/")` para separar mês e ano, mas os dados do Excel podem vir com formato `JAN-26` (usando hífen `-`). Isso causa:
+A função `getHistoricalMonthsFromCurrent` busca meses anteriores baseada no **índice do array** de meses disponíveis, não no **calendário real**. Isso causa problemas quando:
 
-1. `"JAN-26".split("/")` → `["JAN-26"]` (1 elemento só)
-2. `yearA` = `undefined`, `monthA` = `"JAN-26"`
-3. Ordenação falha completamente
-4. Meses ficam em ordem alfabética em vez de cronológica
-5. **FEV** vem antes de **NOV** alfabeticamente, causando o bug
+1. O array não contém todos os meses consecutivos
+2. A ordenação do array tem falhas
+3. A transição de ano (Jan-26 → Dez-25 → Nov-25) não é calculada corretamente
+
+**Exemplo do bug:**
+- Mês atual: Janeiro 2026
+- Array de meses: `["nov-25", "dez-25", "jan-26", "fev-26"]`
+- Se a busca por índice falha, pode retornar "fev-26" em vez de "nov-25"
 
 ### Solução
 
-Modificar `getAvailableMonths` para suportar **ambos os separadores** (`/` e `-`).
+Modificar `getHistoricalMonthsFromCurrent` para **calcular os meses anteriores baseado no calendário**, independente de como os dados estão no array.
 
 ---
 
@@ -22,94 +25,129 @@ Modificar `getAvailableMonths` para suportar **ambos os separadores** (`/` e `-`
 
 | Arquivo | Ação |
 |---------|------|
-| `src/lib/kpiUtils.ts` | **MODIFICAR** - Função `getAvailableMonths` para suportar hífen |
+| `src/lib/kpiUtils.ts` | **MODIFICAR** - Função `getHistoricalMonthsFromCurrent` para usar cálculo de calendário |
 
 ---
 
 ### Detalhes Técnicos
 
-#### Modificar função `getAvailableMonths` (linhas 123-135)
+#### Modificar função `getHistoricalMonthsFromCurrent` (linhas 501-535)
 
-**Antes:**
+**Antes (usa índice do array):**
 ```typescript
-export function getAvailableMonths(data: ProcessedKPI[]): string[] {
-  const months = new Set<string>();
-  data.forEach((record) => {
-    record.monthlyData.forEach((m) => months.add(m.month));
-  });
-  return Array.from(months).sort((a, b) => {
-    const [monthA, yearA] = a.split("/");
-    const [monthB, yearB] = b.split("/");
-    if (yearA !== yearB) return parseInt(yearA) - parseInt(yearB);
-    const monthOrder = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-    return monthOrder.indexOf(monthA.toLowerCase()) - monthOrder.indexOf(monthB.toLowerCase());
-  });
+export function getHistoricalMonthsFromCurrent(
+  availableMonths: string[], 
+  count: number = 2
+): string[] {
+  const currentMonth = getCurrentMonthFormatted();
+  
+  if (availableMonths.length === 0) return [];
+  
+  const normalizeMonth = (m: string) => m.toLowerCase().replace("-", "/");
+  const normalizedCurrent = normalizeMonth(currentMonth);
+  
+  const currentIndex = availableMonths.findIndex(m => 
+    normalizeMonth(m) === normalizedCurrent
+  );
+  
+  if (currentIndex === -1) {
+    // Current month not in data, use most recent available
+    const lastIndex = availableMonths.length - 1;
+    const result: string[] = [];
+    for (let i = count; i >= 1 && lastIndex - i >= 0; i--) {
+      result.push(availableMonths[lastIndex - i]);
+    }
+    result.push(availableMonths[lastIndex]);
+    return result;
+  }
+  
+  // Get previous months + current month
+  const result: string[] = [];
+  for (let i = count; i >= 1 && currentIndex - i >= 0; i--) {
+    result.push(availableMonths[currentIndex - i]);
+  }
+  result.push(availableMonths[currentIndex]);
+  
+  return result;
 }
 ```
 
-**Depois:**
+**Depois (usa cálculo de calendário):**
 ```typescript
-export function getAvailableMonths(data: ProcessedKPI[]): string[] {
-  const months = new Set<string>();
-  data.forEach((record) => {
-    record.monthlyData.forEach((m) => months.add(m.month));
-  });
+export function getHistoricalMonthsFromCurrent(
+  availableMonths: string[], 
+  count: number = 2
+): string[] {
+  if (availableMonths.length === 0) return [];
   
-  // Helper to parse month string with either "/" or "-" separator
-  const parseMonth = (m: string): { month: string; year: number } => {
-    const separator = m.includes("/") ? "/" : "-";
-    const parts = m.split(separator);
-    const monthStr = parts[0]?.toLowerCase() || "";
-    const yearStr = parts[1] || "0";
-    return {
-      month: monthStr,
-      year: parseInt(yearStr) || 0
-    };
-  };
+  const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const now = new Date();
+  const currentMonthIdx = now.getMonth(); // 0-11
+  const currentYear = now.getFullYear() % 100; // 26 para 2026
   
-  const monthOrder = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const normalizeMonth = (m: string) => m.toLowerCase().replace("-", "/");
   
-  return Array.from(months).sort((a, b) => {
-    const parsedA = parseMonth(a);
-    const parsedB = parseMonth(b);
+  // Calculate the previous N months based on calendar (not array index)
+  const calendarMonths: string[] = [];
+  for (let i = count; i >= 0; i--) {
+    let targetMonthIdx = currentMonthIdx - i;
+    let targetYear = currentYear;
     
-    // Sort by year first
-    if (parsedA.year !== parsedB.year) {
-      return parsedA.year - parsedB.year;
+    // Handle year rollback (e.g., January - 2 = November of previous year)
+    while (targetMonthIdx < 0) {
+      targetMonthIdx += 12;
+      targetYear -= 1;
     }
     
-    // Then sort by month order
-    return monthOrder.indexOf(parsedA.month) - monthOrder.indexOf(parsedB.month);
-  });
+    const monthStr = `${monthNames[targetMonthIdx]}-${targetYear.toString().padStart(2, '0')}`;
+    calendarMonths.push(monthStr);
+  }
+  
+  // Find matching months in availableMonths (case-insensitive, separator-agnostic)
+  const result: string[] = [];
+  for (const calMonth of calendarMonths) {
+    const normalizedCal = normalizeMonth(calMonth);
+    const found = availableMonths.find(m => normalizeMonth(m) === normalizedCal);
+    if (found) {
+      result.push(found);
+    }
+  }
+  
+  return result;
 }
 ```
 
 ---
 
-### Resultado Esperado
+### Lógica do Cálculo de Calendário
 
-Com Janeiro 2026 como mês atual:
+```text
+Mês atual: Janeiro 2026 (monthIdx = 0, year = 26)
 
-| Antes (Bug) | Depois (Corrigido) |
-|-------------|---------------------|
-| DEZ, FEV, JAN | NOV, DEZ, JAN |
-| ❌ Fevereiro aparece | ✅ Novembro 2025 aparece |
+Cálculo dos 2 meses anteriores + atual:
+├── i = 2: monthIdx = 0 - 2 = -2 → -2 + 12 = 10, year = 25 → "nov-25"
+├── i = 1: monthIdx = 0 - 1 = -1 → -1 + 12 = 11, year = 25 → "dez-25"
+└── i = 0: monthIdx = 0 - 0 = 0, year = 26 → "jan-26"
 
-#### Ordem Cronológica Correta:
+Resultado: ["nov-25", "dez-25", "jan-26"] ✅
 ```
-... → OUT/25 → NOV/25 → DEZ/25 → JAN/26 → FEV/26 → ...
-```
 
-Quando selecionamos Janeiro/26 como mês atual:
-- **2 meses anteriores**: NOV/25, DEZ/25
-- **Mês atual**: JAN/26
+---
+
+### Comportamento Final
+
+| Mês Atual | Histórico Calculado |
+|-----------|---------------------|
+| Janeiro 2026 | NOV-25 → DEZ-25 → **JAN-26** |
+| Fevereiro 2026 | DEZ-25 → JAN-26 → **FEV-26** |
+| Março 2026 | JAN-26 → FEV-26 → **MAR-26** |
 
 ---
 
 ### Benefícios
 
-1. **Suporte a ambos formatos** - Funciona com `/` ou `-` como separador
-2. **Ordenação cronológica correta** - Meses ordenados por ano, depois por mês
-3. **Histórico correto** - Novembro e Dezembro aparecem como meses anteriores a Janeiro
-4. **Retrocompatível** - Não quebra dados existentes com formato `/`
+1. **Calendário Real** - Calcula meses baseado na data atual, não no array
+2. **Transição de Ano** - Funciona corretamente na virada de ano (Jan → Dez → Nov)
+3. **Robustez** - Não depende da ordem ou completude do array de meses
+4. **Flexibilidade** - Se um mês não existe nos dados, simplesmente não é incluído no resultado
 
