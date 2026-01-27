@@ -15,22 +15,8 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "robots.txt"],
-      manifest: {
-        name: "Eclat Capital - Dashboard KPIs",
-        short_name: "Eclat KPIs",
-        description: "Dashboard de KPIs Eclat Capital XP",
-        theme_color: "#1a1a2e",
-        background_color: "#1a1a2e",
-        display: "standalone",
-        orientation: "portrait",
-        start_url: "/",
-        icons: [
-          { src: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-          { src: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
-          { src: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }
-        ]
-      },
+      includeAssets: ["favicon.ico", "robots.txt", "icons/*"],
+      manifest: false, // Desativado - manifest é gerado dinamicamente em index.html para preservar token
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"]
       }

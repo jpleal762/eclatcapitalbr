@@ -15,7 +15,38 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Eclat KPIs" />
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-    <link rel="manifest" href="/manifest.json" />
+    <!-- PWA Manifest - Gerado dinamicamente para preservar token -->
+    <link rel="manifest" id="pwa-manifest" href="/manifest.json" />
+    
+    <script>
+      // Gera manifest dinâmico para preservar token na URL
+      (function() {
+        const hasToken = window.location.search.includes('token=');
+        
+        if (hasToken) {
+          const manifest = {
+            name: "Eclat Capital - Dashboard KPIs",
+            short_name: "Eclat KPIs",
+            description: "Dashboard de KPIs Eclat Capital XP",
+            theme_color: "#1a1a2e",
+            background_color: "#1a1a2e",
+            display: "standalone",
+            orientation: "portrait",
+            scope: "/",
+            start_url: window.location.pathname + window.location.search,
+            icons: [
+              { src: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+              { src: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+              { src: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }
+            ]
+          };
+          
+          const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+          const manifestUrl = URL.createObjectURL(blob);
+          document.getElementById('pwa-manifest').setAttribute('href', manifestUrl);
+        }
+      })();
+    </script>
 
     <!-- Open Graph -->
     <meta property="og:title" content="Eclat Capital - Dashboard KPIs" />
