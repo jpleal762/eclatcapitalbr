@@ -1,129 +1,90 @@
 
-## Plano: Preservar Token na Instalação do PWA
+### Diagnóstico (por que ainda abre na “visão do escritório”)
+Hoje a regra de acesso por token está 100% baseada em `?token=` na URL (em `src/pages/Index.tsx`). Se o app instalado abre em `/` sem o querystring, o código não encontra token e cai no padrão “Escritório”.
 
-### Problema Identificado
+Mesmo com o “manifest dinâmico”, na prática o navegador pode:
+- **ler/cachear o manifest cedo demais** (antes de você trocar o `href` via JS) e continuar instalando com `start_url: "/"`; e/ou
+- **não reprocessar** o manifest quando o `href` muda (comportamento comum).
 
-O PWA está configurado com `start_url: "/"` fixo no `manifest.json`. Quando um assessor acessa via `?token=hb-eclat-2024a` e instala o app, ele abre sempre na raiz `/` sem o token, mostrando a visão do "Escritório".
-
-### Solução
-
-Gerar o **manifest dinamicamente via JavaScript** no momento que a página carrega. Assim, o `start_url` captura a URL atual (incluindo o token) e o PWA instalado sempre abrirá na visão correta do assessor.
-
----
-
-### Arquivos a Modificar
-
-| Arquivo | Ação |
-|---------|------|
-| `index.html` | **MODIFICAR** - Remover link estático do manifest, adicionar script dinâmico |
-| `vite.config.ts` | **MODIFICAR** - Remover geração de manifest pelo plugin (usar apenas service worker) |
-| `public/manifest.json` | **MANTER** - Fallback para quando não há token |
+Então precisamos de um fallback robusto que não dependa do `start_url` com querystring.
 
 ---
 
-### Detalhes Técnicos
+### Solução proposta (robusta): “memorizar” o token para o app instalado
+Ajustar o frontend para:
+1) **Salvar o token em armazenamento local** depois que ele for validado (quando o usuário abre via link com token).
+2) Quando o app estiver rodando como **instalado (standalone)** e abrir sem `?token=`, ele:
+   - lê o token salvo
+   - valida no backend
+   - trava a visão do assessor normalmente (como se estivesse no link com token)
 
-#### 1. Modificar index.html - Manifest Dinâmico
-
-Substituir o link estático do manifest por um script que gera dinamicamente:
-
-```html
-<head>
-  <!-- ... outras meta tags ... -->
-  
-  <!-- PWA Manifest - Gerado dinamicamente para preservar token -->
-  <link rel="manifest" id="pwa-manifest" href="/manifest.json" />
-  
-  <script>
-    // Gera manifest dinâmico para preservar token na URL
-    (function() {
-      const currentUrl = window.location.href;
-      const hasToken = currentUrl.includes('token=');
-      
-      // Se tem token, gera manifest com start_url dinâmico
-      if (hasToken) {
-        const manifest = {
-          name: "Eclat Capital - Dashboard KPIs",
-          short_name: "Eclat KPIs",
-          description: "Dashboard de KPIs Eclat Capital XP",
-          theme_color: "#1a1a2e",
-          background_color: "#1a1a2e",
-          display: "standalone",
-          orientation: "portrait",
-          scope: "/",
-          start_url: window.location.pathname + window.location.search,
-          icons: [
-            { src: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-            { src: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
-            { src: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }
-          ]
-        };
-        
-        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-        const manifestUrl = URL.createObjectURL(blob);
-        document.getElementById('pwa-manifest').setAttribute('href', manifestUrl);
-      }
-    })();
-  </script>
-</head>
-```
+Isso garante que, mesmo que o PWA abra em `/`, ele recupera a visão correta.
 
 ---
 
-#### 2. Modificar vite.config.ts
+### Mudanças planejadas (arquivos)
+#### 1) `src/pages/Index.tsx` (principal)
+- Criar uma chave, por exemplo: `ECLAT_PWA_TOKEN = "eclat:pwa:token"`.
+- No fluxo atual (quando existe `token` na URL e ele valida):
+  - salvar `localStorage.setItem(ECLAT_PWA_TOKEN, token)`
+- Adicionar um segundo caminho de validação:
+  - se **não** existe `token` na URL
+  - e o app está em modo instalado (`display-mode: standalone` ou `navigator.standalone`)
+  - e existe token salvo no `localStorage`
+  - então validar esse token e aplicar:
+    - `setSelectedView(assessor_name)`
+    - `setFilters({ assessor: assessor_name, ... })`
+    - `setIsTokenLocked(true)`
+    - `setTokenValidated(true)`
 
-Ajustar o plugin VitePWA para **não gerar manifest** (deixar o script dinâmico fazer isso):
+- Tratamento de erro para token salvo:
+  - se o token salvo estiver inválido/desativado, limpar `localStorage.removeItem(ECLAT_PWA_TOKEN)`
+  - opcionalmente mostrar uma mensagem/alerta e voltar para visão Escritório (para não “prender” o usuário num acesso negado dentro do app)
 
-```typescript
-VitePWA({
-  registerType: "autoUpdate",
-  includeAssets: ["favicon.ico", "robots.txt", "icons/*"],
-  // Removido: manifest - será gerado dinamicamente
-  manifest: false, // Desativa geração de manifest pelo plugin
-  workbox: {
-    globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"]
-  }
-})
-```
+#### 2) `src/components/PWAInstallPrompt.tsx` (melhoria para evitar instalar “rápido demais”)
+Hoje o prompt pode aparecer antes do token terminar de validar (o `assessorName` ainda não chegou), e o usuário pode instalar naquele momento.
 
----
+Ajuste:
+- Adicionar uma prop `enabled?: boolean` (ou `ready?: boolean`)
+- No `Index.tsx`, quando houver `?token=...`, só habilitar o prompt **depois** de `tokenValidated === true`
+  - Isso reduz muito a chance de instalar antes de a sessão estar travada no assessor.
+- (Opcional) passar também o token como prop e salvar no `localStorage` no clique “Instalar” como redundância.
 
-### Fluxo de Funcionamento
+#### 3) `index.html` (opcional – manter ou simplificar)
+Como a correção principal passa a ser “token persistido”, o manifest dinâmico fica menos crítico.
+Opções:
+- **Opção A (recomendada):** manter como está por enquanto (não atrapalha) e depender do fallback no app.
+- **Opção B (mais correta tecnicamente):** mudar para **não criar o `<link rel="manifest">` com `href` fixo no HTML**, e sim criar o link via JS já com o `href` final antes do browser processar (evita cache do manifest “errado”).
 
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│ ACESSO SEM TOKEN: eclatcapitalbr.lovable.app/                  │
-├─────────────────────────────────────────────────────────────────┤
-│ 1. Script detecta: hasToken = false                             │
-│ 2. Usa manifest.json estático: start_url = "/"                 │
-│ 3. PWA instalado abre na visão "Escritório"                    │
-└─────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│ ACESSO COM TOKEN: eclatcapitalbr.lovable.app/?token=hb-xxx     │
-├─────────────────────────────────────────────────────────────────┤
-│ 1. Script detecta: hasToken = true                              │
-│ 2. Gera manifest dinâmico: start_url = "/?token=hb-xxx"        │
-│ 3. PWA instalado abre direto na visão "Hingrid"                │
-└─────────────────────────────────────────────────────────────────┘
-```
+Eu recomendo fazer **A + token persistido** primeiro (resolve o problema mesmo se o manifest não obedecer o querystring).
 
 ---
 
-### Resultado por Assessor
+### Como vamos validar que ficou certo (passo a passo)
+1) Publicar as mudanças.
+2) Em um celular (Android ou iOS):
+   - Abrir o link com token no navegador: `.../?token=xxxxx`
+   - Esperar carregar e ver o cadeado 🔒 com o nome do assessor
+   - Instalar/Adicionar à tela inicial
+3) Abrir pelo ícone instalado:
+   - Mesmo que abra em `/` (sem barra de URL), o app deve:
+     - encontrar o token salvo
+     - validar
+     - entrar direto travado no assessor
 
-| Assessor | URL de Acesso | start_url do PWA Instalado |
-|----------|---------------|---------------------------|
-| Hingrid | `/?token=hb-eclat-2024a` | `/?token=hb-eclat-2024a` |
-| José Júlio | `/?token=jj-eclat-2024b` | `/?token=jj-eclat-2024b` |
-| Marcela | `/?token=mm-eclat-2024c` | `/?token=mm-eclat-2024c` |
-| Escritório | `/` | `/` |
+**Teste extra (importante):** se você já instalou antes e ficou “Escritório”, após essa mudança você só precisa abrir **uma vez** o link com token no navegador (para salvar o token). Depois disso, o app instalado passa a respeitar o assessor.
 
 ---
 
-### Benefícios
+### Observações importantes
+- Essa abordagem funciona tanto para Android quanto para iOS, porque não depende do `start_url` com querystring.
+- Se um dia precisar “voltar para Escritório” naquele celular, a solução é:
+  - limpar dados do site / desinstalar o app, ou
+  - (opcional) eu posso adicionar um botão “Desvincular assessor” no cabeçalho do app instalado.
 
-1. **Token preservado** - Cada assessor tem seu app personalizado
-2. **Sem duplicação** - Mesmo código funciona para todos
-3. **Fallback seguro** - Sem token, usa manifest estático padrão
-4. **Compatibilidade** - Funciona em Android, iOS (com instruções) e Desktop
+---
+
+### Entregáveis ao final
+- App instalado abrindo sempre na visão correta do assessor
+- Prompt de instalação não aparecendo antes de o token estar validado (reduz chance de instalar “na visão errada”)
+- Fallback robusto mesmo que o manifest ignore o querystring
