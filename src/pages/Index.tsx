@@ -56,6 +56,7 @@ import { Card } from "@/components/ui/card";
 import { PageToggle, PageType } from "@/components/dashboard/PageToggle";
 import { AnalysisPage } from "@/components/dashboard/AnalysisPage";
 import { SprintPage } from "@/components/dashboard/SprintPage";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 const SPRINT_PRODUCTS_STORAGE_KEY = "sprint-selected-products";
@@ -934,6 +935,9 @@ const Index = () => {
             </div>
           </main>
         </div>
+        
+        {/* PWA Install Prompt - personalizado por assessor */}
+        <PWAInstallPrompt assessorName={isTokenLocked ? selectedView : null} />
       </div>
     </SidebarProvider>
   );
