@@ -138,24 +138,24 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
       {/* Assessor Breakdown - grid format showing all assessors */}
       {assessorBreakdown.length > 0 && (
         <div className="mt-auto pt-1 border-t border-border/50">
-          <span className="text-[8px] lg:text-[9px] text-muted-foreground mb-1 block">
+          <span className="text-[9px] lg:text-[10px] text-muted-foreground mb-1 block">
             Falta por Assessor:
           </span>
-          <div className="grid grid-cols-4 lg:grid-cols-6 gap-1">
+          <div className="grid grid-cols-3 lg:grid-cols-4 gap-1.5">
             {assessorBreakdown.map((assessor, idx) => (
               <div 
                 key={idx} 
                 className={cn(
-                  "flex flex-col items-center px-1 py-0.5 rounded text-center",
+                  "flex flex-col items-center px-1.5 py-1 rounded text-center",
                   assessor.achieved 
                     ? "bg-green-500/10 text-green-500" 
                     : "bg-destructive/10 text-destructive"
                 )}
               >
-                <span className="text-[8px] lg:text-[9px] font-medium truncate w-full">
+                <span className="text-[10px] lg:text-[11px] font-medium">
                   {assessor.name}
                 </span>
-                <span className="text-[9px] lg:text-[10px] font-bold">
+                <span className="text-[11px] lg:text-[12px] font-bold">
                   {assessor.achieved 
                     ? "✓" 
                     : formatValue(assessor.remaining, isCurrency)
