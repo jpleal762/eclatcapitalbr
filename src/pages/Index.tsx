@@ -60,6 +60,13 @@ import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 const SPRINT_PRODUCTS_STORAGE_KEY = "sprint-selected-products";
+const ECLAT_PWA_TOKEN_KEY = "eclat:pwa:token";
+
+// Helper para detectar modo standalone (PWA instalado)
+const isStandaloneMode = () => {
+  return window.matchMedia('(display-mode: standalone)').matches || 
+         (window.navigator as any).standalone === true;
+};
 
 // Função para obter o mês atual no formato "jan-26"
 const getCurrentMonthValue = () => {
@@ -127,10 +134,18 @@ const Index = () => {
   const [isTokenLocked, setIsTokenLocked] = useState(false); // Token via URL bloqueia permanentemente
   const isViewLocked = isTokenLocked; // Só bloqueia quando acesso via token
 
-  // Validação de token via URL
+  // Validação de token via URL ou localStorage (para PWA instalado)
   useEffect(() => {
-    const token = searchParams.get("token");
-    if (!token || tokenValidated) return;
+    const urlToken = searchParams.get("token");
+    const storedToken = localStorage.getItem(ECLAT_PWA_TOKEN_KEY);
+    
+    // Se já validou, não faz nada
+    if (tokenValidated) return;
+    
+    // Determina qual token usar: URL tem prioridade, senão usa localStorage (se em standalone)
+    const tokenToValidate = urlToken || (isStandaloneMode() ? storedToken : null);
+    
+    if (!tokenToValidate) return;
 
     const validateToken = async () => {
       setIsTokenValidating(true);
@@ -140,32 +155,51 @@ const Index = () => {
         const { data, error } = await supabase
           .from("assessor_tokens")
           .select("assessor_name, is_active")
-          .eq("token", token)
+          .eq("token", tokenToValidate)
           .maybeSingle();
 
         if (error) {
           console.error("Erro ao validar token:", error);
+          // Se era token salvo e falhou, limpa do localStorage
+          if (!urlToken && storedToken) {
+            localStorage.removeItem(ECLAT_PWA_TOKEN_KEY);
+          }
           setTokenError("Erro ao validar acesso. Tente novamente.");
           return;
         }
 
         if (!data) {
+          // Token inválido - se era salvo, remove do localStorage
+          if (!urlToken && storedToken) {
+            localStorage.removeItem(ECLAT_PWA_TOKEN_KEY);
+          }
           setTokenError("Token inválido. Verifique o link de acesso.");
           return;
         }
 
         if (!data.is_active) {
+          // Token desativado - se era salvo, remove do localStorage
+          if (!urlToken && storedToken) {
+            localStorage.removeItem(ECLAT_PWA_TOKEN_KEY);
+          }
           setTokenError("Este link de acesso foi desativado.");
           return;
         }
 
-        // Token válido - bloqueia visão para este assessor
+        // Token válido - salva no localStorage para PWA
+        localStorage.setItem(ECLAT_PWA_TOKEN_KEY, tokenToValidate);
+        
+        // Bloqueia visão para este assessor
         setSelectedView(data.assessor_name);
         setFilters(prev => ({ ...prev, assessor: data.assessor_name }));
         setIsTokenLocked(true);
         setTokenValidated(true);
       } catch (err) {
         console.error("Erro inesperado:", err);
+        // Se era token salvo e falhou, limpa do localStorage
+        if (!urlToken && storedToken) {
+          localStorage.removeItem(ECLAT_PWA_TOKEN_KEY);
+        }
         setTokenError("Erro inesperado. Tente novamente.");
       } finally {
         setIsTokenValidating(false);
@@ -936,8 +970,11 @@ const Index = () => {
           </main>
         </div>
         
-        {/* PWA Install Prompt - personalizado por assessor */}
-        <PWAInstallPrompt assessorName={isTokenLocked ? selectedView : null} />
+        {/* PWA Install Prompt - só aparece após token validado (quando há token na URL) */}
+        <PWAInstallPrompt 
+          assessorName={isTokenLocked ? selectedView : null} 
+          enabled={!searchParams.get("token") || tokenValidated}
+        />
       </div>
     </SidebarProvider>
   );
