@@ -135,20 +135,35 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
         </div>
       )}
 
-      {/* Assessor Breakdown - compact, single line */}
+      {/* Assessor Breakdown - grid format showing all assessors */}
       {assessorBreakdown.length > 0 && (
-        <div className="flex flex-wrap gap-x-2 text-[9px] lg:text-[10px] text-muted-foreground mt-auto">
-          <span className="font-medium text-foreground">Falta:</span>
-          {assessorBreakdown.slice(0, 4).map((assessor, idx) => (
-            <span key={idx} className="whitespace-nowrap">
-              {assessor.name} -{formatValue(assessor.remaining, isCurrency)}
-            </span>
-          ))}
-          {assessorBreakdown.length > 4 && (
-            <span className="text-muted-foreground">
-              +{assessorBreakdown.length - 4}
-            </span>
-          )}
+        <div className="mt-auto pt-1 border-t border-border/50">
+          <span className="text-[8px] lg:text-[9px] text-muted-foreground mb-1 block">
+            Falta por Assessor:
+          </span>
+          <div className="grid grid-cols-4 lg:grid-cols-6 gap-1">
+            {assessorBreakdown.map((assessor, idx) => (
+              <div 
+                key={idx} 
+                className={cn(
+                  "flex flex-col items-center px-1 py-0.5 rounded text-center",
+                  assessor.achieved 
+                    ? "bg-green-500/10 text-green-500" 
+                    : "bg-destructive/10 text-destructive"
+                )}
+              >
+                <span className="text-[8px] lg:text-[9px] font-medium truncate w-full">
+                  {assessor.name}
+                </span>
+                <span className="text-[9px] lg:text-[10px] font-bold">
+                  {assessor.achieved 
+                    ? "✓" 
+                    : formatValue(assessor.remaining, isCurrency)
+                  }
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
