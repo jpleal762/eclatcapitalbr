@@ -1,198 +1,102 @@
 
-## Plano: Adicionar Receita Parceiros no Meta Semanal e Sprint
 
-### Objetivo
+## Plano: Melhorar Legibilidade do "Falta por Assessor"
 
-Incluir o KPI "Receita Parceiros" (categoria interna: `Parceiros Tri`) em dois locais:
-1. **Card Meta Semanal Acumulada** - Com Meta, Realizado e Falta
-2. **Página Sprint** - Seguindo o modelo dos demais KPIs
+### Problema Atual
+
+1. **Nomes truncados** - A classe `truncate` corta nomes longos
+2. **Texto muito pequeno** - Fontes de 8px e 9px dificultam leitura
+3. **Grid muito apertado** - 4-6 colunas comprimem o conteúdo
+
+### Solução
+
+Ajustar estilos para melhor legibilidade mantendo a mesma estrutura de grid:
 
 ---
 
-### Arquivos a Modificar
+### Arquivo a Modificar
 
 | Arquivo | Ação |
 |---------|------|
-| `src/lib/kpiUtils.ts` | **MODIFICAR** - Adicionar "Parceiros Tri" às listas de categorias |
-| `src/types/kpi.ts` | **MODIFICAR** - Adicionar "Parceiros Tri" ao SPRINT_PRODUCTS |
+| `src/components/dashboard/SprintKPIBar.tsx` | **MODIFICAR** - Ajustar tamanhos de fonte e remover truncate |
 
 ---
 
-### Detalhes Técnicos
+### Alterações Específicas (linhas 138-168)
 
-#### 1. Adicionar "Receita Parceiros" ao Meta Semanal (kpiUtils.ts)
-
-**Localização**: Linhas 858-865
-
-```typescript
-// ANTES: 6 categorias
-const metaSemanalCategories = [
-  { category: "Captação net", label: "Captação NET", isCurrency: true },
-  { category: "Receita", label: "Receita", isCurrency: true },
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação (ROA>1,5)", isCurrency: true },
-  { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
-  { category: "Habilitacao", label: "Habilitação", isCurrency: false },
-  { category: "Ativacao", label: "Ativação", isCurrency: false },
-];
-
-// DEPOIS: 7 categorias (adicionado Parceiros Tri)
-const metaSemanalCategories = [
-  { category: "Captação net", label: "Captação NET", isCurrency: true },
-  { category: "Receita", label: "Receita", isCurrency: true },
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação (ROA>1,5)", isCurrency: true },
-  { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
-  { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
-  { category: "Habilitacao", label: "Habilitação", isCurrency: false },
-  { category: "Ativacao", label: "Ativação", isCurrency: false },
-];
-```
-
-**Nota**: A posição escolhida (após Diversificação) agrupa os KPIs monetários antes dos não-monetários (Reuniões, Habilitação, Ativação).
+| Elemento | Antes | Depois |
+|----------|-------|--------|
+| Grid | `grid-cols-4 lg:grid-cols-6` | `grid-cols-3 lg:grid-cols-4` |
+| Título seção | `text-[8px] lg:text-[9px]` | `text-[9px] lg:text-[10px]` |
+| Nome assessor | `text-[8px] lg:text-[9px] truncate` | `text-[10px] lg:text-[11px]` (sem truncate) |
+| Valor/Check | `text-[9px] lg:text-[10px]` | `text-[11px] lg:text-[12px]` |
+| Espaçamento | `gap-1 px-1 py-0.5` | `gap-1.5 px-1.5 py-1` |
 
 ---
 
-#### 2. Adicionar "Receita Parceiros" ao calculateSprintData (kpiUtils.ts)
+### Código Atualizado
 
-**Localização**: Linhas 1188-1195
-
-```typescript
-// ANTES: 6 categorias
-const categories = [
-  { category: "Captação net", label: "Captação NET", isCurrency: true, includeEmpilhada: false },
-  { category: "Receita", label: "Receita", isCurrency: true, includeEmpilhada: true },
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true, includeEmpilhada: false },
-  { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false, includeEmpilhada: false },
-  { category: "Habilitacao", label: "Habilitação", isCurrency: false, includeEmpilhada: false },
-  { category: "Ativacao", label: "Ativação", isCurrency: false, includeEmpilhada: false },
-];
-
-// DEPOIS: 7 categorias (adicionado Parceiros Tri)
-const categories = [
-  { category: "Captação net", label: "Captação NET", isCurrency: true, includeEmpilhada: false },
-  { category: "Receita", label: "Receita", isCurrency: true, includeEmpilhada: true },
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true, includeEmpilhada: false },
-  { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true, includeEmpilhada: false },
-  { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false, includeEmpilhada: false },
-  { category: "Habilitacao", label: "Habilitação", isCurrency: false, includeEmpilhada: false },
-  { category: "Ativacao", label: "Ativação", isCurrency: false, includeEmpilhada: false },
-];
+```tsx
+{/* Assessor Breakdown - grid format showing all assessors */}
+{assessorBreakdown.length > 0 && (
+  <div className="mt-auto pt-1 border-t border-border/50">
+    <span className="text-[9px] lg:text-[10px] text-muted-foreground mb-1 block">
+      Falta por Assessor:
+    </span>
+    <div className="grid grid-cols-3 lg:grid-cols-4 gap-1.5">
+      {assessorBreakdown.map((assessor, idx) => (
+        <div 
+          key={idx} 
+          className={cn(
+            "flex flex-col items-center px-1.5 py-1 rounded text-center",
+            assessor.achieved 
+              ? "bg-green-500/10 text-green-500" 
+              : "bg-destructive/10 text-destructive"
+          )}
+        >
+          <span className="text-[10px] lg:text-[11px] font-medium">
+            {assessor.name}
+          </span>
+          <span className="text-[11px] lg:text-[12px] font-bold">
+            {assessor.achieved 
+              ? "✓" 
+              : formatValue(assessor.remaining, isCurrency)
+            }
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 ```
 
 ---
 
-#### 3. Adicionar checkbox "Receita Parceiros" no Sprint (types/kpi.ts)
+### Comparação Visual
 
-**Localização**: Linhas 140-147
-
-```typescript
-// ANTES: 6 produtos
-export const SPRINT_PRODUCTS: SprintProductConfig[] = [
-  { category: "Captação net", label: "Captação NET", isCurrency: true },
-  { category: "Receita", label: "Receita", isCurrency: true },
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
-  { category: "Primeira reuniao", label: "Reuniões", isCurrency: false },
-  { category: "Habilitacao", label: "Habilitação", isCurrency: false },
-  { category: "Ativacao", label: "Ativação", isCurrency: false },
-];
-
-// DEPOIS: 7 produtos (adicionado Parceiros Tri)
-export const SPRINT_PRODUCTS: SprintProductConfig[] = [
-  { category: "Captação net", label: "Captação NET", isCurrency: true },
-  { category: "Receita", label: "Receita", isCurrency: true },
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
-  { category: "Parceiros Tri", label: "Parceiros", isCurrency: true },
-  { category: "Primeira reuniao", label: "Reuniões", isCurrency: false },
-  { category: "Habilitacao", label: "Habilitação", isCurrency: false },
-  { category: "Ativacao", label: "Ativação", isCurrency: false },
-];
-```
-
----
-
-#### 4. Atualizar weeklyCategories para cálculo de percentual (kpiUtils.ts)
-
-**Localização**: Linhas 894-901
-
-Para manter consistência no cálculo do percentual Semanal/Mensal:
-
-```typescript
-// ANTES
-const weeklyCategories = [
-  "Habilitacao",
-  "Ativacao",
-  "Captacao net",
-  "Diversificada ( ROA>1,5)",
-  "Receita",
-  "Primeira Reuniao"
-];
-
-// DEPOIS (adicionado Parceiros Tri)
-const weeklyCategories = [
-  "Habilitacao",
-  "Ativacao",
-  "Captacao net",
-  "Diversificada ( ROA>1,5)",
-  "Receita",
-  "Parceiros Tri",
-  "Primeira Reuniao"
-];
-```
-
----
-
-### Comportamento Final
-
-#### Card Meta Semanal Acumulada (Frente)
 ```text
-┌──────────────────────────────────────────────────┐
-│ Meta Semanal Acumulada                           │
-├──────────────────────────────────────────────────┤
-│ KPI                    │  Meta      │ Realizado  │
-│────────────────────────│────────────│────────────│
-│ Captação NET           │ R$ 112.5K  │ R$ 85.3K   │
-│ Receita                │ R$ 45.0K   │ R$ 32.1K   │
-│ Diversificação         │ R$ 25.0K   │ R$ 18.5K   │
-│ Receita Parceiros  ← NOVO │ R$ 15.0K │ R$ 8.2K   │
-│ Primeiras Reuniões     │ 5          │ 3          │
-│ Habilitação            │ 4          │ 2          │
-│ Ativação               │ 3          │ 1          │
-└──────────────────────────────────────────────────┘
-```
+ANTES (difícil leitura):
+┌─────┬─────┬─────┬─────┬─────┬─────┐
+│Marc.│José │Hing.│Onac.│Rôm. │✓Marc│  ← Nomes cortados
+│R$6M │R$6M │R$6M │R$5M │R$1M │     │  ← Texto 8-9px
+└─────┴─────┴─────┴─────┴─────┴─────┘
 
-#### Card Meta Semanal (Verso - Falta)
-```text
-┌──────────────────────────────────────────────────┐
-│ Falta para Meta Semanal                          │
-├──────────────────────────────────────────────────┤
-│ KPI                    │  Meta      │ Falta      │
-│────────────────────────│────────────│────────────│
-│ Receita Parceiros  ← NOVO │ R$ 15.0K │ R$ 6.8K   │
-│ ...                    │            │            │
-└──────────────────────────────────────────────────┘
-```
-
-#### Página Sprint
-```text
-┌──────────────────────────────────────────────────┐
-│ ☑ Captação  ☑ Receita  ☑ Diversificação          │
-│ ☑ Parceiros ← NOVO  ☑ Reuniões  ☑ Habilitação   │
-├──────────────────────────────────────────────────┤
-│ 🔥 Receita Parceiros                        42%  │
-│ Meta: R$ 15K │ Real: R$ 6.3K │ Falta: R$ 8.7K   │
-│ ████████████░░░░░░░░░░░░░░░                      │
-│ Falta por Assessor:                              │
-│ ┌─────────┬─────────┬─────────┬─────────┐       │
-│ │ Marcelo │ José    │ Hingrid │ ✓ Ana   │       │
-│ │ R$ 2.1K │ R$ 1.8K │ R$ 1.5K │         │       │
-│ └─────────┴─────────┴─────────┴─────────┘       │
-└──────────────────────────────────────────────────┘
+DEPOIS (legível):
+┌─────────┬─────────┬─────────┬─────────┐
+│ Marcelo │  José   │ Hingrid │Onacilda │  ← Nomes completos
+│ R$ 6 Mi │ R$ 6 Mi │ R$ 6 Mi │ R$ 5 Mi │  ← Texto 10-12px
+├─────────┼─────────┼─────────┼─────────┤
+│ Rômulo  │✓Marcela │         │         │
+│ R$ 1 Mi │         │         │         │
+└─────────┴─────────┴─────────┴─────────┘
 ```
 
 ---
 
 ### Benefícios
 
-1. **Visibilidade completa** - Receita Parceiros agora aparece nos dois principais painéis de acompanhamento semanal
-2. **Consistência** - Segue exatamente o mesmo modelo visual e de cálculo dos demais KPIs
-3. **Falta por Assessor** - Sprint mostrará breakdown individual para Parceiros
-4. **Checkbox controlável** - Usuário pode mostrar/ocultar Parceiros no Sprint como os demais
+1. **Nomes completos** - Remove `truncate` para exibir nomes inteiros
+2. **Fonte maior** - De 8-9px para 10-12px, mais legível
+3. **Mais espaço** - Grid de 3-4 colunas dá mais respiro visual
+4. **Mesma estrutura** - Mantém o layout de cards sem mudanças estruturais
+
