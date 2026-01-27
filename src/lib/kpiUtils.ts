@@ -1169,8 +1169,12 @@ export function calculateWeeklyRemainingByAssessor(
       contribution: value
     };
   })
-  .filter(a => !a.achieved) // Só mostrar quem ainda precisa produzir
-  .sort((a, b) => b.remaining - a.remaining); // Maior falta primeiro
+  .sort((a, b) => {
+    // Quem não bateu primeiro, ordenado por maior falta
+    if (a.achieved && !b.achieved) return 1;
+    if (!a.achieved && b.achieved) return -1;
+    return b.remaining - a.remaining;
+  });
 }
 
 /**
