@@ -10,9 +10,10 @@ interface BeforeInstallPromptEvent extends Event {
 
 interface PWAInstallPromptProps {
   assessorName?: string | null;
+  enabled?: boolean; // Controla se o prompt pode aparecer (default: true)
 }
 
-export const PWAInstallPrompt = ({ assessorName }: PWAInstallPromptProps) => {
+export const PWAInstallPrompt = ({ assessorName, enabled = true }: PWAInstallPromptProps) => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -69,8 +70,8 @@ export const PWAInstallPrompt = ({ assessorName }: PWAInstallPromptProps) => {
     sessionStorage.setItem('pwa-prompt-dismissed', 'true');
   };
 
-  // Não mostra se já instalado ou descartado
-  if (isInstalled || !showPrompt || sessionStorage.getItem('pwa-prompt-dismissed')) {
+  // Não mostra se já instalado, descartado ou desabilitado
+  if (isInstalled || !showPrompt || !enabled || sessionStorage.getItem('pwa-prompt-dismissed')) {
     return null;
   }
 
