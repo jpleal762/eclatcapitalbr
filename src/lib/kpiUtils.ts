@@ -125,12 +125,32 @@ export function getAvailableMonths(data: ProcessedKPI[]): string[] {
   data.forEach((record) => {
     record.monthlyData.forEach((m) => months.add(m.month));
   });
+  
+  // Helper to parse month string with either "/" or "-" separator
+  const parseMonth = (m: string): { month: string; year: number } => {
+    const separator = m.includes("/") ? "/" : "-";
+    const parts = m.split(separator);
+    const monthStr = parts[0]?.toLowerCase() || "";
+    const yearStr = parts[1] || "0";
+    return {
+      month: monthStr,
+      year: parseInt(yearStr) || 0
+    };
+  };
+  
+  const monthOrder = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  
   return Array.from(months).sort((a, b) => {
-    const [monthA, yearA] = a.split("/");
-    const [monthB, yearB] = b.split("/");
-    if (yearA !== yearB) return parseInt(yearA) - parseInt(yearB);
-    const monthOrder = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-    return monthOrder.indexOf(monthA.toLowerCase()) - monthOrder.indexOf(monthB.toLowerCase());
+    const parsedA = parseMonth(a);
+    const parsedB = parseMonth(b);
+    
+    // Sort by year first
+    if (parsedA.year !== parsedB.year) {
+      return parsedA.year - parsedB.year;
+    }
+    
+    // Then sort by month order
+    return monthOrder.indexOf(parsedA.month) - monthOrder.indexOf(parsedB.month);
   });
 }
 
