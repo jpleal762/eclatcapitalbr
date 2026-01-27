@@ -303,3 +303,49 @@
 .bg-blue-gradient-horizontal {
   background: linear-gradient(90deg, #60A5FA 0%, #2563EB 100%);
 }
+
+/* Mobile View Simulation */
+.mobile-view-container {
+  /* Simula viewport de smartphone */
+  max-width: 390px;
+  margin: 0 auto;
+  border-left: 2px solid hsl(var(--border));
+  border-right: 2px solid hsl(var(--border));
+  background: hsl(var(--card));
+  border-radius: 20px;
+  padding: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Ajustes de layout para modo mobile */
+.mobile-view-container .grid {
+  grid-template-columns: 1fr !important;
+}
+
+.mobile-view-container .lg\:grid-cols-2,
+.mobile-view-container .lg\:grid-cols-3 {
+  grid-template-columns: 1fr !important;
+}
+
+/* Reduzir gaps em mobile */
+.mobile-view-container .gap-3 {
+  gap: 0.5rem;
+}
+
+/* Ajustar flex ratios para coluna única */
+.mobile-view-container .flex-\[45\],
+.mobile-view-container .flex-\[55\],
+.mobile-view-container .flex-\[65\],
+.mobile-view-container .flex-\[35\] {
+  flex: none;
+  height: auto;
+  min-height: 200px;
+}
+
+/* Permitir scroll vertical no conteúdo */
+.mobile-view-container > div {
+  overflow-y: auto;
+  overflow-x: hidden;
+}

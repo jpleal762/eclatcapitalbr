@@ -43,7 +43,9 @@ import {
 } from "@/lib/sprintStorage";
 import { SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Maximize2, Minimize2, Layers, RotateCcw } from "lucide-react";
+import { Menu, Maximize2, Minimize2, Layers, RotateCcw, Smartphone, Monitor } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
 import eclatLogoDark from "@/assets/eclat-xp-logo-dark.svg";
 import { useTheme } from "next-themes";
@@ -98,6 +100,7 @@ const Index = () => {
   const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
   const [isPageRotationEnabled, setIsPageRotationEnabled] = useState(true);
   const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(true);
+  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   
   // Sprint product selection state with localStorage persistence
   const [selectedSprintProducts, setSelectedSprintProducts] = useState<Set<string>>(() => {
@@ -512,6 +515,26 @@ const Index = () => {
                   />
                 </div>
                 <div className="w-48 flex justify-end items-center gap-2">
+                  {/* Desktop/Mobile View Toggle */}
+                  {hasData && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setViewMode(prev => prev === 'desktop' ? 'mobile' : 'desktop')}
+                            className="h-8 w-8"
+                          >
+                            {viewMode === 'desktop' ? <Smartphone className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {viewMode === 'desktop' ? 'Ver em modo Mobile' : 'Ver em modo Desktop'}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                   {/* Page Toggle Button */}
                   {hasData && (
                     <PageToggle 
@@ -570,7 +593,14 @@ const Index = () => {
             </div>
           </header>
 
-          <main className="flex-1 overflow-hidden px-4 py-3">
+          <main className={cn(
+            "flex-1 overflow-hidden px-4 py-3",
+            viewMode === 'mobile' && "flex justify-center"
+          )}>
+            <div className={cn(
+              "h-full w-full",
+              viewMode === 'mobile' && "mobile-view-container max-w-[390px] overflow-y-auto"
+            )}>
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
@@ -901,6 +931,7 @@ const Index = () => {
                 )}
               </div>
             )}
+            </div>
           </main>
         </div>
       </div>
