@@ -859,6 +859,7 @@ export function processDashboardData(
     { category: "Captação net", label: "Captação NET", isCurrency: true },
     { category: "Receita", label: "Receita", isCurrency: true },
     { category: "Diversificada ( ROA>1,5)", label: "Diversificação (ROA>1,5)", isCurrency: true },
+    { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
     { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
     { category: "Habilitacao", label: "Habilitação", isCurrency: false },
     { category: "Ativacao", label: "Ativação", isCurrency: false },
@@ -897,6 +898,7 @@ export function processDashboardData(
     "Captacao net",
     "Diversificada ( ROA>1,5)",
     "Receita",
+    "Parceiros Tri",
     "Primeira Reuniao"
   ];
 
@@ -1189,6 +1191,7 @@ export function calculateSprintData(
     { category: "Captação net", label: "Captação NET", isCurrency: true, includeEmpilhada: false },
     { category: "Receita", label: "Receita", isCurrency: true, includeEmpilhada: true },
     { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true, includeEmpilhada: false },
+    { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true, includeEmpilhada: false },
     { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false, includeEmpilhada: false },
     { category: "Habilitacao", label: "Habilitação", isCurrency: false, includeEmpilhada: false },
     { category: "Ativacao", label: "Ativação", isCurrency: false, includeEmpilhada: false },
