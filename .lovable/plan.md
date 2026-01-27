@@ -1,268 +1,94 @@
 
 
-## Plano: App Instalável (PWA) Personalizado por Assessor
+## Plano: Atualizar Ícones PWA com Logo Eclat
 
 ### Objetivo
 
-Transformar o dashboard em um **Progressive Web App (PWA)** que permite aos assessores instalarem o app em seus celulares. Quando acessarem via token (ex: `?token=hb-eclat-2024a`), verão um prompt para instalar o app já configurado para sua visão personalizada.
+Substituir os ícones genéricos do PWA pelo primeiro quadrado amarelo do logo Eclat (o símbolo com o "É" estilizado), para que quando o assessor baixar o app, apareça a logo oficial na home screen.
 
 ---
 
 ### Arquivos a Criar/Modificar
 
-| Arquivo | Ação |
+| Arquivo | Acao |
 |---------|------|
-| `vite.config.ts` | **MODIFICAR** - Adicionar plugin vite-plugin-pwa |
-| `public/manifest.json` | **CRIAR** - Manifest base do PWA |
-| `public/icons/` | **CRIAR** - Ícones PWA em múltiplos tamanhos |
-| `src/components/PWAInstallPrompt.tsx` | **CRIAR** - Componente de prompt de instalação |
-| `src/pages/Index.tsx` | **MODIFICAR** - Integrar prompt de instalação |
-| `index.html` | **MODIFICAR** - Adicionar meta tags PWA |
+| `public/icons/icon-192x192.png` | **SUBSTITUIR** - Ícone do logo Eclat 192x192 |
+| `public/icons/icon-512x512.png` | **SUBSTITUIR** - Ícone do logo Eclat 512x512 |
+| `public/icons/eclat-icon.svg` | **CRIAR** - SVG do ícone isolado para referência |
 
 ---
 
 ### Detalhes Técnicos
 
-#### 1. Instalar Dependência PWA
+#### 1. Criar SVG Isolado do Ícone (eclat-icon.svg)
 
-```bash
-npm install vite-plugin-pwa
-```
+Extrair apenas o primeiro quadrado amarelo do logo original:
 
-#### 2. Configurar vite.config.ts
-
-```typescript
-import { VitePWA } from 'vite-plugin-pwa';
-
-export default defineConfig(({ mode }) => ({
-  plugins: [
-    react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt'],
-      manifest: {
-        name: 'Eclat Capital - Dashboard',
-        short_name: 'Eclat KPIs',
-        description: 'Dashboard de KPIs Eclat Capital',
-        theme_color: '#1a1a2e',
-        background_color: '#1a1a2e',
-        display: 'standalone',
-        orientation: 'portrait',
-        start_url: '/',
-        icons: [
-          { src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-        ]
-      }
-    })
-  ]
-}));
-```
-
-#### 3. Criar Ícones PWA (public/icons/)
-
-Será necessário criar versões do logo Eclat nos tamanhos:
-- 192x192 pixels
-- 512x512 pixels
-
----
-
-#### 4. Componente PWAInstallPrompt.tsx
-
-```tsx
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Download, X } from 'lucide-react';
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
-
-interface PWAInstallPromptProps {
-  assessorName?: string | null;
-}
-
-export const PWAInstallPrompt = ({ assessorName }: PWAInstallPromptProps) => {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
-
-  useEffect(() => {
-    // Verifica se já está instalado
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
-      return;
-    }
-
-    const handleBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowPrompt(true);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-    };
-  }, []);
-
-  const handleInstall = async () => {
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      setIsInstalled(true);
-    }
-    setShowPrompt(false);
-    setDeferredPrompt(null);
-  };
-
-  const handleDismiss = () => {
-    setShowPrompt(false);
-    // Salva no localStorage para não mostrar novamente na sessão
-    sessionStorage.setItem('pwa-prompt-dismissed', 'true');
-  };
-
-  // Não mostra se já instalado ou descartado
-  if (isInstalled || !showPrompt || sessionStorage.getItem('pwa-prompt-dismissed')) {
-    return null;
-  }
-
-  return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:w-96">
-      <Card className="p-4 bg-card border-primary/20 shadow-lg">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-            <Download className="h-6 w-6 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm">Instalar App</h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              {assessorName 
-                ? `Instale seu dashboard personalizado, ${assessorName.split(' ')[0]}!`
-                : 'Instale o Dashboard Eclat no seu celular para acesso rápido!'
-              }
-            </p>
-            <div className="flex gap-2 mt-3">
-              <Button size="sm" onClick={handleInstall} className="flex-1">
-                <Download className="h-4 w-4 mr-1" />
-                Instalar
-              </Button>
-              <Button size="sm" variant="ghost" onClick={handleDismiss}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
-};
+```svg
+<svg width="1080" height="1080" viewBox="0 0 1132 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1132" height="1080" rx="127" fill="#1a1a2e"/>
+  <g clip-path="url(#clip0)">
+    <path d="M998.22 0C1072.12 0 1132.03 62.9611 1132.03 136.856V621.715C1127.33 611.453 1121.75 601.498 1115.31 591.854C1092.25 555.58 1059.88 527.078 1018.22 506.351C976.556 485.623 928.569 487.147 874.258 487.147C816.227 487.147 765.636 486.271 722.485 508.294C680.078 529.67 646.598 559.791 622.047 598.655C608.082 621.453 598.215 646.145 592.441 672.731H520.604L443.478 759.03H512.167C528.293 758.228 607.235 756.724 661.42 756.724C627.267 782.995 602.996 814.206 618.795 855.002C620.205 857.344 621.661 859.666 623.163 861.965C647.714 899.534 681.566 928.682 724.717 949.41C767.868 970.138 817.343 968.614 873.142 968.614C917.781 968.614 987.715 968.004 1022.68 953.754C1058.39 939.504 1074.76 925.443 1098.57 900.829C1111.76 887.253 1122.91 872.929 1132.03 857.856V949.244C1132.03 1023.14 1071.94 1080 998.048 1080H133.806C59.9104 1080 8.87971e-05 1020.09 0 946.194V133.806C8.14439e-05 59.9104 59.9104 7.54712e-05 133.806 0H998.22ZM1132.03 755V817.27H1009.07C990.302 855.041 951.326 881 906.285 881H843.714C780.359 881 729 829.641 729 766.286V755H1132.03ZM909 569C969.199 569 1018 617.801 1018 678H726C726 617.801 774.801 569 835 569H909ZM1020.25 302.883C1020.25 302.883 940.7 327.821 886.149 336.849C831.599 345.876 740.877 349.114 740.877 349.114V421.764H1020.25V302.883Z" fill="#FFBF00"/>
+  </g>
+  <defs>
+    <clipPath id="clip0">
+      <rect width="1132.08" height="1080" rx="126.612" fill="white"/>
+    </clipPath>
+  </defs>
+</svg>
 ```
 
 ---
 
-#### 5. Integrar no Index.tsx
+#### 2. Gerar Ícones PNG a partir do SVG
 
-**Adicionar import:**
-```typescript
-import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
-```
+| Tamanho | Uso |
+|---------|-----|
+| 192x192 | Ícone padrão Android/Chrome |
+| 512x512 | Ícone alta resolução + splash screen |
 
-**Adicionar componente antes do fechamento do return:**
-```tsx
-{/* PWA Install Prompt - personalizado por assessor */}
-<PWAInstallPrompt assessorName={isTokenLocked ? selectedView : null} />
-```
-
----
-
-#### 6. Atualizar index.html
-
-```html
-<head>
-  <!-- Existing meta tags -->
-  
-  <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#1a1a2e" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Eclat KPIs" />
-  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-  
-  <!-- Updated title -->
-  <title>Eclat Capital - Dashboard KPIs</title>
-</head>
-```
+O ícone terá:
+- Fundo escuro (`#1a1a2e`) - cor do tema do app
+- Símbolo dourado/amarelo (`#FFBF00`) - o "É" estilizado
+- Bordas arredondadas para visual moderno
 
 ---
 
-### Fluxo de Funcionamento
+### Resultado Visual Esperado
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│ 1. Assessor acessa: eclatcapitalbr.lovable.app/?token=hb-xxx   │
-├─────────────────────────────────────────────────────────────────┤
-│ 2. Token validado → Dashboard carrega filtrado para "Hingrid"  │
-├─────────────────────────────────────────────────────────────────┤
-│ 3. Browser detecta PWA → Dispara evento "beforeinstallprompt"  │
-├─────────────────────────────────────────────────────────────────┤
-│ 4. Prompt aparece:                                              │
-│    ┌──────────────────────────────────────────────────────────┐ │
-│    │ 📲 Instalar App                                          │ │
-│    │ Instale seu dashboard personalizado, Hingrid!            │ │
-│    │                                                          │ │
-│    │ [📲 Instalar]  [✕]                                       │ │
-│    └──────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│ 5. Assessor clica "Instalar" → App é adicionado à home screen │
-│                                                                 │
-│    📱 Home Screen:                                              │
-│    ┌───────┐                                                    │
-│    │ 🟡    │  ← Ícone Eclat                                     │
-│    │Eclat  │                                                    │
-│    │ KPIs  │                                                    │
-│    └───────┘                                                    │
-├─────────────────────────────────────────────────────────────────┤
-│ 6. Abre como app standalone (sem barra do browser)             │
-│    - URL preservada com token → sempre carrega visão do assessor│
-│    - Funciona offline para dados já carregados                 │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────┐
+│                                 │
+│    📱 Home Screen do Celular    │
+│                                 │
+│    ┌───────┐   ┌───────┐       │
+│    │       │   │       │       │
+│    │ 🟡 É  │   │ Outros│       │
+│    │       │   │       │       │
+│    └───────┘   └───────┘       │
+│    Eclat KPIs    App           │
+│                                 │
+└─────────────────────────────────┘
+
+Ícone detalhado:
+┌──────────────────┐
+│  ▓▓▓▓▓▓▓▓▓▓▓▓▓  │  ← Fundo escuro (#1a1a2e)
+│  ▓            ▓  │
+│  ▓   ╔════╗   ▓  │
+│  ▓   ║ É  ║   ▓  │  ← Símbolo dourado (#FFBF00)
+│  ▓   ║    ║   ▓  │
+│  ▓   ╚════╝   ▓  │
+│  ▓            ▓  │
+│  ▓▓▓▓▓▓▓▓▓▓▓▓▓  │
+└──────────────────┘
 ```
-
----
-
-### Comportamento por Tipo de Acesso
-
-| Acesso | Mensagem do Prompt | URL Salva |
-|--------|-------------------|-----------|
-| `?token=hb-eclat-2024a` | "Instale seu dashboard personalizado, Hingrid!" | `/?token=hb-eclat-2024a` |
-| `?token=jj-eclat-2024b` | "Instale seu dashboard personalizado, José!" | `/?token=jj-eclat-2024b` |
-| Sem token (Escritório) | "Instale o Dashboard Eclat para acesso rápido!" | `/` |
-
----
-
-### Compatibilidade
-
-| Plataforma | Suporte |
-|------------|---------|
-| Android Chrome | Prompt nativo de instalação |
-| iOS Safari | Instruções manuais (Share → Add to Home) |
-| Desktop Chrome | Ícone de instalação na barra de endereços |
 
 ---
 
 ### Benefícios
 
-1. **Acesso rápido** - Ícone na home screen do celular
-2. **Personalização** - Cada assessor tem "seu" app com dados filtrados
-3. **Experiência nativa** - Abre sem barra do browser
-4. **Token preservado** - URL com token é salva na instalação
-5. **Offline parcial** - Cache de assets para carregamento rápido
+1. **Identidade visual** - Logo oficial Eclat aparece no celular
+2. **Reconhecimento** - Assessores identificam o app facilmente
+3. **Profissionalismo** - App com visual de produto oficial
+4. **Consistência** - Mesmo símbolo usado no dashboard
 
