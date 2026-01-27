@@ -502,34 +502,40 @@ export function getHistoricalMonthsFromCurrent(
   availableMonths: string[], 
   count: number = 2
 ): string[] {
-  const currentMonth = getCurrentMonthFormatted();
-  
   if (availableMonths.length === 0) return [];
   
+  const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const now = new Date();
+  const currentMonthIdx = now.getMonth(); // 0-11
+  const currentYear = now.getFullYear() % 100; // 26 para 2026
+  
   const normalizeMonth = (m: string) => m.toLowerCase().replace("-", "/");
-  const normalizedCurrent = normalizeMonth(currentMonth);
   
-  const currentIndex = availableMonths.findIndex(m => 
-    normalizeMonth(m) === normalizedCurrent
-  );
-  
-  if (currentIndex === -1) {
-    // Current month not in data, use most recent available
-    const lastIndex = availableMonths.length - 1;
-    const result: string[] = [];
-    for (let i = count; i >= 1 && lastIndex - i >= 0; i--) {
-      result.push(availableMonths[lastIndex - i]);
+  // Calculate the previous N months based on calendar (not array index)
+  const calendarMonths: string[] = [];
+  for (let i = count; i >= 0; i--) {
+    let targetMonthIdx = currentMonthIdx - i;
+    let targetYear = currentYear;
+    
+    // Handle year rollback (e.g., January - 2 = November of previous year)
+    while (targetMonthIdx < 0) {
+      targetMonthIdx += 12;
+      targetYear -= 1;
     }
-    result.push(availableMonths[lastIndex]);
-    return result;
+    
+    const monthStr = `${monthNames[targetMonthIdx]}-${targetYear.toString().padStart(2, '0')}`;
+    calendarMonths.push(monthStr);
   }
   
-  // Get previous months + current month
+  // Find matching months in availableMonths (case-insensitive, separator-agnostic)
   const result: string[] = [];
-  for (let i = count; i >= 1 && currentIndex - i >= 0; i--) {
-    result.push(availableMonths[currentIndex - i]);
+  for (const calMonth of calendarMonths) {
+    const normalizedCal = normalizeMonth(calMonth);
+    const found = availableMonths.find(m => normalizeMonth(m) === normalizedCal);
+    if (found) {
+      result.push(found);
+    }
   }
-  result.push(availableMonths[currentIndex]);
   
   return result;
 }
