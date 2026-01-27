@@ -1,216 +1,115 @@
 
 
-## Plano: Ajustar Histórico para Usar Mês Atual e Melhorar Layout Visual
+## Plano: Corrigir Ordenação dos Meses Históricos
 
 ### Problema Identificado
 
-Atualmente o histórico é calculado a partir do **mês selecionado** no filtro. O correto é usar o **mês atual do sistema** como referência e mostrar os dois meses anteriores a ele, independente do mês selecionado no filtro.
+A função `getAvailableMonths` usa `.split("/")` para separar mês e ano, mas os dados do Excel podem vir com formato `JAN-26` (usando hífen `-`). Isso causa:
 
-### Alterações Visuais
+1. `"JAN-26".split("/")` → `["JAN-26"]` (1 elemento só)
+2. `yearA` = `undefined`, `monthA` = `"JAN-26"`
+3. Ordenação falha completamente
+4. Meses ficam em ordem alfabética em vez de cronológica
+5. **FEV** vem antes de **NOV** alfabeticamente, causando o bug
 
-O layout atual está muito comprimido em uma única linha. Vamos reorganizar para ficar mais claro:
+### Solução
 
-```text
-LAYOUT ATUAL (confuso):
-┌──────────────────────────────────────────────────────────┐
-│  📊 NOV: 85% │ DEZ: 92% │ JAN: 72%                      │
-└──────────────────────────────────────────────────────────┘
-
-LAYOUT NOVO (organizado):
-┌──────────────────────────────────────────────────────────┐
-│  📊 Histórico                                            │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐                  │
-│  │   NOV   │  │   DEZ   │  │   JAN   │  ← mês atual     │
-│  │   85%   │  │   92%   │  │   72%   │    em destaque   │
-│  └─────────┘  └─────────┘  └─────────┘                  │
-└──────────────────────────────────────────────────────────┘
-```
+Modificar `getAvailableMonths` para suportar **ambos os separadores** (`/` e `-`).
 
 ---
 
-### Arquivos a Modificar
+### Arquivo a Modificar
 
 | Arquivo | Ação |
 |---------|------|
-| `src/lib/kpiUtils.ts` | **MODIFICAR** - Usar mês atual do sistema como referência |
-| `src/components/dashboard/ICMCard.tsx` | **MODIFICAR** - Melhorar layout visual do histórico |
-| `src/pages/Index.tsx` | **MODIFICAR** - Ajustar cálculo para usar mês atual |
+| `src/lib/kpiUtils.ts` | **MODIFICAR** - Função `getAvailableMonths` para suportar hífen |
 
 ---
 
 ### Detalhes Técnicos
 
-#### 1. Modificar kpiUtils.ts - Nova função para obter mês atual formatado
+#### Modificar função `getAvailableMonths` (linhas 123-135)
 
+**Antes:**
 ```typescript
-/**
- * Get the current month in the format used by the data (e.g., "jan-26")
- */
-export function getCurrentMonthFormatted(): string {
-  const now = new Date();
-  const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-  return `${monthNames[now.getMonth()]}-${now.getFullYear().toString().slice(-2)}`;
+export function getAvailableMonths(data: ProcessedKPI[]): string[] {
+  const months = new Set<string>();
+  data.forEach((record) => {
+    record.monthlyData.forEach((m) => months.add(m.month));
+  });
+  return Array.from(months).sort((a, b) => {
+    const [monthA, yearA] = a.split("/");
+    const [monthB, yearB] = b.split("/");
+    if (yearA !== yearB) return parseInt(yearA) - parseInt(yearB);
+    const monthOrder = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+    return monthOrder.indexOf(monthA.toLowerCase()) - monthOrder.indexOf(monthB.toLowerCase());
+  });
 }
+```
 
-/**
- * Get the previous N months from the CURRENT month (not selected month)
- * @param availableMonths - Array of available months in the data
- * @param count - Number of previous months to get (default: 2)
- * @returns Array of previous month strings in chronological order, plus current month
- */
-export function getHistoricalMonthsFromCurrent(
-  availableMonths: string[], 
-  count: number = 2
-): string[] {
-  const currentMonth = getCurrentMonthFormatted();
+**Depois:**
+```typescript
+export function getAvailableMonths(data: ProcessedKPI[]): string[] {
+  const months = new Set<string>();
+  data.forEach((record) => {
+    record.monthlyData.forEach((m) => months.add(m.month));
+  });
   
-  if (availableMonths.length === 0) return [];
+  // Helper to parse month string with either "/" or "-" separator
+  const parseMonth = (m: string): { month: string; year: number } => {
+    const separator = m.includes("/") ? "/" : "-";
+    const parts = m.split(separator);
+    const monthStr = parts[0]?.toLowerCase() || "";
+    const yearStr = parts[1] || "0";
+    return {
+      month: monthStr,
+      year: parseInt(yearStr) || 0
+    };
+  };
   
-  const normalizeMonth = (m: string) => m.toLowerCase().replace("-", "/");
-  const normalizedCurrent = normalizeMonth(currentMonth);
+  const monthOrder = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
   
-  const currentIndex = availableMonths.findIndex(m => 
-    normalizeMonth(m) === normalizedCurrent
-  );
-  
-  if (currentIndex === -1) {
-    // Current month not in data, use most recent available
-    const lastMonth = availableMonths[availableMonths.length - 1];
-    const lastIndex = availableMonths.length - 1;
-    const result: string[] = [];
-    for (let i = count; i >= 1 && lastIndex - i >= 0; i--) {
-      result.push(availableMonths[lastIndex - i]);
+  return Array.from(months).sort((a, b) => {
+    const parsedA = parseMonth(a);
+    const parsedB = parseMonth(b);
+    
+    // Sort by year first
+    if (parsedA.year !== parsedB.year) {
+      return parsedA.year - parsedB.year;
     }
-    result.push(lastMonth);
-    return result;
-  }
-  
-  // Get previous months + current month
-  const result: string[] = [];
-  for (let i = count; i >= 1 && currentIndex - i >= 0; i--) {
-    result.push(availableMonths[currentIndex - i]);
-  }
-  result.push(availableMonths[currentIndex]);
-  
-  return result;
+    
+    // Then sort by month order
+    return monthOrder.indexOf(parsedA.month) - monthOrder.indexOf(parsedB.month);
+  });
 }
-
-/**
- * Calculate historical ICM data for a specific assessor based on CURRENT month
- */
-export function getAssessorHistoricalICMFromCurrent(
-  data: ProcessedKPI[],
-  assessor: string,
-  availableMonths: string[],
-  count: number = 2
-): HistoricalICMData[] {
-  if (assessor === "all" || !assessor) return [];
-  
-  const historicalMonths = getHistoricalMonthsFromCurrent(availableMonths, count);
-  if (historicalMonths.length === 0) return [];
-  
-  const assessorData = filterByAssessor(data, assessor);
-  
-  return historicalMonths.map((month, idx) => ({
-    month: month.toUpperCase().split("/")[0].split("-")[0],
-    icmGeral: calculateICMGeral(assessorData, month),
-    isCurrent: idx === historicalMonths.length - 1
-  }));
-}
-```
-
-#### 2. Atualizar Interface HistoricalICMData
-
-```typescript
-export interface HistoricalICMData {
-  month: string;
-  icmGeral: number;
-  isCurrent?: boolean;
-}
-```
-
-#### 3. Modificar ICMCard.tsx - Novo Layout Visual
-
-```tsx
-{/* Historical Performance - only when specific assessor is selected */}
-{selectedAssessor !== "all" && historicalData && historicalData.length > 0 && (
-  <div className="flex flex-col items-center py-1.5 px-2 bg-muted/30 rounded-md flex-shrink-0">
-    <span className="text-responsive-4xs text-muted-foreground mb-1">Histórico ICM</span>
-    <div className="flex items-center justify-center gap-3">
-      {historicalData.map((data, idx) => (
-        <div 
-          key={data.month} 
-          className={`flex flex-col items-center px-2 py-0.5 rounded ${
-            data.isCurrent 
-              ? 'bg-primary/10 border border-primary/30' 
-              : ''
-          }`}
-        >
-          <span className="text-responsive-4xs text-muted-foreground uppercase">
-            {data.month}
-          </span>
-          <span 
-            className={`text-responsive-sm font-bold ${
-              data.isCurrent 
-                ? 'text-primary' 
-                : 'text-foreground'
-            }`}
-          >
-            {data.icmGeral}%
-          </span>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
-```
-
-#### 4. Modificar Index.tsx - Usar nova função
-
-```typescript
-import { 
-  // ... imports existentes
-  getAssessorHistoricalICMFromCurrent,
-} from "@/lib/kpiUtils";
-
-// Substituir:
-const assessorHistoricalICM = useMemo(
-  () => getAssessorHistoricalICMFromCurrent(processedData, filters.assessor, months, 2),
-  [processedData, filters.assessor, months]
-);
-
-// Remover previousMonths se não for mais usado
 ```
 
 ---
 
-### Comparativo Visual
+### Resultado Esperado
 
-| Antes | Depois |
-|-------|--------|
-| `📊 NOV: 85% │ DEZ: 92% │ JAN: 72%` | Layout em colunas com header "Histórico ICM" |
-| Texto em linha única confuso | Cada mês em bloco separado |
-| Mês atual apenas em negrito | Mês atual com background e borda destacados |
-| Baseado no mês selecionado | Sempre baseado no mês atual do sistema |
+Com Janeiro 2026 como mês atual:
 
----
+| Antes (Bug) | Depois (Corrigido) |
+|-------------|---------------------|
+| DEZ, FEV, JAN | NOV, DEZ, JAN |
+| ❌ Fevereiro aparece | ✅ Novembro 2025 aparece |
 
-### Comportamento Final
+#### Ordem Cronológica Correta:
+```
+... → OUT/25 → NOV/25 → DEZ/25 → JAN/26 → FEV/26 → ...
+```
 
-| Cenário | Histórico Exibido |
-|---------|-------------------|
-| Hoje = Janeiro 2026 | NOV 85% → DEZ 92% → **JAN 72%** |
-| Dados só até Dezembro | OUT 78% → NOV 85% → **DEZ 92%** |
-| Apenas 1 mês de dados | **JAN 72%** (sem meses anteriores) |
-| Assessor = TODOS | Histórico não aparece |
+Quando selecionamos Janeiro/26 como mês atual:
+- **2 meses anteriores**: NOV/25, DEZ/25
+- **Mês atual**: JAN/26
 
 ---
 
 ### Benefícios
 
-1. **Clareza Visual** - Cada mês em um bloco separado, fácil de ler
-2. **Consistência** - Sempre mostra os mesmos meses independente do filtro
-3. **Destaque Claro** - Mês atual com background e borda para identificação rápida
-4. **Header Explicativo** - "Histórico ICM" deixa claro o propósito da seção
-5. **Responsivo** - Usa classes text-responsive para adaptar ao tamanho da tela
+1. **Suporte a ambos formatos** - Funciona com `/` ou `-` como separador
+2. **Ordenação cronológica correta** - Meses ordenados por ano, depois por mês
+3. **Histórico correto** - Novembro e Dezembro aparecem como meses anteriores a Janeiro
+4. **Retrocompatível** - Não quebra dados existentes com formato `/`
 
