@@ -1,102 +1,195 @@
 
 
-## Plano: Melhorar Legibilidade do "Falta por Assessor"
+## Plano: Adicionar Toggle Desktop/Mobile no Dashboard
 
-### Problema Atual
+### Objetivo
 
-1. **Nomes truncados** - A classe `truncate` corta nomes longos
-2. **Texto muito pequeno** - Fontes de 8px e 9px dificultam leitura
-3. **Grid muito apertado** - 4-6 colunas comprimem o conteúdo
-
-### Solução
-
-Ajustar estilos para melhor legibilidade mantendo a mesma estrutura de grid:
+Criar um botão de alternância que permite visualizar o dashboard em modo desktop (padrão) ou modo mobile (simulando tela de smartphone com largura de 390px).
 
 ---
 
-### Arquivo a Modificar
+### Arquivos a Modificar
 
 | Arquivo | Ação |
 |---------|------|
-| `src/components/dashboard/SprintKPIBar.tsx` | **MODIFICAR** - Ajustar tamanhos de fonte e remover truncate |
+| `src/pages/Index.tsx` | **MODIFICAR** - Adicionar estado viewMode e botão toggle |
+| `src/index.css` | **MODIFICAR** - Adicionar estilos para modo mobile simulado |
 
 ---
 
-### Alterações Específicas (linhas 138-168)
+### Detalhes Técnicos
 
-| Elemento | Antes | Depois |
-|----------|-------|--------|
-| Grid | `grid-cols-4 lg:grid-cols-6` | `grid-cols-3 lg:grid-cols-4` |
-| Título seção | `text-[8px] lg:text-[9px]` | `text-[9px] lg:text-[10px]` |
-| Nome assessor | `text-[8px] lg:text-[9px] truncate` | `text-[10px] lg:text-[11px]` (sem truncate) |
-| Valor/Check | `text-[9px] lg:text-[10px]` | `text-[11px] lg:text-[12px]` |
-| Espaçamento | `gap-1 px-1 py-0.5` | `gap-1.5 px-1.5 py-1` |
+#### 1. Adicionar Estado e Botão Toggle (Index.tsx)
 
----
+**Localização**: Após linha 98 (junto com outros estados de controle)
 
-### Código Atualizado
+```typescript
+const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
+```
+
+**Localização**: Linha ~520 (junto com outros botões no header, antes do Fullscreen)
 
 ```tsx
-{/* Assessor Breakdown - grid format showing all assessors */}
-{assessorBreakdown.length > 0 && (
-  <div className="mt-auto pt-1 border-t border-border/50">
-    <span className="text-[9px] lg:text-[10px] text-muted-foreground mb-1 block">
-      Falta por Assessor:
-    </span>
-    <div className="grid grid-cols-3 lg:grid-cols-4 gap-1.5">
-      {assessorBreakdown.map((assessor, idx) => (
-        <div 
-          key={idx} 
-          className={cn(
-            "flex flex-col items-center px-1.5 py-1 rounded text-center",
-            assessor.achieved 
-              ? "bg-green-500/10 text-green-500" 
-              : "bg-destructive/10 text-destructive"
-          )}
-        >
-          <span className="text-[10px] lg:text-[11px] font-medium">
-            {assessor.name}
-          </span>
-          <span className="text-[11px] lg:text-[12px] font-bold">
-            {assessor.achieved 
-              ? "✓" 
-              : formatValue(assessor.remaining, isCurrency)
-            }
-          </span>
-        </div>
-      ))}
-    </div>
-  </div>
+{/* Desktop/Mobile View Toggle */}
+{hasData && (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setViewMode(prev => prev === 'desktop' ? 'mobile' : 'desktop')}
+        className="h-8 w-8"
+      >
+        {viewMode === 'desktop' ? <Smartphone className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
+      </Button>
+    </TooltipTrigger>
+    <TooltipContent>
+      {viewMode === 'desktop' ? 'Ver em modo Mobile' : 'Ver em modo Desktop'}
+    </TooltipContent>
+  </Tooltip>
 )}
 ```
 
+**Import adicional necessário** (linha ~46):
+```typescript
+import { Menu, Maximize2, Minimize2, Layers, RotateCcw, Smartphone, Monitor } from "lucide-react";
+```
+
 ---
 
-### Comparação Visual
+#### 2. Aplicar Classes Condicionais no Container (Index.tsx)
+
+**Localização**: Linha 573 (container `<main>`)
+
+```tsx
+// ANTES
+<main className="flex-1 overflow-hidden px-4 py-3">
+
+// DEPOIS
+<main className={cn(
+  "flex-1 overflow-hidden px-4 py-3",
+  viewMode === 'mobile' && "flex justify-center"
+)}>
+  <div className={cn(
+    "h-full w-full",
+    viewMode === 'mobile' && "mobile-view-container max-w-[390px] overflow-y-auto"
+  )}>
+    {/* conteúdo existente */}
+  </div>
+</main>
+```
+
+**Import adicional necessário**:
+```typescript
+import { cn } from "@/lib/utils";
+```
+
+---
+
+#### 3. Estilos CSS para Modo Mobile (index.css)
+
+**Adicionar ao final do arquivo**:
+
+```css
+/* Mobile View Simulation */
+.mobile-view-container {
+  /* Simula viewport de smartphone */
+  max-width: 390px;
+  margin: 0 auto;
+  border-left: 2px solid hsl(var(--border));
+  border-right: 2px solid hsl(var(--border));
+  background: hsl(var(--card));
+  border-radius: 20px;
+  padding: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Ajustes de layout para modo mobile */
+.mobile-view-container .grid {
+  grid-template-columns: 1fr !important;
+}
+
+.mobile-view-container .lg\:grid-cols-2,
+.mobile-view-container .lg\:grid-cols-3 {
+  grid-template-columns: 1fr !important;
+}
+
+/* Reduzir gaps em mobile */
+.mobile-view-container .gap-3 {
+  gap: 0.5rem;
+}
+
+/* Ajustar flex ratios para coluna única */
+.mobile-view-container .flex-\[45\],
+.mobile-view-container .flex-\[55\],
+.mobile-view-container .flex-\[65\],
+.mobile-view-container .flex-\[35\] {
+  flex: none;
+  height: auto;
+  min-height: 200px;
+}
+
+/* Permitir scroll vertical no conteúdo */
+.mobile-view-container > div {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+```
+
+---
+
+### Comportamento Esperado
 
 ```text
-ANTES (difícil leitura):
-┌─────┬─────┬─────┬─────┬─────┬─────┐
-│Marc.│José │Hing.│Onac.│Rôm. │✓Marc│  ← Nomes cortados
-│R$6M │R$6M │R$6M │R$5M │R$1M │     │  ← Texto 8-9px
-└─────┴─────┴─────┴─────┴─────┴─────┘
+MODO DESKTOP (padrão):
+┌────────────────────────────────────────────────────────────────┐
+│ 🍔  [🔒 Assessor]        LOGO         📱 📄 🔄 ⛶ 🌙 📤       │
+├────────────────────────────────────────────────────────────────┤
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐               │
+│  │   Card 1   │  │   Card 2   │  │   Card 3   │               │
+│  └────────────┘  └────────────┘  └────────────┘               │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐               │
+│  │  Graph 1   │  │  Graph 2   │  │  Graph 3   │               │
+│  └────────────┘  └────────────┘  └────────────┘               │
+└────────────────────────────────────────────────────────────────┘
 
-DEPOIS (legível):
-┌─────────┬─────────┬─────────┬─────────┐
-│ Marcelo │  José   │ Hingrid │Onacilda │  ← Nomes completos
-│ R$ 6 Mi │ R$ 6 Mi │ R$ 6 Mi │ R$ 5 Mi │  ← Texto 10-12px
-├─────────┼─────────┼─────────┼─────────┤
-│ Rômulo  │✓Marcela │         │         │
-│ R$ 1 Mi │         │         │         │
-└─────────┴─────────┴─────────┴─────────┘
+MODO MOBILE (após clicar no ícone 📱):
+┌────────────────────────────────────────────────────────────────┐
+│ 🍔  [🔒 Assessor]        LOGO         🖥️ 📄 🔄 ⛶ 🌙 📤       │
+├────────────────────────────────────────────────────────────────┤
+│                    ┌──────────┐                                │
+│                    │ Card 1   │                                │
+│                    ├──────────┤                                │
+│                    │ Card 2   │                                │
+│                    ├──────────┤                                │
+│                    │ Card 3   │  ← Scroll vertical             │
+│                    ├──────────┤                                │
+│                    │ Graph 1  │                                │
+│                    ├──────────┤                                │
+│                    │ Graph 2  │                                │
+│                    └──────────┘                                │
+└────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+### Ícones e Estados
+
+| Estado | Ícone Exibido | Tooltip | Ação |
+|--------|---------------|---------|------|
+| Desktop | `<Smartphone />` | "Ver em modo Mobile" | Clique muda para mobile |
+| Mobile | `<Monitor />` | "Ver em modo Desktop" | Clique volta para desktop |
 
 ---
 
 ### Benefícios
 
-1. **Nomes completos** - Remove `truncate` para exibir nomes inteiros
-2. **Fonte maior** - De 8-9px para 10-12px, mais legível
-3. **Mais espaço** - Grid de 3-4 colunas dá mais respiro visual
-4. **Mesma estrutura** - Mantém o layout de cards sem mudanças estruturais
+1. **Simulação realista** - Container de 390px simula iPhone/Android típico
+2. **Layout adaptativo** - Grid muda para coluna única automaticamente
+3. **Scroll habilitado** - Permite navegar por todo o conteúdo em modo mobile
+4. **Visual diferenciado** - Bordas e sombra simulam device frame
+5. **Não afeta código existente** - Mudanças são puramente visuais/condicionais
+6. **Persistência** - Estado pode ser salvo no localStorage se desejado
 
