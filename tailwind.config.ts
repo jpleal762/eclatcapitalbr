@@ -108,6 +108,52 @@ export default {
           "0%, 100%": { transform: "scale(1)", filter: "brightness(1)" },
           "50%": { transform: "scale(1.2)", filter: "brightness(1.4)" },
         },
+        // Sprint Mascot Animations
+        "runner-legs": {
+          "0%, 100%": { transform: "rotate(-20deg)" },
+          "50%": { transform: "rotate(20deg)" },
+        },
+        "runner-arms": {
+          "0%, 100%": { transform: "rotate(-15deg)" },
+          "50%": { transform: "rotate(15deg)" },
+        },
+        "spin-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "pedal": {
+          "0%, 100%": { transform: "rotate(-25deg)" },
+          "50%": { transform: "rotate(25deg)" },
+        },
+        "flame": {
+          "0%, 100%": { opacity: "1", transform: "scaleY(1)" },
+          "50%": { opacity: "0.8", transform: "scaleY(1.15)" },
+        },
+        "flame-inner": {
+          "0%, 100%": { opacity: "0.9", transform: "scaleY(1)" },
+          "50%": { opacity: "1", transform: "scaleY(1.25)" },
+        },
+        "celebrate-arms": {
+          "0%, 100%": { transform: "rotate(0deg)" },
+          "25%": { transform: "rotate(-8deg)" },
+          "75%": { transform: "rotate(8deg)" },
+        },
+        "celebrate-hands": {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.2)" },
+        },
+        "twinkle": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.4", transform: "scale(1.3)" },
+        },
+        "twinkle-delayed": {
+          "0%, 50%": { opacity: "0.4", transform: "scale(1.3)" },
+          "25%, 75%": { opacity: "1", transform: "scale(1)" },
+        },
+        "trophy-bounce": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-2px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -115,6 +161,18 @@ export default {
         "celebrate-bounce": "celebrate-bounce 0.8s ease-in-out infinite",
         "celebrate-pop": "celebrate-pop 1s ease-in-out infinite",
         "celebrate-sparkle": "celebrate-sparkle 1.5s ease-in-out infinite",
+        // Sprint Mascot Animations
+        "runner-legs": "runner-legs 0.4s ease-in-out infinite",
+        "runner-arms": "runner-arms 0.4s ease-in-out infinite",
+        "spin-slow": "spin-slow 2s linear infinite",
+        "pedal": "pedal 0.6s ease-in-out infinite",
+        "flame": "flame 0.3s ease-in-out infinite",
+        "flame-inner": "flame-inner 0.25s ease-in-out infinite",
+        "celebrate-arms": "celebrate-arms 0.8s ease-in-out infinite",
+        "celebrate-hands": "celebrate-hands 0.6s ease-in-out infinite",
+        "twinkle": "twinkle 1.5s ease-in-out infinite",
+        "twinkle-delayed": "twinkle-delayed 1.5s ease-in-out infinite 0.75s",
+        "trophy-bounce": "trophy-bounce 1s ease-in-out infinite",
       },
     },
   },

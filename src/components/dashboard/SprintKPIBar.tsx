@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { Check, Flame, Timer, Target, Trophy, PartyPopper, TrendingUp, Minus } from "lucide-react";
+import { TrendingUp, Minus } from "lucide-react";
 import { SprintKPIData, SprintEvolution } from "@/types/kpi";
 import { cn } from "@/lib/utils";
 import { ConfettiCelebration } from "./ConfettiCelebration";
+import { SprintMascot } from "./SprintMascot";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface SprintKPIBarProps {
@@ -22,23 +23,6 @@ function formatValue(value: number, isCurrency: boolean): string {
   return value.toString();
 }
 
-function getUrgencyIcon(progressPercentage: number, isCompleted: boolean) {
-  if (isCompleted) {
-    return (
-      <div className="flex items-center gap-1">
-        <Trophy className="size-scale-1.5 lg:size-scale-2 text-green-500 animate-trophy-celebrate" />
-        <PartyPopper className="size-scale-1.5 lg:size-scale-2 text-green-500 animate-celebrate-pop" />
-      </div>
-    );
-  }
-  if (progressPercentage >= 80) {
-    return <Target className="size-scale-1.5 lg:size-scale-2 text-green-400" />;
-  }
-  if (progressPercentage >= 50) {
-    return <Timer className="size-scale-1.5 lg:size-scale-2 text-yellow-500" />;
-  }
-  return <Flame className="size-scale-1.5 lg:size-scale-2 text-red-400 animate-pulse" />;
-}
 
 export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
   const {
@@ -76,10 +60,13 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
     <div className="p-1 lg:p-1.5 bg-card rounded-lg border border-border flex-1 flex flex-col min-h-0 overflow-hidden">
       <ConfettiCelebration trigger={justCompleted} />
       
-      {/* Header: Icon + Label + Percentage */}
+      {/* Header: Mascot + Label + Percentage */}
       <div className="flex items-center justify-between mb-1">
-        <div className="flex items-center gap-1.5">
-          {getUrgencyIcon(progressPercentage, isCompleted)}
+        <div className="flex items-center gap-2">
+          <SprintMascot 
+            progressPercent={progressPercentage} 
+            isCompleted={isCompleted} 
+          />
           <span className="text-scale-6 lg:text-scale-7 font-semibold text-foreground truncate">
             {label}
           </span>
