@@ -1,150 +1,167 @@
 
 
-## Plano: Restaurar Layout "Fit-to-Screen" Proporcional
+## Plano: Centralizar Gráficos Gauge nos Cards
 
-### Diagnóstico
+### Objetivo
 
-O dashboard implementa um layout "fit-to-screen" onde todos os elementos devem caber proporcionalmente na tela sem scroll (em desktop/TV - 1024px+). A estrutura atual já utiliza:
-
-- **Linha superior (Cards)**: `flex-[45]` = 45% da altura
-- **Linha inferior (Gráficos)**: `flex-[55]` = 55% da altura  
-- **Gráficos principais**: `flex-[65]` = 65% da coluna
-- **Gráficos secundários**: `flex-[35]` = 35% da coluna
-
-### Possíveis Causas de Desalinhamento
-
-1. **Conteúdo interno crescendo além do container** - elementos sem `max-h-full` ou `overflow-hidden`
-2. **Margens/paddings acumulados** - gaps e paddings somando altura extra
-3. **Elementos flex não respeitando proporções** - falta de `min-h-0`
-4. **Cards com altura mínima implícita** - conteúdo interno forçando crescimento
+Garantir que todos os gráficos gauge fiquem centralizados **horizontal e verticalmente** dentro de seus respectivos cards, independentemente do tamanho da tela ou do conteúdo.
 
 ---
 
-### Arquivos a Revisar/Modificar
+### Arquivos a Modificar
 
-| Arquivo | Ação |
-|---------|------|
-| `src/pages/Index.tsx` | **REVISAR** - Verificar estrutura flex e proporções |
-| `src/components/dashboard/GaugeChart.tsx` | **AJUSTAR** - Garantir overflow-hidden e max-height |
-| `src/components/dashboard/FlipICMCard.tsx` | **AJUSTAR** - Container interno com overflow |
-| `src/components/dashboard/FlipMetaTable.tsx` | **AJUSTAR** - Tabela com scroll interno |
-| `src/components/dashboard/AssessorChart.tsx` | **AJUSTAR** - Lista com altura limitada |
-| `src/components/dashboard/AgendadasCard.tsx` | **AJUSTAR** - Container proporcional |
-| `src/index.css` | **VERIFICAR** - Classes responsivas |
+| Arquivo | Componente | Problema Atual |
+|---------|------------|----------------|
+| `src/components/dashboard/GaugeChart.tsx` | Gauge principal | Gauge não está perfeitamente centralizado verticalmente |
+| `src/components/dashboard/FlipGaugeChart.tsx` | Wrapper flip do gauge | Container não força centralização |
+| `src/components/dashboard/YearlyGaugeChart.tsx` | Gauge anual | Falta `justify-center` no container principal |
+| `src/components/dashboard/ICMCard.tsx` | Card ICM com gauge | Gauge precisa de melhor centralização vertical |
+| `src/components/dashboard/YearlyICMCard.tsx` | Card ICM anual | Container do gauge sem centralização vertical |
 
 ---
 
 ### Mudanças Específicas
 
-#### 1. Index.tsx - Estrutura Principal
+#### 1. GaugeChart.tsx (Gauge Principal)
 
-Garantir que o container principal e suas linhas usem corretamente:
-- `h-full` em todos os níveis
-- `min-h-0` para permitir encolhimento flex
-- `overflow-hidden` para prevenir crescimento
+**Problema:** O container interno do gauge não usa `justify-center` consistentemente.
+
+**Solução:**
+- Alterar linha ~218: O container `flex flex-col items-center` deve incluir `justify-center`
+- Alterar linha ~248: O wrapper do gauge interno deve ter `items-center justify-center` consistentes
 
 ```tsx
-// Estrutura esperada (verificar/corrigir)
-<main className="flex-1 overflow-hidden px-4 py-3">
-  <div className="h-full flex flex-col gap-3">
-    {/* Top Row - Cards */}
-    <div className="grid gap-3 flex-[45] min-h-0 overflow-hidden ...">
-    
-    {/* Bottom Row - Gauges */}
-    <div className="grid gap-3 flex-[55] min-h-0 overflow-hidden ...">
+// Antes (linha 218)
+<div className={`flex flex-col items-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1 overflow-hidden`}>
+
+// Depois
+<div className={`flex flex-col items-center justify-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1 overflow-hidden`}>
 ```
 
-#### 2. GaugeChart.tsx - Controle de Altura
+#### 2. FlipGaugeChart.tsx (Wrapper Flip)
 
-Adicionar constraints para prevenir crescimento vertical:
-- SVG wrapper com `flex-shrink-0`
-- Container de assessores com `max-h-full overflow-y-auto`
-- Labels com `truncate` para texto longo
+**Problema:** O container não passa classes de centralização para o GaugeChart interno.
 
-#### 3. FlipICMCard.tsx / FlipMetaTable.tsx
+**Solução:**
+- O GaugeChart já é renderizado com `h-full`, mas o container pai precisa forçar centralização
+- Linha ~82-83: Adicionar classes de centralização no wrapper do front
 
-Cards flip devem ter:
-- Container interno com `h-full overflow-hidden`
-- Conteúdo do back com `overflow-auto` (já existe, verificar)
-- `max-h-full` no wrapper de conteúdo
+```tsx
+// Antes (linha 82-83)
+<div className="absolute inset-0 backface-hidden overflow-hidden">
+  <div className="relative h-full">
 
-#### 4. AssessorChart.tsx
+// Depois
+<div className="absolute inset-0 backface-hidden overflow-hidden flex items-center justify-center">
+  <div className="relative h-full w-full">
+```
 
-Lista de assessores deve:
-- Usar `justify-between` no container flex para distribuir verticalmente
-- Não ter `overflow-y-auto` em desktop (já implementado)
-- Manter altura proporcional ao container pai
+#### 3. YearlyGaugeChart.tsx (Gauge Anual)
 
-#### 5. AgendadasCard.tsx
+**Problema:** O Card e seu container interno não têm `h-full` e `justify-center`.
 
-Card de reuniões agendadas deve:
-- Manter layout horizontal com proporções fixas
-- Lista de assessores com `overflow-y-auto` apenas se necessário
-- Gauge compacto com `compact={true}` (já existe)
+**Solução:**
+- Linha ~61: Adicionar `h-full flex flex-col` ao Card
+- Linha ~62: Adicionar `flex-1 justify-center` ao container principal
+
+```tsx
+// Antes (linha 60-62)
+<Card className="p-responsive shadow-card bg-card border-l-4 border-l-chart-graphite">
+  <div className="flex flex-col items-center">
+
+// Depois  
+<Card className="p-responsive shadow-card bg-card border-l-4 border-l-chart-graphite h-full flex flex-col">
+  <div className="flex flex-col items-center justify-center flex-1">
+```
+
+#### 4. ICMCard.tsx (Card ICM Mensal)
+
+**Problema:** O gauge está dentro de um container `justify-around` que pode desbalancear.
+
+**Solução:**
+- Linha ~119: Mudar `justify-around` para `justify-center` com gap controlado
+- Linha ~121-122: Adicionar `items-center justify-center` explícito ao wrapper do gauge
+
+```tsx
+// Antes (linha 119)
+<div className="flex items-center justify-around gap-2 flex-1 min-h-0">
+  {/* Gauge */}
+  <div className="flex flex-col items-center">
+
+// Depois
+<div className="flex items-center justify-center gap-4 flex-1 min-h-0">
+  {/* Gauge */}
+  <div className="flex flex-col items-center justify-center">
+```
+
+#### 5. YearlyICMCard.tsx (Card ICM Anual)
+
+**Problema:** Similar ao ICMCard, o gauge não está perfeitamente centralizado.
+
+**Solução:**
+- Linha ~83: Container `flex items-start` deve ser `flex items-center justify-center`
+- Linha ~86: Container do gauge deve ter `items-center justify-center`
+
+```tsx
+// Antes (linha 83)
+<div className="flex items-start justify-between gap-responsive-lg">
+  {/* Gauge with graphite color */}
+  <div className="flex flex-col items-center">
+
+// Depois
+<div className="flex items-center justify-center gap-responsive-lg">
+  {/* Gauge with graphite color */}
+  <div className="flex flex-col items-center justify-center">
+```
 
 ---
 
-### Verificações de CSS
+### Classes CSS de Centralização
 
-Confirmar que as classes responsivas em `src/index.css` estão corretas:
+A centralização consistente usa estas classes Tailwind:
 
-```css
-/* Gaps não devem somar muito */
-.gap-responsive-sm { gap: clamp(4px, 0.5vh, 10px); }
-.gap-responsive { gap: clamp(6px, 0.8vh, 14px); }
+| Eixo | Classe | Função |
+|------|--------|--------|
+| Horizontal | `items-center` | Centraliza no eixo cruzado (horizontal em flex-col) |
+| Vertical | `justify-center` | Centraliza no eixo principal (vertical em flex-col) |
+| Ambos | `items-center justify-center` | Centralização completa |
+| Flex container | `flex-1 min-h-0` | Permite o elemento crescer e encolher |
 
-/* Paddings compactos */
-.p-responsive { padding: clamp(8px, 1vh, 16px); }
-.p-responsive-sm { padding: clamp(4px, 0.5vh, 10px); }
+---
+
+### Estrutura Visual Esperada
+
+```text
+┌──────────────────────────────────────┐
+│           Card Container             │
+│  ┌────────────────────────────────┐  │
+│  │                                │  │
+│  │           ╭─────────╮          │  │
+│  │          │  GAUGE   │          │  │
+│  │           ╰─────────╯          │  │
+│  │                                │  │
+│  └────────────────────────────────┘  │
+└──────────────────────────────────────┘
+         ↑ Centralizado V+H ↑
 ```
 
 ---
 
-### Regras do Layout Fit-to-Screen
+### Resumo das Alterações
 
-1. **Container raiz**: `h-screen overflow-hidden`
-2. **Todas as seções**: `flex-1 min-h-0 overflow-hidden`
-3. **Grids**: Usar `flex-[N]` com `min-h-0`
-4. **Cards**: `h-full flex flex-col overflow-hidden`
-5. **Conteúdo interno**: `flex-1 min-h-0 overflow-hidden` ou `overflow-auto`
-6. **Texto**: `truncate whitespace-nowrap` em labels
-7. **Mobile**: Reverter para scroll vertical com `overflow-y-auto`
+1. **GaugeChart.tsx**: Adicionar `justify-center` ao container principal do gauge (linha ~218)
+2. **FlipGaugeChart.tsx**: Adicionar `flex items-center justify-center` ao container do front (linha ~82)
+3. **YearlyGaugeChart.tsx**: Adicionar `h-full flex flex-col` ao Card e `justify-center flex-1` ao container interno
+4. **ICMCard.tsx**: Mudar `justify-around` para `justify-center` e adicionar centralização ao wrapper do gauge
+5. **YearlyICMCard.tsx**: Mudar `items-start` para `items-center` e adicionar `justify-center`
 
 ---
 
 ### Resultado Esperado
 
-Após as correções:
-- Todos os 3 cards superiores ocupam 45% da altura
-- Todos os 9 gráficos inferiores ocupam 55% da altura
-- Gráficos principais ocupam 65% de sua coluna
-- Gráficos secundários ocupam 35% de sua coluna
-- Nenhum scroll aparece em desktop/TV (≥1024px)
-- Scroll vertical permitido em mobile (<1024px)
-
----
-
-### Fluxo Visual
-
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│ HEADER                                                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │   Card 1    │  │   Card 2    │  │   Card 3    │   45%       │
-│  │  FlipICM    │  │  FlipMeta   │  │ Agendadas   │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-│                                                                 │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │  Graph 1    │  │  Graph 2    │  │  Graph 3    │   65%       │
-│  │ AssessorC.  │  │  Receita    │  │  Captação   │              │
-│  ├─────┬───────┤  ├─────┬───────┤  ├─────┬───────┤   55%       │
-│  │ G4  │  G5   │  │ G6  │  G7   │  │ G8  │  G9   │   35%       │
-│  └─────┴───────┘  └─────┴───────┘  └─────┴───────┘              │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+Após as alterações:
+- Todos os gauges ficarão perfeitamente centralizados horizontal e verticalmente
+- O layout se adaptará proporcionalmente em diferentes tamanhos de tela
+- Os cards manterão a estrutura "fit-to-screen" já implementada
+- O espaço disponível será distribuído uniformemente ao redor dos gauges
 
