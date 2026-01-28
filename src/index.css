@@ -140,48 +140,48 @@
     to { opacity: 1; transform: scale(1); }
   }
 
-  /* Responsive typography using clamp with vh units - Increased for TV visibility */
-  .text-responsive-4xs { font-size: clamp(13px, 1.4vh, 20px); }
-  .text-responsive-3xs { font-size: clamp(9px, 1.0vh, 14px); }
-  .text-responsive-2xs { font-size: clamp(10px, 1.2vh, 16px); }
-  .text-responsive-xs { font-size: clamp(12px, 1.4vh, 20px); }
-  .text-responsive-sm { font-size: clamp(14px, 1.6vh, 24px); }
-  .text-responsive-base { font-size: clamp(16px, 1.9vh, 28px); }
-  .text-responsive-lg { font-size: clamp(20px, 2.4vh, 36px); }
-  .text-responsive-xl { font-size: clamp(24px, 3vh, 44px); }
-  .text-responsive-2xl { font-size: clamp(28px, 3.5vh, 52px); }
-  .text-responsive-3xl { font-size: clamp(34px, 4.2vh, 60px); }
-  .text-responsive-4xl { font-size: clamp(40px, 5vh, 72px); }
+  /* Fixed typography - locked sizes */
+  .text-responsive-4xs { font-size: 11px; }
+  .text-responsive-3xs { font-size: 10px; }
+  .text-responsive-2xs { font-size: 11px; }
+  .text-responsive-xs { font-size: 12px; }
+  .text-responsive-sm { font-size: 14px; }
+  .text-responsive-base { font-size: 16px; }
+  .text-responsive-lg { font-size: 20px; }
+  .text-responsive-xl { font-size: 24px; }
+  .text-responsive-2xl { font-size: 28px; }
+  .text-responsive-3xl { font-size: 34px; }
+  .text-responsive-4xl { font-size: 40px; }
 
-  /* TV Mode - Double size fonts (2x larger for TV visibility) */
-  .text-tv-3xs { font-size: clamp(12px, 1.4vh, 18px); }
-  .text-tv-2xs { font-size: clamp(14px, 1.6vh, 20px); }
-  .text-tv-xs { font-size: clamp(16px, 1.8vh, 24px); }
-  .text-tv-sm { font-size: clamp(20px, 2.2vh, 28px); }
-  .text-tv-base { font-size: clamp(24px, 2.6vh, 32px); }
-  .text-tv-lg { font-size: clamp(28px, 3.2vh, 40px); }
-  .text-tv-xl { font-size: clamp(32px, 4vh, 52px); }
-  .text-tv-2xl { font-size: clamp(40px, 5vh, 64px); }
+  /* TV Mode - Fixed sizes for TV visibility */
+  .text-tv-3xs { font-size: 12px; }
+  .text-tv-2xs { font-size: 14px; }
+  .text-tv-xs { font-size: 16px; }
+  .text-tv-sm { font-size: 20px; }
+  .text-tv-base { font-size: 24px; }
+  .text-tv-lg { font-size: 28px; }
+  .text-tv-xl { font-size: 32px; }
+  .text-tv-2xl { font-size: 40px; }
 
-  /* Responsive gaps - Increased for TV visibility */
-  .gap-responsive-sm { gap: clamp(4px, 0.5vh, 10px); }
-  .gap-responsive { gap: clamp(6px, 0.8vh, 14px); }
-  .gap-responsive-lg { gap: clamp(12px, 1.4vh, 24px); }
+  /* Fixed gaps */
+  .gap-responsive-sm { gap: 4px; }
+  .gap-responsive { gap: 6px; }
+  .gap-responsive-lg { gap: 12px; }
 
-  /* Responsive padding/margin */
-  .p-responsive-sm { padding: clamp(4px, 0.5vh, 10px); }
-  .p-responsive { padding: clamp(8px, 1vh, 16px); }
-  .p-responsive-lg { padding: clamp(12px, 1.5vh, 24px); }
-  .px-responsive { padding-left: clamp(8px, 1vh, 16px); padding-right: clamp(8px, 1vh, 16px); }
-  .py-responsive { padding-top: clamp(4px, 0.5vh, 10px); padding-bottom: clamp(4px, 0.5vh, 10px); }
-  .py-responsive-sm { padding-top: clamp(2px, 0.3vh, 6px); padding-bottom: clamp(2px, 0.3vh, 6px); }
-  .mb-responsive { margin-bottom: clamp(4px, 0.5vh, 10px); }
-  .mt-responsive { margin-top: clamp(4px, 0.5vh, 10px); }
+  /* Fixed padding/margin */
+  .p-responsive-sm { padding: 4px; }
+  .p-responsive { padding: 8px; }
+  .p-responsive-lg { padding: 12px; }
+  .px-responsive { padding-left: 8px; padding-right: 8px; }
+  .py-responsive { padding-top: 4px; padding-bottom: 4px; }
+  .py-responsive-sm { padding-top: 2px; padding-bottom: 2px; }
+  .mb-responsive { margin-bottom: 4px; }
+  .mt-responsive { margin-top: 4px; }
 
-  /* Responsive bar heights (+50% thickness) */
-  .h-bar-responsive-sm { height: clamp(6px, 0.75vh, 12px); }
-  .h-bar-responsive { height: clamp(9px, 1.05vh, 18px); }
-  .h-bar-responsive-lg { height: clamp(12px, 1.5vh, 24px); }
+  /* Fixed bar heights */
+  .h-bar-responsive-sm { height: 6px; }
+  .h-bar-responsive { height: 9px; }
+  .h-bar-responsive-lg { height: 12px; }
 
   /* Clock pulse animation - 50% less intense for subtlety */
   @keyframes pulse-clock {
@@ -198,20 +198,10 @@
     animation: pulse-clock 0.75s ease-in-out infinite;
   }
 
-  /* Responsive icon sizes - Increased for TV visibility */
-  .icon-responsive-sm { width: clamp(16px, 1.8vh, 26px); height: clamp(16px, 1.8vh, 26px); }
-  .icon-responsive { width: clamp(20px, 2.4vh, 34px); height: clamp(20px, 2.4vh, 34px); }
-  .icon-responsive-lg { width: clamp(28px, 3vh, 44px); height: clamp(28px, 3vh, 44px); }
-
-  /* Smooth transitions for responsive elements */
-  .transition-responsive {
-    transition: font-size 0.3s ease-out, 
-                padding 0.3s ease-out, 
-                gap 0.3s ease-out, 
-                height 0.3s ease-out,
-                width 0.3s ease-out,
-                transform 0.3s ease-out;
-  }
+  /* Fixed icon sizes */
+  .icon-responsive-sm { width: 16px; height: 16px; }
+  .icon-responsive { width: 20px; height: 20px; }
+  .icon-responsive-lg { width: 28px; height: 28px; }
 }
 
 /* Apply transitions to responsive elements globally */

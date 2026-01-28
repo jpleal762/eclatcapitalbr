@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useResponsiveSize } from "@/hooks/use-responsive-size";
 
 interface YearlyICMCardProps {
   icmGeral: number;
@@ -37,14 +36,11 @@ export function YearlyICMCard({
   onYearChange,
   onToggleView,
 }: YearlyICMCardProps) {
-  const { scale } = useResponsiveSize();
-  
-  // Dynamic gauge sizing
-  const dynamicScale = Math.max(0.6, Math.min(scale, 1.4));
-  const gaugeWidth = Math.round(180 * dynamicScale);
-  const gaugeHeight = Math.round(100 * dynamicScale);
-  const gaugeRadius = Math.round(80 * dynamicScale);
-  const strokeWidth = Math.round(14 * dynamicScale);
+  // Fixed gauge dimensions
+  const gaugeWidth = 180;
+  const gaugeHeight = 100;
+  const gaugeRadius = 80;
+  const strokeWidth = 14;
   
   const circumference = Math.PI * gaugeRadius;
   const progress = (Math.min(icmGeral, 100) / 100) * circumference;
