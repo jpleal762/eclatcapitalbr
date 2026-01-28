@@ -24,19 +24,19 @@ function formatValue(value: number, isCurrency: boolean): string {
 function getUrgencyIcon(progressPercentage: number, isCompleted: boolean) {
   if (isCompleted) {
     return (
-      <div className="flex items-center gap-0.5">
-        <Trophy className="h-1.5 w-1.5 lg:h-2 lg:w-2 text-green-500 animate-trophy-celebrate" />
-        <PartyPopper className="h-1.5 w-1.5 lg:h-2 lg:w-2 text-green-500 animate-celebrate-pop" />
+      <div className="flex items-center gap-1">
+        <Trophy className="h-3 w-3 lg:h-4 lg:w-4 text-green-500 animate-trophy-celebrate" />
+        <PartyPopper className="h-3 w-3 lg:h-4 lg:w-4 text-green-500 animate-celebrate-pop" />
       </div>
     );
   }
   if (progressPercentage >= 80) {
-    return <Target className="h-1.5 w-1.5 lg:h-2 lg:w-2 text-green-400" />;
+    return <Target className="h-3 w-3 lg:h-4 lg:w-4 text-green-400" />;
   }
   if (progressPercentage >= 50) {
-    return <Timer className="h-1.5 w-1.5 lg:h-2 lg:w-2 text-yellow-500" />;
+    return <Timer className="h-3 w-3 lg:h-4 lg:w-4 text-yellow-500" />;
   }
-  return <Flame className="h-1.5 w-1.5 lg:h-2 lg:w-2 text-red-400 animate-pulse" />;
+  return <Flame className="h-3 w-3 lg:h-4 lg:w-4 text-red-400 animate-pulse" />;
 }
 
 export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
@@ -76,15 +76,15 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
       <ConfettiCelebration trigger={justCompleted} />
       
       {/* Header: Icon + Label + Percentage */}
-      <div className="flex items-center justify-between mb-0.5">
-        <div className="flex items-center gap-1">
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-1.5">
           {getUrgencyIcon(progressPercentage, isCompleted)}
-          <span className="text-[6px] lg:text-[7px] font-semibold text-foreground truncate">
+          <span className="text-[12px] lg:text-[14px] font-semibold text-foreground truncate">
             {label}
           </span>
         </div>
         <span className={cn(
-          "font-bold text-[7px] lg:text-[8px]",
+          "font-bold text-[14px] lg:text-[16px]",
           isCompleted ? "text-green-500" : progressPercentage >= 50 ? "text-eclat-gold" : "text-red-400"
         )}>
           {Math.round(progressPercentage)}%
@@ -92,7 +92,7 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
       </div>
 
       {/* Compact Values Row: Meta | Realizado | Falta */}
-      <div className="grid grid-cols-3 gap-0.5 mb-0.5 text-center text-[5px] lg:text-[5px]">
+      <div className="grid grid-cols-3 gap-1 mb-1 text-center text-[10px] lg:text-[10px]">
         <div>
           <span className="text-muted-foreground">Meta: </span>
           <span className="font-medium text-foreground">{formatValue(totalTarget, isCurrency)}</span>
@@ -111,7 +111,7 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
       </div>
 
       {/* Progress Bar */}
-      <div className="relative h-1.5 lg:h-2 w-full rounded-full bg-muted/30 overflow-hidden mb-0.5">
+      <div className="relative h-3 lg:h-4 w-full rounded-full bg-muted/30 overflow-hidden mb-1">
         <div
           className={cn(
             "h-full rounded-full transition-all duration-500",
@@ -123,15 +123,15 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
 
       {/* Evolution indicator (48h) */}
       {evolution && evolution.difference !== 0 && (
-        <div className="flex items-center gap-0.5 text-[5px] lg:text-[5px] mb-0.5">
+        <div className="flex items-center gap-1 text-[10px] lg:text-[10px] mb-1">
           <TrendingUp className={cn(
-            "h-1.5 w-1.5",
+            "h-3 w-3",
             evolution.difference > 0 ? "text-green-500" : "text-red-400"
           )} />
           <span className={evolution.difference > 0 ? "text-green-500" : "text-red-400"}>
             {evolution.difference > 0 ? "+" : ""}{formatValue(evolution.difference, isCurrency)} em {evolution.hoursAgo}h
             {evolution.percentageChange !== 0 && (
-              <span className="text-muted-foreground ml-0.5">
+              <span className="text-muted-foreground ml-1">
                 ({evolution.difference > 0 ? "↑" : "↓"}{Math.abs(Math.round(evolution.percentageChange))}%)
               </span>
             )}
@@ -141,25 +141,25 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
 
       {/* Assessor Breakdown - grid format showing all assessors */}
       {assessorBreakdown.length > 0 && (
-        <div className="mt-auto pt-0.5 border-t border-border/50">
-          <span className="text-[5px] lg:text-[5px] text-muted-foreground mb-0.5 block">
+        <div className="mt-auto pt-1 border-t border-border/50">
+          <span className="text-[10px] lg:text-[10px] text-muted-foreground mb-1 block">
             Falta por Assessor:
           </span>
-          <div className="grid grid-cols-3 lg:grid-cols-4 gap-[3px]">
+          <div className="grid grid-cols-3 lg:grid-cols-4 gap-1">
             {assessorBreakdown.map((assessor, idx) => (
               <div 
                 key={idx} 
                 className={cn(
-                  "flex flex-col items-center px-[3px] py-0.5 rounded text-center",
+                  "flex flex-col items-center px-1 py-1 rounded text-center",
                   assessor.achieved 
                     ? "bg-green-500/15 text-green-400 border border-green-500/20" 
                     : "bg-red-500/20 text-red-400 border border-red-500/30"
                 )}
               >
-                <span className="text-[5px] lg:text-[6px] font-medium">
+                <span className="text-[10px] lg:text-[12px] font-medium">
                   {assessor.name}
                 </span>
-                <span className="text-[6px] lg:text-[6px] font-bold">
+                <span className="text-[12px] lg:text-[12px] font-bold">
                   {assessor.achieved 
                     ? "✓" 
                     : formatValue(assessor.remaining, isCurrency)
@@ -173,7 +173,7 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
 
       {/* Message when all achieved */}
       {isCompleted && assessorBreakdown.length === 0 && (
-        <div className="mt-auto text-[5px] lg:text-[5px] text-green-500 font-medium">
+        <div className="mt-auto text-[10px] lg:text-[10px] text-green-500 font-medium">
           ✓ Todos os assessores atingiram a meta!
         </div>
       )}
