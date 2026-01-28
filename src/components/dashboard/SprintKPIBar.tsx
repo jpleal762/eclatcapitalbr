@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Check, Flame, Timer, Target, Trophy, PartyPopper, TrendingUp, Rocket, Hourglass } from "lucide-react";
+import { Check, Flame, Timer, Target, Trophy, PartyPopper, TrendingUp, Minus } from "lucide-react";
 import { SprintKPIData, SprintEvolution } from "@/types/kpi";
 import { cn } from "@/lib/utils";
 import { ConfettiCelebration } from "./ConfettiCelebration";
@@ -122,19 +122,31 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
         />
       </div>
 
-      {/* Evolution indicator (48h) */}
-      {evolution && evolution.difference !== 0 && (
+      {/* Evolution indicator (48h) - always visible when available */}
+      {evolution && (
         <div className="flex items-center gap-1 text-scale-5 mb-1">
-          <TrendingUp className={cn(
-            "size-scale-1.5",
-            evolution.difference > 0 ? "text-green-500" : "text-red-400"
-          )} />
-          <span className={evolution.difference > 0 ? "text-green-500" : "text-red-400"}>
-            {evolution.difference > 0 ? "+" : ""}{formatValue(evolution.difference, isCurrency)} em {evolution.hoursAgo}h
-            {evolution.percentageChange !== 0 && (
-              <span className="text-muted-foreground ml-1">
-                ({evolution.difference > 0 ? "↑" : "↓"}{Math.abs(Math.round(evolution.percentageChange))}%)
-              </span>
+          {evolution.difference > 0 ? (
+            <TrendingUp className="size-scale-1.5 text-green-500" />
+          ) : evolution.difference < 0 ? (
+            <TrendingUp className="size-scale-1.5 text-red-400 rotate-180" />
+          ) : (
+            <Minus className="size-scale-1.5 text-muted-foreground" />
+          )}
+          <span className={cn(
+            evolution.difference > 0 ? "text-green-500" : 
+            evolution.difference < 0 ? "text-red-400" : "text-muted-foreground"
+          )}>
+            {evolution.difference === 0 ? (
+              <span>Sem variação ({evolution.hoursAgo}h)</span>
+            ) : (
+              <>
+                {evolution.difference > 0 ? "+" : ""}{formatValue(evolution.difference, isCurrency)} em {evolution.hoursAgo}h
+                {evolution.percentageChange !== 0 && (
+                  <span className="text-muted-foreground ml-1">
+                    ({evolution.difference > 0 ? "↑" : "↓"}{Math.abs(Math.round(evolution.percentageChange))}%)
+                  </span>
+                )}
+              </>
             )}
           </span>
         </div>
@@ -162,12 +174,9 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
                     ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
                     : "bg-red-500/20 text-red-400 border border-red-500/30";
                 
-                // Animação baseada no progresso
-                const getAnimationClass = () => {
-                  if (assessor.achieved) return "animate-sprint-glow hover:scale-110";
-                  if (progressPercent >= 80) return "animate-sprint-bounce hover:scale-105";
-                  if (progressPercent >= 50) return "animate-sprint-pulse hover:scale-105";
-                  return "animate-sprint-shake hover:scale-105";
+                // Hover elegante (sem animações infinitas)
+                const getHoverClass = () => {
+                  return "transition-all duration-200 hover:scale-[1.03] hover:shadow-md hover:brightness-110";
                 };
 
                 // Emoji e mensagem baseados no status
@@ -185,9 +194,9 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
                     <TooltipTrigger asChild>
                       <div 
                         className={cn(
-                          "flex flex-col items-center px-1 py-1 rounded text-center cursor-pointer transition-all duration-200",
+                          "flex flex-col items-center px-1 py-1 rounded text-center cursor-pointer",
                           colorClass,
-                          getAnimationClass()
+                          getHoverClass()
                         )}
                       >
                         <span className="text-scale-5 lg:text-scale-6 font-medium">
