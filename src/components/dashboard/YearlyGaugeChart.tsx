@@ -2,7 +2,6 @@ import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
 import { KPIStatusIcon } from "@/types/kpi";
-import { useResponsiveSize } from "@/hooks/use-responsive-size";
 
 interface YearlyGaugeChartProps {
   label: string;
@@ -42,16 +41,16 @@ export function YearlyGaugeChart({
   size = "md",
   statusIcon,
 }: YearlyGaugeChartProps) {
-  const { scale } = useResponsiveSize();
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   
-  // Dynamic sizing
-  const baseMultiplier = size === "sm" ? 0.7 : size === "md" ? 0.9 : 1.1;
-  const dynamicScale = Math.max(0.6, Math.min(scale * baseMultiplier, 1.4));
+  // Fixed dimensions based on size
+  const dimensions = {
+    sm: { width: 112, height: 63, stroke: 7 },
+    md: { width: 144, height: 81, stroke: 9 },
+    lg: { width: 176, height: 99, stroke: 11 },
+  };
   
-  const dynamicWidth = Math.round(160 * dynamicScale);
-  const dynamicHeight = Math.round(90 * dynamicScale);
-  const dynamicStrokeWidth = Math.round(10 * dynamicScale);
+  const { width: dynamicWidth, height: dynamicHeight, stroke: dynamicStrokeWidth } = dimensions[size];
   
   const radius = (dynamicWidth - dynamicStrokeWidth) / 2;
   const circumference = Math.PI * radius;

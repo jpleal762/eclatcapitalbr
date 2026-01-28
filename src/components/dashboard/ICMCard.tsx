@@ -4,7 +4,6 @@ import { CheckCircle, Clock, AlertTriangle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useResponsiveSize } from "@/hooks/use-responsive-size";
 import { useTheme } from "next-themes";
 interface HistoricalICMData {
   month: string;
@@ -38,18 +37,13 @@ export function ICMCard({
   isLocked = false,
   historicalData
 }: ICMCardProps) {
-  const {
-    height,
-    scale
-  } = useResponsiveSize();
   const { theme } = useTheme();
 
-  // Dynamic gauge sizing - compacted for half height
-  const dynamicScale = Math.max(0.7, Math.min(scale * 1.1, 1.6));
-  const gaugeWidth = Math.round(140 * dynamicScale);
-  const gaugeHeight = Math.round(80 * dynamicScale);
-  const gaugeRadius = Math.round(60 * dynamicScale);
-  const strokeWidth = Math.round(12 * dynamicScale);
+  // Fixed gauge dimensions
+  const gaugeWidth = 140;
+  const gaugeHeight = 80;
+  const gaugeRadius = 60;
+  const strokeWidth = 12;
   const circumference = Math.PI * gaugeRadius;
   const progress = Math.min(icmGeral, 100) / 100 * circumference;
 
@@ -65,8 +59,8 @@ export function ICMCard({
   const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
   const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
 
-  // Triangle (arrow)
-  const triangleSize = 4 * dynamicScale;
+  // Triangle (arrow) - fixed size
+  const triangleSize = 4;
   const perpAngle = ritmoIdealAngle + Math.PI / 2;
   const tipX = x2;
   const tipY = y2;
@@ -130,7 +124,7 @@ export function ICMCard({
               transition: "stroke-dashoffset 0.8s ease-out"
             }} />
               {/* Ritmo Ideal marker - linha + seta triangular */}
-              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={markerColor} strokeWidth={2 * dynamicScale} />
+              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={markerColor} strokeWidth={2} />
               <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={markerColor} />
             </svg>
             <div className="absolute inset-0 flex items-end justify-center pb-1">

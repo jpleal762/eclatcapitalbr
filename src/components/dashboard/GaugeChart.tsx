@@ -1,7 +1,6 @@
 import { AlertTriangle, CheckCircle, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
-import { useResponsiveSize } from "@/hooks/use-responsive-size";
 import { useTheme } from "next-themes";
 export interface AssessorRemainingItem {
   name: string;
@@ -128,9 +127,6 @@ export function GaugeChart({
   headName,
 }: GaugeChartProps) {
   const { theme } = useTheme();
-  const {
-    scale
-  } = useResponsiveSize();
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   const remainingValue = Math.max(target - value, 0);
   
@@ -145,21 +141,14 @@ export function GaugeChart({
     ? ((weight / TOTAL_ICM_WEIGHT) * remainingPercentage).toFixed(1)
     : null;
 
-  // Dynamic sizing based on viewport
-  // Compact mode: reduce scale ceiling AND base dimensions by 0.8x
-  const compactFactor = compact ? 0.8 : 1;
-  const maxScale = compact ? 1.0 : 1.5;
-  const baseMultiplier = size === "sm" ? 0.7 : size === "md" ? 0.9 : 1.1;
-  const dynamicScale = Math.max(0.5, Math.min(scale * baseMultiplier * compactFactor, maxScale));
+  // Fixed dimensions based on size and compact mode
+  const dimensions = {
+    sm: { width: compact ? 90 : 112, height: compact ? 52 : 64, stroke: compact ? 8 : 10 },
+    md: { width: compact ? 115 : 144, height: compact ? 64 : 80, stroke: compact ? 10 : 12 },
+    lg: { width: compact ? 128 : 160, height: compact ? 72 : 90, stroke: compact ? 11 : 14 },
+  };
   
-  // Base dimensions reduced by 0.8x for compact mode
-  const baseWidth = compact ? 128 : 160;
-  const baseHeight = compact ? 72 : 90;
-  const baseStroke = compact ? 17 : 21;
-  
-  const dynamicWidth = Math.round(baseWidth * dynamicScale);
-  const dynamicHeight = Math.round(baseHeight * dynamicScale);
-  const dynamicStrokeWidth = Math.round(baseStroke * dynamicScale);
+  const { width: dynamicWidth, height: dynamicHeight, stroke: dynamicStrokeWidth } = dimensions[size];
 
   // Calcular alerta e diferença para o ritmo ideal
   const ritmoIdealValue = ritmoIdeal !== undefined && target > 0 
@@ -200,8 +189,8 @@ export function GaugeChart({
   const markerX2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
   const markerY2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
 
-  // Triangle (arrow) for ritmo ideal marker
-  const triangleSize = 4 * dynamicScale;
+  // Triangle (arrow) for ritmo ideal marker - fixed size
+  const triangleSize = 4;
   const perpAngle = ritmoIdealAngle + Math.PI / 2;
   const tipX = markerX2;
   const tipY = markerY2;
@@ -317,7 +306,7 @@ export function GaugeChart({
                   x2={markerX2} 
                   y2={markerY2} 
                   stroke={markerColor} 
-                  strokeWidth={2 * dynamicScale} 
+                  strokeWidth={2} 
                 />
                 <polygon 
                   points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} 
