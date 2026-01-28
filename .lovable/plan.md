@@ -1,254 +1,351 @@
 
-## Plano: Reduzir Todos os Tamanhos em 50%
+## Plano: Aplicar Redução de 50% nas Outras Telas e Componentes
 
 ### Objetivo
 
-Aplicar uma redução de 50% em **todos** os tamanhos fixos do projeto:
-- Tipografia (fontes)
-- Gaps (espaçamentos)
-- Paddings e margins
-- Alturas de barras
-- Tamanhos de ícones
-- Dimensões dos gauges (largura, altura, stroke)
+Aplicar a mesma redução de 50% em todos os valores fixos de pixel que **não foram atualizados** na rodada anterior. Isso inclui as páginas de Análise (Trimestral), Sprint, e componentes auxiliares.
 
 ---
 
 ### Arquivos a Modificar
 
-| Arquivo | Alteração |
-|---------|-----------|
-| `src/index.css` | Reduzir todas as classes fixas em 50% |
-| `src/components/dashboard/GaugeChart.tsx` | Reduzir dimensões dos gauges em 50% |
-| `src/components/dashboard/ICMCard.tsx` | Reduzir dimensões do gauge em 50% |
-| `src/components/dashboard/YearlyGaugeChart.tsx` | Reduzir dimensões em 50% |
-| `src/components/dashboard/YearlyICMCard.tsx` | Reduzir dimensões em 50% |
+| Arquivo | Componente | Tipo de Alteração |
+|---------|------------|-------------------|
+| `src/components/dashboard/AnalysisPage.tsx` | Página Análise Trimestral | Reduzir tamanhos de fonte, ícones, gaps, paddings |
+| `src/components/dashboard/QuarterlyKPIBar.tsx` | Barras KPI Trimestrais | Reduzir tamanhos de fonte, altura de barras, paddings |
+| `src/components/dashboard/SprintPage.tsx` | Página Sprint | Reduzir tamanhos de fonte, ícones, checkboxes, gaps |
+| `src/components/dashboard/SprintKPIBar.tsx` | Barras KPI Sprint | Reduzir tamanhos de fonte, ícones, barras, paddings |
+| `src/components/dashboard/AssessorChart.tsx` | Gráfico de Assessores | Reduzir barras, ícones, espaçamentos |
+| `src/components/dashboard/YearlyAssessorChart.tsx` | Ranking Anual | Reduzir tamanhos de fonte, ícones |
+| `src/components/dashboard/FlipGaugeChart.tsx` | Flip do Gauge | Reduzir tamanhos de fonte no verso |
+| `src/components/dashboard/YearlyAnalysisCard.tsx` | Card de Análise Anual | Reduzir tamanhos de fonte, paddings, ícones |
+| `src/components/dashboard/ProgressBar.tsx` | Barra de Progresso | Reduzir ícone do clock |
+| `src/components/dashboard/ExpandableCard.tsx` | Card Expansível | Reduzir tamanhos de ícones e paddings |
 
 ---
 
-### Novos Valores (50% dos atuais)
+### Mapeamento de Redução (Valor Atual → 50%)
 
-#### Tipografia
+#### Fontes (px)
 
-| Classe | Valor Atual | Novo Valor (50%) |
-|--------|-------------|------------------|
-| `text-responsive-4xs` | `11px` | `6px` |
-| `text-responsive-3xs` | `10px` | `5px` |
-| `text-responsive-2xs` | `11px` | `6px` |
-| `text-responsive-xs` | `12px` | `6px` |
-| `text-responsive-sm` | `14px` | `7px` |
-| `text-responsive-base` | `16px` | `8px` |
-| `text-responsive-lg` | `20px` | `10px` |
-| `text-responsive-xl` | `24px` | `12px` |
-| `text-responsive-2xl` | `28px` | `14px` |
-| `text-responsive-3xl` | `34px` | `17px` |
-| `text-responsive-4xl` | `40px` | `20px` |
-
-#### Tipografia TV Mode
-
-| Classe | Valor Atual | Novo Valor (50%) |
-|--------|-------------|------------------|
-| `text-tv-3xs` | `12px` | `6px` |
-| `text-tv-2xs` | `14px` | `7px` |
-| `text-tv-xs` | `16px` | `8px` |
-| `text-tv-sm` | `20px` | `10px` |
-| `text-tv-base` | `24px` | `12px` |
-| `text-tv-lg` | `28px` | `14px` |
-| `text-tv-xl` | `32px` | `16px` |
-| `text-tv-2xl` | `40px` | `20px` |
-
-#### Gaps
-
-| Classe | Valor Atual | Novo Valor (50%) |
-|--------|-------------|------------------|
-| `gap-responsive-sm` | `4px` | `2px` |
-| `gap-responsive` | `6px` | `3px` |
-| `gap-responsive-lg` | `12px` | `6px` |
-
-#### Paddings e Margins
-
-| Classe | Valor Atual | Novo Valor (50%) |
-|--------|-------------|------------------|
-| `p-responsive-sm` | `4px` | `2px` |
-| `p-responsive` | `8px` | `4px` |
-| `p-responsive-lg` | `12px` | `6px` |
-| `px-responsive` | `8px` | `4px` |
-| `py-responsive` | `4px` | `2px` |
-| `py-responsive-sm` | `2px` | `1px` |
-| `mb-responsive` | `4px` | `2px` |
-| `mt-responsive` | `4px` | `2px` |
+| Valor Atual | Novo Valor (50%) |
+|-------------|------------------|
+| `text-lg` (18px) | `text-[9px]` |
+| `text-sm` (14px) | `text-[7px]` |
+| `text-xs` (12px) | `text-[6px]` |
+| `text-[10px]` | `text-[5px]` |
+| `text-[11px]` | `text-[6px]` |
+| `text-[12px]` | `text-[6px]` |
+| `text-[9px]` | `text-[5px]` |
+| `text-[8px]` | `text-[4px]` |
 
 #### Alturas de Barras
 
-| Classe | Valor Atual | Novo Valor (50%) |
-|--------|-------------|------------------|
-| `h-bar-responsive-sm` | `6px` | `3px` |
-| `h-bar-responsive` | `9px` | `5px` |
-| `h-bar-responsive-lg` | `12px` | `6px` |
+| Valor Atual | Novo Valor (50%) |
+|-------------|------------------|
+| `h-2` (8px) | `h-1` (4px) |
+| `h-3` (12px) | `h-1.5` (6px) |
+| `h-4` (16px) | `h-2` (8px) |
+| `h-1.5` (6px) | `h-[3px]` |
+| `h-1` (4px) | `h-0.5` (2px) |
 
-#### Tamanhos de Ícones
+#### Paddings/Gaps
 
-| Classe | Valor Atual | Novo Valor (50%) |
-|--------|-------------|------------------|
-| `icon-responsive-sm` | `16px` | `8px` |
-| `icon-responsive` | `20px` | `10px` |
-| `icon-responsive-lg` | `28px` | `14px` |
+| Valor Atual | Novo Valor (50%) |
+|-------------|------------------|
+| `p-4` (16px) | `p-2` (8px) |
+| `p-3` (12px) | `p-1.5` (6px) |
+| `p-2` (8px) | `p-1` (4px) |
+| `p-1.5` (6px) | `p-[3px]` |
+| `p-1` (4px) | `p-0.5` (2px) |
+| `gap-4` (16px) | `gap-2` (8px) |
+| `gap-3` (12px) | `gap-1.5` (6px) |
+| `gap-2` (8px) | `gap-1` (4px) |
+| `gap-1.5` (6px) | `gap-[3px]` |
+| `gap-1` (4px) | `gap-0.5` (2px) |
+| `mb-4` (16px) | `mb-2` (8px) |
+| `mb-2` (8px) | `mb-1` (4px) |
+| `mb-1` (4px) | `mb-0.5` (2px) |
+| `px-3` (12px) | `px-1.5` (6px) |
+| `py-1` (4px) | `py-0.5` (2px) |
 
----
+#### Ícones
 
-### Dimensões dos Gauges (50% dos atuais)
+| Valor Atual | Novo Valor (50%) |
+|-------------|------------------|
+| `h-5 w-5` (20px) | `h-2.5 w-2.5` (10px) |
+| `h-4 w-4` (16px) | `h-2 w-2` (8px) |
+| `h-3 w-3` (12px) | `h-1.5 w-1.5` (6px) |
+| `h-2.5 w-2.5` (10px) | `h-[5px] w-[5px]` |
+| `w-4 h-4` (16px) | `w-2 h-2` (8px) |
+| `w-3.5 h-3.5` (14px) | `w-[7px] h-[7px]` |
+| `w-3 h-3` (12px) | `w-1.5 h-1.5` (6px) |
+| `w-2.5 h-2.5` (10px) | `w-[5px] h-[5px]` |
+| `w-1.5 h-1.5` (6px) | `w-[3px] h-[3px]` |
 
-#### GaugeChart.tsx
+#### Outros
 
-**Normal mode:**
-| Tamanho | Atual | Novo (50%) |
-|---------|-------|------------|
-| `sm` | `112×64, stroke 10` | `56×32, stroke 5` |
-| `md` | `144×80, stroke 12` | `72×40, stroke 6` |
-| `lg` | `160×90, stroke 14` | `80×45, stroke 7` |
-
-**Compact mode:**
-| Tamanho | Atual | Novo (50%) |
-|---------|-------|------------|
-| `sm` | `90×52, stroke 8` | `45×26, stroke 4` |
-| `md` | `115×64, stroke 10` | `58×32, stroke 5` |
-| `lg` | `128×72, stroke 11` | `64×36, stroke 6` |
-
-#### ICMCard.tsx
-
-| Propriedade | Atual | Novo (50%) |
-|-------------|-------|------------|
-| `gaugeWidth` | `140px` | `70px` |
-| `gaugeHeight` | `80px` | `40px` |
-| `gaugeRadius` | `60px` | `30px` |
-| `strokeWidth` | `12px` | `6px` |
-| `triangleSize` | `4px` | `2px` |
-
-#### YearlyGaugeChart.tsx
-
-| Tamanho | Atual | Novo (50%) |
-|---------|-------|------------|
-| `sm` | `112×63, stroke 7` | `56×32, stroke 4` |
-| `md` | `144×81, stroke 9` | `72×41, stroke 5` |
-| `lg` | `176×99, stroke 11` | `88×50, stroke 6` |
-
-#### YearlyICMCard.tsx
-
-| Propriedade | Atual | Novo (50%) |
-|-------------|-------|------------|
-| `gaugeWidth` | `180px` | `90px` |
-| `gaugeHeight` | `100px` | `50px` |
-| `gaugeRadius` | `80px` | `40px` |
-| `strokeWidth` | `14px` | `7px` |
+| Valor Atual | Novo Valor (50%) |
+|-------------|------------------|
+| `w-[160px]` | `w-[80px]` |
+| `w-[180px]` | `w-[90px]` |
+| `w-[140px]` | `w-[70px]` |
+| `w-[120px]` | `w-[60px]` |
+| `w-[100px]` | `w-[50px]` |
+| `h-8` (32px) | `h-4` (16px) |
+| `h-6` (24px) | `h-3` (12px) |
+| `w-8` (32px) | `w-4` (16px) |
 
 ---
 
-### Código CSS Atualizado (index.css)
+### Alterações por Arquivo
 
-```css
-/* Fixed typography - 50% reduction */
-.text-responsive-4xs { font-size: 6px; }
-.text-responsive-3xs { font-size: 5px; }
-.text-responsive-2xs { font-size: 6px; }
-.text-responsive-xs { font-size: 6px; }
-.text-responsive-sm { font-size: 7px; }
-.text-responsive-base { font-size: 8px; }
-.text-responsive-lg { font-size: 10px; }
-.text-responsive-xl { font-size: 12px; }
-.text-responsive-2xl { font-size: 14px; }
-.text-responsive-3xl { font-size: 17px; }
-.text-responsive-4xl { font-size: 20px; }
+#### 1. AnalysisPage.tsx
 
-/* TV Mode - 50% reduction */
-.text-tv-3xs { font-size: 6px; }
-.text-tv-2xs { font-size: 7px; }
-.text-tv-xs { font-size: 8px; }
-.text-tv-sm { font-size: 10px; }
-.text-tv-base { font-size: 12px; }
-.text-tv-lg { font-size: 14px; }
-.text-tv-xl { font-size: 16px; }
-.text-tv-2xl { font-size: 20px; }
+**Linhas 101-186** - Header e filtros:
+- `p-4` → `p-2`
+- `gap-4` → `gap-2`
+- `h-5 w-5` → `h-2.5 w-2.5`
+- `text-lg` → `text-[9px]`
+- `text-sm` → `text-[7px]`
+- `px-3 py-1` → `px-1.5 py-0.5`
+- `w-[160px]` → `w-[80px]`
+- `w-[100px]` → `w-[50px]`
+- `px-2` → `px-1`
+- `gap-1` → `gap-0.5`
 
-/* Fixed gaps - 50% reduction */
-.gap-responsive-sm { gap: 2px; }
-.gap-responsive { gap: 3px; }
-.gap-responsive-lg { gap: 6px; }
+**Linhas 192-234** - Headers de categoria:
+- `w-1.5 h-1.5` → `w-[3px] h-[3px]`
+- `text-[10px]` → `text-[5px]`
+- `gap-1` → `gap-0.5`
 
-/* Fixed padding/margin - 50% reduction */
-.p-responsive-sm { padding: 2px; }
-.p-responsive { padding: 4px; }
-.p-responsive-lg { padding: 6px; }
-.px-responsive { padding-left: 4px; padding-right: 4px; }
-.py-responsive { padding-top: 2px; padding-bottom: 2px; }
-.py-responsive-sm { padding-top: 1px; padding-bottom: 1px; }
-.mb-responsive { margin-bottom: 2px; }
-.mt-responsive { margin-top: 2px; }
+**Linhas 247-254** - Card sem dados:
+- `p-8` → `p-4`
+- `h-16 w-16` → `h-8 w-8`
+- `mb-4` → `mb-2`
+- `text-xl` → `text-[10px]`
+- `mb-2` → `mb-1`
 
-/* Fixed bar heights - 50% reduction */
-.h-bar-responsive-sm { height: 3px; }
-.h-bar-responsive { height: 5px; }
-.h-bar-responsive-lg { height: 6px; }
+#### 2. QuarterlyKPIBar.tsx
 
-/* Fixed icon sizes - 50% reduction */
-.icon-responsive-sm { width: 8px; height: 8px; }
-.icon-responsive { width: 10px; height: 10px; }
-.icon-responsive-lg { width: 14px; height: 14px; }
-```
+**Linha 50** - Container:
+- `p-1.5 lg:p-2` → `p-[3px] lg:p-1`
+
+**Linhas 52-64** - Label e porcentagem:
+- `text-[10px] lg:text-xs` → `text-[5px] lg:text-[6px]`
+- `text-[8px] lg:text-[9px]` → `text-[4px] lg:text-[5px]`
+- `px-0.5 py-0.5` → `px-[1px] py-[1px]`
+- `text-xs lg:text-sm` → `text-[6px] lg:text-[7px]`
+- `gap-1` → `gap-0.5`
+- `mb-0.5` → `mb-[1px]`
+
+**Linhas 67-96** - Barra de progresso:
+- `h-2 lg:h-3` → `h-1 lg:h-1.5`
+- `my-0.5` → `my-[1px]`
+- Triângulo: `border-l-[3px] border-r-[3px] border-t-[4px]` → `border-l-[1.5px] border-r-[1.5px] border-t-[2px]`
+- `w-0.5` → `w-[1px]`
+
+**Linhas 99-122** - Valores:
+- `text-[9px] lg:text-[10px]` → `text-[5px] lg:text-[5px]`
+- `mt-0.5` → `mt-[1px]`
+
+#### 3. SprintPage.tsx
+
+**Linhas 43-61** - Filtros e checkboxes:
+- `gap-2 lg:gap-3` → `gap-1 lg:gap-1.5`
+- `gap-1 lg:gap-1.5` → `gap-0.5 lg:gap-[3px]`
+- `text-[10px] lg:text-xs` → `text-[5px] lg:text-[6px]`
+- `h-3 w-3 lg:h-4 lg:w-4` → `h-1.5 w-1.5 lg:h-2 lg:w-2`
+- `mb-2` → `mb-1`
+- `gap-2` → `gap-1`
+
+**Linhas 64-95** - Selects:
+- `w-[140px] lg:w-[180px]` → `w-[70px] lg:w-[90px]`
+- `w-[100px] lg:w-[120px]` → `w-[50px] lg:w-[60px]`
+- `h-8` → `h-4`
+- `text-xs lg:text-sm` → `text-[6px] lg:text-[7px]`
+
+**Linha 99** - KPI Bars container:
+- `gap-1 lg:gap-1.5` → `gap-0.5 lg:gap-[3px]`
+
+#### 4. SprintKPIBar.tsx
+
+**Linhas 27-39** - Ícones de urgência:
+- `h-3 w-3 lg:h-4 lg:w-4` → `h-1.5 w-1.5 lg:h-2 lg:w-2`
+
+**Linha 75** - Container:
+- `p-2 lg:p-3` → `p-1 lg:p-1.5`
+
+**Linhas 79-91** - Header:
+- `mb-1` → `mb-0.5`
+- `gap-2` → `gap-1`
+- `text-xs lg:text-sm` → `text-[6px] lg:text-[7px]`
+- `text-sm lg:text-base` → `text-[7px] lg:text-[8px]`
+
+**Linhas 95-107** - Grid de valores:
+- `gap-1 mb-1` → `gap-0.5 mb-0.5`
+- `text-[9px] lg:text-[10px]` → `text-[5px] lg:text-[5px]`
+
+**Linhas 110-118** - Barra de progresso:
+- `h-3 lg:h-4` → `h-1.5 lg:h-2`
+- `mb-1` → `mb-0.5`
+
+**Linhas 121-136** - Indicador de evolução:
+- `text-[9px] lg:text-[10px]` → `text-[5px] lg:text-[5px]`
+- `h-3 w-3` → `h-1.5 w-1.5`
+- `gap-1 mb-1` → `gap-0.5 mb-0.5`
+
+**Linhas 139-168** - Breakdown por assessor:
+- `pt-1` → `pt-0.5`
+- `mb-1` → `mb-0.5`
+- `gap-1.5` → `gap-[3px]`
+- `px-1.5 py-1` → `px-[3px] py-0.5`
+- `text-[10px] lg:text-[11px]` → `text-[5px] lg:text-[6px]`
+- `text-[11px] lg:text-[12px]` → `text-[6px] lg:text-[6px]`
+
+#### 5. AssessorChart.tsx
+
+**Linha 88** - Assessor row:
+- `gap-1 p-1` → `gap-0.5 p-0.5`
+
+**Linha 92** - Nome:
+- `gap-1` → `gap-0.5`
+
+**Linhas 99-126** - Barras:
+- `h-1.5` → `h-[3px]`
+- `mt-0.5` → `mt-[1px]`
+- `h-1` → `h-0.5`
+- Clock: `w-3 h-3` → `w-1.5 h-1.5`
+- Clock interno: `w-1.5 h-1.5` → `w-[3px] h-[3px]`
+- Linha conectora: `h-1.5` → `h-[3px]`
+- Top: `-8px` → `-4px`
+
+**Linhas 135-142** - Percentagens:
+- `text-[9px]` → `text-[5px]`
+
+**Linha 150** - Card single assessor:
+- `p-2` → `p-1`
+- `mb-1` → `mb-0.5`
+- `gap-1` → `gap-0.5`
+- `p-4` → `p-2`
+
+**Linha 165** - Card múltiplos:
+- `p-2` → `p-1`
+- `mb-1` → `mb-0.5`
+- `gap-0.5` → `gap-[1px]`
+
+#### 6. YearlyAssessorChart.tsx
+
+**Linhas 45-46** - Header:
+- `p-responsive-lg` permanece (já usa classe responsiva)
+
+**Linha 52-53** - Ranking icons:
+- `w-8` → `w-4`
+
+**Linha 67-69** - Porcentagens:
+- `text-responsive-xs` permanece (já usa classe responsiva)
+
+**Linha 96-97** - Others ranking:
+- `w-8` → `w-4`
+
+#### 7. FlipGaugeChart.tsx
+
+**Linhas 109-143** - Verso (back card):
+- `p-2` → `p-1`
+- `mb-1` → `mb-0.5`
+- `text-[10px]` → `text-[5px]`
+- `p-0.5` → `p-[1px]`
+- `w-2.5 h-2.5` → `w-[5px] h-[5px]`
+- `space-y-0.5` → `space-y-[1px]`
+- `text-[9px]` → `text-[5px]`
+- `py-0` permanece
+- `py-1` → `py-0.5`
+
+#### 8. YearlyAnalysisCard.tsx
+
+**Linha 125** - Card:
+- `p-6` → `p-3`
+
+**Linhas 127-139** - Header:
+- `mb-4` → `mb-2`
+- `text-lg` → `text-[9px]`
+- `text-sm` → `text-[7px]`
+- `gap-2` → `gap-1`
+- `h-8 w-8` → `h-4 w-4`
+- `h-4 w-4` → `h-2 w-2`
+
+**Linhas 143-149** - Skeleton:
+- `space-y-3` → `space-y-1.5`
+
+**Linhas 158-189** - Conteúdo de análise:
+- `space-y-4` → `space-y-2`
+- `gap-2 mb-2` → `gap-1 mb-1`
+- `text-sm` → `text-[7px]`
+- `h-4 w-4` → `h-2 w-2`
+- `space-y-1.5` → `space-y-[3px]`
+- `text-xs` → `text-[6px]`
+- `gap-2` → `gap-1`
+- `mt-0.5` → `mt-[1px]`
+
+**Linha 200** - Loading indicator:
+- `mt-2` → `mt-1`
+- `text-xs` → `text-[6px]`
+
+#### 9. ProgressBar.tsx
+
+**Linhas 63-66** - Clock marker:
+- `w-4 h-4` → `w-2 h-2`
+- `w-2.5 h-2.5` → `w-[5px] h-[5px]`
+- `w-0.5` → `w-[1px]`
+- `-mt-0.5` → `-mt-[1px]`
+
+**Linha 70** - Diferença label:
+- `-bottom-5` → `-bottom-2.5`
+
+#### 10. ExpandableCard.tsx
+
+**Linhas 39-43** - Botão expandir:
+- `top-2 left-2` → `top-1 left-1`
+- `p-1.5` → `p-[3px]`
+- `w-3.5 h-3.5` → `w-[7px] h-[7px]`
+
+**Linhas 52-56** - Botão minimizar:
+- `top-4 left-4` → `top-2 left-2`
+- `p-2` → `p-1`
+- `w-5 h-5` → `w-2.5 h-2.5`
+
+**Linha 62** - Overlay padding:
+- `p-4` → `p-2`
 
 ---
 
-### Código dos Gauges Atualizado
+### Resumo das Alterações
 
-#### GaugeChart.tsx (dimensões)
-
-```tsx
-const dimensions = {
-  sm: { width: compact ? 45 : 56, height: compact ? 26 : 32, stroke: compact ? 4 : 5 },
-  md: { width: compact ? 58 : 72, height: compact ? 32 : 40, stroke: compact ? 5 : 6 },
-  lg: { width: compact ? 64 : 80, height: compact ? 36 : 45, stroke: compact ? 6 : 7 },
-};
-```
-
-#### ICMCard.tsx (dimensões)
-
-```tsx
-const gaugeWidth = 70;
-const gaugeHeight = 40;
-const gaugeRadius = 30;
-const strokeWidth = 6;
-const triangleSize = 2;
-```
-
-#### YearlyGaugeChart.tsx (dimensões)
-
-```tsx
-const dimensions = {
-  sm: { width: 56, height: 32, stroke: 4 },
-  md: { width: 72, height: 41, stroke: 5 },
-  lg: { width: 88, height: 50, stroke: 6 },
-};
-```
-
-#### YearlyICMCard.tsx (dimensões)
-
-```tsx
-const gaugeWidth = 90;
-const gaugeHeight = 50;
-const gaugeRadius = 40;
-const strokeWidth = 7;
-```
+| Arquivo | Nº de Alterações |
+|---------|------------------|
+| AnalysisPage.tsx | ~25 |
+| QuarterlyKPIBar.tsx | ~20 |
+| SprintPage.tsx | ~15 |
+| SprintKPIBar.tsx | ~30 |
+| AssessorChart.tsx | ~20 |
+| YearlyAssessorChart.tsx | ~4 |
+| FlipGaugeChart.tsx | ~10 |
+| YearlyAnalysisCard.tsx | ~25 |
+| ProgressBar.tsx | ~6 |
+| ExpandableCard.tsx | ~8 |
 
 ---
 
 ### Resultado Esperado
 
 Após as alterações:
-- Todos os elementos visuais terão **metade do tamanho** atual
-- Layout permanece proporcional e centralizado
-- Mais espaço livre dentro dos cards
-- Texto pode ficar pequeno demais para leitura confortável (ajuste futuro possível)
+- Todas as telas (Dashboard, Análise, Sprint) terão proporções consistentes
+- Todos os elementos visuais terão **metade do tamanho** anterior
+- Layout compacto e uniforme em todo o app
+- Mais espaço livre em todos os cards e barras
 
 ---
 
-### Aviso
+### Aviso Importante
 
-Uma redução de 50% pode tornar textos com `5px` ou `6px` **praticamente ilegíveis**. Se necessário, podemos ajustar valores mínimos após visualização.
+Alguns tamanhos resultantes (ex: `text-[4px]`, `text-[5px]`) podem ser **extremamente pequenos** e difíceis de ler. Após implementação, pode ser necessário ajustar tamanhos mínimos de fonte para garantir legibilidade.
