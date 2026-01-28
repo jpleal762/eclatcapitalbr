@@ -13,6 +13,7 @@ const SCALE_OPTIONS = [
   { value: 1, label: "1x" },
   { value: 1.25, label: "1.25x" },
   { value: 1.5, label: "1.5x" },
+  { value: 1.75, label: "1.75x" },
   { value: 2, label: "2x" },
 ] as const;
 
@@ -31,7 +32,7 @@ export function ScaleSelector() {
         {SCALE_OPTIONS.map((option) => (
           <DropdownMenuItem
             key={option.value}
-            onClick={() => setScaleFactor(option.value as 1 | 1.25 | 1.5 | 2)}
+            onClick={() => setScaleFactor(option.value as 1 | 1.25 | 1.5 | 1.75 | 2)}
             className={cn(
               "cursor-pointer",
               scaleFactor === option.value && "bg-primary/10 text-primary font-bold"

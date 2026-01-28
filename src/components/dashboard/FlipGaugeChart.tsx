@@ -108,11 +108,11 @@ export function FlipGaugeChart({
         <div className="absolute inset-0 backface-hidden rotate-y-180 overflow-hidden">
           <Card className="h-full p-1 flex flex-col shadow-card">
             <div className="flex items-center justify-between mb-0.5">
-              <h4 className="font-semibold text-[5px] text-foreground">
+              <h4 className="font-semibold text-responsive-2xs text-foreground">
                 {backTitle}
               </h4>
               <div className="p-[1px] rounded-full bg-muted/50">
-                <RotateCcw className="w-[5px] h-[5px] text-muted-foreground" />
+                <RotateCcw className="icon-responsive-sm text-muted-foreground" />
               </div>
             </div>
             
@@ -123,7 +123,7 @@ export function FlipGaugeChart({
                   backData.map((item, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between text-[5px] py-0"
+                      className="flex items-center justify-between text-responsive-2xs py-0"
                     >
                       <span className="font-medium text-foreground truncate max-w-[55%]">
                         {item.name}
@@ -134,7 +134,7 @@ export function FlipGaugeChart({
                     </div>
                   ))
                 ) : (
-                  <p className="text-[5px] text-muted-foreground italic text-center py-0.5">
+                  <p className="text-responsive-2xs text-muted-foreground italic text-center py-0.5">
                     Sem dados
                   </p>
                 )}

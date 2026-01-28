@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-type ScaleFactor = 1 | 1.25 | 1.5 | 2;
+type ScaleFactor = 1 | 1.25 | 1.5 | 1.75 | 2;
 
 interface ScaleContextType {
   scaleFactor: ScaleFactor;
@@ -16,7 +16,7 @@ export function ScaleProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem(SCALE_STORAGE_KEY);
     if (saved) {
       const parsed = parseFloat(saved);
-      if (parsed === 1 || parsed === 1.25 || parsed === 1.5 || parsed === 2) {
+      if (parsed === 1 || parsed === 1.25 || parsed === 1.5 || parsed === 1.75 || parsed === 2) {
         return parsed as ScaleFactor;
       }
     }
