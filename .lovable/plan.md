@@ -1,102 +1,56 @@
 
-
-## Plano: Implementar Botão de Escala/Zoom na Barra Superior
+## Plano: Aumentar Fonte dos Cards Flip e Adicionar Opção 1.75x
 
 ### Objetivo
 
-Adicionar um botão dropdown na barra superior do dashboard que permite selecionar um multiplicador de escala (1x, 1.25x, 1.5x, 2x). Quando selecionado, todos os elementos visuais (fontes, gaps, paddings, ícones, barras) serão multiplicados pelo fator escolhido.
+1. Aumentar o tamanho da fonte nos cards pequenos que viram (especialmente o FlipGaugeChart)
+2. Adicionar a opção 1.75x no seletor de escala
 
 ---
 
-### Arquitetura da Solução
+### Problema Identificado
 
-A abordagem mais eficiente é usar **CSS custom properties (variáveis CSS)** combinadas com um contexto React:
+O **FlipGaugeChart** (verso dos gráficos pequenos) usa tamanhos de fonte fixos muito pequenos:
+- Título do verso: `text-[5px]`
+- Ícone de rotação: `w-[5px] h-[5px]`
+- Lista de assessores: `text-[5px]`
 
-1. **CSS Variables Base**: Definir variáveis CSS para todos os tamanhos base
-2. **Multiplicador Dinâmico**: Uma variável `--scale-factor` que é multiplicada por todas as outras
-3. **Contexto React**: Para propagar o fator de escala pelo app
-4. **Persistência**: Salvar preferência no localStorage
+Esses valores não usam as classes `text-responsive-*` que escalam com `--scale-factor`.
 
 ---
 
-### Arquivos a Criar/Modificar
+### Arquivos a Modificar
 
-| Arquivo | Ação | Descrição |
-|---------|------|-----------|
-| `src/contexts/ScaleContext.tsx` | Criar | Contexto React para gerenciar fator de escala |
-| `src/components/ScaleSelector.tsx` | Criar | Componente dropdown para seleção de escala |
-| `src/index.css` | Modificar | Adicionar variáveis CSS base e classes escaláveis |
-| `src/pages/Index.tsx` | Modificar | Adicionar ScaleSelector no header e wrapper do contexto |
-| `src/App.tsx` | Modificar | Adicionar ScaleProvider no nível superior |
+| Arquivo | Alteração |
+|---------|-----------|
+| `src/contexts/ScaleContext.tsx` | Adicionar 1.75 ao tipo ScaleFactor |
+| `src/components/ScaleSelector.tsx` | Adicionar opção 1.75x no dropdown |
+| `src/components/dashboard/FlipGaugeChart.tsx` | Substituir tamanhos fixos por classes responsivas |
 
 ---
 
 ### Detalhamento Técnico
 
-#### 1. Criar ScaleContext.tsx
+#### 1. ScaleContext.tsx - Adicionar 1.75
 
 ```tsx
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-
+// ANTES (linha 3)
 type ScaleFactor = 1 | 1.25 | 1.5 | 2;
 
-interface ScaleContextType {
-  scaleFactor: ScaleFactor;
-  setScaleFactor: (factor: ScaleFactor) => void;
-}
+// DEPOIS
+type ScaleFactor = 1 | 1.25 | 1.5 | 1.75 | 2;
 
-const ScaleContext = createContext<ScaleContextType | undefined>(undefined);
+// ANTES (linha 19)
+if (parsed === 1 || parsed === 1.25 || parsed === 1.5 || parsed === 2) {
 
-const SCALE_STORAGE_KEY = "dashboard-scale-factor";
-
-export function ScaleProvider({ children }: { children: ReactNode }) {
-  const [scaleFactor, setScaleFactorState] = useState<ScaleFactor>(() => {
-    const saved = localStorage.getItem(SCALE_STORAGE_KEY);
-    return saved ? (parseFloat(saved) as ScaleFactor) : 1;
-  });
-
-  const setScaleFactor = (factor: ScaleFactor) => {
-    setScaleFactorState(factor);
-    localStorage.setItem(SCALE_STORAGE_KEY, factor.toString());
-    // Atualizar CSS custom property no root
-    document.documentElement.style.setProperty("--scale-factor", factor.toString());
-  };
-
-  // Aplicar escala inicial no mount
-  useEffect(() => {
-    document.documentElement.style.setProperty("--scale-factor", scaleFactor.toString());
-  }, []);
-
-  return (
-    <ScaleContext.Provider value={{ scaleFactor, setScaleFactor }}>
-      {children}
-    </ScaleContext.Provider>
-  );
-}
-
-export function useScale() {
-  const context = useContext(ScaleContext);
-  if (!context) {
-    throw new Error("useScale must be used within a ScaleProvider");
-  }
-  return context;
-}
+// DEPOIS
+if (parsed === 1 || parsed === 1.25 || parsed === 1.5 || parsed === 1.75 || parsed === 2) {
 ```
 
-#### 2. Criar ScaleSelector.tsx
+#### 2. ScaleSelector.tsx - Adicionar opção 1.75x
 
 ```tsx
-import { ZoomIn } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useScale } from "@/contexts/ScaleContext";
-import { cn } from "@/lib/utils";
-
+// ANTES (linhas 12-17)
 const SCALE_OPTIONS = [
   { value: 1, label: "1x" },
   { value: 1.25, label: "1.25x" },
@@ -104,158 +58,78 @@ const SCALE_OPTIONS = [
   { value: 2, label: "2x" },
 ] as const;
 
-export function ScaleSelector() {
-  const { scaleFactor, setScaleFactor } = useScale();
+// DEPOIS
+const SCALE_OPTIONS = [
+  { value: 1, label: "1x" },
+  { value: 1.25, label: "1.25x" },
+  { value: 1.5, label: "1.5x" },
+  { value: 1.75, label: "1.75x" },
+  { value: 2, label: "2x" },
+] as const;
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8" title="Escala de visualização">
-          <ZoomIn className="h-4 w-4" />
-          <span className="sr-only">Escala</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {SCALE_OPTIONS.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            onClick={() => setScaleFactor(option.value)}
-            className={cn(
-              "cursor-pointer",
-              scaleFactor === option.value && "bg-primary/10 text-primary font-bold"
-            )}
-          >
-            {option.label}
-            {scaleFactor === option.value && " ✓"}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
+// ANTES (linha 34)
+onClick={() => setScaleFactor(option.value as 1 | 1.25 | 1.5 | 2)}
+
+// DEPOIS
+onClick={() => setScaleFactor(option.value as 1 | 1.25 | 1.5 | 1.75 | 2)}
 ```
 
-#### 3. Modificar index.css
+#### 3. FlipGaugeChart.tsx - Aumentar fontes do verso
 
-Adicionar classes escaláveis que usam `calc()` com `--scale-factor`:
-
-```css
-:root {
-  --scale-factor: 1;
-}
-
-/* Scaled Typography Classes */
-.text-scaled-4xs { font-size: calc(6px * var(--scale-factor)); }
-.text-scaled-3xs { font-size: calc(5px * var(--scale-factor)); }
-.text-scaled-2xs { font-size: calc(6px * var(--scale-factor)); }
-.text-scaled-xs { font-size: calc(6px * var(--scale-factor)); }
-.text-scaled-sm { font-size: calc(7px * var(--scale-factor)); }
-.text-scaled-base { font-size: calc(8px * var(--scale-factor)); }
-.text-scaled-lg { font-size: calc(10px * var(--scale-factor)); }
-.text-scaled-xl { font-size: calc(12px * var(--scale-factor)); }
-.text-scaled-2xl { font-size: calc(14px * var(--scale-factor)); }
-
-/* Scaled Gaps */
-.gap-scaled-sm { gap: calc(2px * var(--scale-factor)); }
-.gap-scaled { gap: calc(3px * var(--scale-factor)); }
-.gap-scaled-lg { gap: calc(6px * var(--scale-factor)); }
-
-/* Scaled Padding */
-.p-scaled-sm { padding: calc(2px * var(--scale-factor)); }
-.p-scaled { padding: calc(4px * var(--scale-factor)); }
-.p-scaled-lg { padding: calc(6px * var(--scale-factor)); }
-
-/* Scaled Bar Heights */
-.h-bar-scaled-sm { height: calc(3px * var(--scale-factor)); }
-.h-bar-scaled { height: calc(5px * var(--scale-factor)); }
-.h-bar-scaled-lg { height: calc(6px * var(--scale-factor)); }
-
-/* Scaled Icon Sizes */
-.icon-scaled-sm { width: calc(8px * var(--scale-factor)); height: calc(8px * var(--scale-factor)); }
-.icon-scaled { width: calc(10px * var(--scale-factor)); height: calc(10px * var(--scale-factor)); }
-.icon-scaled-lg { width: calc(14px * var(--scale-factor)); height: calc(14px * var(--scale-factor)); }
-```
-
-#### 4. Modificar Index.tsx
-
-Adicionar o ScaleSelector no header (linha ~622):
+Substituir tamanhos fixos (`text-[5px]`) por classes responsivas que escalam:
 
 ```tsx
-// Importar no topo
-import { ScaleSelector } from "@/components/ScaleSelector";
+// ANTES (linha 111)
+<h4 className="font-semibold text-[5px] text-foreground">
 
-// Adicionar no header, após o botão de fullscreen (~linha 621)
-<ScaleSelector />
-<ThemeToggle />
-```
+// DEPOIS - usando text-responsive-2xs (6px * scale)
+<h4 className="font-semibold text-responsive-2xs text-foreground">
 
-#### 5. Modificar App.tsx
+// ANTES (linha 115)
+<RotateCcw className="w-[5px] h-[5px] text-muted-foreground" />
 
-Envolver o app com ScaleProvider:
+// DEPOIS
+<RotateCcw className="icon-responsive-sm text-muted-foreground" />
 
-```tsx
-import { ScaleProvider } from "@/contexts/ScaleContext";
+// ANTES (linha 126)
+className="flex items-center justify-between text-[5px] py-0"
 
-// No return, envolver com ScaleProvider
-return (
-  <QueryClientProvider client={queryClient}>
-    <ScaleProvider>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <TooltipProvider>
-          {/* ... resto do app */}
-        </TooltipProvider>
-      </ThemeProvider>
-    </ScaleProvider>
-  </QueryClientProvider>
-);
+// DEPOIS
+className="flex items-center justify-between text-responsive-2xs py-0"
+
+// ANTES (linha 137)
+<p className="text-[5px] text-muted-foreground italic text-center py-0.5">
+
+// DEPOIS
+<p className="text-responsive-2xs text-muted-foreground italic text-center py-0.5">
 ```
 
 ---
 
-### Comportamento Esperado
+### Comparação de Tamanhos (FlipGaugeChart verso)
 
-| Seleção | Efeito |
-|---------|--------|
-| **1x** | Tamanho atual (base: 50% já aplicado) |
-| **1.25x** | 25% maior que o base |
-| **1.5x** | 50% maior que o base |
-| **2x** | Dobro do base (volta ao tamanho original antes da redução) |
-
----
-
-### Exemplo de Escala
-
-Para um elemento com `text-[6px]`:
-
-| Fator | Tamanho Final |
-|-------|---------------|
-| 1x | 6px |
-| 1.25x | 7.5px |
-| 1.5x | 9px |
-| 2x | 12px |
+| Elemento | Antes | Depois (base) | Depois (2x) |
+|----------|-------|---------------|-------------|
+| Título | 5px fixo | 6px | 12px |
+| Lista | 5px fixo | 6px | 12px |
+| Ícone | 5x5px | 8x8px | 16x16px |
 
 ---
 
-### Persistência
+### Escala Completa Após Alteração
 
-- A preferência de escala é salva no `localStorage` com a chave `dashboard-scale-factor`
-- Ao recarregar a página, a escala selecionada é restaurada automaticamente
-
----
-
-### Ordem de Implementação
-
-1. Criar `src/contexts/ScaleContext.tsx`
-2. Criar `src/components/ScaleSelector.tsx`
-3. Adicionar variáveis CSS em `src/index.css`
-4. Modificar `src/App.tsx` para adicionar ScaleProvider
-5. Modificar `src/pages/Index.tsx` para adicionar o botão no header
+| Seleção | Multiplicador |
+|---------|---------------|
+| 1x | 1.0 |
+| 1.25x | 1.25 |
+| 1.5x | 1.5 |
+| **1.75x** | **1.75** (nova) |
+| 2x | 2.0 |
 
 ---
 
-### Próximos Passos (Opcional)
+### Resultado Esperado
 
-Após a implementação inicial, podemos:
-- Substituir gradualmente as classes `text-responsive-*` por `text-scaled-*` nos componentes
-- Ou aplicar o fator de escala via transform CSS no container principal (mais simples, mas pode afetar o layout)
-
+- Opção 1.75x aparece no dropdown de escala entre 1.5x e 2x
+- Fontes do verso do FlipGaugeChart (lista "Falta por Assessor") ficam maiores e escalam com o seletor
+- Todos os cards pequenos que viram terão texto legível mesmo em telas grandes
