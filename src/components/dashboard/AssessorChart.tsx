@@ -133,10 +133,10 @@ export function AssessorChart({
         </div>
         
         <div className="text-right flex-shrink-0">
-          <span className="text-scale-8 font-bold text-eclat-gold">
+          <span className="text-scale-7 font-bold text-eclat-gold">
             {assessor.geralPercentage}%
           </span>
-          <span className="text-scale-8 font-medium text-blue-500 block leading-tight">
+          <span className="text-scale-7 font-medium text-blue-500 block leading-tight">
             {assessor.semanaPercentage}%
           </span>
         </div>
