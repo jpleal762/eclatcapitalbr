@@ -1,98 +1,52 @@
 
 
-## Plano: Melhorar Contraste do Vermelho na Tela Sprint
+## Plano: Ajustar Estilo do "Falta" Total
 
-### Problema Identificado
+### Objetivo
 
-Na tela Sprint, os elementos que indicam "falta" (valores pendentes) estão com pouco destaque visual:
+Remover o fundo vermelho do valor total "Falta" (exibido na linha superior), mantendo apenas o texto em vermelho - igual ao padrão do "Real" que só tem o número verde.
 
-1. **Fundo vermelho muito transparente**: `bg-destructive/10` (10% opacidade) sobre fundo escuro do card
-2. **Cor destructive no dark mode é muito escura**: `hsl(0 62% 30%)` - luminosidade de apenas 30%
-3. **Resultado**: O vermelho quase se mistura com o fundo, perdendo impacto visual
+O fundo vermelho permanece apenas na seção "Falta por Assessor".
 
-### Solução Proposta
+---
 
-Aumentar a visibilidade mantendo o tema vermelho/verde:
+### Alteração
 
-1. **Aumentar opacidade do fundo vermelho**: De `bg-destructive/10` para `bg-red-500/20` ou `bg-red-600/25`
-2. **Usar vermelho mais vibrante para texto**: De `text-destructive` para `text-red-400` (mais claro no dark mode)
-3. **Adicionar borda sutil**: `border border-red-500/30` para reforçar o destaque
-4. **Manter o verde igual**: Os elementos verdes já têm bom contraste com `bg-green-500/10` e `text-green-500`
+**Arquivo:** `src/components/dashboard/SprintKPIBar.tsx`
 
-### Arquivo a Modificar
+**Linha 104-108** - Grid de valores (Falta total):
 
-| Arquivo | Alteração |
-|---------|-----------|
-| `src/components/dashboard/SprintKPIBar.tsx` | Ajustar cores de fundo, texto e borda nos elementos vermelhos |
-
-### Alterações Específicas
-
-#### 1. Grid de valores (linha 104-106)
 ```tsx
 // ANTES
-<div className={cn(isCompleted ? "text-green-500" : "text-destructive font-bold")}>
-
-// DEPOIS
 <div className={cn(
   isCompleted 
     ? "text-green-500" 
     : "text-red-400 font-bold bg-red-500/15 px-1 rounded"
 )}>
-```
-
-#### 2. Breakdown por assessor - vermelho (linhas 148-153)
-```tsx
-// ANTES
-assessor.achieved 
-  ? "bg-green-500/10 text-green-500" 
-  : "bg-destructive/10 text-destructive"
 
 // DEPOIS
-assessor.achieved 
-  ? "bg-green-500/15 text-green-400 border border-green-500/20" 
-  : "bg-red-500/20 text-red-400 border border-red-500/30"
+<div className={cn(
+  isCompleted 
+    ? "text-green-500" 
+    : "text-red-400 font-bold"
+)}>
 ```
 
-#### 3. Ícones de urgência - Flame (linha 39)
-```tsx
-// ANTES
-<Flame className="... text-destructive animate-pulse" />
+---
 
-// DEPOIS
-<Flame className="... text-red-400 animate-pulse" />
-```
+### Resultado Visual
 
-#### 4. Porcentagem vermelha (linha 88)
-```tsx
-// ANTES
-progressPercentage >= 50 ? "text-eclat-gold" : "text-destructive"
+| Elemento | Estilo |
+|----------|--------|
+| **Meta** | `text-muted-foreground` + `text-foreground` (padrão) |
+| **Real** | `text-muted-foreground` + `text-green-500` (só texto verde) |
+| **Falta total** | `text-muted-foreground` + `text-red-400` (só texto vermelho) ✅ |
+| **Falta por Assessor** | `bg-red-500/20` + `text-red-400` + `border` (com fundo vermelho) |
 
-// DEPOIS
-progressPercentage >= 50 ? "text-eclat-gold" : "text-red-400"
-```
+---
 
-#### 5. Indicador de evolução negativa (linhas 123-127)
-```tsx
-// ANTES
-evolution.difference > 0 ? "text-green-500" : "text-destructive"
+### Comparação
 
-// DEPOIS
-evolution.difference > 0 ? "text-green-500" : "text-red-400"
-```
-
-### Comparação Visual
-
-| Elemento | Antes | Depois |
-|----------|-------|--------|
-| Fundo vermelho | `bg-destructive/10` (quase invisível) | `bg-red-500/20` (mais visível) |
-| Texto vermelho | `text-destructive` (escuro) | `text-red-400` (vibrante) |
-| Borda | nenhuma | `border-red-500/30` (sutil) |
-| Verde | `bg-green-500/10`, `text-green-500` | `bg-green-500/15`, `text-green-400` (ligeiramente mais vibrante) |
-
-### Resultado Esperado
-
-- Vermelho mais vibrante e destacado contra o fundo escuro
-- Contraste claro entre assessores que atingiram (verde) vs faltam (vermelho)
-- Borda sutil adiciona definição visual sem poluir
-- Tema vermelho/verde mantido, apenas com mais intensidade
+- **Antes**: "Falta: R$ 500K" tinha fundo vermelho claro
+- **Depois**: "Falta: R$ 500K" apenas texto vermelho, sem fundo (igual ao "Real")
 
