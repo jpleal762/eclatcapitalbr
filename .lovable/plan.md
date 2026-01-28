@@ -1,107 +1,144 @@
 
-## Plano: Cores Condicionais para "Falta por Assessor" na Sprint
+
+## Plano: Tooltips + Animações Divertidas na Sprint
 
 ### Objetivo
 
-Adicionar lógica de cores baseada no progresso individual de cada assessor:
-- **Verde**: Meta atingida (100%)
-- **Amarelo**: Progresso > 50% da meta
-- **Vermelho**: Progresso < 50% da meta
+1. **Tooltip**: Mostrar o percentual de progresso ao passar o mouse sobre cada assessor
+2. **Animações criativas**: Tornar a Sprint mais divertida e gamificada
 
 ---
 
-### Arquivo a Modificar
+### Arquivos a Modificar
 
-**`src/components/dashboard/SprintKPIBar.tsx`**
+| Arquivo | Alteração |
+|---------|-----------|
+| `src/components/dashboard/SprintKPIBar.tsx` | Adicionar tooltips e animações nos quadrados |
+| `tailwind.config.ts` | Novas keyframes de animação |
+| `src/index.css` | Classes CSS para animações extras |
 
 ---
 
-### Lógica de Cálculo
+### 1. Novas Animações (tailwind.config.ts)
 
-```text
-Meta Individual = contribution + remaining
-Progresso % = (contribution / Meta Individual) × 100
-
-Se achieved = true → Verde
-Se progresso >= 50% → Amarelo  
-Se progresso < 50% → Vermelho
+```typescript
+keyframes: {
+  // Pulso suave para assessores em progresso
+  "sprint-pulse": {
+    "0%, 100%": { transform: "scale(1)", boxShadow: "0 0 0 0 rgba(251, 191, 36, 0)" },
+    "50%": { transform: "scale(1.02)", boxShadow: "0 0 8px 2px rgba(251, 191, 36, 0.3)" },
+  },
+  // Shake para quem está atrasado (<50%)
+  "sprint-shake": {
+    "0%, 100%": { transform: "translateX(0)" },
+    "25%": { transform: "translateX(-2px)" },
+    "75%": { transform: "translateX(2px)" },
+  },
+  // Bounce suave para quem está quase lá (>=80%)
+  "sprint-bounce": {
+    "0%, 100%": { transform: "translateY(0)" },
+    "50%": { transform: "translateY(-3px)" },
+  },
+  // Brilho para quem atingiu a meta
+  "sprint-glow": {
+    "0%, 100%": { boxShadow: "0 0 5px 0 rgba(34, 197, 94, 0.5)" },
+    "50%": { boxShadow: "0 0 15px 3px rgba(34, 197, 94, 0.8)" },
+  },
+}
 ```
 
 ---
 
-### Alterações no Código
+### 2. Tooltip com Radix UI (SprintKPIBar.tsx)
 
-#### Linhas 149-168: Substituir lógica binária por ternária
+Usar o componente `Tooltip` já existente no projeto:
 
-**Código Atual:**
 ```tsx
-{assessorBreakdown.map((assessor, idx) => (
-  <div 
-    key={idx} 
-    className={cn(
-      "flex flex-col items-center px-1 py-1 rounded text-center",
-      assessor.achieved 
-        ? "bg-green-500/15 text-green-400 border border-green-500/20" 
-        : "bg-red-500/20 text-red-400 border border-red-500/30"
-    )}
-  >
-```
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-**Código Novo:**
-```tsx
-{assessorBreakdown.map((assessor, idx) => {
-  // Calcular progresso individual
-  const individualTarget = (assessor.contribution || 0) + assessor.remaining;
-  const progressPercent = individualTarget > 0 
-    ? ((assessor.contribution || 0) / individualTarget) * 100 
-    : 0;
-  
-  // Determinar classe de cor
-  const colorClass = assessor.achieved
-    ? "bg-green-500/15 text-green-400 border border-green-500/20"
-    : progressPercent >= 50
-      ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
-      : "bg-red-500/20 text-red-400 border border-red-500/30";
-  
-  return (
-    <div 
-      key={idx} 
-      className={cn(
-        "flex flex-col items-center px-1 py-1 rounded text-center",
-        colorClass
-      )}
-    >
-      <span className="text-scale-5 lg:text-scale-6 font-medium">
-        {assessor.name}
-      </span>
-      <span className="text-scale-6 font-bold">
-        {assessor.achieved 
-          ? "✓" 
-          : formatValue(assessor.remaining, isCurrency)
-        }
-      </span>
-    </div>
-  );
-})}
+// Dentro do map de assessorBreakdown:
+<TooltipProvider>
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <div className={cn("...", colorClass, animationClass)}>
+        <span>{assessor.name}</span>
+        <span>{formatValue(...)}</span>
+      </div>
+    </TooltipTrigger>
+    <TooltipContent>
+      <div className="text-center">
+        <p className="font-bold">{assessor.name}</p>
+        <p>Progresso: {Math.round(progressPercent)}%</p>
+        <p>Meta: {formatValue(individualTarget, isCurrency)}</p>
+        <p>Realizado: {formatValue(assessor.contribution || 0, isCurrency)}</p>
+      </div>
+    </TooltipContent>
+  </Tooltip>
+</TooltipProvider>
 ```
 
 ---
 
-### Resultado Visual
+### 3. Lógica de Animação por Status
 
-| Progresso | Fundo | Texto | Borda |
-|-----------|-------|-------|-------|
-| 100% (atingiu) | verde/15 | verde-400 | verde/20 |
-| ≥50% | amarelo/20 | amarelo-500 | amarelo/30 |
-| <50% | vermelho/20 | vermelho-400 | vermelho/30 |
+```typescript
+const getAnimationClass = () => {
+  if (assessor.achieved) {
+    return "animate-sprint-glow hover:scale-110";
+  }
+  if (progressPercent >= 80) {
+    return "animate-sprint-bounce hover:scale-105";
+  }
+  if (progressPercent >= 50) {
+    return "animate-sprint-pulse hover:scale-105";
+  }
+  // < 50% - Urgente!
+  return "animate-sprint-shake hover:scale-105";
+};
+```
 
 ---
 
-### Dados Utilizados
+### 4. Detalhes do Tooltip
 
-O tipo `AssessorWeeklyRemaining` já possui:
-- `contribution?: number` - quanto já contribuiu
-- `remaining: number` - quanto falta
-- `achieved: boolean` - se atingiu a meta
+O tooltip mostrará:
+- **Nome completo** do assessor
+- **Progresso**: percentual calculado
+- **Meta individual**: contribution + remaining
+- **Realizado**: contribution atual
+- **Emoji de status**: baseado no desempenho
 
-A soma `contribution + remaining` representa a meta individual do assessor.
+---
+
+### Resultado Visual Esperado
+
+| Progresso | Cor | Animação | Emoji no Tooltip |
+|-----------|-----|----------|------------------|
+| 100% (atingiu) | Verde | Glow pulsante | :check_mark: |
+| >= 80% | Verde claro | Bounce suave | :rocket: |
+| >= 50% | Amarelo | Pulso suave | :hourglass: |
+| < 50% | Vermelho | Shake urgente | :flame: |
+
+---
+
+### Detalhes Técnicos
+
+#### SprintKPIBar.tsx - Alterações principais:
+
+1. Importar componentes de Tooltip
+2. Envolver cada card de assessor com Tooltip
+3. Adicionar classes de animação condicionais
+4. Adicionar transição suave no hover (`transition-all duration-200`)
+
+#### tailwind.config.ts - Novas animações:
+
+- `sprint-pulse`: Para assessores em progresso moderado
+- `sprint-shake`: Urgência para atrasados
+- `sprint-bounce`: Entusiasmo para quem está quase lá
+- `sprint-glow`: Celebração para quem atingiu
+
+#### index.css - Classes auxiliares:
+
+- Estilos de hover adicionais
+- Transições suaves globais
+
