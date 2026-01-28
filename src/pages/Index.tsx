@@ -52,6 +52,7 @@ import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ScaleSelector } from "@/components/ScaleSelector";
 import { Card } from "@/components/ui/card";
 import { PageToggle, PageType } from "@/components/dashboard/PageToggle";
 import { AnalysisPage } from "@/components/dashboard/AnalysisPage";
@@ -619,6 +620,7 @@ const Index = () => {
                   >
                     {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                   </Button>
+                  <ScaleSelector />
                   <ThemeToggle />
                   {hasData && (
                     <FileUpload onDataLoaded={handleDataLoaded} compact />

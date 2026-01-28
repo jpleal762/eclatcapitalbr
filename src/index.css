@@ -11,6 +11,8 @@
 
 @layer base {
   :root {
+    --scale-factor: 1;
+    
     --background: 0 0% 96%;
     --foreground: 0 0% 15%;
 
@@ -140,48 +142,48 @@
     to { opacity: 1; transform: scale(1); }
   }
 
-  /* Fixed typography - 50% reduction */
-  .text-responsive-4xs { font-size: 6px; }
-  .text-responsive-3xs { font-size: 5px; }
-  .text-responsive-2xs { font-size: 6px; }
-  .text-responsive-xs { font-size: 6px; }
-  .text-responsive-sm { font-size: 7px; }
-  .text-responsive-base { font-size: 8px; }
-  .text-responsive-lg { font-size: 10px; }
-  .text-responsive-xl { font-size: 12px; }
-  .text-responsive-2xl { font-size: 14px; }
-  .text-responsive-3xl { font-size: 17px; }
-  .text-responsive-4xl { font-size: 20px; }
+  /* Scaled typography - multiplied by --scale-factor */
+  .text-responsive-4xs { font-size: calc(6px * var(--scale-factor)); }
+  .text-responsive-3xs { font-size: calc(5px * var(--scale-factor)); }
+  .text-responsive-2xs { font-size: calc(6px * var(--scale-factor)); }
+  .text-responsive-xs { font-size: calc(6px * var(--scale-factor)); }
+  .text-responsive-sm { font-size: calc(7px * var(--scale-factor)); }
+  .text-responsive-base { font-size: calc(8px * var(--scale-factor)); }
+  .text-responsive-lg { font-size: calc(10px * var(--scale-factor)); }
+  .text-responsive-xl { font-size: calc(12px * var(--scale-factor)); }
+  .text-responsive-2xl { font-size: calc(14px * var(--scale-factor)); }
+  .text-responsive-3xl { font-size: calc(17px * var(--scale-factor)); }
+  .text-responsive-4xl { font-size: calc(20px * var(--scale-factor)); }
 
-  /* TV Mode - 50% reduction */
-  .text-tv-3xs { font-size: 6px; }
-  .text-tv-2xs { font-size: 7px; }
-  .text-tv-xs { font-size: 8px; }
-  .text-tv-sm { font-size: 10px; }
-  .text-tv-base { font-size: 12px; }
-  .text-tv-lg { font-size: 14px; }
-  .text-tv-xl { font-size: 16px; }
-  .text-tv-2xl { font-size: 20px; }
+  /* TV Mode - multiplied by --scale-factor */
+  .text-tv-3xs { font-size: calc(6px * var(--scale-factor)); }
+  .text-tv-2xs { font-size: calc(7px * var(--scale-factor)); }
+  .text-tv-xs { font-size: calc(8px * var(--scale-factor)); }
+  .text-tv-sm { font-size: calc(10px * var(--scale-factor)); }
+  .text-tv-base { font-size: calc(12px * var(--scale-factor)); }
+  .text-tv-lg { font-size: calc(14px * var(--scale-factor)); }
+  .text-tv-xl { font-size: calc(16px * var(--scale-factor)); }
+  .text-tv-2xl { font-size: calc(20px * var(--scale-factor)); }
 
-  /* Fixed gaps - 50% reduction */
-  .gap-responsive-sm { gap: 2px; }
-  .gap-responsive { gap: 3px; }
-  .gap-responsive-lg { gap: 6px; }
+  /* Scaled gaps - multiplied by --scale-factor */
+  .gap-responsive-sm { gap: calc(2px * var(--scale-factor)); }
+  .gap-responsive { gap: calc(3px * var(--scale-factor)); }
+  .gap-responsive-lg { gap: calc(6px * var(--scale-factor)); }
 
-  /* Fixed padding/margin - 50% reduction */
-  .p-responsive-sm { padding: 2px; }
-  .p-responsive { padding: 4px; }
-  .p-responsive-lg { padding: 6px; }
-  .px-responsive { padding-left: 4px; padding-right: 4px; }
-  .py-responsive { padding-top: 2px; padding-bottom: 2px; }
-  .py-responsive-sm { padding-top: 1px; padding-bottom: 1px; }
-  .mb-responsive { margin-bottom: 2px; }
-  .mt-responsive { margin-top: 2px; }
+  /* Scaled padding/margin - multiplied by --scale-factor */
+  .p-responsive-sm { padding: calc(2px * var(--scale-factor)); }
+  .p-responsive { padding: calc(4px * var(--scale-factor)); }
+  .p-responsive-lg { padding: calc(6px * var(--scale-factor)); }
+  .px-responsive { padding-left: calc(4px * var(--scale-factor)); padding-right: calc(4px * var(--scale-factor)); }
+  .py-responsive { padding-top: calc(2px * var(--scale-factor)); padding-bottom: calc(2px * var(--scale-factor)); }
+  .py-responsive-sm { padding-top: calc(1px * var(--scale-factor)); padding-bottom: calc(1px * var(--scale-factor)); }
+  .mb-responsive { margin-bottom: calc(2px * var(--scale-factor)); }
+  .mt-responsive { margin-top: calc(2px * var(--scale-factor)); }
 
-  /* Fixed bar heights - 50% reduction */
-  .h-bar-responsive-sm { height: 3px; }
-  .h-bar-responsive { height: 5px; }
-  .h-bar-responsive-lg { height: 6px; }
+  /* Scaled bar heights - multiplied by --scale-factor */
+  .h-bar-responsive-sm { height: calc(3px * var(--scale-factor)); }
+  .h-bar-responsive { height: calc(5px * var(--scale-factor)); }
+  .h-bar-responsive-lg { height: calc(6px * var(--scale-factor)); }
 
   /* Clock pulse animation */
   @keyframes pulse-clock {
@@ -198,10 +200,10 @@
     animation: pulse-clock 0.75s ease-in-out infinite;
   }
 
-  /* Fixed icon sizes - 50% reduction */
-  .icon-responsive-sm { width: 8px; height: 8px; }
-  .icon-responsive { width: 10px; height: 10px; }
-  .icon-responsive-lg { width: 14px; height: 14px; }
+  /* Scaled icon sizes - multiplied by --scale-factor */
+  .icon-responsive-sm { width: calc(8px * var(--scale-factor)); height: calc(8px * var(--scale-factor)); }
+  .icon-responsive { width: calc(10px * var(--scale-factor)); height: calc(10px * var(--scale-factor)); }
+  .icon-responsive-lg { width: calc(14px * var(--scale-factor)); height: calc(14px * var(--scale-factor)); }
 }
 
 /* Apply transitions to responsive elements globally */
