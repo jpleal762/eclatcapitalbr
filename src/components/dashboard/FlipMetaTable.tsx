@@ -58,7 +58,7 @@ export function FlipMetaTable({
         }`}
       >
         {/* Front - Current MetaTable */}
-        <div className="absolute inset-0 backface-hidden">
+        <div className="absolute inset-0 backface-hidden overflow-hidden">
           <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-responsive flex-shrink-0">
               <h3 className="text-responsive-sm font-semibold text-foreground">Meta Semanal Acumulada</h3>
@@ -111,7 +111,7 @@ export function FlipMetaTable({
         </div>
         
         {/* Back - Remaining to Goal */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180">
+        <div className="absolute inset-0 backface-hidden rotate-y-180 overflow-hidden">
           <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-responsive flex-shrink-0">
               <h3 className="text-responsive-sm font-semibold text-foreground">Falta para Meta Semanal</h3>

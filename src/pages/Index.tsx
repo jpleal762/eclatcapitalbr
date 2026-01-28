@@ -690,10 +690,10 @@ const Index = () => {
               />
             ) : (
               // MONTHLY VIEW
-              <div className="h-full flex flex-col gap-3 animate-fade-in">
+              <div className="h-full flex flex-col gap-3 animate-fade-in lg:overflow-hidden">
                 {/* Top Row - ICM with Filters, Meta, Assessor Ranking */}
                 {visibleTopCards > 0 && (
-                  <div className={`grid gap-3 flex-[45] min-h-0 overflow-hidden ${topGridCols}`}>
+                  <div className={`grid gap-3 flex-[45] min-h-0 lg:overflow-hidden ${topGridCols}`}>
                     {visibility.card1 && (
                       <div className="h-full overflow-hidden">
                         <ExpandableCard>
@@ -727,7 +727,7 @@ const Index = () => {
                       </ExpandableCard>
                     )}
                     {visibility.card3 && (
-                      <div className="flex flex-col gap-3 h-full overflow-hidden">
+                      <div className="flex flex-col gap-2 h-full lg:overflow-hidden">
                         {/* AgendadasCard (metade superior) */}
                         <div className="flex-1 min-h-0">
                           <ExpandableCard>
@@ -762,7 +762,7 @@ const Index = () => {
 
                 {/* KPI Gauges - Main graphs with sub-graphs */}
                 {(col1Visible || col2Visible || col3Visible) && (
-                  <div className={`grid gap-3 flex-[55] min-h-0 overflow-hidden ${gaugeGridCols}`}>
+                  <div className={`grid gap-3 flex-[55] min-h-0 lg:overflow-hidden ${gaugeGridCols}`}>
                     {/* Column 1: Graph 1 + Sub-graphs 4, 5 */}
                     {col1Visible && (
                       <div className="flex flex-col gap-2 min-h-0 h-full overflow-hidden">
