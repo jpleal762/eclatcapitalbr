@@ -43,15 +43,15 @@ export function SprintPage({
       <div className="flex items-center justify-between gap-1 mb-1 flex-shrink-0 flex-wrap">
         {/* Checkboxes de produtos - linha compacta */}
         <div className="flex items-center gap-1 lg:gap-1.5 flex-wrap">
-          {SPRINT_PRODUCTS.map((product) => (
+        {SPRINT_PRODUCTS.map((product) => (
             <label 
               key={product.category} 
-              className="flex items-center gap-0.5 lg:gap-[3px] cursor-pointer text-[5px] lg:text-[6px]"
+              className="flex items-center gap-1 lg:gap-1.5 cursor-pointer text-[10px] lg:text-[12px]"
             >
               <Checkbox
                 checked={selectedProducts.has(product.category)}
                 onCheckedChange={() => onProductToggle(product.category)}
-                className="h-1.5 w-1.5 lg:h-2 lg:w-2"
+                className="h-3 w-3 lg:h-4 lg:w-4"
               />
               <span className="text-muted-foreground hover:text-foreground transition-colors">
                 {product.label}
@@ -67,7 +67,7 @@ export function SprintPage({
             onValueChange={onAssessorChange}
             disabled={isLocked}
           >
-            <SelectTrigger className="w-[70px] lg:w-[90px] h-4 text-[6px] lg:text-[7px]">
+            <SelectTrigger className="w-[100px] lg:w-[140px] h-6 text-[12px] lg:text-[14px]">
               <SelectValue placeholder="Assessor" />
             </SelectTrigger>
             <SelectContent>
@@ -81,7 +81,7 @@ export function SprintPage({
           </Select>
 
           <Select value={selectedMonth} onValueChange={onMonthChange}>
-            <SelectTrigger className="w-[50px] lg:w-[60px] h-4 text-[6px] lg:text-[7px]">
+            <SelectTrigger className="w-[70px] lg:w-[90px] h-6 text-[12px] lg:text-[14px]">
               <SelectValue placeholder="Mês" />
             </SelectTrigger>
             <SelectContent>
@@ -106,7 +106,7 @@ export function SprintPage({
             />
           ))
         ) : (
-          <div className="flex-1 flex items-center justify-center text-muted-foreground text-[6px]">
+          <div className="flex-1 flex items-center justify-center text-muted-foreground text-[12px]">
             Selecione ao menos um produto
           </div>
         )}
