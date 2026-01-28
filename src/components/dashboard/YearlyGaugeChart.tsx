@@ -43,11 +43,11 @@ export function YearlyGaugeChart({
 }: YearlyGaugeChartProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   
-  // Fixed dimensions based on size
+  // Fixed dimensions based on size - 50% reduction
   const dimensions = {
-    sm: { width: 112, height: 63, stroke: 7 },
-    md: { width: 144, height: 81, stroke: 9 },
-    lg: { width: 176, height: 99, stroke: 11 },
+    sm: { width: 56, height: 32, stroke: 4 },
+    md: { width: 72, height: 41, stroke: 5 },
+    lg: { width: 88, height: 50, stroke: 6 },
   };
   
   const { width: dynamicWidth, height: dynamicHeight, stroke: dynamicStrokeWidth } = dimensions[size];

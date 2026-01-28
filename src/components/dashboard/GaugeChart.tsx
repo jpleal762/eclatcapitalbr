@@ -141,11 +141,11 @@ export function GaugeChart({
     ? ((weight / TOTAL_ICM_WEIGHT) * remainingPercentage).toFixed(1)
     : null;
 
-  // Fixed dimensions based on size and compact mode
+  // Fixed dimensions based on size and compact mode - 50% reduction
   const dimensions = {
-    sm: { width: compact ? 90 : 112, height: compact ? 52 : 64, stroke: compact ? 8 : 10 },
-    md: { width: compact ? 115 : 144, height: compact ? 64 : 80, stroke: compact ? 10 : 12 },
-    lg: { width: compact ? 128 : 160, height: compact ? 72 : 90, stroke: compact ? 11 : 14 },
+    sm: { width: compact ? 45 : 56, height: compact ? 26 : 32, stroke: compact ? 4 : 5 },
+    md: { width: compact ? 58 : 72, height: compact ? 32 : 40, stroke: compact ? 5 : 6 },
+    lg: { width: compact ? 64 : 80, height: compact ? 36 : 45, stroke: compact ? 6 : 7 },
   };
   
   const { width: dynamicWidth, height: dynamicHeight, stroke: dynamicStrokeWidth } = dimensions[size];
@@ -189,8 +189,8 @@ export function GaugeChart({
   const markerX2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
   const markerY2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
 
-  // Triangle (arrow) for ritmo ideal marker - fixed size
-  const triangleSize = 4;
+  // Triangle (arrow) for ritmo ideal marker - 50% reduction
+  const triangleSize = 2;
   const perpAngle = ritmoIdealAngle + Math.PI / 2;
   const tipX = markerX2;
   const tipY = markerY2;
