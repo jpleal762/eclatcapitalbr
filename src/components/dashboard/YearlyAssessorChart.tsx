@@ -49,7 +49,7 @@ export function YearlyAssessorChart({ data, ritmoIdeal }: YearlyAssessorChartPro
       <div className="space-y-responsive mb-responsive">
         {topThree.map((assessor, index) => (
           <div key={assessor.fullName || assessor.name} className="flex items-center gap-responsive">
-            <div className="flex-shrink-0 w-8 flex justify-center">
+            <div className="flex-shrink-0 w-4 flex justify-center">
               {getRankIcon(index)}
             </div>
             <div className="flex-1 min-w-0">
@@ -93,7 +93,7 @@ export function YearlyAssessorChart({ data, ritmoIdeal }: YearlyAssessorChartPro
         <div className="border-t border-border pt-responsive space-y-responsive-sm">
           {others.map((assessor, index) => (
             <div key={assessor.fullName || assessor.name} className="flex items-center gap-responsive">
-              <div className="flex-shrink-0 w-8 text-center text-responsive-sm text-muted-foreground">
+              <div className="flex-shrink-0 w-4 text-center text-responsive-sm text-muted-foreground">
                 {index + 4}º
               </div>
               <div className="flex-1 min-w-0">

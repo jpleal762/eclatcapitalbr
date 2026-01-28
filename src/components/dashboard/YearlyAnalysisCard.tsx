@@ -122,50 +122,50 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
   }, [fetchAnalysis, yearlyData.gaugeKPIs.length]);
 
   return (
-    <Card className="p-6 shadow-card border-l-4 border-l-chart-graphite">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Análise</h3>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">{displayAssessor}</span>
+    <Card className="p-3 shadow-card border-l-4 border-l-chart-graphite">
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-[9px] font-semibold text-foreground">Análise</h3>
+        <div className="flex items-center gap-1">
+          <span className="text-[7px] text-muted-foreground">{displayAssessor}</span>
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-4 w-4"
             onClick={() => fetchAnalysis(true)}
             disabled={isLoading}
           >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-2 w-2 ${isLoading ? "animate-spin" : ""}`} />
           </Button>
         </div>
       </div>
 
       {isLoading && !analysis ? (
-        <div className="space-y-3">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-5/6" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-2/3" />
+        <div className="space-y-1.5">
+          <Skeleton className="h-2 w-full" />
+          <Skeleton className="h-2 w-3/4" />
+          <Skeleton className="h-2 w-5/6" />
+          <Skeleton className="h-2 w-full" />
+          <Skeleton className="h-2 w-2/3" />
         </div>
       ) : error && !analysis ? (
-        <div className="text-center py-4">
-          <p className="text-sm text-destructive mb-2">{error}</p>
-          <Button variant="outline" size="sm" onClick={() => fetchAnalysis(true)}>
+        <div className="text-center py-2">
+          <p className="text-[7px] text-destructive mb-1">{error}</p>
+          <Button variant="outline" size="sm" className="h-4 text-[6px]" onClick={() => fetchAnalysis(true)}>
             Tentar novamente
           </Button>
         </div>
       ) : analysis ? (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {/* Positive Points */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <span className="text-sm font-medium text-foreground">Pontos Positivos</span>
+            <div className="flex items-center gap-1 mb-1">
+              <CheckCircle2 className="h-2 w-2 text-green-500" />
+              <span className="text-[7px] font-medium text-foreground">Pontos Positivos</span>
             </div>
-            <ul className="space-y-1.5">
+            <ul className="space-y-[3px]">
               {analysis.positivos.map((point, index) => (
-                <li key={index} className="text-xs text-muted-foreground flex items-start gap-2">
-                  <span className="text-green-500 mt-0.5">•</span>
+                <li key={index} className="text-[6px] text-muted-foreground flex items-start gap-1">
+                  <span className="text-green-500 mt-[1px]">•</span>
                   <span>{point}</span>
                 </li>
               ))}
@@ -174,14 +174,14 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
 
           {/* Negative Points */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-4 w-4 text-amber-500" />
-              <span className="text-sm font-medium text-foreground">Pontos de Atenção</span>
+            <div className="flex items-center gap-1 mb-1">
+              <AlertTriangle className="h-2 w-2 text-amber-500" />
+              <span className="text-[7px] font-medium text-foreground">Pontos de Atenção</span>
             </div>
-            <ul className="space-y-1.5">
+            <ul className="space-y-[3px]">
               {analysis.negativos.map((point, index) => (
-                <li key={index} className="text-xs text-muted-foreground flex items-start gap-2">
-                  <span className="text-amber-500 mt-0.5">•</span>
+                <li key={index} className="text-[6px] text-muted-foreground flex items-start gap-1">
+                  <span className="text-amber-500 mt-[1px]">•</span>
                   <span>{point}</span>
                 </li>
               ))}
@@ -189,14 +189,14 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
           </div>
         </div>
       ) : (
-        <div className="text-center py-4 text-sm text-muted-foreground">
+        <div className="text-center py-2 text-[7px] text-muted-foreground">
           Carregue dados para ver a análise
         </div>
       )}
 
       {/* Loading indicator when refreshing with existing data */}
       {isLoading && analysis && (
-        <div className="mt-2 text-xs text-muted-foreground text-center">
+        <div className="mt-1 text-[6px] text-muted-foreground text-center">
           Atualizando análise...
         </div>
       )}

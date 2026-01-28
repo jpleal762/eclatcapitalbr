@@ -36,10 +36,10 @@ export function ExpandableCard({ children, className = "" }: ExpandableCardProps
         e.stopPropagation();
         setIsExpanded(true);
       }}
-      className="absolute top-2 left-2 z-20 p-1.5 rounded-md bg-background/80 hover:bg-background border border-border/50 shadow-sm transition-all duration-200 hover:scale-110"
+      className="absolute top-1 left-1 z-20 p-[3px] rounded-md bg-background/80 hover:bg-background border border-border/50 shadow-sm transition-all duration-200 hover:scale-110"
       title="Expandir"
     >
-      <Maximize2 className="w-3.5 h-3.5 text-muted-foreground" />
+      <Maximize2 className="w-[7px] h-[7px] text-muted-foreground" />
     </button>
   );
 
@@ -49,17 +49,17 @@ export function ExpandableCard({ children, className = "" }: ExpandableCardProps
         e.stopPropagation();
         setIsExpanded(false);
       }}
-      className="absolute top-4 left-4 z-50 p-2 rounded-md bg-background hover:bg-muted border border-border shadow-md transition-all duration-200 hover:scale-110"
+      className="absolute top-2 left-2 z-50 p-1 rounded-md bg-background hover:bg-muted border border-border shadow-md transition-all duration-200 hover:scale-110"
       title="Minimizar (ESC)"
     >
-      <Minimize2 className="w-5 h-5 text-foreground" />
+      <Minimize2 className="w-2.5 h-2.5 text-foreground" />
     </button>
   );
 
   const expandedOverlay = isExpanded
     ? createPortal(
         <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 animate-fade-in"
           onClick={() => setIsExpanded(false)}
         >
         <div

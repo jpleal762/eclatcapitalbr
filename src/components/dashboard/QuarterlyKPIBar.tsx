@@ -47,24 +47,24 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
   const atingiuRitmo = percentage >= ritmoIdeal;
 
   return (
-    <div className="bg-card rounded-lg p-1.5 lg:p-2 h-full flex flex-col border border-border shadow-sm overflow-hidden">
+    <div className="bg-card rounded-lg p-[3px] lg:p-1 h-full flex flex-col border border-border shadow-sm overflow-hidden">
       {/* Label and percentage - compact */}
-      <div className="flex justify-between items-center mb-0.5">
-        <div className="flex items-center gap-1">
-          <span className="font-semibold text-foreground text-[10px] lg:text-xs truncate">{label}</span>
+      <div className="flex justify-between items-center mb-[1px]">
+        <div className="flex items-center gap-0.5">
+          <span className="font-semibold text-foreground text-[5px] lg:text-[6px] truncate">{label}</span>
           {headName && (
-            <span className="inline-flex items-center text-[8px] lg:text-[9px] font-bold text-eclat-gold uppercase tracking-wide bg-yellow-500/10 px-0.5 py-0.5 rounded border border-yellow-500/20">
+            <span className="inline-flex items-center text-[4px] lg:text-[5px] font-bold text-eclat-gold uppercase tracking-wide bg-yellow-500/10 px-[1px] py-[1px] rounded border border-yellow-500/20">
               HEAD {headName}
             </span>
           )}
         </div>
-        <span className={`font-bold text-xs lg:text-sm ${textColor}`}>
+        <span className={`font-bold text-[6px] lg:text-[7px] ${textColor}`}>
           {percentage}%
         </span>
       </div>
 
       {/* Progress bar - smaller height */}
-      <div className="relative h-2 lg:h-3 my-0.5">
+      <div className="relative h-1 lg:h-1.5 my-[1px]">
         {/* Actual progress bar */}
         <div className="absolute inset-0 bg-muted rounded-full overflow-hidden">
           <div
@@ -89,15 +89,15 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
             style={{ left: `${ritmoIdeal}%`, transform: "translateX(-50%)" }}
           >
             {/* Vertical blue line */}
-            <div className="flex-1 w-0.5 bg-blue-500" />
+            <div className="flex-1 w-[1px] bg-blue-500" />
             {/* Triangle pointing down */}
-            <div className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[4px] border-t-blue-500" />
+            <div className="w-0 h-0 border-l-[1.5px] border-l-transparent border-r-[1.5px] border-r-transparent border-t-[2px] border-t-blue-500" />
           </div>
         )}
       </div>
 
       {/* Values - compact font */}
-      <div className="flex justify-between items-center text-[9px] lg:text-[10px] text-muted-foreground mt-0.5">
+      <div className="flex justify-between items-center text-[5px] lg:text-[5px] text-muted-foreground mt-[1px]">
         <span>
           <span className="font-medium text-foreground">{formatValue(value, isCurrency)}</span>
           {" / "}
