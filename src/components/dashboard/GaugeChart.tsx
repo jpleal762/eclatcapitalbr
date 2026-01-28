@@ -215,7 +215,7 @@ export function GaugeChart({
   return <Card className={`p-responsive shadow-card h-full flex flex-col overflow-hidden ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
       <div className={`flex ${showAssessorList ? 'flex-row gap-3' : 'flex-col'} flex-1 min-h-0 overflow-hidden`}>
         {/* Gauge Container */}
-        <div className={`flex flex-col items-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1 overflow-hidden`}>
+        <div className={`flex flex-col items-center justify-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1 overflow-hidden`}>
           {/* Header with title and alert */}
           <div className="flex items-center justify-between w-full mb-responsive flex-shrink-0">
             <div className="flex flex-col flex-1 min-w-0">

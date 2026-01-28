@@ -116,9 +116,9 @@ export function ICMCard({
         </div>
       </div>
 
-      <div className="flex items-center justify-around gap-2 flex-1 min-h-0">
+      <div className="flex items-center justify-center gap-4 flex-1 min-h-0">
         {/* Gauge */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center justify-center">
           
           <div className="relative" style={{
           width: gaugeWidth,

@@ -58,8 +58,8 @@ export function YearlyGaugeChart({
   const progress = (clampedPercentage / 100) * circumference;
 
   return (
-    <Card className="p-responsive shadow-card bg-card border-l-4 border-l-chart-graphite">
-      <div className="flex flex-col items-center">
+    <Card className="p-responsive shadow-card bg-card border-l-4 border-l-chart-graphite h-full flex flex-col">
+      <div className="flex flex-col items-center justify-center flex-1">
         <div className="flex items-center justify-between w-full mb-responsive">
           <h4 className="font-semibold text-responsive-xs text-foreground flex-1 truncate">
             {label}
