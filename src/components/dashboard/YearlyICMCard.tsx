@@ -100,9 +100,9 @@ export function YearlyICMCard({
         </Select>
       </div>
 
-      <div className="flex items-start justify-between gap-responsive-lg">
+      <div className="flex items-center justify-center gap-responsive-lg">
         {/* Gauge with graphite color */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center justify-center">
           <h3 className="text-responsive-lg font-semibold mb-responsive text-foreground">ICM Anual</h3>
           
           <div className="relative" style={{ width: gaugeWidth, height: gaugeHeight }}>
