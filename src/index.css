@@ -204,6 +204,35 @@
   .icon-responsive-sm { width: calc(8px * var(--scale-factor)); height: calc(8px * var(--scale-factor)); }
   .icon-responsive { width: calc(10px * var(--scale-factor)); height: calc(10px * var(--scale-factor)); }
   .icon-responsive-lg { width: calc(14px * var(--scale-factor)); height: calc(14px * var(--scale-factor)); }
+
+  /* Global scaling classes for all screens */
+  .text-scale-3 { font-size: calc(3px * var(--scale-factor)); }
+  .text-scale-4 { font-size: calc(4px * var(--scale-factor)); }
+  .text-scale-5 { font-size: calc(5px * var(--scale-factor)); }
+  .text-scale-6 { font-size: calc(6px * var(--scale-factor)); }
+  .text-scale-7 { font-size: calc(7px * var(--scale-factor)); }
+  .text-scale-8 { font-size: calc(8px * var(--scale-factor)); }
+  .text-scale-9 { font-size: calc(9px * var(--scale-factor)); }
+  .text-scale-10 { font-size: calc(10px * var(--scale-factor)); }
+  .text-scale-12 { font-size: calc(12px * var(--scale-factor)); }
+  .text-scale-14 { font-size: calc(14px * var(--scale-factor)); }
+  .text-scale-16 { font-size: calc(16px * var(--scale-factor)); }
+
+  /* Scaled sizes for icons and elements */
+  .size-scale-1 { width: calc(4px * var(--scale-factor)); height: calc(4px * var(--scale-factor)); }
+  .size-scale-1\.5 { width: calc(6px * var(--scale-factor)); height: calc(6px * var(--scale-factor)); }
+  .size-scale-2 { width: calc(8px * var(--scale-factor)); height: calc(8px * var(--scale-factor)); }
+  .size-scale-2\.5 { width: calc(10px * var(--scale-factor)); height: calc(10px * var(--scale-factor)); }
+  .size-scale-3 { width: calc(12px * var(--scale-factor)); height: calc(12px * var(--scale-factor)); }
+  .size-scale-4 { width: calc(16px * var(--scale-factor)); height: calc(16px * var(--scale-factor)); }
+  
+  /* Scaled heights */
+  .h-scale-1 { height: calc(4px * var(--scale-factor)); }
+  .h-scale-1\.5 { height: calc(6px * var(--scale-factor)); }
+  .h-scale-2 { height: calc(8px * var(--scale-factor)); }
+  .h-scale-3 { height: calc(12px * var(--scale-factor)); }
+  .h-scale-4 { height: calc(16px * var(--scale-factor)); }
+  .h-scale-6 { height: calc(24px * var(--scale-factor)); }
 }
 
 /* Apply transitions to responsive elements globally */

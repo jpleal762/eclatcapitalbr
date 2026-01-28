@@ -51,20 +51,20 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
       {/* Label and percentage - compact */}
       <div className="flex justify-between items-center mb-[1px]">
         <div className="flex items-center gap-0.5">
-          <span className="font-semibold text-foreground text-[5px] lg:text-[6px] truncate">{label}</span>
+          <span className="font-semibold text-foreground text-scale-5 lg:text-scale-6 truncate">{label}</span>
           {headName && (
-            <span className="inline-flex items-center text-[4px] lg:text-[5px] font-bold text-eclat-gold uppercase tracking-wide bg-yellow-500/10 px-[1px] py-[1px] rounded border border-yellow-500/20">
+            <span className="inline-flex items-center text-scale-4 lg:text-scale-5 font-bold text-eclat-gold uppercase tracking-wide bg-yellow-500/10 px-[1px] py-[1px] rounded border border-yellow-500/20">
               HEAD {headName}
             </span>
           )}
         </div>
-        <span className={`font-bold text-[6px] lg:text-[7px] ${textColor}`}>
+        <span className={`font-bold text-scale-6 lg:text-scale-7 ${textColor}`}>
           {percentage}%
         </span>
       </div>
 
       {/* Progress bar - smaller height */}
-      <div className="relative h-1 lg:h-1.5 my-[1px]">
+      <div className="relative h-scale-1 lg:h-scale-1.5 my-[1px]">
         {/* Actual progress bar */}
         <div className="absolute inset-0 bg-muted rounded-full overflow-hidden">
           <div
@@ -97,7 +97,7 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
       </div>
 
       {/* Values - compact font */}
-      <div className="flex justify-between items-center text-[5px] lg:text-[5px] text-muted-foreground mt-[1px]">
+      <div className="flex justify-between items-center text-scale-5 text-muted-foreground mt-[1px]">
         <span>
           <span className="font-medium text-foreground">{formatValue(value, isCurrency)}</span>
           {" / "}

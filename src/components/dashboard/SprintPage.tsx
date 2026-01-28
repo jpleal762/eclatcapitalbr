@@ -46,12 +46,12 @@ export function SprintPage({
         {SPRINT_PRODUCTS.map((product) => (
             <label 
               key={product.category} 
-              className="flex items-center gap-1 lg:gap-1.5 cursor-pointer text-[10px] lg:text-[12px]"
+              className="flex items-center gap-1 lg:gap-1.5 cursor-pointer text-scale-10 lg:text-scale-12"
             >
               <Checkbox
                 checked={selectedProducts.has(product.category)}
                 onCheckedChange={() => onProductToggle(product.category)}
-                className="h-3 w-3 lg:h-4 lg:w-4"
+                className="size-scale-3 lg:size-scale-4"
               />
               <span className="text-muted-foreground hover:text-foreground transition-colors">
                 {product.label}
@@ -67,7 +67,7 @@ export function SprintPage({
             onValueChange={onAssessorChange}
             disabled={isLocked}
           >
-            <SelectTrigger className="w-[100px] lg:w-[140px] h-6 text-[12px] lg:text-[14px]">
+            <SelectTrigger className="w-[100px] lg:w-[140px] h-scale-6 text-scale-12 lg:text-scale-14">
               <SelectValue placeholder="Assessor" />
             </SelectTrigger>
             <SelectContent>
@@ -81,7 +81,7 @@ export function SprintPage({
           </Select>
 
           <Select value={selectedMonth} onValueChange={onMonthChange}>
-            <SelectTrigger className="w-[70px] lg:w-[90px] h-6 text-[12px] lg:text-[14px]">
+            <SelectTrigger className="w-[70px] lg:w-[90px] h-scale-6 text-scale-12 lg:text-scale-14">
               <SelectValue placeholder="Mês" />
             </SelectTrigger>
             <SelectContent>
@@ -106,7 +106,7 @@ export function SprintPage({
             />
           ))
         ) : (
-          <div className="flex-1 flex items-center justify-center text-muted-foreground text-[12px]">
+          <div className="flex-1 flex items-center justify-center text-muted-foreground text-scale-12">
             Selecione ao menos um produto
           </div>
         )}

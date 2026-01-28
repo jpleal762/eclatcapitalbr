@@ -101,13 +101,13 @@ export function AnalysisPage({
       <Card className="p-2">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1">
-            <BarChart3 className="h-2.5 w-2.5 text-primary" />
-            <h2 className="text-[9px] font-bold text-foreground">Análise Trimestral</h2>
+            <BarChart3 className="size-scale-2.5 text-primary" />
+            <h2 className="text-scale-9 font-bold text-foreground">Análise Trimestral</h2>
           </div>
           
           {/* Ritmo Ideal Indicator */}
           <div className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-500/10 rounded-md border border-blue-500/20">
-            <span className="text-[7px] text-blue-600 dark:text-blue-400">
+            <span className="text-scale-7 text-blue-600 dark:text-blue-400">
               Ritmo Ideal: <span className="font-bold">{ritmoIdeal}%</span>
             </span>
           </div>
@@ -116,9 +116,9 @@ export function AnalysisPage({
           
           {/* Assessor Filter */}
           <div className="flex items-center gap-1">
-            <span className="text-[7px] text-muted-foreground">Assessor:</span>
+            <span className="text-scale-7 text-muted-foreground">Assessor:</span>
             <Select value={selectedAssessor} onValueChange={onAssessorChange} disabled={isAssessorLocked}>
-              <SelectTrigger className={`w-[80px] h-4 text-[6px] ${isAssessorLocked ? 'opacity-70 cursor-not-allowed' : ''}`}>
+              <SelectTrigger className={`w-[80px] h-scale-4 text-scale-6 ${isAssessorLocked ? 'opacity-70 cursor-not-allowed' : ''}`}>
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent>
@@ -132,9 +132,9 @@ export function AnalysisPage({
 
           {/* Year Filter */}
           <div className="flex items-center gap-1">
-            <span className="text-[7px] text-muted-foreground">Ano:</span>
+            <span className="text-scale-7 text-muted-foreground">Ano:</span>
             <Select value={selectedYear.toString()} onValueChange={(v) => setSelectedYear(parseInt(v))}>
-              <SelectTrigger className="w-[50px] h-4 text-[6px]">
+              <SelectTrigger className="w-[50px] h-scale-4 text-scale-6">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -147,9 +147,9 @@ export function AnalysisPage({
 
           {/* Quarter Filter */}
           <div className="flex items-center gap-1">
-            <span className="text-[7px] text-muted-foreground">Trimestre:</span>
+            <span className="text-scale-7 text-muted-foreground">Trimestre:</span>
             <Select value={selectedQuarter} onValueChange={setSelectedQuarter}>
-              <SelectTrigger className="w-[80px] h-4 text-[6px]">
+              <SelectTrigger className="w-[80px] h-scale-4 text-scale-6">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -162,23 +162,23 @@ export function AnalysisPage({
 
           {/* View Mode */}
           <div className="flex items-center gap-1">
-            <span className="text-[7px] text-muted-foreground">Visualizar:</span>
+            <span className="text-scale-7 text-muted-foreground">Visualizar:</span>
             <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v as ViewMode)}>
-              <ToggleGroupItem value="default" aria-label="Ordem padrão" className="px-1 gap-0.5 h-4">
-                <ArrowUpDown className="h-2 w-2" />
-                <span className="hidden sm:inline text-[6px]">Padrão</span>
+              <ToggleGroupItem value="default" aria-label="Ordem padrão" className="px-1 gap-0.5 h-scale-4">
+                <ArrowUpDown className="size-scale-2" />
+                <span className="hidden sm:inline text-scale-6">Padrão</span>
               </ToggleGroupItem>
-              <ToggleGroupItem value="best-to-worst" aria-label="Melhor para pior" className="px-1 gap-0.5 h-4">
-                <ArrowUp className="h-2 w-2" />
-                <span className="hidden sm:inline text-[6px]">Melhor</span>
+              <ToggleGroupItem value="best-to-worst" aria-label="Melhor para pior" className="px-1 gap-0.5 h-scale-4">
+                <ArrowUp className="size-scale-2" />
+                <span className="hidden sm:inline text-scale-6">Melhor</span>
               </ToggleGroupItem>
-              <ToggleGroupItem value="worst-to-best" aria-label="Pior para melhor" className="px-1 gap-0.5 h-4">
-                <ArrowDown className="h-2 w-2" />
-                <span className="hidden sm:inline text-[6px]">Pior</span>
+              <ToggleGroupItem value="worst-to-best" aria-label="Pior para melhor" className="px-1 gap-0.5 h-scale-4">
+                <ArrowDown className="size-scale-2" />
+                <span className="hidden sm:inline text-scale-6">Pior</span>
               </ToggleGroupItem>
-              <ToggleGroupItem value="by-category" aria-label="Agrupar por categoria" className="px-1 gap-0.5 h-4">
-                <Layers className="h-2 w-2" />
-                <span className="hidden sm:inline text-[6px]">Categoria</span>
+              <ToggleGroupItem value="by-category" aria-label="Agrupar por categoria" className="px-1 gap-0.5 h-scale-4">
+                <Layers className="size-scale-2" />
+                <span className="hidden sm:inline text-scale-6">Categoria</span>
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
@@ -192,8 +192,8 @@ export function AnalysisPage({
           <div className="flex-1 min-h-0 flex flex-col gap-[1px] lg:gap-0.5 overflow-hidden lg:overflow-hidden overflow-y-auto">
             {/* Prospecção Section */}
             <div className="flex items-center gap-0.5 px-0.5 shrink-0">
-              <span className="w-[3px] h-[3px] rounded-full bg-blue-500" />
-              <span className="text-[5px] font-bold text-primary uppercase tracking-wide">
+              <span className="size-scale-1 rounded-full bg-blue-500" />
+              <span className="text-scale-5 font-bold text-primary uppercase tracking-wide">
                 {CATEGORY_GROUPS.prospeccao.label}
               </span>
               <div className="flex-1 h-px bg-border" />
@@ -206,8 +206,8 @@ export function AnalysisPage({
 
             {/* Investimentos Section */}
             <div className="flex items-center gap-0.5 px-0.5 shrink-0">
-              <span className="w-[3px] h-[3px] rounded-full bg-amber-500" />
-              <span className="text-[5px] font-bold text-primary uppercase tracking-wide">
+              <span className="size-scale-1 rounded-full bg-amber-500" />
+              <span className="text-scale-5 font-bold text-primary uppercase tracking-wide">
                 {CATEGORY_GROUPS.investimentos.label}
               </span>
               <div className="flex-1 h-px bg-border" />
@@ -220,8 +220,8 @@ export function AnalysisPage({
 
             {/* Receita Section */}
             <div className="flex items-center gap-0.5 px-0.5 shrink-0">
-              <span className="w-[3px] h-[3px] rounded-full bg-green-500" />
-              <span className="text-[5px] font-bold text-primary uppercase tracking-wide">
+              <span className="size-scale-1 rounded-full bg-green-500" />
+              <span className="text-scale-5 font-bold text-primary uppercase tracking-wide">
                 {CATEGORY_GROUPS.receita.label}
               </span>
               <div className="flex-1 h-px bg-border" />
@@ -246,8 +246,8 @@ export function AnalysisPage({
         <div className="flex-1 flex items-center justify-center">
           <Card className="p-4 text-center max-w-md">
             <BarChart3 className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-            <h3 className="text-[10px] font-bold mb-1">Sem dados para o período</h3>
-            <p className="text-[7px] text-muted-foreground">
+            <h3 className="text-scale-10 font-bold mb-1">Sem dados para o período</h3>
+            <p className="text-scale-7 text-muted-foreground">
               Não há dados disponíveis para {QUARTERS.find(q => q.value === selectedQuarter)?.label} de {selectedYear}.
               Selecione outro período ou verifique se os dados foram carregados.
             </p>
