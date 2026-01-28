@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { Check, Flame, Timer, Target, Trophy, PartyPopper, TrendingUp } from "lucide-react";
+import { Check, Flame, Timer, Target, Trophy, PartyPopper, TrendingUp, Rocket, Hourglass } from "lucide-react";
 import { SprintKPIData, SprintEvolution } from "@/types/kpi";
 import { cn } from "@/lib/utils";
 import { ConfettiCelebration } from "./ConfettiCelebration";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface SprintKPIBarProps {
   data: SprintKPIData;
@@ -145,42 +146,95 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
           <span className="text-scale-5 text-muted-foreground mb-1 block">
             Falta por Assessor:
           </span>
-          <div className="grid grid-cols-3 lg:grid-cols-4 gap-1">
-            {assessorBreakdown.map((assessor, idx) => {
-              // Calcular progresso individual
-              const individualTarget = (assessor.contribution || 0) + assessor.remaining;
-              const progressPercent = individualTarget > 0 
-                ? ((assessor.contribution || 0) / individualTarget) * 100 
-                : 0;
-              
-              // Determinar classe de cor: verde (atingiu), amarelo (>=50%), vermelho (<50%)
-              const colorClass = assessor.achieved
-                ? "bg-green-500/15 text-green-400 border border-green-500/20"
-                : progressPercent >= 50
-                  ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
-                  : "bg-red-500/20 text-red-400 border border-red-500/30";
-              
-              return (
-                <div 
-                  key={idx} 
-                  className={cn(
-                    "flex flex-col items-center px-1 py-1 rounded text-center",
-                    colorClass
-                  )}
-                >
-                  <span className="text-scale-5 lg:text-scale-6 font-medium">
-                    {assessor.name}
-                  </span>
-                  <span className="text-scale-6 font-bold">
-                    {assessor.achieved 
-                      ? "✓" 
-                      : formatValue(assessor.remaining, isCurrency)
-                    }
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+          <TooltipProvider delayDuration={200}>
+            <div className="grid grid-cols-3 lg:grid-cols-4 gap-1">
+              {assessorBreakdown.map((assessor, idx) => {
+                // Calcular progresso individual
+                const individualTarget = (assessor.contribution || 0) + assessor.remaining;
+                const progressPercent = individualTarget > 0 
+                  ? ((assessor.contribution || 0) / individualTarget) * 100 
+                  : 0;
+                
+                // Determinar classe de cor: verde (atingiu), amarelo (>=50%), vermelho (<50%)
+                const colorClass = assessor.achieved
+                  ? "bg-green-500/15 text-green-400 border border-green-500/20"
+                  : progressPercent >= 50
+                    ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
+                    : "bg-red-500/20 text-red-400 border border-red-500/30";
+                
+                // Animação baseada no progresso
+                const getAnimationClass = () => {
+                  if (assessor.achieved) return "animate-sprint-glow hover:scale-110";
+                  if (progressPercent >= 80) return "animate-sprint-bounce hover:scale-105";
+                  if (progressPercent >= 50) return "animate-sprint-pulse hover:scale-105";
+                  return "animate-sprint-shake hover:scale-105";
+                };
+
+                // Emoji e mensagem baseados no status
+                const getStatusInfo = () => {
+                  if (assessor.achieved) return { emoji: "✅", message: "Meta atingida!" };
+                  if (progressPercent >= 80) return { emoji: "🚀", message: "Quase lá!" };
+                  if (progressPercent >= 50) return { emoji: "⏳", message: "Em progresso" };
+                  return { emoji: "🔥", message: "Precisa acelerar!" };
+                };
+
+                const statusInfo = getStatusInfo();
+                
+                return (
+                  <Tooltip key={idx}>
+                    <TooltipTrigger asChild>
+                      <div 
+                        className={cn(
+                          "flex flex-col items-center px-1 py-1 rounded text-center cursor-pointer transition-all duration-200",
+                          colorClass,
+                          getAnimationClass()
+                        )}
+                      >
+                        <span className="text-scale-5 lg:text-scale-6 font-medium">
+                          {assessor.name}
+                        </span>
+                        <span className="text-scale-6 font-bold">
+                          {assessor.achieved 
+                            ? "✓" 
+                            : formatValue(assessor.remaining, isCurrency)
+                          }
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="p-2">
+                      <div className="text-center space-y-1">
+                        <p className="font-bold text-sm flex items-center justify-center gap-1">
+                          <span>{statusInfo.emoji}</span>
+                          <span>{assessor.name}</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground">{statusInfo.message}</p>
+                        <div className="border-t border-border/50 pt-1 mt-1">
+                          <p className="text-xs">
+                            <span className="text-muted-foreground">Progresso: </span>
+                            <span className="font-semibold">{Math.round(progressPercent)}%</span>
+                          </p>
+                          <p className="text-xs">
+                            <span className="text-muted-foreground">Meta: </span>
+                            <span className="font-medium">{formatValue(individualTarget, isCurrency)}</span>
+                          </p>
+                          <p className="text-xs">
+                            <span className="text-muted-foreground">Realizado: </span>
+                            <span className="font-medium text-green-500">{formatValue(assessor.contribution || 0, isCurrency)}</span>
+                          </p>
+                          {!assessor.achieved && (
+                            <p className="text-xs">
+                              <span className="text-muted-foreground">Falta: </span>
+                              <span className="font-medium text-red-400">{formatValue(assessor.remaining, isCurrency)}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
+          </TooltipProvider>
         </div>
       )}
 
