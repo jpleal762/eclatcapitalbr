@@ -18,9 +18,22 @@ interface AnalysisResult {
   negativos: string[];
 }
 
+const LAST_FETCH_KEY = "yearly-analysis-last-fetch";
+
 function generateDataHash(data: YearlyDashboardData, year: number, assessor: string): string {
   const key = `${year}-${assessor}-${data.icmGeral}-${data.ritmoIdeal}-${data.gaugeKPIs.map(k => k.value).join(",")}`;
   return btoa(key).slice(0, 32);
+}
+
+function canRefreshToday(): boolean {
+  const lastFetch = localStorage.getItem(LAST_FETCH_KEY);
+  if (!lastFetch) return true;
+  
+  const lastDate = new Date(lastFetch);
+  const now = new Date();
+  const hoursDiff = (now.getTime() - lastDate.getTime()) / (1000 * 60 * 60);
+  
+  return hoursDiff >= 24;
 }
 
 export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor }: YearlyAnalysisCardProps) {
@@ -102,6 +115,9 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
       
       // Cache the result
       localStorage.setItem(cacheKey, JSON.stringify(data));
+      
+      // Save timestamp of successful fetch
+      localStorage.setItem(LAST_FETCH_KEY, new Date().toISOString());
     } catch (err) {
       console.error("Error fetching analysis:", err);
       setError(err instanceof Error ? err.message : "Erro ao gerar análise");
@@ -110,11 +126,12 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
     }
   }, [yearlyData, selectedYear, selectedAssessor, lastHash, analysis, toast]);
 
-  // Debounced effect to fetch analysis when data changes
+  // Debounced effect to fetch analysis when data changes (auto-refresh once per day)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (yearlyData.gaugeKPIs.length > 0) {
-        fetchAnalysis();
+        const shouldForceRefresh = canRefreshToday();
+        fetchAnalysis(shouldForceRefresh);
       }
     }, 500);
 
