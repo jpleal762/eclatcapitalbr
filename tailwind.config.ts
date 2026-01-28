@@ -108,23 +108,6 @@ export default {
           "0%, 100%": { transform: "scale(1)", filter: "brightness(1)" },
           "50%": { transform: "scale(1.2)", filter: "brightness(1.4)" },
         },
-        "sprint-pulse": {
-          "0%, 100%": { transform: "scale(1)", boxShadow: "0 0 0 0 rgba(251, 191, 36, 0)" },
-          "50%": { transform: "scale(1.02)", boxShadow: "0 0 8px 2px rgba(251, 191, 36, 0.3)" },
-        },
-        "sprint-shake": {
-          "0%, 100%": { transform: "translateX(0)" },
-          "25%": { transform: "translateX(-2px)" },
-          "75%": { transform: "translateX(2px)" },
-        },
-        "sprint-bounce": {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-3px)" },
-        },
-        "sprint-glow": {
-          "0%, 100%": { boxShadow: "0 0 5px 0 rgba(34, 197, 94, 0.5)" },
-          "50%": { boxShadow: "0 0 15px 3px rgba(34, 197, 94, 0.8)" },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -132,10 +115,6 @@ export default {
         "celebrate-bounce": "celebrate-bounce 0.8s ease-in-out infinite",
         "celebrate-pop": "celebrate-pop 1s ease-in-out infinite",
         "celebrate-sparkle": "celebrate-sparkle 1.5s ease-in-out infinite",
-        "sprint-pulse": "sprint-pulse 2s ease-in-out infinite",
-        "sprint-shake": "sprint-shake 0.5s ease-in-out infinite",
-        "sprint-bounce": "sprint-bounce 1s ease-in-out infinite",
-        "sprint-glow": "sprint-glow 1.5s ease-in-out infinite",
       },
     },
   },
