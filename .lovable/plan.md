@@ -1,13 +1,15 @@
 
-## Plano: Layout Fixo com Tamanhos Travados (Sem Responsividade Dinâmica)
+## Plano: Reduzir Todos os Tamanhos em 50%
 
 ### Objetivo
 
-Remover o sistema de tamanhos responsivos baseados em `clamp()` e `vh` e substituir por **valores fixos em pixels**. Isso inclui:
-1. Fontes de texto e números com tamanhos fixos
-2. Gauges com dimensões fixas e centralizados nos cards
-3. Gaps e paddings com valores fixos
-4. Ícones com tamanhos fixos
+Aplicar uma redução de 50% em **todos** os tamanhos fixos do projeto:
+- Tipografia (fontes)
+- Gaps (espaçamentos)
+- Paddings e margins
+- Alturas de barras
+- Tamanhos de ícones
+- Dimensões dos gauges (largura, altura, stroke)
 
 ---
 
@@ -15,240 +17,238 @@ Remover o sistema de tamanhos responsivos baseados em `clamp()` e `vh` e substit
 
 | Arquivo | Alteração |
 |---------|-----------|
-| `src/index.css` | Substituir classes `text-responsive-*`, `gap-responsive-*`, `p-responsive-*`, `icon-responsive-*` por valores fixos em pixels |
-| `src/components/dashboard/GaugeChart.tsx` | Remover `useResponsiveSize()`, usar dimensões fixas, centralizar gauge |
-| `src/components/dashboard/ICMCard.tsx` | Remover `useResponsiveSize()`, usar dimensões fixas para o gauge |
-| `src/components/dashboard/YearlyGaugeChart.tsx` | Remover `useResponsiveSize()`, usar dimensões fixas |
-| `src/components/dashboard/YearlyICMCard.tsx` | Remover `useResponsiveSize()`, usar dimensões fixas |
-| `src/components/dashboard/FlipGaugeChart.tsx` | Garantir centralização do gauge |
-| `src/components/dashboard/AgendadasCard.tsx` | Usar fontes fixas |
-| `src/components/dashboard/FlipICMCard.tsx` | Usar fontes fixas |
-| `src/components/dashboard/FlipMetaTable.tsx` | Usar fontes fixas |
-| `src/components/dashboard/AssessorChart.tsx` | Usar fontes fixas |
-| `src/hooks/use-responsive-size.tsx` | Pode ser mantido mas não será mais usado para escala dinâmica |
+| `src/index.css` | Reduzir todas as classes fixas em 50% |
+| `src/components/dashboard/GaugeChart.tsx` | Reduzir dimensões dos gauges em 50% |
+| `src/components/dashboard/ICMCard.tsx` | Reduzir dimensões do gauge em 50% |
+| `src/components/dashboard/YearlyGaugeChart.tsx` | Reduzir dimensões em 50% |
+| `src/components/dashboard/YearlyICMCard.tsx` | Reduzir dimensões em 50% |
 
 ---
 
-### Valores Fixos Propostos
+### Novos Valores (50% dos atuais)
 
-#### Tipografia (substituindo classes responsivas)
+#### Tipografia
 
-| Classe Atual | Valor Responsivo | Novo Valor Fixo |
-|--------------|------------------|-----------------|
-| `text-responsive-4xs` | `clamp(13px, 1.4vh, 20px)` | `11px` |
-| `text-responsive-3xs` | `clamp(9px, 1.0vh, 14px)` | `10px` |
-| `text-responsive-2xs` | `clamp(10px, 1.2vh, 16px)` | `11px` |
-| `text-responsive-xs` | `clamp(12px, 1.4vh, 20px)` | `12px` |
-| `text-responsive-sm` | `clamp(14px, 1.6vh, 24px)` | `14px` |
-| `text-responsive-base` | `clamp(16px, 1.9vh, 28px)` | `16px` |
-| `text-responsive-lg` | `clamp(20px, 2.4vh, 36px)` | `20px` |
-| `text-responsive-xl` | `clamp(24px, 3vh, 44px)` | `24px` |
-| `text-responsive-2xl` | `clamp(28px, 3.5vh, 52px)` | `28px` |
-| `text-responsive-3xl` | `clamp(34px, 4.2vh, 60px)` | `34px` |
-| `text-responsive-4xl` | `clamp(40px, 5vh, 72px)` | `40px` |
+| Classe | Valor Atual | Novo Valor (50%) |
+|--------|-------------|------------------|
+| `text-responsive-4xs` | `11px` | `6px` |
+| `text-responsive-3xs` | `10px` | `5px` |
+| `text-responsive-2xs` | `11px` | `6px` |
+| `text-responsive-xs` | `12px` | `6px` |
+| `text-responsive-sm` | `14px` | `7px` |
+| `text-responsive-base` | `16px` | `8px` |
+| `text-responsive-lg` | `20px` | `10px` |
+| `text-responsive-xl` | `24px` | `12px` |
+| `text-responsive-2xl` | `28px` | `14px` |
+| `text-responsive-3xl` | `34px` | `17px` |
+| `text-responsive-4xl` | `40px` | `20px` |
 
-#### Gaps (substituindo classes responsivas)
+#### Tipografia TV Mode
 
-| Classe Atual | Valor Responsivo | Novo Valor Fixo |
-|--------------|------------------|-----------------|
-| `gap-responsive-sm` | `clamp(4px, 0.5vh, 10px)` | `4px` |
-| `gap-responsive` | `clamp(6px, 0.8vh, 14px)` | `6px` |
-| `gap-responsive-lg` | `clamp(12px, 1.4vh, 24px)` | `12px` |
+| Classe | Valor Atual | Novo Valor (50%) |
+|--------|-------------|------------------|
+| `text-tv-3xs` | `12px` | `6px` |
+| `text-tv-2xs` | `14px` | `7px` |
+| `text-tv-xs` | `16px` | `8px` |
+| `text-tv-sm` | `20px` | `10px` |
+| `text-tv-base` | `24px` | `12px` |
+| `text-tv-lg` | `28px` | `14px` |
+| `text-tv-xl` | `32px` | `16px` |
+| `text-tv-2xl` | `40px` | `20px` |
 
-#### Paddings (substituindo classes responsivas)
+#### Gaps
 
-| Classe Atual | Valor Responsivo | Novo Valor Fixo |
-|--------------|------------------|-----------------|
-| `p-responsive-sm` | `clamp(4px, 0.5vh, 10px)` | `4px` |
-| `p-responsive` | `clamp(8px, 1vh, 16px)` | `8px` |
-| `p-responsive-lg` | `clamp(12px, 1.5vh, 24px)` | `12px` |
-| `px-responsive` | `clamp(8px, 1vh, 16px)` | `8px` |
-| `py-responsive` | `clamp(4px, 0.5vh, 10px)` | `4px` |
-| `py-responsive-sm` | `clamp(2px, 0.3vh, 6px)` | `2px` |
-| `mb-responsive` | `clamp(4px, 0.5vh, 10px)` | `4px` |
-| `mt-responsive` | `clamp(4px, 0.5vh, 10px)` | `4px` |
+| Classe | Valor Atual | Novo Valor (50%) |
+|--------|-------------|------------------|
+| `gap-responsive-sm` | `4px` | `2px` |
+| `gap-responsive` | `6px` | `3px` |
+| `gap-responsive-lg` | `12px` | `6px` |
 
-#### Barras (substituindo classes responsivas)
+#### Paddings e Margins
 
-| Classe Atual | Valor Responsivo | Novo Valor Fixo |
-|--------------|------------------|-----------------|
-| `h-bar-responsive-sm` | `clamp(6px, 0.75vh, 12px)` | `6px` |
-| `h-bar-responsive` | `clamp(9px, 1.05vh, 18px)` | `9px` |
-| `h-bar-responsive-lg` | `clamp(12px, 1.5vh, 24px)` | `12px` |
+| Classe | Valor Atual | Novo Valor (50%) |
+|--------|-------------|------------------|
+| `p-responsive-sm` | `4px` | `2px` |
+| `p-responsive` | `8px` | `4px` |
+| `p-responsive-lg` | `12px` | `6px` |
+| `px-responsive` | `8px` | `4px` |
+| `py-responsive` | `4px` | `2px` |
+| `py-responsive-sm` | `2px` | `1px` |
+| `mb-responsive` | `4px` | `2px` |
+| `mt-responsive` | `4px` | `2px` |
 
-#### Ícones (substituindo classes responsivas)
+#### Alturas de Barras
 
-| Classe Atual | Valor Responsivo | Novo Valor Fixo |
-|--------------|------------------|-----------------|
-| `icon-responsive-sm` | `clamp(16px, 1.8vh, 26px)` | `16px` |
-| `icon-responsive` | `clamp(20px, 2.4vh, 34px)` | `20px` |
-| `icon-responsive-lg` | `clamp(28px, 3vh, 44px)` | `28px` |
+| Classe | Valor Atual | Novo Valor (50%) |
+|--------|-------------|------------------|
+| `h-bar-responsive-sm` | `6px` | `3px` |
+| `h-bar-responsive` | `9px` | `5px` |
+| `h-bar-responsive-lg` | `12px` | `6px` |
+
+#### Tamanhos de Ícones
+
+| Classe | Valor Atual | Novo Valor (50%) |
+|--------|-------------|------------------|
+| `icon-responsive-sm` | `16px` | `8px` |
+| `icon-responsive` | `20px` | `10px` |
+| `icon-responsive-lg` | `28px` | `14px` |
 
 ---
 
-### Dimensões Fixas dos Gauges
+### Dimensões dos Gauges (50% dos atuais)
 
-#### GaugeChart.tsx (Gauge Principal)
+#### GaugeChart.tsx
 
-| Tamanho | Largura | Altura | Stroke |
-|---------|---------|--------|--------|
-| `sm` | `112px` | `64px` | `10px` |
-| `md` | `144px` | `80px` | `12px` |
-| `lg` | `160px` | `90px` | `14px` |
+**Normal mode:**
+| Tamanho | Atual | Novo (50%) |
+|---------|-------|------------|
+| `sm` | `112×64, stroke 10` | `56×32, stroke 5` |
+| `md` | `144×80, stroke 12` | `72×40, stroke 6` |
+| `lg` | `160×90, stroke 14` | `80×45, stroke 7` |
 
-**Compact mode** (para espaços menores):
-| Tamanho | Largura | Altura | Stroke |
-|---------|---------|--------|--------|
-| `sm` | `90px` | `52px` | `8px` |
-| `md` | `115px` | `64px` | `10px` |
-| `lg` | `128px` | `72px` | `11px` |
+**Compact mode:**
+| Tamanho | Atual | Novo (50%) |
+|---------|-------|------------|
+| `sm` | `90×52, stroke 8` | `45×26, stroke 4` |
+| `md` | `115×64, stroke 10` | `58×32, stroke 5` |
+| `lg` | `128×72, stroke 11` | `64×36, stroke 6` |
 
-#### ICMCard.tsx (Gauge ICM)
+#### ICMCard.tsx
 
-| Propriedade | Valor Fixo |
-|-------------|------------|
-| Largura | `140px` |
-| Altura | `80px` |
-| Raio | `60px` |
-| Stroke | `12px` |
+| Propriedade | Atual | Novo (50%) |
+|-------------|-------|------------|
+| `gaugeWidth` | `140px` | `70px` |
+| `gaugeHeight` | `80px` | `40px` |
+| `gaugeRadius` | `60px` | `30px` |
+| `strokeWidth` | `12px` | `6px` |
+| `triangleSize` | `4px` | `2px` |
 
 #### YearlyGaugeChart.tsx
 
-| Tamanho | Largura | Altura | Stroke |
-|---------|---------|--------|--------|
-| `sm` | `112px` | `63px` | `7px` |
-| `md` | `144px` | `81px` | `9px` |
-| `lg` | `176px` | `99px` | `11px` |
+| Tamanho | Atual | Novo (50%) |
+|---------|-------|------------|
+| `sm` | `112×63, stroke 7` | `56×32, stroke 4` |
+| `md` | `144×81, stroke 9` | `72×41, stroke 5` |
+| `lg` | `176×99, stroke 11` | `88×50, stroke 6` |
 
 #### YearlyICMCard.tsx
 
-| Propriedade | Valor Fixo |
-|-------------|------------|
-| Largura | `180px` |
-| Altura | `100px` |
-| Raio | `80px` |
-| Stroke | `14px` |
+| Propriedade | Atual | Novo (50%) |
+|-------------|-------|------------|
+| `gaugeWidth` | `180px` | `90px` |
+| `gaugeHeight` | `100px` | `50px` |
+| `gaugeRadius` | `80px` | `40px` |
+| `strokeWidth` | `14px` | `7px` |
 
 ---
 
-### Centralização dos Gauges
-
-Em todos os componentes de gauge, o SVG será centralizado com:
-
-```tsx
-<div className="flex flex-col items-center justify-center flex-1 min-h-0">
-  {/* Gauge SVG */}
-  <div className="relative" style={{ width: FIXED_WIDTH, height: FIXED_HEIGHT }}>
-    <svg ... />
-  </div>
-</div>
-```
-
-A estrutura garante:
-- `items-center` → centralização horizontal
-- `justify-center` → centralização vertical
-- `flex-1 min-h-0` → ocupa espaço disponível sem crescer além
-
----
-
-### Mudanças nos Componentes
-
-#### 1. GaugeChart.tsx
-
-```tsx
-// ANTES
-const { scale } = useResponsiveSize();
-const baseMultiplier = size === "sm" ? 0.7 : size === "md" ? 0.9 : 1.1;
-const dynamicScale = Math.max(0.5, Math.min(scale * baseMultiplier * compactFactor, maxScale));
-const dynamicWidth = Math.round(baseWidth * dynamicScale);
-
-// DEPOIS
-const dimensions = {
-  sm: { width: compact ? 90 : 112, height: compact ? 52 : 64, stroke: compact ? 8 : 10 },
-  md: { width: compact ? 115 : 144, height: compact ? 64 : 80, stroke: compact ? 10 : 12 },
-  lg: { width: compact ? 128 : 160, height: compact ? 72 : 90, stroke: compact ? 11 : 14 },
-};
-const { width, height, stroke } = dimensions[size];
-```
-
-#### 2. ICMCard.tsx
-
-```tsx
-// ANTES
-const { scale } = useResponsiveSize();
-const dynamicScale = Math.max(0.7, Math.min(scale * 1.1, 1.6));
-const gaugeWidth = Math.round(140 * dynamicScale);
-
-// DEPOIS
-const gaugeWidth = 140;
-const gaugeHeight = 80;
-const gaugeRadius = 60;
-const strokeWidth = 12;
-```
-
-#### 3. YearlyGaugeChart.tsx e YearlyICMCard.tsx
-
-Mesma lógica: remover `useResponsiveSize()` e usar valores fixos.
-
----
-
-### index.css - Novas Classes Fixas
+### Código CSS Atualizado (index.css)
 
 ```css
-/* Fixed typography */
-.text-responsive-4xs { font-size: 11px; }
-.text-responsive-3xs { font-size: 10px; }
-.text-responsive-2xs { font-size: 11px; }
-.text-responsive-xs { font-size: 12px; }
-.text-responsive-sm { font-size: 14px; }
-.text-responsive-base { font-size: 16px; }
-.text-responsive-lg { font-size: 20px; }
-.text-responsive-xl { font-size: 24px; }
-.text-responsive-2xl { font-size: 28px; }
-.text-responsive-3xl { font-size: 34px; }
-.text-responsive-4xl { font-size: 40px; }
+/* Fixed typography - 50% reduction */
+.text-responsive-4xs { font-size: 6px; }
+.text-responsive-3xs { font-size: 5px; }
+.text-responsive-2xs { font-size: 6px; }
+.text-responsive-xs { font-size: 6px; }
+.text-responsive-sm { font-size: 7px; }
+.text-responsive-base { font-size: 8px; }
+.text-responsive-lg { font-size: 10px; }
+.text-responsive-xl { font-size: 12px; }
+.text-responsive-2xl { font-size: 14px; }
+.text-responsive-3xl { font-size: 17px; }
+.text-responsive-4xl { font-size: 20px; }
 
-/* Fixed gaps */
-.gap-responsive-sm { gap: 4px; }
-.gap-responsive { gap: 6px; }
-.gap-responsive-lg { gap: 12px; }
+/* TV Mode - 50% reduction */
+.text-tv-3xs { font-size: 6px; }
+.text-tv-2xs { font-size: 7px; }
+.text-tv-xs { font-size: 8px; }
+.text-tv-sm { font-size: 10px; }
+.text-tv-base { font-size: 12px; }
+.text-tv-lg { font-size: 14px; }
+.text-tv-xl { font-size: 16px; }
+.text-tv-2xl { font-size: 20px; }
 
-/* Fixed padding */
-.p-responsive-sm { padding: 4px; }
-.p-responsive { padding: 8px; }
-.p-responsive-lg { padding: 12px; }
-.px-responsive { padding-left: 8px; padding-right: 8px; }
-.py-responsive { padding-top: 4px; padding-bottom: 4px; }
-.py-responsive-sm { padding-top: 2px; padding-bottom: 2px; }
-.mb-responsive { margin-bottom: 4px; }
-.mt-responsive { margin-top: 4px; }
+/* Fixed gaps - 50% reduction */
+.gap-responsive-sm { gap: 2px; }
+.gap-responsive { gap: 3px; }
+.gap-responsive-lg { gap: 6px; }
 
-/* Fixed bar heights */
-.h-bar-responsive-sm { height: 6px; }
-.h-bar-responsive { height: 9px; }
-.h-bar-responsive-lg { height: 12px; }
+/* Fixed padding/margin - 50% reduction */
+.p-responsive-sm { padding: 2px; }
+.p-responsive { padding: 4px; }
+.p-responsive-lg { padding: 6px; }
+.px-responsive { padding-left: 4px; padding-right: 4px; }
+.py-responsive { padding-top: 2px; padding-bottom: 2px; }
+.py-responsive-sm { padding-top: 1px; padding-bottom: 1px; }
+.mb-responsive { margin-bottom: 2px; }
+.mt-responsive { margin-top: 2px; }
 
-/* Fixed icon sizes */
-.icon-responsive-sm { width: 16px; height: 16px; }
-.icon-responsive { width: 20px; height: 20px; }
-.icon-responsive-lg { width: 28px; height: 28px; }
+/* Fixed bar heights - 50% reduction */
+.h-bar-responsive-sm { height: 3px; }
+.h-bar-responsive { height: 5px; }
+.h-bar-responsive-lg { height: 6px; }
+
+/* Fixed icon sizes - 50% reduction */
+.icon-responsive-sm { width: 8px; height: 8px; }
+.icon-responsive { width: 10px; height: 10px; }
+.icon-responsive-lg { width: 14px; height: 14px; }
+```
+
+---
+
+### Código dos Gauges Atualizado
+
+#### GaugeChart.tsx (dimensões)
+
+```tsx
+const dimensions = {
+  sm: { width: compact ? 45 : 56, height: compact ? 26 : 32, stroke: compact ? 4 : 5 },
+  md: { width: compact ? 58 : 72, height: compact ? 32 : 40, stroke: compact ? 5 : 6 },
+  lg: { width: compact ? 64 : 80, height: compact ? 36 : 45, stroke: compact ? 6 : 7 },
+};
+```
+
+#### ICMCard.tsx (dimensões)
+
+```tsx
+const gaugeWidth = 70;
+const gaugeHeight = 40;
+const gaugeRadius = 30;
+const strokeWidth = 6;
+const triangleSize = 2;
+```
+
+#### YearlyGaugeChart.tsx (dimensões)
+
+```tsx
+const dimensions = {
+  sm: { width: 56, height: 32, stroke: 4 },
+  md: { width: 72, height: 41, stroke: 5 },
+  lg: { width: 88, height: 50, stroke: 6 },
+};
+```
+
+#### YearlyICMCard.tsx (dimensões)
+
+```tsx
+const gaugeWidth = 90;
+const gaugeHeight = 50;
+const gaugeRadius = 40;
+const strokeWidth = 7;
 ```
 
 ---
 
 ### Resultado Esperado
 
-1. **Layout consistente** - Tamanhos não mudam com resize da janela
-2. **Gauges centralizados** - Todos os gauges perfeitamente centralizados H+V nos cards
-3. **Fontes legíveis** - Tamanhos fixos otimizados para a proporção atual
-4. **Performance melhorada** - Sem recálculos de escala em tempo real
-5. **Previsibilidade** - O que você vê é o que você obtém, independente da tela
+Após as alterações:
+- Todos os elementos visuais terão **metade do tamanho** atual
+- Layout permanece proporcional e centralizado
+- Mais espaço livre dentro dos cards
+- Texto pode ficar pequeno demais para leitura confortável (ajuste futuro possível)
 
 ---
 
-### Notas Importantes
+### Aviso
 
-- O layout `flex-[45]` / `flex-[55]` para as linhas será mantido (proporções de altura)
-- O `overflow-hidden` continua garantindo que nada vaze para fora dos containers
-- Mobile continua com scroll vertical (comportamento separado via `mobile-view-container`)
-- As dimensões foram escolhidas baseadas na tela atual (proporção ~16:9)
+Uma redução de 50% pode tornar textos com `5px` ou `6px` **praticamente ilegíveis**. Se necessário, podemos ajustar valores mínimos após visualização.
