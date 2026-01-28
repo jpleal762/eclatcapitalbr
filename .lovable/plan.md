@@ -1,95 +1,107 @@
 
-## Plano: Atualizar IA Automaticamente (Limitado a 1x por Dia)
+## Plano: Cores Condicionais para "Falta por Assessor" na Sprint
 
 ### Objetivo
 
-Fazer a análise de IA atualizar automaticamente ao abrir o app, mas limitado a uma vez por dia para economizar créditos.
-
----
-
-### Lógica de Implementação
-
-1. **Armazenar timestamp** da última chamada à API no localStorage
-2. **Verificar na abertura** se passaram mais de 24 horas desde a última atualização
-3. **Se sim**: forçar nova análise (`force=true`)
-4. **Se não**: usar dados em cache normalmente
+Adicionar lógica de cores baseada no progresso individual de cada assessor:
+- **Verde**: Meta atingida (100%)
+- **Amarelo**: Progresso > 50% da meta
+- **Vermelho**: Progresso < 50% da meta
 
 ---
 
 ### Arquivo a Modificar
 
-**`src/components/dashboard/YearlyAnalysisCard.tsx`**
-
-### Alterações
-
-#### 1. Adicionar chave para timestamp (nova constante)
-
-```typescript
-const LAST_FETCH_KEY = "yearly-analysis-last-fetch";
-```
-
-#### 2. Função para verificar se pode atualizar
-
-```typescript
-function canRefreshToday(): boolean {
-  const lastFetch = localStorage.getItem(LAST_FETCH_KEY);
-  if (!lastFetch) return true;
-  
-  const lastDate = new Date(lastFetch);
-  const now = new Date();
-  const hoursDiff = (now.getTime() - lastDate.getTime()) / (1000 * 60 * 60);
-  
-  return hoursDiff >= 24;
-}
-```
-
-#### 3. Atualizar `fetchAnalysis` para salvar timestamp
-
-Após sucesso na chamada à API, salvar o timestamp:
-```typescript
-localStorage.setItem(LAST_FETCH_KEY, new Date().toISOString());
-```
-
-#### 4. Modificar `useEffect` para verificar atualização diária
-
-```typescript
-useEffect(() => {
-  const timer = setTimeout(() => {
-    if (yearlyData.gaugeKPIs.length > 0) {
-      const shouldForceRefresh = canRefreshToday();
-      fetchAnalysis(shouldForceRefresh);
-    }
-  }, 500);
-
-  return () => clearTimeout(timer);
-}, [fetchAnalysis, yearlyData.gaugeKPIs.length]);
-```
+**`src/components/dashboard/SprintKPIBar.tsx`**
 
 ---
 
-### Fluxo Resultante
+### Lógica de Cálculo
 
 ```text
-Usuário abre app
-       ↓
-Verifica localStorage: "yearly-analysis-last-fetch"
-       ↓
-┌──────────────────────────────────┐
-│ Passaram 24h ou nunca buscou?    │
-├────────┬─────────────────────────┤
-│  SIM   │          NÃO            │
-│   ↓    │           ↓             │
-│ force  │    Usa cache            │
-│ =true  │    (fetchAnalysis())    │
-└────────┴─────────────────────────┘
+Meta Individual = contribution + remaining
+Progresso % = (contribution / Meta Individual) × 100
+
+Se achieved = true → Verde
+Se progresso >= 50% → Amarelo  
+Se progresso < 50% → Vermelho
 ```
 
 ---
 
-### Detalhes Técnicos
+### Alterações no Código
 
-- **Storage key**: `yearly-analysis-last-fetch`
-- **Formato**: ISO timestamp (`2026-01-28T14:30:00.000Z`)
-- **Intervalo**: 24 horas
-- **Botão manual**: Continua funcionando independentemente do limite diário
+#### Linhas 149-168: Substituir lógica binária por ternária
 
+**Código Atual:**
+```tsx
+{assessorBreakdown.map((assessor, idx) => (
+  <div 
+    key={idx} 
+    className={cn(
+      "flex flex-col items-center px-1 py-1 rounded text-center",
+      assessor.achieved 
+        ? "bg-green-500/15 text-green-400 border border-green-500/20" 
+        : "bg-red-500/20 text-red-400 border border-red-500/30"
+    )}
+  >
+```
+
+**Código Novo:**
+```tsx
+{assessorBreakdown.map((assessor, idx) => {
+  // Calcular progresso individual
+  const individualTarget = (assessor.contribution || 0) + assessor.remaining;
+  const progressPercent = individualTarget > 0 
+    ? ((assessor.contribution || 0) / individualTarget) * 100 
+    : 0;
+  
+  // Determinar classe de cor
+  const colorClass = assessor.achieved
+    ? "bg-green-500/15 text-green-400 border border-green-500/20"
+    : progressPercent >= 50
+      ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
+      : "bg-red-500/20 text-red-400 border border-red-500/30";
+  
+  return (
+    <div 
+      key={idx} 
+      className={cn(
+        "flex flex-col items-center px-1 py-1 rounded text-center",
+        colorClass
+      )}
+    >
+      <span className="text-scale-5 lg:text-scale-6 font-medium">
+        {assessor.name}
+      </span>
+      <span className="text-scale-6 font-bold">
+        {assessor.achieved 
+          ? "✓" 
+          : formatValue(assessor.remaining, isCurrency)
+        }
+      </span>
+    </div>
+  );
+})}
+```
+
+---
+
+### Resultado Visual
+
+| Progresso | Fundo | Texto | Borda |
+|-----------|-------|-------|-------|
+| 100% (atingiu) | verde/15 | verde-400 | verde/20 |
+| ≥50% | amarelo/20 | amarelo-500 | amarelo/30 |
+| <50% | vermelho/20 | vermelho-400 | vermelho/30 |
+
+---
+
+### Dados Utilizados
+
+O tipo `AssessorWeeklyRemaining` já possui:
+- `contribution?: number` - quanto já contribuiu
+- `remaining: number` - quanto falta
+- `achieved: boolean` - se atingiu a meta
+
+A soma `contribution + remaining` representa a meta individual do assessor.
