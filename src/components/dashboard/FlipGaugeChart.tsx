@@ -79,7 +79,7 @@ export function FlipGaugeChart({
         }`}
       >
         {/* Frente - Gauge Chart */}
-        <div className="absolute inset-0 backface-hidden">
+        <div className="absolute inset-0 backface-hidden overflow-hidden">
           <div className="relative h-full">
             <GaugeChart
               label={label}
@@ -105,7 +105,7 @@ export function FlipGaugeChart({
         </div>
         
         {/* Verso - Lista de Receita Empilhada */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180">
+        <div className="absolute inset-0 backface-hidden rotate-y-180 overflow-hidden">
           <Card className="h-full p-2 flex flex-col shadow-card">
             <div className="flex items-center justify-between mb-1">
               <h4 className="font-semibold text-[10px] text-foreground">

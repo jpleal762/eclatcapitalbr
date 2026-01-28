@@ -194,7 +194,7 @@ export function FlipICMCard({
         </div>
         
         {/* Back - AI Analysis */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180">
+        <div className="absolute inset-0 backface-hidden rotate-y-180 overflow-hidden">
           <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-2 flex-shrink-0">
               <div className="flex items-center gap-2">
