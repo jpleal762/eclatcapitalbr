@@ -140,50 +140,50 @@
     to { opacity: 1; transform: scale(1); }
   }
 
-  /* Fixed typography - locked sizes */
-  .text-responsive-4xs { font-size: 11px; }
-  .text-responsive-3xs { font-size: 10px; }
-  .text-responsive-2xs { font-size: 11px; }
-  .text-responsive-xs { font-size: 12px; }
-  .text-responsive-sm { font-size: 14px; }
-  .text-responsive-base { font-size: 16px; }
-  .text-responsive-lg { font-size: 20px; }
-  .text-responsive-xl { font-size: 24px; }
-  .text-responsive-2xl { font-size: 28px; }
-  .text-responsive-3xl { font-size: 34px; }
-  .text-responsive-4xl { font-size: 40px; }
+  /* Fixed typography - 50% reduction */
+  .text-responsive-4xs { font-size: 6px; }
+  .text-responsive-3xs { font-size: 5px; }
+  .text-responsive-2xs { font-size: 6px; }
+  .text-responsive-xs { font-size: 6px; }
+  .text-responsive-sm { font-size: 7px; }
+  .text-responsive-base { font-size: 8px; }
+  .text-responsive-lg { font-size: 10px; }
+  .text-responsive-xl { font-size: 12px; }
+  .text-responsive-2xl { font-size: 14px; }
+  .text-responsive-3xl { font-size: 17px; }
+  .text-responsive-4xl { font-size: 20px; }
 
-  /* TV Mode - Fixed sizes for TV visibility */
-  .text-tv-3xs { font-size: 12px; }
-  .text-tv-2xs { font-size: 14px; }
-  .text-tv-xs { font-size: 16px; }
-  .text-tv-sm { font-size: 20px; }
-  .text-tv-base { font-size: 24px; }
-  .text-tv-lg { font-size: 28px; }
-  .text-tv-xl { font-size: 32px; }
-  .text-tv-2xl { font-size: 40px; }
+  /* TV Mode - 50% reduction */
+  .text-tv-3xs { font-size: 6px; }
+  .text-tv-2xs { font-size: 7px; }
+  .text-tv-xs { font-size: 8px; }
+  .text-tv-sm { font-size: 10px; }
+  .text-tv-base { font-size: 12px; }
+  .text-tv-lg { font-size: 14px; }
+  .text-tv-xl { font-size: 16px; }
+  .text-tv-2xl { font-size: 20px; }
 
-  /* Fixed gaps */
-  .gap-responsive-sm { gap: 4px; }
-  .gap-responsive { gap: 6px; }
-  .gap-responsive-lg { gap: 12px; }
+  /* Fixed gaps - 50% reduction */
+  .gap-responsive-sm { gap: 2px; }
+  .gap-responsive { gap: 3px; }
+  .gap-responsive-lg { gap: 6px; }
 
-  /* Fixed padding/margin */
-  .p-responsive-sm { padding: 4px; }
-  .p-responsive { padding: 8px; }
-  .p-responsive-lg { padding: 12px; }
-  .px-responsive { padding-left: 8px; padding-right: 8px; }
-  .py-responsive { padding-top: 4px; padding-bottom: 4px; }
-  .py-responsive-sm { padding-top: 2px; padding-bottom: 2px; }
-  .mb-responsive { margin-bottom: 4px; }
-  .mt-responsive { margin-top: 4px; }
+  /* Fixed padding/margin - 50% reduction */
+  .p-responsive-sm { padding: 2px; }
+  .p-responsive { padding: 4px; }
+  .p-responsive-lg { padding: 6px; }
+  .px-responsive { padding-left: 4px; padding-right: 4px; }
+  .py-responsive { padding-top: 2px; padding-bottom: 2px; }
+  .py-responsive-sm { padding-top: 1px; padding-bottom: 1px; }
+  .mb-responsive { margin-bottom: 2px; }
+  .mt-responsive { margin-top: 2px; }
 
-  /* Fixed bar heights */
-  .h-bar-responsive-sm { height: 6px; }
-  .h-bar-responsive { height: 9px; }
-  .h-bar-responsive-lg { height: 12px; }
+  /* Fixed bar heights - 50% reduction */
+  .h-bar-responsive-sm { height: 3px; }
+  .h-bar-responsive { height: 5px; }
+  .h-bar-responsive-lg { height: 6px; }
 
-  /* Clock pulse animation - 50% less intense for subtlety */
+  /* Clock pulse animation */
   @keyframes pulse-clock {
     0%, 100% { 
       transform: scale(1); 
@@ -198,10 +198,10 @@
     animation: pulse-clock 0.75s ease-in-out infinite;
   }
 
-  /* Fixed icon sizes */
-  .icon-responsive-sm { width: 16px; height: 16px; }
-  .icon-responsive { width: 20px; height: 20px; }
-  .icon-responsive-lg { width: 28px; height: 28px; }
+  /* Fixed icon sizes - 50% reduction */
+  .icon-responsive-sm { width: 8px; height: 8px; }
+  .icon-responsive { width: 10px; height: 10px; }
+  .icon-responsive-lg { width: 14px; height: 14px; }
 }
 
 /* Apply transitions to responsive elements globally */

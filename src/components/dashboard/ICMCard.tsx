@@ -39,11 +39,11 @@ export function ICMCard({
 }: ICMCardProps) {
   const { theme } = useTheme();
 
-  // Fixed gauge dimensions
-  const gaugeWidth = 140;
-  const gaugeHeight = 80;
-  const gaugeRadius = 60;
-  const strokeWidth = 12;
+  // Fixed gauge dimensions - 50% reduction
+  const gaugeWidth = 70;
+  const gaugeHeight = 40;
+  const gaugeRadius = 30;
+  const strokeWidth = 6;
   const circumference = Math.PI * gaugeRadius;
   const progress = Math.min(icmGeral, 100) / 100 * circumference;
 
@@ -59,8 +59,8 @@ export function ICMCard({
   const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
   const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
 
-  // Triangle (arrow) - fixed size
-  const triangleSize = 4;
+  // Triangle (arrow) - 50% reduction
+  const triangleSize = 2;
   const perpAngle = ritmoIdealAngle + Math.PI / 2;
   const tipX = x2;
   const tipY = y2;

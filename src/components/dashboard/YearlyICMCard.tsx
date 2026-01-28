@@ -36,11 +36,11 @@ export function YearlyICMCard({
   onYearChange,
   onToggleView,
 }: YearlyICMCardProps) {
-  // Fixed gauge dimensions
-  const gaugeWidth = 180;
-  const gaugeHeight = 100;
-  const gaugeRadius = 80;
-  const strokeWidth = 14;
+  // Fixed gauge dimensions - 50% reduction
+  const gaugeWidth = 90;
+  const gaugeHeight = 50;
+  const gaugeRadius = 40;
+  const strokeWidth = 7;
   
   const circumference = Math.PI * gaugeRadius;
   const progress = (Math.min(icmGeral, 100) / 100) * circumference;
