@@ -104,7 +104,7 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
         <div className={cn(
           isCompleted 
             ? "text-green-500" 
-            : "text-red-400 font-bold bg-red-500/15 px-1 rounded"
+            : "text-red-400 font-bold"
         )}>
           {isCompleted ? "✓ Zerado" : `Falta: ${formatValue(totalRemaining, isCurrency)}`}
         </div>
