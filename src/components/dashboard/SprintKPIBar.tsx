@@ -36,7 +36,7 @@ function getUrgencyIcon(progressPercentage: number, isCompleted: boolean) {
   if (progressPercentage >= 50) {
     return <Timer className="h-1.5 w-1.5 lg:h-2 lg:w-2 text-yellow-500" />;
   }
-  return <Flame className="h-1.5 w-1.5 lg:h-2 lg:w-2 text-destructive animate-pulse" />;
+  return <Flame className="h-1.5 w-1.5 lg:h-2 lg:w-2 text-red-400 animate-pulse" />;
 }
 
 export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
@@ -85,7 +85,7 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
         </div>
         <span className={cn(
           "font-bold text-[7px] lg:text-[8px]",
-          isCompleted ? "text-green-500" : progressPercentage >= 50 ? "text-eclat-gold" : "text-destructive"
+          isCompleted ? "text-green-500" : progressPercentage >= 50 ? "text-eclat-gold" : "text-red-400"
         )}>
           {Math.round(progressPercentage)}%
         </span>
@@ -101,7 +101,11 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
           <span className="text-muted-foreground">Real: </span>
           <span className="font-medium text-green-500">{formatValue(totalRealized, isCurrency)}</span>
         </div>
-        <div className={cn(isCompleted ? "text-green-500" : "text-destructive font-bold")}>
+        <div className={cn(
+          isCompleted 
+            ? "text-green-500" 
+            : "text-red-400 font-bold bg-red-500/15 px-1 rounded"
+        )}>
           {isCompleted ? "✓ Zerado" : `Falta: ${formatValue(totalRemaining, isCurrency)}`}
         </div>
       </div>
@@ -122,9 +126,9 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
         <div className="flex items-center gap-0.5 text-[5px] lg:text-[5px] mb-0.5">
           <TrendingUp className={cn(
             "h-1.5 w-1.5",
-            evolution.difference > 0 ? "text-green-500" : "text-destructive"
+            evolution.difference > 0 ? "text-green-500" : "text-red-400"
           )} />
-          <span className={evolution.difference > 0 ? "text-green-500" : "text-destructive"}>
+          <span className={evolution.difference > 0 ? "text-green-500" : "text-red-400"}>
             {evolution.difference > 0 ? "+" : ""}{formatValue(evolution.difference, isCurrency)} em {evolution.hoursAgo}h
             {evolution.percentageChange !== 0 && (
               <span className="text-muted-foreground ml-0.5">
@@ -148,8 +152,8 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
                 className={cn(
                   "flex flex-col items-center px-[3px] py-0.5 rounded text-center",
                   assessor.achieved 
-                    ? "bg-green-500/10 text-green-500" 
-                    : "bg-destructive/10 text-destructive"
+                    ? "bg-green-500/15 text-green-400 border border-green-500/20" 
+                    : "bg-red-500/20 text-red-400 border border-red-500/30"
                 )}
               >
                 <span className="text-[5px] lg:text-[6px] font-medium">
