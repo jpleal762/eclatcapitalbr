@@ -146,27 +146,40 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
             Falta por Assessor:
           </span>
           <div className="grid grid-cols-3 lg:grid-cols-4 gap-1">
-            {assessorBreakdown.map((assessor, idx) => (
-              <div 
-                key={idx} 
-                className={cn(
-                  "flex flex-col items-center px-1 py-1 rounded text-center",
-                  assessor.achieved 
-                    ? "bg-green-500/15 text-green-400 border border-green-500/20" 
-                    : "bg-red-500/20 text-red-400 border border-red-500/30"
-                )}
-              >
-                <span className="text-scale-5 lg:text-scale-6 font-medium">
-                  {assessor.name}
-                </span>
-                <span className="text-scale-6 font-bold">
-                  {assessor.achieved 
-                    ? "✓" 
-                    : formatValue(assessor.remaining, isCurrency)
-                  }
-                </span>
-              </div>
-            ))}
+            {assessorBreakdown.map((assessor, idx) => {
+              // Calcular progresso individual
+              const individualTarget = (assessor.contribution || 0) + assessor.remaining;
+              const progressPercent = individualTarget > 0 
+                ? ((assessor.contribution || 0) / individualTarget) * 100 
+                : 0;
+              
+              // Determinar classe de cor: verde (atingiu), amarelo (>=50%), vermelho (<50%)
+              const colorClass = assessor.achieved
+                ? "bg-green-500/15 text-green-400 border border-green-500/20"
+                : progressPercent >= 50
+                  ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
+                  : "bg-red-500/20 text-red-400 border border-red-500/30";
+              
+              return (
+                <div 
+                  key={idx} 
+                  className={cn(
+                    "flex flex-col items-center px-1 py-1 rounded text-center",
+                    colorClass
+                  )}
+                >
+                  <span className="text-scale-5 lg:text-scale-6 font-medium">
+                    {assessor.name}
+                  </span>
+                  <span className="text-scale-6 font-bold">
+                    {assessor.achieved 
+                      ? "✓" 
+                      : formatValue(assessor.remaining, isCurrency)
+                    }
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
