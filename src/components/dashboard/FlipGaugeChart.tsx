@@ -106,24 +106,24 @@ export function FlipGaugeChart({
         
         {/* Verso - Lista de Receita Empilhada */}
         <div className="absolute inset-0 backface-hidden rotate-y-180 overflow-hidden">
-          <Card className="h-full p-2 flex flex-col shadow-card">
-            <div className="flex items-center justify-between mb-1">
-              <h4 className="font-semibold text-[10px] text-foreground">
+          <Card className="h-full p-1 flex flex-col shadow-card">
+            <div className="flex items-center justify-between mb-0.5">
+              <h4 className="font-semibold text-[5px] text-foreground">
                 {backTitle}
               </h4>
-              <div className="p-0.5 rounded-full bg-muted/50">
-                <RotateCcw className="w-2.5 h-2.5 text-muted-foreground" />
+              <div className="p-[1px] rounded-full bg-muted/50">
+                <RotateCcw className="w-[5px] h-[5px] text-muted-foreground" />
               </div>
             </div>
             
             {/* Lista de assessores */}
             <div className="flex-1 min-h-0">
-              <div className="space-y-0.5">
+              <div className="space-y-[1px]">
                 {backData.length > 0 ? (
                   backData.map((item, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between text-[9px] py-0"
+                      className="flex items-center justify-between text-[5px] py-0"
                     >
                       <span className="font-medium text-foreground truncate max-w-[55%]">
                         {item.name}
@@ -134,7 +134,7 @@ export function FlipGaugeChart({
                     </div>
                   ))
                 ) : (
-                  <p className="text-[9px] text-muted-foreground italic text-center py-1">
+                  <p className="text-[5px] text-muted-foreground italic text-center py-0.5">
                     Sem dados
                   </p>
                 )}

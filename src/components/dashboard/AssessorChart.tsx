@@ -85,9 +85,9 @@ export function AssessorChart({
     const clockStyle = getClockStyle(assessor.geralPercentage, ritmoIdeal);
     
     return (
-      <div key={assessor.name} className={`flex items-center gap-1 p-1 rounded-md transition-all hover:translate-x-0.5 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
+      <div key={assessor.name} className={`flex items-center gap-0.5 p-0.5 rounded-md transition-all hover:translate-x-0.5 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
             <p className="text-responsive-3xs font-medium text-foreground truncate">{assessor.name}</p>
             {/* Troféu animado para top agendador */}
@@ -96,7 +96,7 @@ export function AssessorChart({
             )}
           </div>
           {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
-          <div className="relative w-full h-1.5 bg-muted rounded-full overflow-visible mt-0.5">
+          <div className="relative w-full h-[3px] bg-muted rounded-full overflow-visible mt-[1px]">
             <div className="h-full rounded-l-full transition-all duration-500 bg-eclat-gradient-horizontal" style={{
               width: `${Math.min(assessor.geralPercentage, 100)}%`
             }} />
@@ -106,13 +106,13 @@ export function AssessorChart({
                 <TooltipTrigger asChild>
                   <div 
                     className="absolute flex flex-col items-center cursor-pointer transition-all duration-500 ease-out"
-                    style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)', top: '-8px' }}
+                    style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)', top: '-4px' }}
                   >
-                    <div className={`flex items-center justify-center w-3 h-3 rounded-full shadow-lg border border-white ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
-                      <Clock className="w-1.5 h-1.5 text-white" />
+                    <div className={`flex items-center justify-center w-1.5 h-1.5 rounded-full shadow-lg border border-white ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
+                      <Clock className="w-[3px] h-[3px] text-white" />
                     </div>
                     {/* Linha conectora com cor condicional */}
-                    <div className={`w-px h-1.5 ${clockStyle.bgColor}`} />
+                    <div className={`w-px h-[3px] ${clockStyle.bgColor}`} />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -125,7 +125,7 @@ export function AssessorChart({
             </TooltipProvider>
           </div>
 {/* Barra ICM Semanal (azul degradê) */}
-          <div className="w-full h-1 bg-muted rounded-full overflow-hidden mt-0.5">
+          <div className="w-full h-0.5 bg-muted rounded-full overflow-hidden mt-[1px]">
             <div className="h-full rounded-l-full transition-all duration-500 bg-blue-gradient-horizontal" style={{
               width: `${Math.min(assessor.semanaPercentage, 100)}%`
             }} />
@@ -133,10 +133,10 @@ export function AssessorChart({
         </div>
         
         <div className="text-right flex-shrink-0">
-          <span className="text-responsive-3xs font-bold text-eclat-gold">
+          <span className="text-[5px] font-bold text-eclat-gold">
             {assessor.geralPercentage}%
           </span>
-          <span className="text-[9px] font-medium text-blue-500 block leading-tight">
+          <span className="text-[5px] font-medium text-blue-500 block leading-tight">
             {assessor.semanaPercentage}%
           </span>
         </div>
@@ -147,12 +147,12 @@ export function AssessorChart({
   // Layout para assessor único (centralizado e maior)
   if (isSingleAssessor) {
     return (
-      <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden">
-        <h3 className="text-responsive-xs font-semibold mb-1 text-foreground flex items-center gap-1 flex-shrink-0">
+      <Card className="p-1 shadow-card h-full flex flex-col overflow-hidden">
+        <h3 className="text-responsive-xs font-semibold mb-0.5 text-foreground flex items-center gap-0.5 flex-shrink-0">
           ICM Geral - {filteredData[0].name}
         </h3>
         
-        <div className="flex-1 flex items-center justify-center p-4">
+        <div className="flex-1 flex items-center justify-center p-2">
           <div className="w-full max-w-md">
             {renderAssessor(filteredData[0], 0)}
           </div>
@@ -162,13 +162,13 @@ export function AssessorChart({
   }
   
   return (
-    <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden">
-      <h3 className="text-responsive-xs font-semibold mb-1 text-foreground flex items-center gap-1 flex-shrink-0">
+    <Card className="p-1 shadow-card h-full flex flex-col overflow-hidden">
+      <h3 className="text-responsive-xs font-semibold mb-0.5 text-foreground flex items-center gap-0.5 flex-shrink-0">
         ICM Geral por Assessor
       </h3>
       
       {/* Coluna única com distribuição vertical - justify-between para espaçar, gap-0.5 mínimo */}
-      <div className="flex-1 min-h-0 flex flex-col justify-between gap-0.5 overflow-hidden">
+      <div className="flex-1 min-h-0 flex flex-col justify-between gap-[1px] overflow-hidden">
         {filteredData.map((assessor, index) => renderAssessor(assessor, index))}
       </div>
     </Card>

@@ -60,16 +60,16 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
               className="absolute top-0 flex flex-col items-center transition-all duration-500 ease-out"
               style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
             >
-              <div className={`flex items-center justify-center w-4 h-4 rounded-full shadow-md ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
-                <Clock className="w-2.5 h-2.5 text-white" />
+              <div className={`flex items-center justify-center w-2 h-2 rounded-full shadow-md ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
+                <Clock className="w-[5px] h-[5px] text-white" />
               </div>
-              <div className={`w-0.5 h-bar-responsive -mt-0.5 ${clockStyle.bgColor}`} />
+              <div className={`w-[1px] h-bar-responsive -mt-[1px] ${clockStyle.bgColor}`} />
             </div>
             
             {/* Label sempre visível */}
-            <div className="absolute -bottom-5 right-0 text-responsive-2xs font-semibold whitespace-nowrap">
+            <div className="absolute -bottom-2.5 right-0 text-responsive-2xs font-semibold whitespace-nowrap">
               <span className={differenceColor}>{differenceText}</span>
-              <span className="text-muted-foreground ml-1">vs ideal</span>
+              <span className="text-muted-foreground ml-0.5">vs ideal</span>
             </div>
           </>
         )}
