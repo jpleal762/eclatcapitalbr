@@ -39,11 +39,11 @@ export function ICMCard({
 }: ICMCardProps) {
   const { theme } = useTheme();
 
-  // Fixed gauge dimensions - 50% reduction
-  const gaugeWidth = 70;
-  const gaugeHeight = 40;
-  const gaugeRadius = 30;
-  const strokeWidth = 6;
+  // Fixed gauge dimensions - 5x increase for ICM Geral
+  const gaugeWidth = 350;
+  const gaugeHeight = 200;
+  const gaugeRadius = 150;
+  const strokeWidth = 30;
   const circumference = Math.PI * gaugeRadius;
   const progress = Math.min(icmGeral, 100) / 100 * circumference;
 
@@ -59,8 +59,8 @@ export function ICMCard({
   const x2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
   const y2 = centerY - Math.sin(ritmoIdealAngle) * markerOuterRadius;
 
-  // Triangle (arrow) - 50% reduction
-  const triangleSize = 2;
+  // Triangle (arrow) - 5x increase
+  const triangleSize = 10;
   const perpAngle = ritmoIdealAngle + Math.PI / 2;
   const tipX = x2;
   const tipY = y2;
@@ -127,8 +127,8 @@ export function ICMCard({
               <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={markerColor} strokeWidth={2} />
               <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={markerColor} />
             </svg>
-            <div className="absolute inset-0 flex items-end justify-center pb-1">
-              <span className="text-responsive-2xl font-bold text-foreground">{icmGeral}%</span>
+            <div className="absolute inset-0 flex items-end justify-center pb-4">
+              <span className="text-responsive-4xl font-bold text-foreground text-outline">{icmGeral}%</span>
             </div>
           </div>
         </div>
