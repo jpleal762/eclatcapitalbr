@@ -1,46 +1,46 @@
 
-
-## Plano: Destacar Nomes dos Assessores em Caixa Alta
+## Plano: Triplicar Tamanho dos Nomes dos KPIs na Análise Trimestral
 
 ### Objetivo
-Exibir os nomes dos assessores em letras maiúsculas (caixa alta) com maior destaque visual, mantendo o layout atual intacto.
+Aumentar em 3x o tamanho dos nomes de cada KPI (ex: "Primeiras Reuniões", "Captação NET") na página de Análise Trimestral sem impactar o layout.
 
 ---
 
 ### Arquivo a Modificar
-**`src/components/dashboard/AssessorChart.tsx`**
+**`src/components/dashboard/QuarterlyKPIBar.tsx`**
 
 ---
 
 ### Alteração
 
-**Linha 92 - Nome do assessor:**
+**Linha 61 - Nome do KPI (label):**
 
 | Propriedade | Atual | Novo |
 |-------------|-------|------|
-| Texto | Normal (como está) | `uppercase` (caixa alta) |
-| Peso da fonte | `font-medium` | `font-semibold` |
-| Tamanho | `text-responsive-3xs` | `text-responsive-3xs` (sem mudança) |
+| Tamanho mobile | `text-scale-5` | `text-scale-11` |
+| Tamanho desktop | `lg:text-scale-6` | `lg:text-scale-12` |
+
+O sistema de escala usa multiplicadores onde cada nível é ~1.2x maior. Para triplicar:
+- `text-scale-5` (~10px) → `text-scale-11` (~28-30px)
+- `text-scale-6` (~12px) → `text-scale-12` (~32-36px)
 
 **Código atual:**
 ```tsx
-<p className="text-responsive-3xs font-medium text-foreground truncate">{assessor.name}</p>
+<span className="font-semibold text-foreground text-scale-5 lg:text-scale-6 truncate">{label}</span>
 ```
 
 **Código novo:**
 ```tsx
-<p className="text-responsive-3xs font-semibold text-foreground truncate uppercase tracking-wide">{assessor.name}</p>
+<span className="font-semibold text-foreground text-scale-11 lg:text-scale-12 truncate">{label}</span>
 ```
 
 ---
 
-### Classes Adicionadas
+### Por que não impacta o layout
 
-| Classe | Efeito |
-|--------|--------|
-| `uppercase` | Transforma texto para CAIXA ALTA |
-| `font-semibold` | Aumenta peso da fonte (mais negrito que `font-medium`) |
-| `tracking-wide` | Aumenta levemente o espaçamento entre letras para melhor legibilidade em caixa alta |
+1. **`truncate`** já está aplicado - nomes longos serão cortados com "..."
+2. Layout usa **flexbox** com `justify-between` - nome e porcentagem se ajustam automaticamente
+3. A altura do container é flexível (`h-full flex flex-col`)
 
 ---
 
@@ -48,17 +48,13 @@ Exibir os nomes dos assessores em letras maiúsculas (caixa alta) com maior dest
 
 **Antes:**
 ```
-🕐 Bruno    ████████████░░░░  75%
-🕐 Ana      ██████████░░░░░░  68%
+Primeiras Reuniões                    75%
+████████████░░░░░░░░░░
 ```
 
 **Depois:**
 ```
-🕐 BRUNO    ████████████░░░░  75%
-🕐 ANA      ██████████░░░░░░  68%
+PRIMEIRAS REUNIÕES                    75%
+████████████░░░░░░░░░░
 ```
-
-- Nomes em caixa alta com maior peso visual
-- Mesmo tamanho de fonte - layout preservado
-- Espaçamento entre letras otimizado para legibilidade
-
+(com nome 3x maior e mais impactante)
