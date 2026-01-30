@@ -43,11 +43,11 @@ export function YearlyGaugeChart({
 }: YearlyGaugeChartProps) {
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   
-  // Fixed dimensions based on size - 50% reduction
+  // Fixed dimensions based on size - 3x increase
   const dimensions = {
-    sm: { width: 56, height: 32, stroke: 4 },
-    md: { width: 72, height: 41, stroke: 5 },
-    lg: { width: 88, height: 50, stroke: 6 },
+    sm: { width: 168, height: 96, stroke: 12 },
+    md: { width: 216, height: 123, stroke: 15 },
+    lg: { width: 264, height: 150, stroke: 18 },
   };
   
   const { width: dynamicWidth, height: dynamicHeight, stroke: dynamicStrokeWidth } = dimensions[size];
@@ -70,7 +70,7 @@ export function YearlyGaugeChart({
 
         {/* Percentage label - acima do gauge */}
         <div className="flex justify-center">
-          <span className="text-responsive-sm font-bold" style={{ color: "hsl(var(--chart-graphite))" }}>
+          <span className="text-responsive-sm font-bold text-outline" style={{ color: "hsl(var(--chart-graphite))" }}>
             {percentage}%
           </span>
         </div>
