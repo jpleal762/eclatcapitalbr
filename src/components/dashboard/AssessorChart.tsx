@@ -34,9 +34,9 @@ function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
     case "CLOCK":
       return <Clock className="icon-responsive-sm text-blue-500 flex-shrink-0" />;
     case "YELLOW_ALERT":
-      return <Clock className="icon-responsive-sm text-eclat-gold flex-shrink-0" />;
+      return null; // Sem ícone para alerta amarelo
     case "ORANGE_ALERT":
-      return <Clock className="icon-responsive-sm text-orange-500 flex-shrink-0" />;
+      return <AlertTriangle className="icon-responsive-sm text-orange-500 flex-shrink-0" />;
     case "RED_ALERT":
       return <AlertTriangle className="icon-responsive-sm text-red-500 flex-shrink-0" />;
     default:
@@ -89,7 +89,7 @@ export function AssessorChart({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-0.5">
             <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
-            <p className="text-responsive-3xs font-semibold text-foreground truncate uppercase tracking-wide">{assessor.name}</p>
+            <p className="text-responsive-2xs font-semibold text-foreground truncate uppercase tracking-wide">{assessor.name}</p>
             {/* Troféu animado para top agendador */}
             {topAgendador === assessor.name && (
               <Trophy className="icon-responsive-sm text-eclat-gold animate-trophy-celebrate flex-shrink-0" />
