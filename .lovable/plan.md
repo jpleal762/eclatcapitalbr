@@ -1,225 +1,167 @@
 
 
-## Plano: Mascotes e Elementos Visuais Gamificados para Sprint
+## Plano: Modo TV 55" com Zoom Proporcional
 
-### Conceito de Gamificação
+### Conceito
 
-Inspirado nas melhores práticas de jogos, vou adicionar **mascotes SVG animados** que reagem ao progresso de cada KPI. Os personagens serão minimalistas, profissionais e coerentes com o tema do Sprint.
-
----
-
-### Mascotes por Status de Progresso
-
-| Status | Mascote | Animação | Posição |
-|--------|---------|----------|---------|
-| < 50% | 🏃 Runner (correndo) | Pernas se movendo | Canto da barra |
-| 50-79% | 🚴 Ciclista (pedalando) | Rodas girando | Canto da barra |
-| 80-99% | 🚀 Foguete (decolando) | Chamas pulsando | Canto da barra |
-| 100% | 🏆 Campeão (comemorando) | Braços levantados | Canto da barra |
+Em vez de escalar elementos individuais (que pode causar desalinhamentos), vamos usar **CSS transform: scale()** no container principal. Isso funciona como o zoom do navegador - mantém o layout exatamente igual, apenas maior.
 
 ---
 
-### Componente: SprintMascot
+### Como Funciona
 
-Criar um novo componente SVG inline que renderiza o mascote apropriado:
-
-```tsx
-// src/components/dashboard/SprintMascot.tsx
-
-interface SprintMascotProps {
-  progressPercent: number;
-  isCompleted: boolean;
-}
-
-export function SprintMascot({ progressPercent, isCompleted }: SprintMascotProps) {
-  // Determinar qual mascote mostrar
-  if (isCompleted) return <ChampionMascot />;
-  if (progressPercent >= 80) return <RocketMascot />;
-  if (progressPercent >= 50) return <CyclistMascot />;
-  return <RunnerMascot />;
-}
-```
+| Abordagem | Comportamento | Risco de Quebra |
+|-----------|---------------|-----------------|
+| Escala por elemento (atual) | Cada texto/ícone escala individualmente | Médio - gaps e alinhamentos podem quebrar |
+| Transform scale (proposta) | Todo o container escala como bloco | Zero - é literalmente um zoom |
 
 ---
 
-### Design dos Mascotes (SVG Inline)
+### Implementação
 
-#### 1. Runner (< 50%) - Urgência
+#### 1. Novo Modo "TV 55\"" no ScaleSelector
 
-```tsx
-function RunnerMascot() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-scale-3 text-red-400">
-      {/* Boneco correndo com animação nas pernas */}
-      <circle cx="12" cy="5" r="3" fill="currentColor" /> {/* Cabeça */}
-      <path 
-        d="M12 8v5" 
-        stroke="currentColor" 
-        strokeWidth="2" 
-        strokeLinecap="round"
-      /> {/* Corpo */}
-      <path 
-        d="M12 13l-3 4M12 13l3 4" 
-        stroke="currentColor" 
-        strokeWidth="2"
-        className="animate-runner-legs"
-      /> {/* Pernas animadas */}
-    </svg>
-  );
-}
+Adicionar opção especial que ativa o zoom de container:
+
+```
+1x, 1.25x, 1.5x, 1.75x, 2x, [TV 55" - ícone de monitor]
 ```
 
-#### 2. Cyclist (50-79%) - Progresso
-
-```tsx
-function CyclistMascot() {
-  return (
-    <svg viewBox="0 0 32 24" className="size-scale-4 text-yellow-500">
-      {/* Bicicleta com rodas girando */}
-      <circle 
-        cx="8" cy="16" r="5" 
-        stroke="currentColor" 
-        fill="none"
-        className="animate-spin-slow"
-      />
-      <circle 
-        cx="24" cy="16" r="5" 
-        stroke="currentColor" 
-        fill="none"
-        className="animate-spin-slow"
-      />
-      {/* Ciclista */}
-      <circle cx="16" cy="6" r="3" fill="currentColor" />
-      <path d="M16 9l-4 7h12l-8-7" stroke="currentColor" />
-    </svg>
-  );
-}
-```
-
-#### 3. Rocket (80-99%) - Quase lá
-
-```tsx
-function RocketMascot() {
-  return (
-    <svg viewBox="0 0 24 32" className="size-scale-4 text-green-400">
-      {/* Foguete com chamas animadas */}
-      <path 
-        d="M12 2l6 10H6z" 
-        fill="currentColor"
-      /> {/* Corpo */}
-      <rect x="9" y="12" width="6" height="8" fill="currentColor" />
-      {/* Chamas */}
-      <path 
-        d="M9 20l3 8 3-8" 
-        fill="orange"
-        className="animate-flame"
-      />
-    </svg>
-  );
-}
-```
-
-#### 4. Champion (100%) - Vitória
-
-```tsx
-function ChampionMascot() {
-  return (
-    <svg viewBox="0 0 24 28" className="size-scale-4 text-green-500">
-      {/* Boneco comemorando */}
-      <circle cx="12" cy="5" r="4" fill="currentColor" />
-      <path d="M12 9v8" stroke="currentColor" strokeWidth="2" />
-      {/* Braços levantados */}
-      <path 
-        d="M12 11l-6-4M12 11l6-4" 
-        stroke="currentColor" 
-        strokeWidth="2"
-        className="animate-celebrate-arms"
-      />
-      {/* Estrelas */}
-      <text x="2" y="8" fontSize="6" className="animate-twinkle">✨</text>
-      <text x="20" y="8" fontSize="6" className="animate-twinkle-delayed">✨</text>
-    </svg>
-  );
-}
-```
-
----
-
-### Novas Animações (tailwind.config.ts)
+#### 2. ScaleContext - Nova Flag para Modo TV
 
 ```typescript
-keyframes: {
-  // Pernas do corredor
-  "runner-legs": {
-    "0%, 100%": { transform: "rotate(-15deg)" },
-    "50%": { transform: "rotate(15deg)" },
-  },
-  // Rodas da bicicleta
-  "spin-slow": {
-    "0%": { transform: "rotate(0deg)" },
-    "100%": { transform: "rotate(360deg)" },
-  },
-  // Chamas do foguete
-  "flame": {
-    "0%, 100%": { opacity: "1", transform: "scaleY(1)" },
-    "50%": { opacity: "0.7", transform: "scaleY(1.2)" },
-  },
-  // Braços comemorando
-  "celebrate-arms": {
-    "0%, 100%": { transform: "rotate(0deg)" },
-    "25%": { transform: "rotate(-10deg)" },
-    "75%": { transform: "rotate(10deg)" },
-  },
-  // Estrelas brilhando
-  "twinkle": {
-    "0%, 100%": { opacity: "1", transform: "scale(1)" },
-    "50%": { opacity: "0.5", transform: "scale(1.2)" },
-  },
-}
+type ScaleFactor = 1 | 1.25 | 1.5 | 1.75 | 2 | "tv55";
+
+// Quando "tv55", aplica transform: scale() no container
 ```
 
----
+#### 3. Container Principal com Transform
 
-### Integração no SprintKPIBar
+No `Index.tsx`, envolver o conteúdo em um container escalável:
 
 ```tsx
-// Adicionar o mascote no header de cada barra
-<div className="flex items-center justify-between mb-1">
-  <div className="flex items-center gap-1.5">
-    {/* Mascote no início */}
-    <SprintMascot 
-      progressPercent={progressPercentage} 
-      isCompleted={isCompleted} 
-    />
-    <span className="font-semibold">{label}</span>
+<main className="flex-1 overflow-hidden">
+  <div 
+    className={cn(
+      "h-full w-full origin-top-left",
+      scaleFactor === "tv55" && "tv-scale-container"
+    )}
+    style={scaleFactor === "tv55" ? {
+      transform: "scale(1.5)", // Escala para TV
+      width: "66.67%",         // Compensa a escala (100/1.5)
+      height: "66.67%"
+    } : undefined}
+  >
+    {/* Todo o dashboard aqui */}
   </div>
-  <span className="font-bold">{Math.round(progressPercentage)}%</span>
-</div>
+</main>
 ```
+
+#### 4. Cálculo Automático da Escala
+
+Para TVs 55" (tipicamente 3840x2160 4K ou 1920x1080):
+
+| Resolução TV | Resolução Base | Fator de Escala |
+|--------------|----------------|-----------------|
+| 3840x2160 (4K) | 1920x1080 | 2.0x |
+| 1920x1080 (FHD) | 1920x1080 | 1.5x (para melhor leitura) |
 
 ---
 
-### Resumo das Alterações
+### Arquivos a Modificar
 
 | Arquivo | Alteração |
 |---------|-----------|
-| `src/components/dashboard/SprintMascot.tsx` | **NOVO** - Componente com mascotes SVG |
-| `tailwind.config.ts` | Adicionar keyframes para animações dos mascotes |
-| `src/components/dashboard/SprintKPIBar.tsx` | Integrar o SprintMascot no header |
+| `src/contexts/ScaleContext.tsx` | Adicionar tipo "tv55" e lógica de detecção |
+| `src/components/ScaleSelector.tsx` | Adicionar opção "TV 55\"" com ícone Monitor |
+| `src/pages/Index.tsx` | Aplicar transform: scale() quando modo TV ativo |
+| `src/index.css` | Classe auxiliar `.tv-scale-container` |
 
 ---
 
-### Resultado Visual Esperado
+### Detalhes Técnicos
 
-**Experiência gamificada**:
-- Cada KPI tem um mascote que reflete seu progresso
-- Animações sutis que indicam movimento/urgência
-- Celebração especial quando a meta é atingida
-- Visual profissional e divertido ao mesmo tempo
+#### ScaleContext.tsx
 
-**Princípios de game design aplicados**:
-- Feedback visual imediato
-- Recompensa visual para conquistas
-- Urgência visual para itens atrasados
-- Progressão clara através de mascotes diferentes
+```typescript
+type ScaleFactor = 1 | 1.25 | 1.5 | 1.75 | 2 | "tv55";
+
+// Função para calcular escala do TV baseado na viewport
+const getTVScale = () => {
+  const width = window.innerWidth;
+  if (width >= 3840) return 2.0;  // 4K
+  if (width >= 2560) return 1.75; // QHD
+  return 1.5; // FHD ou menor
+};
+```
+
+#### ScaleSelector.tsx
+
+```tsx
+const SCALE_OPTIONS = [
+  { value: 1, label: "1x" },
+  { value: 1.25, label: "1.25x" },
+  { value: 1.5, label: "1.5x" },
+  { value: 1.75, label: "1.75x" },
+  { value: 2, label: "2x" },
+  { value: "tv55", label: "TV 55\"", icon: Monitor },
+];
+```
+
+#### Index.tsx - Container Escalável
+
+```tsx
+const { scaleFactor } = useScale();
+
+// Calcular escala real para TV
+const tvScale = useMemo(() => {
+  if (scaleFactor !== "tv55") return 1;
+  const width = window.innerWidth;
+  if (width >= 3840) return 2.0;
+  if (width >= 2560) return 1.75;
+  return 1.5;
+}, [scaleFactor]);
+
+const isTV = scaleFactor === "tv55";
+
+// No JSX:
+<main className="flex-1 overflow-hidden">
+  <div 
+    style={isTV ? {
+      transform: `scale(${tvScale})`,
+      transformOrigin: "top left",
+      width: `${100 / tvScale}%`,
+      height: `${100 / tvScale}%`,
+    } : undefined}
+  >
+    {/* Dashboard content */}
+  </div>
+</main>
+```
+
+---
+
+### Resultado Esperado
+
+**Comportamento no computador (1920x1080)**:
+- Layout normal, sem alterações
+
+**Comportamento na TV 55" (FHD)**:
+- Todo o dashboard escalado 1.5x
+- Layout idêntico ao computador, apenas maior
+- Zero sobreposições ou quebras
+
+**Comportamento na TV 55" (4K)**:
+- Todo o dashboard escalado 2x
+- Aproveitamento total da resolução
+- Textos e gráficos perfeitamente legíveis
+
+---
+
+### Vantagem desta Abordagem
+
+1. **Zero risco de quebra** - É literalmente um zoom do navegador
+2. **Proporcional** - Tudo escala junto (textos, gaps, ícones, mascotes)
+3. **Automático** - Detecta a resolução da TV e ajusta
+4. **Reversível** - Basta trocar de volta para 1x
 
