@@ -1,8 +1,8 @@
 
-## Plano: Triplicar Tamanho dos Nomes dos KPIs na Análise Trimestral
+## Plano: Dobrar Tamanho dos Top 2 Gaps de Assessores
 
 ### Objetivo
-Aumentar em 3x o tamanho dos nomes de cada KPI (ex: "Primeiras Reuniões", "Captação NET") na página de Análise Trimestral sem impactar o layout.
+Aumentar em 2x o tamanho do texto dos "Top 2 Assessor Gaps" na análise trimestral (ex: "BRUNO: -R$ 150K") sem impactar o layout.
 
 ---
 
@@ -13,34 +13,35 @@ Aumentar em 3x o tamanho dos nomes de cada KPI (ex: "Primeiras Reuniões", "Capt
 
 ### Alteração
 
-**Linha 61 - Nome do KPI (label):**
+**Linha 112 - Top 2 Assessor Gaps:**
 
 | Propriedade | Atual | Novo |
 |-------------|-------|------|
-| Tamanho mobile | `text-scale-5` | `text-scale-11` |
-| Tamanho desktop | `lg:text-scale-6` | `lg:text-scale-12` |
+| Tamanho fonte | `text-scale-4` | `text-scale-8` |
 
-O sistema de escala usa multiplicadores onde cada nível é ~1.2x maior. Para triplicar:
-- `text-scale-5` (~10px) → `text-scale-11` (~28-30px)
-- `text-scale-6` (~12px) → `text-scale-12` (~32-36px)
+No sistema de escala, `text-scale-4` é ~8px e `text-scale-8` é ~16px (dobro).
 
 **Código atual:**
 ```tsx
-<span className="font-semibold text-foreground text-scale-5 lg:text-scale-6 truncate">{label}</span>
+{topAssessorGaps.map(a => <span key={a.name} className="px-0.5 py-[1px] text-scale-4 rounded bg-red-500/10 text-red-500 border border-red-500/20 text-right font-semibold">
+    {a.name}: -{formatValue(a.gap, isCurrency)}
+  </span>)}
 ```
 
 **Código novo:**
 ```tsx
-<span className="font-semibold text-foreground text-scale-11 lg:text-scale-12 truncate">{label}</span>
+{topAssessorGaps.map(a => <span key={a.name} className="px-0.5 py-[1px] text-scale-8 rounded bg-red-500/10 text-red-500 border border-red-500/20 text-right font-semibold">
+    {a.name}: -{formatValue(a.gap, isCurrency)}
+  </span>)}
 ```
 
 ---
 
 ### Por que não impacta o layout
 
-1. **`truncate`** já está aplicado - nomes longos serão cortados com "..."
-2. Layout usa **flexbox** com `justify-between` - nome e porcentagem se ajustam automaticamente
-3. A altura do container é flexível (`h-full flex flex-col`)
+1. Os gaps ficam em uma `div` flexível com `gap-0.5` que se ajusta automaticamente
+2. O container pai usa `flex justify-between` - elementos se redistribuem
+3. O texto maior ainda cabe na linha horizontal existente
 
 ---
 
@@ -48,13 +49,12 @@ O sistema de escala usa multiplicadores onde cada nível é ~1.2x maior. Para tr
 
 **Antes:**
 ```
-Primeiras Reuniões                    75%
-████████████░░░░░░░░░░
+R$ 500K / R$ 1Mi    BRUNO: -R$ 150K  ANA: -R$ 120K    Ritmo: -R$ 200K
+                    (pequeno)
 ```
 
 **Depois:**
 ```
-PRIMEIRAS REUNIÕES                    75%
-████████████░░░░░░░░░░
+R$ 500K / R$ 1Mi    BRUNO: -R$ 150K  ANA: -R$ 120K    Ritmo: -R$ 200K
+                    (2x maior, mais visível)
 ```
-(com nome 3x maior e mais impactante)
