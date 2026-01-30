@@ -34,9 +34,9 @@ function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
     case "CLOCK":
       return <Clock className="icon-responsive-sm text-blue-500 flex-shrink-0" />;
     case "YELLOW_ALERT":
-      return <AlertTriangle className="icon-responsive-sm text-eclat-gold flex-shrink-0" />;
+      return <Clock className="icon-responsive-sm text-eclat-gold flex-shrink-0" />;
     case "ORANGE_ALERT":
-      return <AlertTriangle className="icon-responsive-sm text-orange-500 flex-shrink-0" />;
+      return <Clock className="icon-responsive-sm text-orange-500 flex-shrink-0" />;
     case "RED_ALERT":
       return <AlertTriangle className="icon-responsive-sm text-red-500 flex-shrink-0" />;
     default:
@@ -96,7 +96,7 @@ export function AssessorChart({
             )}
           </div>
           {/* Barra ICM Geral (amarela) com marcador de Ritmo Ideal */}
-          <div className="relative w-full h-[3px] bg-muted rounded-full overflow-visible mt-[1px]">
+          <div className="relative w-full h-[9px] bg-muted rounded-full overflow-visible mt-[1px]">
             <div className="h-full rounded-l-full transition-all duration-500 bg-eclat-gradient-horizontal" style={{
               width: `${Math.min(assessor.geralPercentage, 100)}%`
             }} />
@@ -125,7 +125,7 @@ export function AssessorChart({
             </TooltipProvider>
           </div>
 {/* Barra ICM Semanal (azul degradê) */}
-          <div className="w-full h-0.5 bg-muted rounded-full overflow-hidden mt-[1px]">
+          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-[1px]">
             <div className="h-full rounded-l-full transition-all duration-500 bg-blue-gradient-horizontal" style={{
               width: `${Math.min(assessor.semanaPercentage, 100)}%`
             }} />
