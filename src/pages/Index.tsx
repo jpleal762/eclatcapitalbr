@@ -432,7 +432,7 @@ const Index = () => {
   useEffect(() => {
     if (!hasData || !isPageRotationEnabled) return;
     
-    const pageOrder: PageType[] = ["dashboard", "analysis", "sprint", "prospection"];
+    const pageOrder: PageType[] = ["dashboard", "analysis", "prospection"];
     const interval = setInterval(() => {
       setCurrentPage(prev => {
         const currentIndex = pageOrder.indexOf(prev);
