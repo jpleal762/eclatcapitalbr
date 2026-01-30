@@ -36,7 +36,7 @@ function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
     case "YELLOW_ALERT":
       return null; // Sem ícone para alerta amarelo
     case "ORANGE_ALERT":
-      return <AlertTriangle className="icon-responsive-sm text-orange-500 flex-shrink-0" />;
+      return null; // Sem ícone para alerta laranja
     case "RED_ALERT":
       return <AlertTriangle className="icon-responsive-sm text-red-500 flex-shrink-0" />;
     default:
