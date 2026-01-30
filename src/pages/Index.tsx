@@ -58,6 +58,7 @@ import { Card } from "@/components/ui/card";
 import { PageToggle, PageType } from "@/components/dashboard/PageToggle";
 import { AnalysisPage } from "@/components/dashboard/AnalysisPage";
 import { SprintPage } from "@/components/dashboard/SprintPage";
+import { ProspectionQualityPage } from "@/components/dashboard/ProspectionQualityPage";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
@@ -427,11 +428,11 @@ const Index = () => {
 
   const hasData = rawData.length > 0;
 
-  // Auto-rotate between dashboard, analysis, and sprint pages every 90 seconds
+  // Auto-rotate between dashboard, analysis, sprint, and prospection pages every 90 seconds
   useEffect(() => {
     if (!hasData || !isPageRotationEnabled) return;
     
-    const pageOrder: PageType[] = ["dashboard", "analysis", "sprint"];
+    const pageOrder: PageType[] = ["dashboard", "analysis", "sprint", "prospection"];
     const interval = setInterval(() => {
       setCurrentPage(prev => {
         const currentIndex = pageOrder.indexOf(prev);
@@ -699,6 +700,18 @@ const Index = () => {
                     return next;
                   });
                 }}
+              />
+            ) : currentPage === "prospection" ? (
+              // PROSPECTION & QUALITY PAGE
+              <ProspectionQualityPage
+                processedData={processedData}
+                assessors={assessors}
+                months={months}
+                selectedAssessor={filters.assessor}
+                selectedMonth={filters.month}
+                onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
+                onMonthChange={(value) => setFilters({ ...filters, month: value })}
+                isAssessorLocked={isViewLocked}
               />
             ) : (
               // MONTHLY VIEW

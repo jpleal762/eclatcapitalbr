@@ -146,3 +146,17 @@ export const SPRINT_PRODUCTS: SprintProductConfig[] = [
   { category: "Habilitacao", label: "Habilitação", isCurrency: false },
   { category: "Ativacao", label: "Ativação", isCurrency: false },
 ];
+
+// ============= PROSPECTION & QUALITY PAGE KPIS =============
+export interface ProspectionKPIConfig {
+  category: string;
+  label: string;
+  isCurrency: boolean;
+}
+
+export const PROSPECTION_QUALITY_KPIS: ProspectionKPIConfig[] = [
+  { category: "Contatos", label: "Contatos", isCurrency: false },
+  { category: "Agendamentos", label: "Agendamentos", isCurrency: false },
+  { category: "Leads Referência", label: "Leads por Referência", isCurrency: false },
+  { category: "Financial Planning", label: "Financial Planning", isCurrency: false },
+];
