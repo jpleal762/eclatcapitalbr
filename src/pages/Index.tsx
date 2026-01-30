@@ -53,6 +53,7 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ScaleSelector } from "@/components/ScaleSelector";
+import { useScale } from "@/contexts/ScaleContext";
 import { Card } from "@/components/ui/card";
 import { PageToggle, PageType } from "@/components/dashboard/PageToggle";
 import { AnalysisPage } from "@/components/dashboard/AnalysisPage";
@@ -78,6 +79,7 @@ const getCurrentMonthValue = () => {
 
 const Index = () => {
   const { resolvedTheme } = useTheme();
+  const { isTV, tvScale } = useScale();
   const [searchParams] = useSearchParams();
   const [rawData, setRawData] = useState<KPIRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -631,13 +633,21 @@ const Index = () => {
           </header>
 
           <main className={cn(
-            "flex-1 overflow-hidden px-4 py-3",
+            "flex-1 overflow-hidden",
             viewMode === 'mobile' && "flex justify-center"
           )}>
-            <div className={cn(
-              "h-full w-full",
-              viewMode === 'mobile' && "mobile-view-container max-w-[390px] overflow-y-auto"
-            )}>
+            <div 
+              className={cn(
+                "h-full w-full px-4 py-3",
+                viewMode === 'mobile' && "mobile-view-container max-w-[390px] overflow-y-auto"
+              )}
+              style={isTV ? {
+                transform: `scale(${tvScale})`,
+                transformOrigin: "top left",
+                width: `${100 / tvScale}%`,
+                height: `${100 / tvScale}%`,
+              } : undefined}
+            >
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
