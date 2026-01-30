@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { ProcessedKPI } from "@/types/kpi";
-import { QUARTERS, processQuarterlyDashboardData, getCurrentQuarter, calculateQuarterlyIdealRhythm } from "@/lib/quarterlyKpiUtils";
+import { QUARTERS, processQuarterlyDashboardData, getCurrentQuarter, calculateQuarterlyIdealRhythm, calculateAssessorGapsForKPI, AssessorQuarterlyGap } from "@/lib/quarterlyKpiUtils";
 import { QuarterlyKPIBar } from "./QuarterlyKPIBar";
+import { KPI_CATEGORIES } from "@/lib/kpiUtils";
 import {
   Select,
   SelectContent,
@@ -67,19 +68,6 @@ export function AnalysisPage({
     [selectedYear, selectedQuarter]
   );
 
-  // Group KPIs by category for "by-category" view mode
-  const kpisByCategory = useMemo(() => ({
-    prospeccao: quarterlyKPIs.filter(kpi => 
-      (CATEGORY_GROUPS.prospeccao.kpis as readonly string[]).includes(kpi.label)
-    ),
-    investimentos: quarterlyKPIs.filter(kpi => 
-      (CATEGORY_GROUPS.investimentos.kpis as readonly string[]).includes(kpi.label)
-    ),
-    receita: quarterlyKPIs.filter(kpi => 
-      (CATEGORY_GROUPS.receita.kpis as readonly string[]).includes(kpi.label)
-    )
-  }), [quarterlyKPIs]);
-
   // Calculate top 2 gaps (KPIs with biggest deficit vs ritmo ideal)
   const top2Gaps = useMemo(() => {
     const withGap = quarterlyKPIs
@@ -91,17 +79,56 @@ export function AnalysisPage({
     return new Set(withGap);
   }, [quarterlyKPIs, ritmoIdeal]);
 
-  // Sort KPIs based on selected order
+  // Calculate top 2 assessor gaps for each KPI (only when showing all assessors)
+  const kpisWithAssessorGaps = useMemo(() => {
+    return quarterlyKPIs.map(kpi => {
+      // Only calculate gaps when filter is "all"
+      if (selectedAssessor !== "all") {
+        return { ...kpi, topAssessorGaps: [] as AssessorQuarterlyGap[] };
+      }
+      
+      // Find the KPI config to get category info
+      const kpiConfig = KPI_CATEGORIES.find(k => k.label === kpi.label);
+      if (!kpiConfig) {
+        return { ...kpi, topAssessorGaps: [] as AssessorQuarterlyGap[] };
+      }
+      
+      const gaps = calculateAssessorGapsForKPI(
+        processedData,
+        selectedYear,
+        selectedQuarter,
+        kpiConfig,
+        ritmoIdeal
+      );
+      
+      return { ...kpi, topAssessorGaps: gaps };
+    });
+  }, [quarterlyKPIs, processedData, selectedYear, selectedQuarter, ritmoIdeal, selectedAssessor]);
+
+  // Group KPIs by category for "by-category" view mode (using kpisWithAssessorGaps)
+  const kpisByCategoryWithGaps = useMemo(() => ({
+    prospeccao: kpisWithAssessorGaps.filter(kpi => 
+      (CATEGORY_GROUPS.prospeccao.kpis as readonly string[]).includes(kpi.label)
+    ),
+    investimentos: kpisWithAssessorGaps.filter(kpi => 
+      (CATEGORY_GROUPS.investimentos.kpis as readonly string[]).includes(kpi.label)
+    ),
+    receita: kpisWithAssessorGaps.filter(kpi => 
+      (CATEGORY_GROUPS.receita.kpis as readonly string[]).includes(kpi.label)
+    )
+  }), [kpisWithAssessorGaps]);
+
+  // Sort KPIs based on selected order (using kpisWithAssessorGaps)
   const sortedKPIs = useMemo(() => {
-    if (viewMode === "default" || viewMode === "by-category") return quarterlyKPIs;
+    if (viewMode === "default" || viewMode === "by-category") return kpisWithAssessorGaps;
     
-    return [...quarterlyKPIs].sort((a, b) => {
+    return [...kpisWithAssessorGaps].sort((a, b) => {
       if (viewMode === "best-to-worst") {
         return b.percentage - a.percentage;
       }
       return a.percentage - b.percentage; // worst-to-best
     });
-  }, [quarterlyKPIs, viewMode]);
+  }, [kpisWithAssessorGaps, viewMode]);
 
   // Check if we have any data
   const hasData = quarterlyKPIs.some(kpi => kpi.target > 0 || kpi.value > 0);
@@ -209,7 +236,7 @@ export function AnalysisPage({
               </span>
               <div className="flex-1 h-px bg-border" />
             </div>
-            {kpisByCategory.prospeccao.map((kpi) => (
+            {kpisByCategoryWithGaps.prospeccao.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
                 <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} />
               </div>
@@ -223,7 +250,7 @@ export function AnalysisPage({
               </span>
               <div className="flex-1 h-px bg-border" />
             </div>
-            {kpisByCategory.investimentos.map((kpi) => (
+            {kpisByCategoryWithGaps.investimentos.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
                 <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} />
               </div>
@@ -237,7 +264,7 @@ export function AnalysisPage({
               </span>
               <div className="flex-1 h-px bg-border" />
             </div>
-            {kpisByCategory.receita.map((kpi) => (
+            {kpisByCategoryWithGaps.receita.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
                 <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} />
               </div>

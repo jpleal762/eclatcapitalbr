@@ -110,6 +110,13 @@ export interface QuarterlyKPI {
   isCurrency: boolean;
 }
 
+// ============= ASSESSOR GAP INTERFACE =============
+export interface AssessorQuarterlyGap {
+  name: string;           // Primeiro nome do assessor
+  gap: number;            // Valor absoluto que falta para o ritmo
+  gapPercentage: number;  // Gap em pontos percentuais
+}
+
 // ============= STATUS HELPERS =============
 function isPlannedMonthStatus(status: string): boolean {
   const s = status.toLowerCase();
@@ -236,4 +243,124 @@ export function getCurrentQuarter(): string {
   if (month <= 5) return "Q2";
   if (month <= 8) return "Q3";
   return "Q4";
+}
+
+// ============= CALCULATE ASSESSOR GAPS FOR KPI =============
+interface KPIConfig {
+  category: string;
+  label: string;
+  isCurrency?: boolean;
+  isSpecial?: boolean;
+  targetCategories?: string[];
+  actualCategory?: string;
+  additionalActualCategory?: string;
+}
+
+export function calculateAssessorGapsForKPI(
+  data: ProcessedKPI[],
+  year: number,
+  quarter: string,
+  kpiConfig: KPIConfig,
+  ritmoIdeal: number
+): AssessorQuarterlyGap[] {
+  const quarterDef = QUARTERS.find(q => q.value === quarter);
+  if (!quarterDef || ritmoIdeal <= 0) return [];
+
+  const quarterMonths = quarterDef.months;
+  const { category, isSpecial, targetCategories, actualCategory, additionalActualCategory } = kpiConfig;
+
+  // Get unique assessors from data
+  const assessors = [...new Set(data.map(d => d.assessor))].filter(Boolean);
+
+  const assessorGaps: AssessorQuarterlyGap[] = [];
+
+  for (const assessor of assessors) {
+    const assessorData = data.filter(d => d.assessor === assessor);
+    
+    let target = 0;
+    let value = 0;
+
+    // Calculate TARGET (same logic as processQuarterlyDashboardData)
+    if (isSpecial && targetCategories) {
+      targetCategories.forEach(targetCat => {
+        const catData = assessorData.filter(d => d.category === targetCat);
+        const plannedData = catData.filter(d => {
+          const s = d.status.toLowerCase();
+          return s.includes("planejado m") || s === "planejado mês" || s === "planejado mes";
+        });
+        target += getQuarterValue(plannedData, quarterMonths, year);
+      });
+    } else {
+      const catData = assessorData.filter(d => d.category === category);
+      const plannedData = catData.filter(d => {
+        const s = d.status.toLowerCase();
+        return s.includes("planejado m") || s === "planejado mês" || s === "planejado mes";
+      });
+      target = getQuarterValue(plannedData, quarterMonths, year);
+    }
+
+    // Calculate VALUE (same logic as processQuarterlyDashboardData)
+    if (isSpecial && actualCategory) {
+      const catData = assessorData.filter(d => d.category === actualCategory);
+      const realizedData = catData.filter(d => {
+        const s = d.status.toLowerCase();
+        return s.includes("realizado") || s.includes("real.") || s === "realizado";
+      });
+      value = getQuarterValue(realizedData, quarterMonths, year);
+    } else if (category === "Receita") {
+      const receitaData = assessorData.filter(d => d.category === "Receita");
+      const receitaRealizada = receitaData.filter(d => {
+        const s = d.status.toLowerCase();
+        return s.includes("realizado") || s.includes("real.") || s === "realizado";
+      });
+      value = getQuarterValue(receitaRealizada, quarterMonths, year);
+
+      const receitaAcumuladaData = assessorData.filter(d => d.category === "Receita Acumulada");
+      const receitaAcumuladaRealizada = receitaAcumuladaData.filter(d => {
+        const s = d.status.toLowerCase();
+        return s.includes("realizado") || s.includes("real.") || s === "realizado";
+      });
+      value += getQuarterValue(receitaAcumuladaRealizada, quarterMonths, year);
+    } else {
+      const catData = assessorData.filter(d => d.category === category);
+      const realizedData = catData.filter(d => {
+        const s = d.status.toLowerCase();
+        return s.includes("realizado") || s.includes("real.") || s === "realizado";
+      });
+      value = getQuarterValue(realizedData, quarterMonths, year);
+    }
+
+    // Add additional actual category if exists
+    if (additionalActualCategory) {
+      const additionalData = assessorData.filter(d => d.category === additionalActualCategory);
+      const additionalRealized = additionalData.filter(d => {
+        const s = d.status.toLowerCase();
+        return s.includes("realizado") || s.includes("real.") || s === "realizado";
+      });
+      value += getQuarterValue(additionalRealized, quarterMonths, year);
+    }
+
+    // Calculate gap vs ideal rhythm
+    if (target > 0) {
+      const valorEsperadoRitmo = target * (ritmoIdeal / 100);
+      const gap = Math.max(0, valorEsperadoRitmo - value);
+      
+      if (gap > 0) {
+        // Get first name only
+        const firstName = assessor.split(" ")[0].toUpperCase();
+        const gapPercentage = Math.round((gap / target) * 100);
+        
+        assessorGaps.push({
+          name: firstName,
+          gap,
+          gapPercentage,
+        });
+      }
+    }
+  }
+
+  // Sort by gap descending and return top 2
+  return assessorGaps
+    .sort((a, b) => b.gap - a.gap)
+    .slice(0, 2);
 }
