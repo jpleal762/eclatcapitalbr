@@ -2,6 +2,7 @@ import { SprintKPIData, SprintEvolution, SPRINT_PRODUCTS } from "@/types/kpi";
 import { SprintKPIBar } from "./SprintKPIBar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "@/hooks/use-toast";
 
 interface SprintPageProps {
   sprintData: SprintKPIData[];
@@ -37,20 +38,42 @@ export function SprintPage({
     return b.totalRemaining - a.totalRemaining;
   });
 
+  // Handle product toggle with max 3 limit
+  const handleProductToggle = (category: string) => {
+    if (selectedProducts.has(category)) {
+      // Can always uncheck
+      onProductToggle(category);
+    } else {
+      // Can only check if less than 3 selected
+      if (selectedProducts.size < 3) {
+        onProductToggle(category);
+      } else {
+        toast({
+          title: "Limite atingido",
+          description: "Máximo de 3 itens selecionados",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   return (
     <div className="h-full flex flex-col animate-fade-in">
       {/* Filtros e checkboxes no topo */}
       <div className="flex items-center justify-between gap-1 mb-1 flex-shrink-0 flex-wrap">
         {/* Checkboxes de produtos - linha compacta */}
         <div className="flex items-center gap-1 lg:gap-1.5 flex-wrap">
-        {SPRINT_PRODUCTS.map((product) => (
+          <span className="text-scale-5 text-muted-foreground">
+            ({selectedProducts.size}/3)
+          </span>
+          {SPRINT_PRODUCTS.map((product) => (
             <label 
               key={product.category} 
               className="flex items-center gap-1 lg:gap-1.5 cursor-pointer text-scale-5 lg:text-scale-6"
             >
               <Checkbox
                 checked={selectedProducts.has(product.category)}
-                onCheckedChange={() => onProductToggle(product.category)}
+                onCheckedChange={() => handleProductToggle(product.category)}
                 className="size-scale-1.5 lg:size-scale-2"
               />
               <span className="text-muted-foreground hover:text-foreground transition-colors">

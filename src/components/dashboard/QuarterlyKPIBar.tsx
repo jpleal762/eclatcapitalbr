@@ -3,6 +3,7 @@ import { QuarterlyKPI } from "@/lib/quarterlyKpiUtils";
 interface QuarterlyKPIBarProps extends QuarterlyKPI {
   ritmoIdeal: number;
   headName?: string;
+  isTopGap?: boolean;
 }
 
 // Format value for display
@@ -36,7 +37,7 @@ function getTextColor(percentage: number, ritmoIdeal: number): string {
   return "text-red-600 dark:text-red-400";
 }
 
-export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, ritmoIdeal, headName }: QuarterlyKPIBarProps) {
+export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, ritmoIdeal, headName, isTopGap }: QuarterlyKPIBarProps) {
   const barWidth = Math.min(percentage, 100);
   const barColor = getBarColor(percentage, ritmoIdeal);
   const textColor = getTextColor(percentage, ritmoIdeal);
@@ -57,14 +58,19 @@ export function QuarterlyKPIBar({ label, value, target, percentage, isCurrency, 
               HEAD {headName}
             </span>
           )}
+          {isTopGap && (
+            <span className="inline-flex items-center text-scale-4 lg:text-scale-5 font-bold text-red-500 animate-pulse">
+              ⚠️ PRIORIDADE
+            </span>
+          )}
         </div>
         <span className={`font-bold text-scale-6 lg:text-scale-7 ${textColor}`}>
           {percentage}%
         </span>
       </div>
 
-      {/* Progress bar - smaller height */}
-      <div className="relative h-scale-1 lg:h-scale-1.5 my-[1px]">
+      {/* Progress bar - 2x height */}
+      <div className="relative h-scale-2 lg:h-scale-3 my-[1px]">
         {/* Actual progress bar */}
         <div className="absolute inset-0 bg-muted rounded-full overflow-hidden">
           <div
