@@ -7,7 +7,6 @@ export interface AssessorRemainingItem {
   remaining: number;
   achieved: boolean;
 }
-
 interface GaugeChartProps {
   label: string;
   value: number;
@@ -36,22 +35,16 @@ interface GaugeChartProps {
 // Determina o alerta baseado na performance vs ritmo ideal
 const getGaugeAlert = (currentPercentage: number, ritmoIdeal?: number): "GREEN" | "ORANGE" | "RED" | undefined => {
   if (ritmoIdeal === undefined) return undefined;
-  
   if (currentPercentage >= ritmoIdeal) {
     return "GREEN";
   }
-  
-  const percentageBelowIdeal = ((ritmoIdeal - currentPercentage) / ritmoIdeal) * 100;
-  
+  const percentageBelowIdeal = (ritmoIdeal - currentPercentage) / ritmoIdeal * 100;
   if (percentageBelowIdeal > 50) {
     return "RED";
   }
-  
   return "ORANGE";
 };
-
 const TOTAL_ICM_WEIGHT = 9.5;
-
 function RitmoAlertDisplay({
   alertType,
   difference,
@@ -66,44 +59,33 @@ function RitmoAlertDisplay({
   gapPercentage?: number;
 }) {
   if (!alertType) return null;
-  
   const showDifference = difference !== undefined && difference < 0;
-  
+
   // Calcular impacto no ICM se atingir o ritmo
-  const icmImpact = weight && gapPercentage && gapPercentage > 0
-    ? ((weight / TOTAL_ICM_WEIGHT) * gapPercentage).toFixed(1)
-    : null;
-  
+  const icmImpact = weight && gapPercentage && gapPercentage > 0 ? (weight / TOTAL_ICM_WEIGHT * gapPercentage).toFixed(1) : null;
   const iconElement = (() => {
     switch (alertType) {
       case "GREEN":
         return <CheckCircle className="icon-responsive text-green-500" />;
       case "ORANGE":
-        return <AlertTriangle className="icon-responsive text-orange-500 animate-pulse" />;
+        return;
       case "RED":
         return <AlertTriangle className="icon-responsive text-red-500 animate-pulse" />;
       default:
         return null;
     }
   })();
-
-  return (
-    <div className="flex flex-col items-center">
+  return <div className="flex flex-col items-center">
       {iconElement}
-      {showDifference && (
-        <>
+      {showDifference && <>
           <span className={`text-responsive-4xs font-bold ${alertType === "RED" ? "text-red-500" : "text-orange-500"}`}>
             {alertType === "RED" && "! "}{formatNumber(difference, isCurrency)}
           </span>
-          {icmImpact && (
-            <span className="text-responsive-4xs font-medium text-blue-500">
+          {icmImpact && <span className="text-responsive-4xs font-medium text-blue-500">
               +{icmImpact}pp
-            </span>
-          )}
-        </>
-      )}
-    </div>
-  );
+            </span>}
+        </>}
+    </div>;
 }
 export function GaugeChart({
   label,
@@ -124,66 +106,70 @@ export function GaugeChart({
   additionalValue,
   weight,
   compact = false,
-  headName,
+  headName
 }: GaugeChartProps) {
-  const { theme } = useTheme();
+  const {
+    theme
+  } = useTheme();
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
   const remainingValue = Math.max(target - value, 0);
-  
+
   // Calcular gap em percentual para impacto no ICM
-  const gapPercentage = ritmoIdeal !== undefined && percentage < ritmoIdeal
-    ? ritmoIdeal - percentage
-    : 0;
-  
+  const gapPercentage = ritmoIdeal !== undefined && percentage < ritmoIdeal ? ritmoIdeal - percentage : 0;
+
   // Calcular impacto total no ICM se atingir 100% da meta
-  const remainingPercentage = target > 0 ? ((target - value) / target) * 100 : 0;
-  const remainingImpact = weight && remainingValue > 0 && target > 0
-    ? ((weight / TOTAL_ICM_WEIGHT) * remainingPercentage).toFixed(1)
-    : null;
+  const remainingPercentage = target > 0 ? (target - value) / target * 100 : 0;
+  const remainingImpact = weight && remainingValue > 0 && target > 0 ? (weight / TOTAL_ICM_WEIGHT * remainingPercentage).toFixed(1) : null;
 
   // Fixed dimensions based on size and compact mode - 3x increase
   const dimensions = {
-    sm: { width: compact ? 135 : 168, height: compact ? 78 : 96, stroke: compact ? 12 : 15 },
-    md: { width: compact ? 174 : 216, height: compact ? 96 : 120, stroke: compact ? 15 : 18 },
-    lg: { width: compact ? 192 : 240, height: compact ? 108 : 135, stroke: compact ? 18 : 21 },
+    sm: {
+      width: compact ? 135 : 168,
+      height: compact ? 78 : 96,
+      stroke: compact ? 12 : 15
+    },
+    md: {
+      width: compact ? 174 : 216,
+      height: compact ? 96 : 120,
+      stroke: compact ? 15 : 18
+    },
+    lg: {
+      width: compact ? 192 : 240,
+      height: compact ? 108 : 135,
+      stroke: compact ? 18 : 21
+    }
   };
-  
-  const { width: dynamicWidth, height: dynamicHeight, stroke: dynamicStrokeWidth } = dimensions[size];
+  const {
+    width: dynamicWidth,
+    height: dynamicHeight,
+    stroke: dynamicStrokeWidth
+  } = dimensions[size];
 
   // Calcular alerta e diferença para o ritmo ideal
-  const ritmoIdealValue = ritmoIdeal !== undefined && target > 0 
-    ? Math.round(ritmoIdeal / 100 * target * 100) / 100 
-    : undefined;
-  const ritmoIdealDifference = ritmoIdealValue !== undefined 
-    ? Math.round((value - ritmoIdealValue) * 100) / 100 
-    : undefined;
+  const ritmoIdealValue = ritmoIdeal !== undefined && target > 0 ? Math.round(ritmoIdeal / 100 * target * 100) / 100 : undefined;
+  const ritmoIdealDifference = ritmoIdealValue !== undefined ? Math.round((value - ritmoIdealValue) * 100) / 100 : undefined;
   const alertType = getGaugeAlert(percentage, ritmoIdeal);
   const radius = (dynamicWidth - dynamicStrokeWidth) / 2;
   const circumference = Math.PI * radius;
-  
+
   // Calculate segmented bar values when additionalValue is present
   const hasSegmentedBar = additionalValue && additionalValue > 0;
   const baseValue = hasSegmentedBar ? value - additionalValue : value;
-  const basePercentage = target > 0 ? (baseValue / target) * 100 : 0;
+  const basePercentage = target > 0 ? baseValue / target * 100 : 0;
   const clampedBasePercentage = Math.min(Math.max(basePercentage, 0), 100);
-  const additionalPercentage = target > 0 && hasSegmentedBar ? (additionalValue / target) * 100 : 0;
+  const additionalPercentage = target > 0 && hasSegmentedBar ? additionalValue / target * 100 : 0;
   const clampedAdditionalPercentage = Math.min(Math.max(additionalPercentage, 0), 100 - clampedBasePercentage);
-  
-  const baseProgress = (clampedBasePercentage / 100) * circumference;
-  const additionalProgress = (clampedAdditionalPercentage / 100) * circumference;
+  const baseProgress = clampedBasePercentage / 100 * circumference;
+  const additionalProgress = clampedAdditionalPercentage / 100 * circumference;
   const progress = clampedPercentage / 100 * circumference;
-  
   const isHighlight = variant === "highlight";
 
   // Ritmo ideal marker calculations
-  const ritmoIdealAngle = ritmoIdeal !== undefined 
-    ? Math.PI - (ritmoIdeal / 100) * Math.PI 
-    : 0;
+  const ritmoIdealAngle = ritmoIdeal !== undefined ? Math.PI - ritmoIdeal / 100 * Math.PI : 0;
   const centerX = dynamicWidth / 2;
   const centerY = dynamicHeight;
   const markerInnerRadius = radius - dynamicStrokeWidth / 2 - 2;
   const markerOuterRadius = radius + dynamicStrokeWidth / 2 + 2;
-
   const markerX1 = centerX + Math.cos(ritmoIdealAngle) * markerInnerRadius;
   const markerY1 = centerY - Math.sin(ritmoIdealAngle) * markerInnerRadius;
   const markerX2 = centerX + Math.cos(ritmoIdealAngle) * markerOuterRadius;
@@ -210,26 +196,16 @@ export function GaugeChart({
             <div className="flex flex-col flex-1 min-w-0">
               <h4 className={`font-semibold text-responsive-3xs ${isHighlight ? "text-card" : "text-foreground"} truncate whitespace-nowrap`}>
                 {label}
-                {weight !== undefined && (
-                  <span className="ml-1 text-muted-foreground font-normal">
+                {weight !== undefined && <span className="ml-1 text-muted-foreground font-normal">
                     x{weight}
-                  </span>
-                )}
+                  </span>}
               </h4>
-              {headName && (
-                <span className="inline-flex items-center text-responsive-4xs font-bold text-eclat-gold uppercase tracking-wide bg-yellow-500/10 px-1.5 py-0.5 rounded-md border border-yellow-500/20">
+              {headName && <span className="inline-flex items-center text-responsive-4xs font-bold text-eclat-gold uppercase tracking-wide bg-yellow-500/10 px-1.5 py-0.5 rounded-md border border-yellow-500/20">
                   HEAD {headName}
-                </span>
-              )}
+                </span>}
             </div>
             <div className="flex-shrink-0 ml-1">
-              <RitmoAlertDisplay 
-                alertType={alertType} 
-                difference={ritmoIdealDifference}
-                isCurrency={isCurrency}
-                weight={weight}
-                gapPercentage={gapPercentage}
-              />
+              <RitmoAlertDisplay alertType={alertType} difference={ritmoIdealDifference} isCurrency={isCurrency} weight={weight} gapPercentage={gapPercentage} />
             </div>
           </div>
 
@@ -244,9 +220,9 @@ export function GaugeChart({
 
           {/* Dynamic SVG gauge */}
           <div className="relative flex-shrink-0 my-auto" style={{
-          width: dynamicWidth,
-          height: dynamicHeight
-        }}>
+            width: dynamicWidth,
+            height: dynamicHeight
+          }}>
           <svg width={dynamicWidth} height={dynamicHeight} viewBox={`0 0 ${dynamicWidth} ${dynamicHeight}`} overflow="visible">
             {/* Definições de gradientes SVG */}
             <defs>
@@ -264,56 +240,26 @@ export function GaugeChart({
             <path d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
                   A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} fill="none" stroke={isHighlight ? "hsl(0, 0%, 50%)" : "hsl(var(--muted))"} strokeWidth={dynamicStrokeWidth} strokeLinecap="round" />
             {/* Additional value arc (darker gold gradient for Receita Empilhada) - vem primeiro */}
-            {hasSegmentedBar && (
-              <path 
-                d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
-                    A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} 
-                fill="none" 
-                stroke="url(#dark-gold-gradient)"
-                strokeWidth={dynamicStrokeWidth} 
-                strokeLinecap="butt" 
-                strokeDasharray={circumference} 
-                strokeDashoffset={circumference - additionalProgress}
-                style={{ transition: "stroke-dashoffset 0.5s ease-out" }} 
-              />
-            )}
+            {hasSegmentedBar && <path d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
+                    A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} fill="none" stroke="url(#dark-gold-gradient)" strokeWidth={dynamicStrokeWidth} strokeLinecap="butt" strokeDasharray={circumference} strokeDashoffset={circumference - additionalProgress} style={{
+                transition: "stroke-dashoffset 0.5s ease-out"
+              }} />}
             
             {/* Progress arc - base value (gold gradient) - vem depois */}
-            <path 
-              d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
-                  A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} 
-              fill="none" 
-              stroke="url(#eclat-arc-gradient)" 
-              strokeWidth={dynamicStrokeWidth} 
-              strokeLinecap="round" 
-              strokeDasharray={circumference} 
-              strokeDashoffset={hasSegmentedBar ? circumference - baseProgress : circumference - progress} 
-              style={{ 
+            <path d={`M ${dynamicStrokeWidth / 2} ${dynamicHeight} 
+                  A ${radius} ${radius} 0 0 1 ${dynamicWidth - dynamicStrokeWidth / 2} ${dynamicHeight}`} fill="none" stroke="url(#eclat-arc-gradient)" strokeWidth={dynamicStrokeWidth} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={hasSegmentedBar ? circumference - baseProgress : circumference - progress} style={{
                 transition: "stroke-dashoffset 0.5s ease-out, transform 0.5s ease-out",
                 ...(hasSegmentedBar && {
                   transformOrigin: `${dynamicWidth / 2}px ${dynamicHeight}px`,
-                  transform: `rotate(${(clampedAdditionalPercentage / 100) * 180}deg)`
+                  transform: `rotate(${clampedAdditionalPercentage / 100 * 180}deg)`
                 })
-              }} 
-            />
+              }} />
             
             {/* Ritmo Ideal marker - linha + seta triangular */}
-            {ritmoIdeal !== undefined && (
-              <>
-                <line 
-                  x1={markerX1} 
-                  y1={markerY1} 
-                  x2={markerX2} 
-                  y2={markerY2} 
-                  stroke={markerColor} 
-                  strokeWidth={2} 
-                />
-                <polygon 
-                  points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} 
-                  fill={markerColor} 
-                />
-              </>
-            )}
+            {ritmoIdeal !== undefined && <>
+                <line x1={markerX1} y1={markerY1} x2={markerX2} y2={markerY2} stroke={markerColor} strokeWidth={2} />
+                <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={markerColor} />
+              </>}
           </svg>
 
           {/* Center content */}
@@ -321,11 +267,9 @@ export function GaugeChart({
             <span className={`text-responsive-lg font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"}`}>
               {formatNumber(value, isCurrency)}
             </span>
-            {showRemaining && (
-              <span className={`text-responsive-3xs text-muted-foreground font-medium whitespace-nowrap ${remainingValue <= 0 ? 'invisible' : ''}`}>
+            {showRemaining && <span className={`text-responsive-3xs text-muted-foreground font-medium whitespace-nowrap ${remainingValue <= 0 ? 'invisible' : ''}`}>
                 Faltam: {formatNumber(remainingValue || 0, isCurrency)}
-              </span>
-            )}
+              </span>}
           </div>
 
           </div>
@@ -346,8 +290,8 @@ export function GaugeChart({
             <div className="relative">
               <div className="h-bar-responsive-sm bg-muted rounded-full overflow-hidden">
                 <div className="h-full rounded-full bg-gray-500 transition-all duration-500" style={{
-              width: `${Math.min(secondaryPercentage ?? 0, 100)}%`
-            }} />
+                width: `${Math.min(secondaryPercentage ?? 0, 100)}%`
+              }} />
               </div>
             </div>
           </div>
@@ -356,34 +300,23 @@ export function GaugeChart({
         </div>
 
         {/* Lista de Falta por Assessor - always reserve space when showAssessorList is true */}
-        {showAssessorList && (
-          <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
+        {showAssessorList && <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
             <p className="text-responsive-3xs text-muted-foreground mb-1 flex-shrink-0 font-semibold truncate whitespace-nowrap">
               Falta p/ Assessor
             </p>
             <div className="overflow-y-auto flex-1 min-h-0">
               <div className="space-y-0.5">
-                {(assessorRemainingData || []).map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between text-responsive-3xs gap-1"
-                  >
+                {(assessorRemainingData || []).map((item, index) => <div key={index} className="flex items-center justify-between text-responsive-3xs gap-1">
                     <span className="font-medium truncate max-w-[40px]" title={item.name}>
                       {item.name}
                     </span>
-                    {item.achieved ? (
-                      <CheckCircle2 className="h-3 w-3 text-green-500 flex-shrink-0" />
-                    ) : (
-                      <span className="font-medium flex-shrink-0 text-secondary-foreground text-[9px]">
+                    {item.achieved ? <CheckCircle2 className="h-3 w-3 text-green-500 flex-shrink-0" /> : <span className="font-medium flex-shrink-0 text-secondary-foreground text-[9px]">
                         {formatNumber(item.remaining, isCurrency)}
-                      </span>
-                    )}
-                  </div>
-                ))}
+                      </span>}
+                  </div>)}
               </div>
             </div>
-          </div>
-        )}
+          </div>}
       </div>
     </Card>;
 }
