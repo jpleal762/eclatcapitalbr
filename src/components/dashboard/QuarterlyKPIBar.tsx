@@ -58,7 +58,7 @@ export function QuarterlyKPIBar({
       {/* Label and percentage - compact */}
       <div className="flex justify-between items-center mb-[1px]">
         <div className="flex items-center gap-0.5">
-          <span className="font-semibold text-foreground text-scale-5 lg:text-scale-6 truncate">{label}</span>
+          <span className="font-semibold text-foreground text-scale-11 lg:text-scale-12 truncate">{label}</span>
           {headName && <span className="inline-flex items-center text-scale-4 lg:text-scale-5 font-bold text-eclat-gold uppercase tracking-wide bg-yellow-500/10 px-[1px] py-[1px] rounded border border-yellow-500/20">
               HEAD {headName}
             </span>}
