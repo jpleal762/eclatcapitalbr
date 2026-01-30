@@ -1,75 +1,64 @@
 
 
-## Plano: Ajustes no Gráfico de Assessores
+## Plano: Destacar Nomes dos Assessores em Caixa Alta
 
-### Alterações no Arquivo
+### Objetivo
+Exibir os nomes dos assessores em letras maiúsculas (caixa alta) com maior destaque visual, mantendo o layout atual intacto.
+
+---
+
+### Arquivo a Modificar
 **`src/components/dashboard/AssessorChart.tsx`**
 
 ---
 
-### 1. Remover Triângulos Amarelo e Laranja
+### Alteração
 
-**Mudança no componente `StatusIcon`:**
+**Linha 92 - Nome do assessor:**
 
-| Status Atual | Ícone Atual | Novo Ícone |
-|--------------|-------------|------------|
-| TROPHY | Troféu (dourado) | Troféu (dourado) - SEM MUDANÇA |
-| GREEN_CHECK | Relógio (verde) | Relógio (verde) - SEM MUDANÇA |
-| CLOCK | Relógio (azul) | Relógio (azul) - SEM MUDANÇA |
-| YELLOW_ALERT | Triângulo (amarelo) | **Relógio (amarelo)** |
-| ORANGE_ALERT | Triângulo (laranja) | **Relógio (laranja)** |
-| RED_ALERT | Triângulo (vermelho) | Triângulo (vermelho) - SEM MUDANÇA |
+| Propriedade | Atual | Novo |
+|-------------|-------|------|
+| Texto | Normal (como está) | `uppercase` (caixa alta) |
+| Peso da fonte | `font-medium` | `font-semibold` |
+| Tamanho | `text-responsive-3xs` | `text-responsive-3xs` (sem mudança) |
 
-**Código:**
+**Código atual:**
 ```tsx
-function StatusIcon({ icon }: { icon: KPIStatusIcon }) {
-  switch (icon) {
-    case "TROPHY":
-      return <Trophy className="icon-responsive-sm text-eclat-gold flex-shrink-0" />;
-    case "GREEN_CHECK":
-      return <Clock className="icon-responsive-sm text-green-500 flex-shrink-0" />;
-    case "CLOCK":
-      return <Clock className="icon-responsive-sm text-blue-500 flex-shrink-0" />;
-    case "YELLOW_ALERT":
-      return <Clock className="icon-responsive-sm text-eclat-gold flex-shrink-0" />;  // MUDOU
-    case "ORANGE_ALERT":
-      return <Clock className="icon-responsive-sm text-orange-500 flex-shrink-0" />; // MUDOU
-    case "RED_ALERT":
-      return <AlertTriangle className="icon-responsive-sm text-red-500 flex-shrink-0" />;
-    default:
-      return null;
-  }
-}
+<p className="text-responsive-3xs font-medium text-foreground truncate">{assessor.name}</p>
+```
+
+**Código novo:**
+```tsx
+<p className="text-responsive-3xs font-semibold text-foreground truncate uppercase tracking-wide">{assessor.name}</p>
 ```
 
 ---
 
-### 2. Engrossar Barras 3x
+### Classes Adicionadas
 
-| Barra | Altura Atual | Nova Altura |
-|-------|--------------|-------------|
-| ICM Geral (dourada) | `h-[3px]` | `h-[9px]` |
-| ICM Semanal (azul) | `h-0.5` (2px) | `h-1.5` (6px) |
-
-**Linha 99 - Barra ICM Geral:**
-```tsx
-<div className="relative w-full h-[9px] bg-muted rounded-full overflow-visible mt-[1px]">
-```
-
-**Linha 128 - Barra ICM Semanal:**
-```tsx
-<div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-[1px]">
-```
+| Classe | Efeito |
+|--------|--------|
+| `uppercase` | Transforma texto para CAIXA ALTA |
+| `font-semibold` | Aumenta peso da fonte (mais negrito que `font-medium`) |
+| `tracking-wide` | Aumenta levemente o espaçamento entre letras para melhor legibilidade em caixa alta |
 
 ---
 
 ### Resultado Visual
 
 **Antes:**
-- Ícones: Triângulos amarelos/laranjas para performance abaixo do ritmo
-- Barras: Finas (3px dourada, 2px azul)
+```
+🕐 Bruno    ████████████░░░░  75%
+🕐 Ana      ██████████░░░░░░  68%
+```
 
 **Depois:**
-- Ícones: Relógio amarelo/laranja (mais sutil), triângulo APENAS para vermelho (crítico)
-- Barras: 3x mais grossas (9px dourada, 6px azul) - muito mais visíveis
+```
+🕐 BRUNO    ████████████░░░░  75%
+🕐 ANA      ██████████░░░░░░  68%
+```
+
+- Nomes em caixa alta com maior peso visual
+- Mesmo tamanho de fonte - layout preservado
+- Espaçamento entre letras otimizado para legibilidade
 
