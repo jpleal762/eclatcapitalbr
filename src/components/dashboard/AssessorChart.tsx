@@ -89,7 +89,7 @@ export function AssessorChart({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-0.5">
             <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
-            <p className="text-responsive-3xs font-medium text-foreground truncate">{assessor.name}</p>
+            <p className="text-responsive-3xs font-semibold text-foreground truncate uppercase tracking-wide">{assessor.name}</p>
             {/* Troféu animado para top agendador */}
             {topAgendador === assessor.name && (
               <Trophy className="icon-responsive-sm text-eclat-gold animate-trophy-celebrate flex-shrink-0" />
