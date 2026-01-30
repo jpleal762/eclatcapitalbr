@@ -141,11 +141,11 @@ export function GaugeChart({
     ? ((weight / TOTAL_ICM_WEIGHT) * remainingPercentage).toFixed(1)
     : null;
 
-  // Fixed dimensions based on size and compact mode - 50% reduction
+  // Fixed dimensions based on size and compact mode - 3x increase
   const dimensions = {
-    sm: { width: compact ? 45 : 56, height: compact ? 26 : 32, stroke: compact ? 4 : 5 },
-    md: { width: compact ? 58 : 72, height: compact ? 32 : 40, stroke: compact ? 5 : 6 },
-    lg: { width: compact ? 64 : 80, height: compact ? 36 : 45, stroke: compact ? 6 : 7 },
+    sm: { width: compact ? 135 : 168, height: compact ? 78 : 96, stroke: compact ? 12 : 15 },
+    md: { width: compact ? 174 : 216, height: compact ? 96 : 120, stroke: compact ? 15 : 18 },
+    lg: { width: compact ? 192 : 240, height: compact ? 108 : 135, stroke: compact ? 18 : 21 },
   };
   
   const { width: dynamicWidth, height: dynamicHeight, stroke: dynamicStrokeWidth } = dimensions[size];
@@ -237,7 +237,7 @@ export function GaugeChart({
         <div className="flex flex-col items-center justify-center flex-1 min-h-0">
           {/* Percentage label - acima do gauge */}
           <div className="flex justify-center flex-shrink-0">
-            <span className={`text-responsive-sm font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"}`}>
+            <span className={`text-responsive-sm font-bold whitespace-nowrap text-outline ${isHighlight ? "text-card" : "text-foreground"}`}>
               {percentage}%
             </span>
           </div>
