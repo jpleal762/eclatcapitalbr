@@ -80,6 +80,17 @@ export function AnalysisPage({
     )
   }), [quarterlyKPIs]);
 
+  // Calculate top 2 gaps (KPIs with biggest deficit vs ritmo ideal)
+  const top2Gaps = useMemo(() => {
+    const withGap = quarterlyKPIs
+      .filter(kpi => kpi.percentage < ritmoIdeal && kpi.target > 0)
+      .map(kpi => ({ label: kpi.label, gap: ritmoIdeal - kpi.percentage }))
+      .sort((a, b) => b.gap - a.gap)
+      .slice(0, 2)
+      .map(g => g.label);
+    return new Set(withGap);
+  }, [quarterlyKPIs, ritmoIdeal]);
+
   // Sort KPIs based on selected order
   const sortedKPIs = useMemo(() => {
     if (viewMode === "default" || viewMode === "by-category") return quarterlyKPIs;
@@ -200,7 +211,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.prospeccao.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} />
               </div>
             ))}
 
@@ -214,7 +225,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.investimentos.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} />
               </div>
             ))}
 
@@ -228,7 +239,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.receita.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} />
               </div>
             ))}
           </div>
@@ -237,7 +248,7 @@ export function AnalysisPage({
           <div className="flex-1 min-h-0 flex flex-col gap-[1px] lg:gap-0.5 overflow-hidden lg:overflow-hidden overflow-y-auto">
             {sortedKPIs.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} />
               </div>
             ))}
           </div>
