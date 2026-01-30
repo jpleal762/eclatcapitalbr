@@ -1,60 +1,135 @@
 
-## Plano: Dobrar Tamanho dos Top 2 Gaps de Assessores
+
+## Plano: Adicionar Página "Prospecção e Qualidade"
 
 ### Objetivo
-Aumentar em 2x o tamanho do texto dos "Top 2 Assessor Gaps" na análise trimestral (ex: "BRUNO: -R$ 150K") sem impactar o layout.
+Criar uma nova página no dashboard chamada "Prospecção e Qualidade" que exibirá os seguintes KPIs:
+- Contatos
+- Agendamentos
+- Leads por Referência
+- Financial Planning
 
 ---
 
-### Arquivo a Modificar
-**`src/components/dashboard/QuarterlyKPIBar.tsx`**
+### Arquivos a Criar/Modificar
+
+#### 1. **Criar** `src/components/dashboard/ProspectionQualityPage.tsx`
+
+Nova página seguindo o padrão das páginas existentes (AnalysisPage, SprintPage), com:
+- Filtros de assessor, mês e ano
+- Cards/barras para cada KPI (Contatos, Agendamentos, Leads por Referência, Financial Planning)
+- Layout responsivo (mobile/desktop/TV)
 
 ---
 
-### Alteração
+#### 2. **Modificar** `src/components/dashboard/PageToggle.tsx`
 
-**Linha 112 - Top 2 Assessor Gaps:**
+Adicionar a nova página à navegação:
 
-| Propriedade | Atual | Novo |
-|-------------|-------|------|
-| Tamanho fonte | `text-scale-4` | `text-scale-8` |
+| Atual | Novo |
+|-------|------|
+| 3 páginas | 4 páginas |
+| `dashboard → analysis → sprint` | `dashboard → analysis → sprint → prospection` |
 
-No sistema de escala, `text-scale-4` é ~8px e `text-scale-8` é ~16px (dobro).
+**Alterações:**
+- Adicionar `"prospection"` ao tipo `PageType`
+- Adicionar ícone (sugestão: `Users` ou `Target`)
+- Atualizar `pageOrder` e `pageConfig`
 
-**Código atual:**
 ```tsx
-{topAssessorGaps.map(a => <span key={a.name} className="px-0.5 py-[1px] text-scale-4 rounded bg-red-500/10 text-red-500 border border-red-500/20 text-right font-semibold">
-    {a.name}: -{formatValue(a.gap, isCurrency)}
-  </span>)}
+export type PageType = "dashboard" | "analysis" | "sprint" | "prospection";
+
+const pageOrder: PageType[] = ["dashboard", "analysis", "sprint", "prospection"];
+
+const pageConfig = {
+  // ...existentes...
+  prospection: {
+    icon: <Users className="h-4 w-4" />,
+    nextTooltip: "Voltar ao Dashboard",
+  },
+};
 ```
 
-**Código novo:**
+---
+
+#### 3. **Modificar** `src/pages/Index.tsx`
+
+- Importar a nova página `ProspectionQualityPage`
+- Adicionar renderização condicional quando `currentPage === "prospection"`
+- Atualizar rotação automática para incluir a 4ª página
+
+---
+
+#### 4. **Modificar** `src/types/kpi.ts`
+
+Adicionar constantes para os novos KPIs de prospecção:
+
 ```tsx
-{topAssessorGaps.map(a => <span key={a.name} className="px-0.5 py-[1px] text-scale-8 rounded bg-red-500/10 text-red-500 border border-red-500/20 text-right font-semibold">
-    {a.name}: -{formatValue(a.gap, isCurrency)}
-  </span>)}
+export const PROSPECTION_QUALITY_KPIS = [
+  { category: "Contatos", label: "Contatos", isCurrency: false },
+  { category: "Agendamentos", label: "Agendamentos", isCurrency: false },
+  { category: "Leads Referência", label: "Leads por Referência", isCurrency: false },
+  { category: "Financial Planning", label: "Financial Planning", isCurrency: false },
+];
 ```
 
 ---
 
-### Por que não impacta o layout
+### Estrutura Visual da Nova Página
 
-1. Os gaps ficam em uma `div` flexível com `gap-0.5` que se ajusta automaticamente
-2. O container pai usa `flex justify-between` - elementos se redistribuem
-3. O texto maior ainda cabe na linha horizontal existente
+```text
++----------------------------------------------------------+
+| Prospecção e Qualidade      [Assessor] [Mês] [Ano]       |
++----------------------------------------------------------+
+|                                                          |
+| ┌─────────────────────────────────────────────────────┐  |
+| │ CONTATOS           Meta: 50    Real: 32    64%      │  |
+| │ ██████████████░░░░░░░░░                             │  |
+| └─────────────────────────────────────────────────────┘  |
+|                                                          |
+| ┌─────────────────────────────────────────────────────┐  |
+| │ AGENDAMENTOS       Meta: 20    Real: 15    75%      │  |
+| │ █████████████████░░░░░░░                            │  |
+| └─────────────────────────────────────────────────────┘  |
+|                                                          |
+| ┌─────────────────────────────────────────────────────┐  |
+| │ LEADS REFERÊNCIA   Meta: 30    Real: 22    73%      │  |
+| │ ████████████████░░░░░░░░                            │  |
+| └─────────────────────────────────────────────────────┘  |
+|                                                          |
+| ┌─────────────────────────────────────────────────────┐  |
+| │ FINANCIAL PLANNING Meta: 10    Real: 8     80%      │  |
+| │ ██████████████████████░░░░                          │  |
+| └─────────────────────────────────────────────────────┘  |
+|                                                          |
++----------------------------------------------------------+
+```
 
 ---
 
-### Resultado Visual
+### Detalhes Técnicos
 
-**Antes:**
-```
-R$ 500K / R$ 1Mi    BRUNO: -R$ 150K  ANA: -R$ 120K    Ritmo: -R$ 200K
-                    (pequeno)
-```
+1. **Dados**: Os KPIs serão lidos do mesmo arquivo Excel, esperando categorias:
+   - "Contatos"
+   - "Agendamentos" 
+   - "Leads Referência"
+   - "Financial Planning"
 
-**Depois:**
-```
-R$ 500K / R$ 1Mi    BRUNO: -R$ 150K  ANA: -R$ 120K    Ritmo: -R$ 200K
-                    (2x maior, mais visível)
-```
+2. **Cálculos**: Reutilizar funções existentes de `kpiUtils.ts`:
+   - `filterByCategory()`
+   - `getMonthValue()`
+   - `calculateIdealRhythm()`
+
+3. **Componentes**: Reutilizar ou adaptar `QuarterlyKPIBar` para exibir as barras de progresso
+
+4. **Rotação Automática**: Ajustar de 3 para 4 páginas (cada uma com ~90s de exibição)
+
+---
+
+### Resultado Final
+
+- Nova página acessível via botão de navegação no header
+- Rotação automática inclui a nova página
+- Layout consistente com as demais páginas do dashboard
+- Filtros funcionais (assessor, período)
+
