@@ -1,66 +1,8 @@
 
+## Plano: Exibir Top 2 Assessores com Maiores Gaps por KPI (Análise Trimestral)
 
-## Plano: Redesign do Gráfico da Tela Sprint
-
-### Problema Atual
-
-O gráfico de barras verticais lado a lado (Meta cinza + Realizado colorido) não comunica bem o progresso porque:
-- Difícil comparar visualmente duas barras separadas
-- A linha pontilhada fica confusa
-- Não há clareza sobre "quanto falta"
-
----
-
-### Opções de Novo Design
-
-| Opção | Visual | Vantagem |
-|-------|--------|----------|
-| **A) Barra Horizontal Preenchida** | `[████████░░░░] 75%` | Clássica, leitura instantânea |
-| **B) Barra Termômetro** | Vertical única preenchendo de baixo pra cima | Visual de "tanque enchendo" |
-| **C) Arco/Gauge Compacto** | Semi-círculo com ponteiro | Consistente com outros gráficos |
-| **D) Card Focado no Número** | Número grande + mini barra | Foco no valor que falta |
-
----
-
-### Recomendação: Opção A - Barra Horizontal Preenchida
-
-É a mais intuitiva e ocupa menos espaço vertical, permitindo mostrar mais KPIs na tela.
-
-#### Layout Proposto por Card
-
-```text
-┌─────────────────────────────────────────────────────────┐
-│ 🏃 Captação NET                                    75%  │
-│ ═══════════════════════════░░░░░░░░░░                   │
-│ Meta: R$ 500K  |  Real: R$ 375K  |  Falta: R$ 125K     │
-│ ─────────────────────────────────────────────────────── │
-│ Falta por Assessor:                                     │
-│ [Bruno: R$50K] [Ana: R$30K] [Carlos: R$25K] [João: ✓]  │
-└─────────────────────────────────────────────────────────┘
-```
-
-#### Barra de Progresso - Estrutura
-
-```tsx
-{/* Barra horizontal única com gradiente */}
-<div className="relative h-3 lg:h-4 w-full rounded-full bg-muted/30 overflow-hidden">
-  {/* Preenchimento colorido */}
-  <div 
-    className={cn("h-full rounded-full transition-all duration-500", getBarColorClass())}
-    style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-  />
-  {/* Marcador de 100% (linha vertical) */}
-  <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-foreground/20" />
-</div>
-```
-
-#### Cores por Faixa
-
-| Progresso | Cor | Visual |
-|-----------|-----|--------|
-| 100% | Verde | `bg-green-500` |
-| 50-99% | Dourado (gradient) | `bg-eclat-gradient` |
-| < 50% | Vermelho (gradient) | `bg-red-gradient` |
+### Objetivo
+Cada barra de KPI na análise trimestral mostrará os 2 assessores com maior déficit em relação ao ritmo ideal, **sem alterar o layout atual**.
 
 ---
 
@@ -68,59 +10,151 @@ O gráfico de barras verticais lado a lado (Meta cinza + Realizado colorido) nã
 
 | Arquivo | Alteração |
 |---------|-----------|
-| `src/components/dashboard/SprintKPIBar.tsx` | Substituir barras verticais por barra horizontal |
+| `src/lib/quarterlyKpiUtils.ts` | Nova interface + função para calcular gaps por assessor |
+| `src/components/dashboard/AnalysisPage.tsx` | Calcular e passar dados dos assessores |
+| `src/components/dashboard/QuarterlyKPIBar.tsx` | Exibir badges compactos dos assessores com gap |
 
 ---
 
-### Detalhes Técnicos
+### 1. quarterlyKpiUtils.ts - Nova Interface e Função
 
-#### SprintKPIBar.tsx - Nova Barra de Progresso
+**Nova interface:**
+```typescript
+export interface AssessorQuarterlyGap {
+  name: string;           // Primeiro nome do assessor
+  gap: number;            // Valor absoluto que falta
+  gapPercentage: number;  // Gap em pontos percentuais
+}
+```
+
+**Nova função `calculateAssessorGapsForKPI`:**
+- Recebe dados, ano, trimestre, configuração do KPI, e ritmo ideal
+- Para cada assessor, calcula target e actual individuais
+- Calcula gap = max(0, valorEsperadoRitmo - actual)
+- Retorna os 2 assessores com maiores gaps
+
+---
+
+### 2. AnalysisPage.tsx - Calcular Gaps
+
+**Adicionar useMemo para calcular gaps por assessor para cada KPI:**
+
+```typescript
+import { calculateAssessorGapsForKPI, AssessorQuarterlyGap } from "@/lib/quarterlyKpiUtils";
+import { KPI_CATEGORIES } from "@/lib/kpiUtils";
+
+const kpisWithGaps = useMemo(() => {
+  return quarterlyKPIs.map(kpi => {
+    // Encontrar config original do KPI
+    const kpiConfig = KPI_CATEGORIES.find(k => k.label === kpi.label);
+    if (!kpiConfig || selectedAssessor !== "all") {
+      return { ...kpi, topAssessorGaps: [] };
+    }
+    
+    const gaps = calculateAssessorGapsForKPI(
+      processedData,
+      selectedYear,
+      selectedQuarter,
+      kpiConfig,
+      ritmoIdeal
+    );
+    
+    return { ...kpi, topAssessorGaps: gaps };
+  });
+}, [quarterlyKPIs, processedData, selectedYear, selectedQuarter, ritmoIdeal, selectedAssessor]);
+```
+
+**Importante:** Só calcula gaps quando filtro de assessor é "TODOS" (faz sentido comparar assessores).
+
+---
+
+### 3. QuarterlyKPIBar.tsx - Exibir Assessores com Gap
+
+**Nova prop:**
+```typescript
+interface QuarterlyKPIBarProps extends QuarterlyKPI {
+  ritmoIdeal: number;
+  headName?: string;
+  isTopGap?: boolean;
+  topAssessorGaps?: AssessorQuarterlyGap[]; // NEW
+}
+```
+
+**Visual compacto na linha de valores (sem adicionar nova linha):**
 
 ```tsx
-{/* Progress Bar - Horizontal style (replacing vertical columns) */}
-<div className="relative h-3 lg:h-4 w-full rounded-full bg-muted/30 overflow-hidden mb-1">
-  {/* Filled portion */}
-  <div 
-    className={cn(
-      "h-full rounded-full transition-all duration-500",
-      getBarColorClass()
-    )}
-    style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-  />
-  {/* Optional: marker at target */}
-  {progressPercentage < 100 && (
-    <div 
-      className="absolute top-0 bottom-0 w-0.5 bg-white/50"
-      style={{ left: '100%', transform: 'translateX(-100%)' }}
-    />
+{/* Values - compact font */}
+<div className="flex justify-between items-center text-scale-5 text-muted-foreground mt-[1px]">
+  <span>
+    <span className="font-medium text-foreground">{formatValue(value, isCurrency)}</span>
+    {" / "}
+    {formatValue(target, isCurrency)}
+  </span>
+  
+  {/* TOP 2 ASSESSOR GAPS - inline, compacto */}
+  {topAssessorGaps && topAssessorGaps.length > 0 && (
+    <div className="flex items-center gap-0.5">
+      {topAssessorGaps.map((a) => (
+        <span 
+          key={a.name}
+          className="px-0.5 py-[1px] text-scale-4 rounded bg-red-500/10 text-red-500 border border-red-500/20"
+        >
+          {a.name}: -{formatValue(a.gap, isCurrency)}
+        </span>
+      ))}
+    </div>
+  )}
+  
+  {/* Rhythm status indicator */}
+  {atingiuRitmo ? (
+    <span className="text-green-500 font-medium">✓ OK</span>
+  ) : faltaParaRitmo > 0 ? (
+    <span className={`font-medium whitespace-nowrap ${textColor}`}>
+      Ritmo: -{formatValue(faltaParaRitmo, isCurrency)}
+    </span>
+  ) : null}
+  
+  {/* Total remaining */}
+  {percentage < 100 && target > 0 && (
+    <span className="text-muted-foreground whitespace-nowrap">
+      Falta: {formatValue(target - value, isCurrency)}
+    </span>
   )}
 </div>
 ```
 
-#### Melhorias Adicionais
+---
 
-1. **Porcentagem maior e mais destacada** - Aumentar fonte do percentual
-2. **Barra mais grossa** - De `h-scale-6` para `h-3 lg:h-4` (altura fixa em pixels para consistência)
-3. **Remover complexidade** - Eliminar a linha pontilhada e as duas barras separadas
+### Layout Preservado
+
+O layout não será alterado porque:
+1. Os badges dos assessores ficam **na mesma linha** dos valores existentes
+2. Usam tamanho de fonte menor (`text-scale-4`)
+3. São compactos com padding mínimo (`px-0.5 py-[1px]`)
+4. Só aparecem quando há assessores com gap E filtro = "TODOS"
 
 ---
 
-### Resultado Visual Esperado
+### Resultado Visual
 
-**Antes (atual)**:
-- Duas barras verticais lado a lado
-- Linha pontilhada confusa
-- Difícil leitura rápida
+```text
+┌──────────────────────────────────────────────────────────────────────┐
+│ Captação NET                                     ⚠️ PRIORIDADE   75% │
+│ ════════════════════════════════░░░░░░░░░░░░░░░░░░░░░░░░░           │
+│ R$ 1,2Mi / R$ 2Mi  [BRUNO:-80K] [ANA:-65K]  Ritmo: -R$200K  Falta:800K│
+└──────────────────────────────────────────────────────────────────────┘
+```
 
-**Depois (proposto)**:
-- Barra horizontal única
-- Preenchimento intuitivo (esquerda → direita)
-- Leitura instantânea do progresso
-- Visual limpo e profissional
+- Badges vermelhos compactos inline
+- Apenas primeiro nome do assessor
+- Valor do gap formatado (K/Mi)
+- Não quebra linha, não adiciona altura
 
 ---
 
-### Alternativa B - Se Preferir Visual Diferente
+### Regras de Negócio
 
-Se quiser algo mais visual/impactante, posso implementar um **mini gauge/arco** similar aos outros gráficos do dashboard, mantendo consistência visual com o resto do sistema.
-
+1. **Só mostrar quando filtro = "TODOS"**: Não faz sentido mostrar gaps de assessores quando já filtrou por um específico
+2. **Máximo 2 assessores**: Os 2 com maior gap absoluto
+3. **Só assessores com gap > 0**: Se atingiu o ritmo, não aparece
+4. **Primeiro nome apenas**: "BRUNO" ao invés de "BRUNO SILVA"
