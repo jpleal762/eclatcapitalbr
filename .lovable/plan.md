@@ -1,70 +1,47 @@
 
 
-## Plano: Modo TV 55" com Zoom Proporcional
+## Plano: Aumentar Gráficos de Arco 3x e Adicionar Contorno nos Números
 
-### Conceito
+### Alterações Propostas
 
-Em vez de escalar elementos individuais (que pode causar desalinhamentos), vamos usar **CSS transform: scale()** no container principal. Isso funciona como o zoom do navegador - mantém o layout exatamente igual, apenas maior.
+#### 1. Aumentar Dimensões dos Gráficos de Arco para 3x
 
----
+**Arquivo**: `src/components/dashboard/GaugeChart.tsx`
 
-### Como Funciona
+Dimensões atuais vs novas:
 
-| Abordagem | Comportamento | Risco de Quebra |
-|-----------|---------------|-----------------|
-| Escala por elemento (atual) | Cada texto/ícone escala individualmente | Médio - gaps e alinhamentos podem quebrar |
-| Transform scale (proposta) | Todo o container escala como bloco | Zero - é literalmente um zoom |
+| Tamanho | Atual (width x height) | Novo 3x (width x height) |
+|---------|------------------------|--------------------------|
+| sm | 56 x 32 | 168 x 96 |
+| md | 72 x 40 | 216 x 120 |
+| lg | 80 x 45 | 240 x 135 |
+| sm (compact) | 45 x 26 | 135 x 78 |
+| md (compact) | 58 x 32 | 174 x 96 |
+| lg (compact) | 64 x 36 | 192 x 108 |
 
----
+Stroke width também 3x:
+- sm: 5 → 15
+- md: 6 → 18
+- lg: 7 → 21
 
-### Implementação
+#### 2. Adicionar Contorno nos Números de Porcentagem
 
-#### 1. Novo Modo "TV 55\"" no ScaleSelector
+**Técnica**: CSS `text-shadow` com múltiplas sombras para criar efeito de contorno/outline
 
-Adicionar opção especial que ativa o zoom de container:
-
-```
-1x, 1.25x, 1.5x, 1.75x, 2x, [TV 55" - ícone de monitor]
-```
-
-#### 2. ScaleContext - Nova Flag para Modo TV
-
-```typescript
-type ScaleFactor = 1 | 1.25 | 1.5 | 1.75 | 2 | "tv55";
-
-// Quando "tv55", aplica transform: scale() no container
-```
-
-#### 3. Container Principal com Transform
-
-No `Index.tsx`, envolver o conteúdo em um container escalável:
-
-```tsx
-<main className="flex-1 overflow-hidden">
-  <div 
-    className={cn(
-      "h-full w-full origin-top-left",
-      scaleFactor === "tv55" && "tv-scale-container"
-    )}
-    style={scaleFactor === "tv55" ? {
-      transform: "scale(1.5)", // Escala para TV
-      width: "66.67%",         // Compensa a escala (100/1.5)
-      height: "66.67%"
-    } : undefined}
-  >
-    {/* Todo o dashboard aqui */}
-  </div>
-</main>
+```css
+/* Nova classe para contorno de texto */
+.text-outline {
+  text-shadow: 
+    -1px -1px 0 hsl(var(--background)),
+    1px -1px 0 hsl(var(--background)),
+    -1px 1px 0 hsl(var(--background)),
+    1px 1px 0 hsl(var(--background));
+}
 ```
 
-#### 4. Cálculo Automático da Escala
-
-Para TVs 55" (tipicamente 3840x2160 4K ou 1920x1080):
-
-| Resolução TV | Resolução Base | Fator de Escala |
-|--------------|----------------|-----------------|
-| 3840x2160 (4K) | 1920x1080 | 2.0x |
-| 1920x1080 (FHD) | 1920x1080 | 1.5x (para melhor leitura) |
+Aplicar em:
+- `GaugeChart.tsx` - linha 240 (porcentagem acima do gauge)
+- `YearlyGaugeChart.tsx` - linha 75 (porcentagem acima do gauge anual)
 
 ---
 
@@ -72,96 +49,53 @@ Para TVs 55" (tipicamente 3840x2160 4K ou 1920x1080):
 
 | Arquivo | Alteração |
 |---------|-----------|
-| `src/contexts/ScaleContext.tsx` | Adicionar tipo "tv55" e lógica de detecção |
-| `src/components/ScaleSelector.tsx` | Adicionar opção "TV 55\"" com ícone Monitor |
-| `src/pages/Index.tsx` | Aplicar transform: scale() quando modo TV ativo |
-| `src/index.css` | Classe auxiliar `.tv-scale-container` |
+| `src/index.css` | Adicionar classe `.text-outline` |
+| `src/components/dashboard/GaugeChart.tsx` | 3x nas dimensões + classe text-outline |
+| `src/components/dashboard/YearlyGaugeChart.tsx` | 3x nas dimensões + classe text-outline |
 
 ---
 
 ### Detalhes Técnicos
 
-#### ScaleContext.tsx
+#### index.css - Nova classe de contorno
+
+```css
+.text-outline {
+  text-shadow: 
+    -1px -1px 0 hsl(var(--background)),
+    1px -1px 0 hsl(var(--background)),
+    -1px 1px 0 hsl(var(--background)),
+    1px 1px 0 hsl(var(--background)),
+    0 -1px 0 hsl(var(--background)),
+    0 1px 0 hsl(var(--background)),
+    -1px 0 0 hsl(var(--background)),
+    1px 0 0 hsl(var(--background));
+}
+```
+
+#### GaugeChart.tsx - Novas dimensões
 
 ```typescript
-type ScaleFactor = 1 | 1.25 | 1.5 | 1.75 | 2 | "tv55";
-
-// Função para calcular escala do TV baseado na viewport
-const getTVScale = () => {
-  const width = window.innerWidth;
-  if (width >= 3840) return 2.0;  // 4K
-  if (width >= 2560) return 1.75; // QHD
-  return 1.5; // FHD ou menor
+const dimensions = {
+  sm: { width: compact ? 135 : 168, height: compact ? 78 : 96, stroke: compact ? 12 : 15 },
+  md: { width: compact ? 174 : 216, height: compact ? 96 : 120, stroke: compact ? 15 : 18 },
+  lg: { width: compact ? 192 : 240, height: compact ? 108 : 135, stroke: compact ? 18 : 21 },
 };
 ```
 
-#### ScaleSelector.tsx
+#### Porcentagem com contorno
 
 ```tsx
-const SCALE_OPTIONS = [
-  { value: 1, label: "1x" },
-  { value: 1.25, label: "1.25x" },
-  { value: 1.5, label: "1.5x" },
-  { value: 1.75, label: "1.75x" },
-  { value: 2, label: "2x" },
-  { value: "tv55", label: "TV 55\"", icon: Monitor },
-];
-```
-
-#### Index.tsx - Container Escalável
-
-```tsx
-const { scaleFactor } = useScale();
-
-// Calcular escala real para TV
-const tvScale = useMemo(() => {
-  if (scaleFactor !== "tv55") return 1;
-  const width = window.innerWidth;
-  if (width >= 3840) return 2.0;
-  if (width >= 2560) return 1.75;
-  return 1.5;
-}, [scaleFactor]);
-
-const isTV = scaleFactor === "tv55";
-
-// No JSX:
-<main className="flex-1 overflow-hidden">
-  <div 
-    style={isTV ? {
-      transform: `scale(${tvScale})`,
-      transformOrigin: "top left",
-      width: `${100 / tvScale}%`,
-      height: `${100 / tvScale}%`,
-    } : undefined}
-  >
-    {/* Dashboard content */}
-  </div>
-</main>
+<span className={`text-responsive-sm font-bold whitespace-nowrap text-outline ${isHighlight ? "text-card" : "text-foreground"}`}>
+  {percentage}%
+</span>
 ```
 
 ---
 
 ### Resultado Esperado
 
-**Comportamento no computador (1920x1080)**:
-- Layout normal, sem alterações
-
-**Comportamento na TV 55" (FHD)**:
-- Todo o dashboard escalado 1.5x
-- Layout idêntico ao computador, apenas maior
-- Zero sobreposições ou quebras
-
-**Comportamento na TV 55" (4K)**:
-- Todo o dashboard escalado 2x
-- Aproveitamento total da resolução
-- Textos e gráficos perfeitamente legíveis
-
----
-
-### Vantagem desta Abordagem
-
-1. **Zero risco de quebra** - É literalmente um zoom do navegador
-2. **Proporcional** - Tudo escala junto (textos, gaps, ícones, mascotes)
-3. **Automático** - Detecta a resolução da TV e ajusta
-4. **Reversível** - Basta trocar de volta para 1x
+- **Gráficos de arco 3x maiores**: Melhor visibilidade em TVs e telas grandes
+- **Números com contorno**: Porcentagens claramente legíveis sobre qualquer fundo
+- **Proporcional**: Stroke width também 3x para manter proporções corretas
 
