@@ -98,25 +98,16 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
         </div>
       </div>
 
-      {/* Progress Bar - Vertical columns style 3x height */}
-      <div className="relative h-scale-6 lg:h-scale-8 w-full flex items-end gap-1 bg-muted/10 rounded overflow-hidden mb-1">
-        {/* Meta bar (gray background) */}
-        <div className="flex-1 bg-muted/30 rounded-t h-full" />
-        {/* Realizado bar (colored) */}
+      {/* Progress Bar - Horizontal style */}
+      <div className="relative h-3 lg:h-4 w-full rounded-full bg-muted/30 overflow-hidden mb-1">
+        {/* Filled portion */}
         <div 
           className={cn(
-            "flex-1 rounded-t transition-all duration-500",
+            "h-full rounded-full transition-all duration-500",
             getBarColorClass()
           )}
-          style={{ height: `${Math.min(progressPercentage, 100)}%` }}
+          style={{ width: `${Math.min(progressPercentage, 100)}%` }}
         />
-        {/* Dashed line indicator for missing amount */}
-        {progressPercentage < 100 && (
-          <div 
-            className="absolute left-0 right-0 border-t-2 border-dashed border-red-400/50"
-            style={{ bottom: `${Math.min(progressPercentage, 100)}%` }}
-          />
-        )}
       </div>
 
       {/* Evolution indicator (48h) - always visible when available */}
