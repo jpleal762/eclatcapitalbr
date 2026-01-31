@@ -9,7 +9,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Lightbulb } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Lightbulb, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Playbook de táticas baseadas em gaps de KPI
@@ -65,6 +67,18 @@ const KPI_TACTICS_PLAYBOOK: Record<string, string[]> = {
     "Focar em leads com maior potencial de agendamento",
   ],
 };
+
+// Ações gerais do time (playbook)
+const GENERAL_TACTICS_PLAYBOOK: string[] = [
+  "Reunião de alinhamento semanal às segundas 9h",
+  "Blitz coletiva de prospecção - Quarta 10h-12h",
+  "Compartilhar 1 case de sucesso no grupo",
+  "Revisar pipeline em conjunto na sexta às 16h",
+  "Meta: 100 ligações coletivas esta semana",
+  "Evento de relacionamento com clientes top",
+  "Campanha de indicações ativa",
+  "Foco em conversão de leads quentes",
+];
 
 interface TacticsWeekPageProps {
   processedData: ProcessedKPI[];
@@ -223,6 +237,14 @@ export function TacticsWeekPage({
     Record<string, WeeklyTactic["status"]>
   >({});
 
+  // Estado para ação geral do time
+  const [generalTactic, setGeneralTactic] = useState<WeeklyTactic>(() => ({
+    id: "general-team-tactic",
+    text: GENERAL_TACTICS_PLAYBOOK[0],
+    category: "Time",
+    status: "pending",
+  }));
+
   // Gerar táticas para todos os assessores ou apenas o selecionado
   const assessorTactics: AssessorTactics[] = useMemo(() => {
     const targetAssessors =
@@ -256,6 +278,13 @@ export function TacticsWeekPage({
     setTacticStatuses((prev) => ({
       ...prev,
       [tacticId]: newStatus,
+    }));
+  };
+
+  const handleGeneralTacticToggle = () => {
+    setGeneralTactic((prev) => ({
+      ...prev,
+      status: prev.status === "done" ? "pending" : "done",
     }));
   };
 
@@ -317,7 +346,51 @@ export function TacticsWeekPage({
         </div>
       </div>
 
-      {/* Cards Grid */}
+      {/* General Team Action Card */}
+      <div className="flex-shrink-0">
+        <div className="rounded-xl border bg-gradient-to-r from-primary/5 to-primary/10 p-4 shadow-sm">
+          <div className="flex items-center gap-4">
+            {/* Icon */}
+            <div className="p-3 rounded-full bg-primary/10 flex-shrink-0">
+              <Users className="h-6 w-6 text-primary" />
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Ação Geral do Time
+                </span>
+                <Badge
+                  variant="outline"
+                  className="text-[10px] px-2 py-0.5 font-normal border-0 bg-primary/10 text-primary"
+                >
+                  Todos
+                </Badge>
+              </div>
+              <p
+                className={cn(
+                  "text-base font-medium text-foreground",
+                  generalTactic.status === "done" && "line-through text-muted-foreground"
+                )}
+              >
+                {generalTactic.text}
+              </p>
+            </div>
+
+            {/* Checkbox */}
+            <div className="flex-shrink-0">
+              <Checkbox
+                checked={generalTactic.status === "done"}
+                onCheckedChange={handleGeneralTacticToggle}
+                className="h-6 w-6"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Assessor Cards Grid */}
       <div
         className={cn(
           "flex-1 overflow-y-auto lg:overflow-hidden",
