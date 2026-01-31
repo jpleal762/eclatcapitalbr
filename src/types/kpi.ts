@@ -160,3 +160,16 @@ export const PROSPECTION_QUALITY_KPIS: ProspectionKPIConfig[] = [
   { category: "Leads Referência", label: "Leads por Referência", isCurrency: false },
   { category: "Financial Planning", label: "Financial Planning", isCurrency: false },
 ];
+
+// ============= TACTICS PAGE TYPES =============
+export interface WeeklyTactic {
+  id: string;
+  text: string;
+  category: string;       // KPI relacionado
+  status: "pending" | "in_progress" | "done";
+}
+
+export interface AssessorTactics {
+  assessorName: string;
+  tactics: WeeklyTactic[];
+}

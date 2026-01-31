@@ -1,15 +1,15 @@
-import { LayoutGrid, TrendingUp, Target, Users } from "lucide-react";
+import { LayoutGrid, TrendingUp, Target, Users, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-export type PageType = "dashboard" | "analysis" | "sprint" | "prospection";
+export type PageType = "dashboard" | "analysis" | "sprint" | "prospection" | "tactics";
 
 interface PageToggleProps {
   currentPage: PageType;
   onPageChange: (page: PageType) => void;
 }
 
-const pageOrder: PageType[] = ["dashboard", "analysis", "sprint", "prospection"];
+const pageOrder: PageType[] = ["dashboard", "analysis", "sprint", "prospection", "tactics"];
 
 const pageConfig: Record<PageType, { icon: React.ReactNode; nextTooltip: string }> = {
   dashboard: {
@@ -26,6 +26,10 @@ const pageConfig: Record<PageType, { icon: React.ReactNode; nextTooltip: string 
   },
   prospection: {
     icon: <Users className="h-4 w-4" />,
+    nextTooltip: "Ir para Táticas",
+  },
+  tactics: {
+    icon: <Lightbulb className="h-4 w-4" />,
     nextTooltip: "Voltar ao Dashboard",
   },
 };

@@ -59,6 +59,7 @@ import { PageToggle, PageType } from "@/components/dashboard/PageToggle";
 import { AnalysisPage } from "@/components/dashboard/AnalysisPage";
 import { SprintPage } from "@/components/dashboard/SprintPage";
 import { ProspectionQualityPage } from "@/components/dashboard/ProspectionQualityPage";
+import { TacticsWeekPage } from "@/components/dashboard/TacticsWeekPage";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
@@ -704,6 +705,18 @@ const Index = () => {
             ) : currentPage === "prospection" ? (
               // PROSPECTION & QUALITY PAGE
               <ProspectionQualityPage
+                processedData={processedData}
+                assessors={assessors}
+                months={months}
+                selectedAssessor={filters.assessor}
+                selectedMonth={filters.month}
+                onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
+                onMonthChange={(value) => setFilters({ ...filters, month: value })}
+                isAssessorLocked={isViewLocked}
+              />
+            ) : currentPage === "tactics" ? (
+              // TACTICS PAGE
+              <TacticsWeekPage
                 processedData={processedData}
                 assessors={assessors}
                 months={months}
