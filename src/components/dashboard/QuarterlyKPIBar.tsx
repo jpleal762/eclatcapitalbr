@@ -109,7 +109,12 @@ export function QuarterlyKPIBar({
         
         {/* TOP 2 ASSESSOR GAPS - inline, compacto */}
         {topAssessorGaps && topAssessorGaps.length > 0 && <div className="flex items-center gap-0.5">
-            {topAssessorGaps.map(a => <span key={a.name} className="px-0.5 py-[1px] text-scale-8 rounded bg-red-500/10 text-red-500 border border-red-500/20 text-right font-semibold">
+            <span className="text-scale-5 text-muted-foreground mr-0.5">Maiores Gaps:</span>
+            {topAssessorGaps.map(a => <span key={a.name} className={`px-0.5 py-[1px] text-scale-8 rounded border text-right font-semibold ${
+              percentage >= ritmoIdeal ? 'bg-green-500/10 text-green-600 border-green-500/20' :
+              percentage >= ritmoIdeal * 0.5 ? 'bg-eclat-gold/10 text-eclat-gold border-eclat-gold/20' :
+              'bg-red-500/10 text-red-500 border-red-500/20'
+            }`}>
                 {a.name}: -{formatValue(a.gap, isCurrency)}
               </span>)}
           </div>}
