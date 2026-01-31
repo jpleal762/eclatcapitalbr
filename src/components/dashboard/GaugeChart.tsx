@@ -211,9 +211,9 @@ export function GaugeChart({
 
         {/* Centered gauge wrapper */}
         <div className="flex flex-col items-center justify-center flex-1 min-h-0">
-          {/* Percentage label - acima do gauge */}
+          {/* Percentage label - acima do gauge - 3x larger */}
           <div className="flex justify-center flex-shrink-0">
-            <span className={`text-responsive-sm font-bold whitespace-nowrap text-outline ${isHighlight ? "text-card" : "text-foreground"}`}>
+            <span className={`text-[clamp(18px,2.5vw,28px)] font-bold whitespace-nowrap text-outline ${isHighlight ? "text-card" : "text-foreground"}`}>
               {percentage}%
             </span>
           </div>
