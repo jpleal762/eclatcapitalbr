@@ -447,7 +447,11 @@ export function getMonthValue(records: ProcessedKPI[], month: string): number {
 
 // ============= ICM CALCULATIONS =============
 // CRITICAL: Cap individual KPI percentages at 120% before weighted average
-export function calculateICMGeral(data: ProcessedKPI[], month: string): number {
+export function calculateICMGeral(
+  data: ProcessedKPI[], 
+  month: string,
+  accumulatedGaps?: Map<string, number>
+): number {
   let weightedSum = 0;
   let totalWeight = 0;
 
@@ -456,7 +460,13 @@ export function calculateICMGeral(data: ProcessedKPI[], month: string): number {
     const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
     const realizedData = catData.filter(d => isRealizedStatus(d.status));
 
-    const target = month !== "all" ? getMonthValue(plannedData, month) : plannedData.reduce((s, d) => s + d.total, 0);
+    let target = month !== "all" ? getMonthValue(plannedData, month) : plannedData.reduce((s, d) => s + d.total, 0);
+    
+    // Aplicar accumulated gaps ao target quando em modo Meta Acumulada
+    if (accumulatedGaps) {
+      target += accumulatedGaps.get(category) || 0;
+    }
+    
     let actual = month !== "all" ? getMonthValue(realizedData, month) : realizedData.reduce((s, d) => s + d.total, 0);
 
     // Verificar se há additionalActualCategory para esta categoria (ex: Receita Empilhada)
@@ -996,7 +1006,7 @@ export function processDashboardData(
 ): DashboardData {
   const filteredByAssessor = filterByAssessor(data, selectedAssessor);
   
-  const icmGeral = calculateICMGeral(filteredByAssessor, selectedMonth);
+  const icmGeral = calculateICMGeral(filteredByAssessor, selectedMonth, accumulatedGaps);
   // Ritmo Ideal = percentage of elapsed business days in the selected month
   const ritmoIdeal = calculateIdealRhythm(selectedMonth);
   const diasUteisRestantes = getWorkingDaysRemaining(selectedMonth);
@@ -1090,7 +1100,7 @@ export function processDashboardData(
   const allAssessors = [...new Set(data.map(d => d.assessor))];
   const assessorPerformance: AssessorPerformance[] = allAssessors.map(assessor => {
     const assessorData = filterByAssessor(data, assessor);
-    const icm = calculateICMGeral(assessorData, selectedMonth);
+    const icm = calculateICMGeral(assessorData, selectedMonth, accumulatedGaps);
     const icmSemanal = calculateICMSemanal(assessorData, selectedMonth);
     return {
       name: assessor.split(" ").slice(0, 2).join(" "),
