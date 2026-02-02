@@ -784,8 +784,20 @@ export function calculateAccumulatedGaps(
 
   // Parse current month to extract year and month index
   const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  
+  // Mapeamento inglês → português para suportar ambos os formatos
+  const englishToPortuguese: { [key: string]: string } = {
+    "jan": "jan", "feb": "fev", "mar": "mar", "apr": "abr",
+    "may": "mai", "jun": "jun", "jul": "jul", "aug": "ago",
+    "sep": "set", "oct": "out", "nov": "nov", "dec": "dez"
+  };
+  
   const separator = currentMonth.includes("/") ? "/" : "-";
-  const [monthStr, yearStr] = currentMonth.toLowerCase().split(separator);
+  let [monthStr, yearStr] = currentMonth.toLowerCase().split(separator);
+  
+  // Converter inglês para português se necessário
+  monthStr = englishToPortuguese[monthStr] || monthStr;
+  
   const currentMonthIndex = monthNames.indexOf(monthStr);
   const currentYear = parseInt(yearStr) + (parseInt(yearStr) < 100 ? 2000 : 0);
   
