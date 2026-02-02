@@ -59,17 +59,17 @@ export function FlipMetaTable({
       >
         {/* Front - Current MetaTable */}
         <div className="absolute inset-0 backface-hidden overflow-hidden">
-          <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
+          <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
             <div className="flex items-center justify-between mb-responsive flex-shrink-0">
-              <h3 className="text-responsive-sm font-semibold text-foreground">Meta Semanal Acumulada</h3>
+              <h3 className="text-responsive-sm font-semibold text-white">Meta Semanal Acumulada</h3>
               <div className="flex items-center gap-2">
                 {selectedAssessor && selectedAssessor !== "all" && (
-                  <span className="text-responsive-xs px-2 py-responsive-sm rounded-full bg-primary/10 text-primary font-medium">
+                  <span className="text-responsive-xs px-2 py-responsive-sm rounded-full bg-white/20 text-white font-medium">
                     {selectedAssessor.split(" ").slice(0, 2).join(" ")}
                   </span>
                 )}
-                <div className="p-1 rounded-full bg-muted/50 opacity-50 hover:opacity-100 transition-opacity">
-                  <RotateCcw className="w-3 h-3 text-muted-foreground" />
+                <div className="p-1 rounded-full bg-white/20 opacity-50 hover:opacity-100 transition-opacity">
+                  <RotateCcw className="w-3 h-3 text-white" />
                 </div>
               </div>
             </div>
@@ -77,20 +77,20 @@ export function FlipMetaTable({
             <div className="flex-1 overflow-hidden min-h-0">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-responsive-sm text-responsive-xs font-medium text-muted-foreground">KPI</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-muted-foreground">Meta</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-muted-foreground">Realizado</th>
+                  <tr className="border-b border-white/20">
+                    <th className="text-left py-responsive-sm text-responsive-xs font-medium text-white/70">KPI</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Realizado</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.map((item, index) => (
-                    <tr key={index} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
-                      <td className="py-responsive-sm text-responsive-xs text-foreground">{item.label}</td>
-                      <td className="py-responsive-sm text-responsive-xs text-right font-medium text-secondary-foreground">
+                    <tr key={index} className="border-b border-white/10 hover:bg-white/10 transition-colors">
+                      <td className="py-responsive-sm text-responsive-xs text-white">{item.label}</td>
+                      <td className="py-responsive-sm text-responsive-xs text-right font-medium text-white/90">
                         {typeof item.value === 'number' ? item.isCurrency ? formatNumber(item.value, true) : formatNumber(item.value) : item.value}
                       </td>
-                      <td className="py-responsive-sm text-responsive-xs text-right font-medium text-secondary-foreground">
+                      <td className="py-responsive-sm text-responsive-xs text-right font-medium text-white/90">
                         {item.realizedValue !== undefined ? formatNumber(item.realizedValue, item.isCurrency) : "-"}
                       </td>
                     </tr>
@@ -99,11 +99,11 @@ export function FlipMetaTable({
               </table>
             </div>
 
-            <div className="mt-auto pt-responsive border-t border-border flex items-center justify-between flex-shrink-0">
-              <span className="text-responsive-base font-semibold text-primary">
+            <div className="mt-auto pt-responsive border-t border-white/20 flex items-center justify-between flex-shrink-0">
+              <span className="text-responsive-base font-semibold text-white">
                 {weekToMonthPercentage !== undefined ? `${weekToMonthPercentage}%` : "-"}
               </span>
-              <p className="text-responsive-xs text-muted-foreground italic">
+              <p className="text-responsive-xs text-white/70 italic">
                 {selectedAssessor && selectedAssessor !== "all" ? `Metas individuais de ${selectedAssessor.split(" ")[0]}` : "Valores consolidados do escritório"}
               </p>
             </div>
@@ -112,17 +112,17 @@ export function FlipMetaTable({
         
         {/* Back - Remaining to Goal */}
         <div className="absolute inset-0 backface-hidden rotate-y-180 overflow-hidden">
-          <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
+          <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
             <div className="flex items-center justify-between mb-responsive flex-shrink-0">
-              <h3 className="text-responsive-sm font-semibold text-foreground">Falta para Meta Semanal</h3>
+              <h3 className="text-responsive-sm font-semibold text-white">Falta para Meta Semanal</h3>
               <div className="flex items-center gap-2">
                 {selectedAssessor && selectedAssessor !== "all" && (
-                  <span className="text-responsive-xs px-2 py-responsive-sm rounded-full bg-primary/10 text-primary font-medium">
+                  <span className="text-responsive-xs px-2 py-responsive-sm rounded-full bg-white/20 text-white font-medium">
                     {selectedAssessor.split(" ").slice(0, 2).join(" ")}
                   </span>
                 )}
-                <div className="p-1 rounded-full bg-muted/50 opacity-50 hover:opacity-100 transition-opacity">
-                  <RotateCcw className="w-3 h-3 text-muted-foreground" />
+                <div className="p-1 rounded-full bg-white/20 opacity-50 hover:opacity-100 transition-opacity">
+                  <RotateCcw className="w-3 h-3 text-white" />
                 </div>
               </div>
             </div>
@@ -130,10 +130,10 @@ export function FlipMetaTable({
             <div className="flex-1 overflow-hidden min-h-0">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-responsive-sm text-responsive-xs font-medium text-muted-foreground">KPI</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-muted-foreground">Meta</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-muted-foreground">Falta</th>
+                  <tr className="border-b border-white/20">
+                    <th className="text-left py-responsive-sm text-responsive-xs font-medium text-white/70">KPI</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Falta</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -142,13 +142,13 @@ export function FlipMetaTable({
                     const remaining = getRemainingValue(item);
                     
                     return (
-                      <tr key={index} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
-                        <td className="py-responsive-sm text-responsive-xs text-foreground">{item.label}</td>
-                        <td className="py-responsive-sm text-responsive-xs text-right font-medium text-secondary-foreground">
+                      <tr key={index} className="border-b border-white/10 hover:bg-white/10 transition-colors">
+                        <td className="py-responsive-sm text-responsive-xs text-white">{item.label}</td>
+                        <td className="py-responsive-sm text-responsive-xs text-right font-medium text-white/90">
                           {typeof item.value === 'number' ? item.isCurrency ? formatNumber(item.value, true) : formatNumber(item.value) : item.value}
                         </td>
                         <td className={`py-responsive-sm text-responsive-xs text-right font-medium ${
-                          goalMet ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                          goalMet ? 'text-green-400' : 'text-red-400'
                         }`}>
                           {item.realizedValue === undefined ? (
                             "-"
@@ -168,11 +168,11 @@ export function FlipMetaTable({
               </table>
             </div>
 
-            <div className="mt-auto pt-responsive border-t border-border flex items-center justify-between flex-shrink-0">
-              <span className="text-responsive-base font-semibold text-primary">
+            <div className="mt-auto pt-responsive border-t border-white/20 flex items-center justify-between flex-shrink-0">
+              <span className="text-responsive-base font-semibold text-white">
                 {weekToMonthPercentage !== undefined ? `${weekToMonthPercentage}%` : "-"}
               </span>
-              <p className="text-responsive-xs text-muted-foreground italic">
+              <p className="text-responsive-xs text-white/70 italic">
                 Diferença entre meta e realizado
               </p>
             </div>
