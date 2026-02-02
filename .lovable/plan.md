@@ -1,48 +1,94 @@
 
 
-## Correção: Filtro de Meses Anteriores Incluindo Meses Incorretos
+## Correção: ICM Geral e ICM por Assessor não reajustam com Meta Acumulada
 
 ### Problema Identificado
 
-Na função `calculateAccumulatedGaps`, linha 820:
-```typescript
-const mIndex = monthNames.indexOf(mStr); // mStr = "mar" (inglês) → índice -1
-```
+Na função `processDashboardData`:
 
-O mês "mar" (março em inglês/português é igual) funciona, mas outros meses como "feb" retornam -1.
+1. **Linha 999**: `icmGeral = calculateICMGeral(filteredByAssessor, selectedMonth)` - **NÃO recebe** `accumulatedGaps`
+2. **Linhas 1091-1093**: `assessorPerformance` usa `calculateICMGeral(assessorData, selectedMonth)` - **NÃO recebe** `accumulatedGaps`
 
-**O bug real**: Quando `mIndex = -1` (mês não reconhecido), a condição `mIndex < currentMonthIndex` é verdadeira (-1 < 1), então meses "inválidos" são incluídos erroneamente.
+Apenas os `gaugeKPIs` (linha 1183-1190) aplicam os gaps corretamente.
 
 ### Solução
 
-Aplicar o mesmo mapeamento `englishToPortuguese` ao filtrar os meses anteriores:
-
-```typescript
-const previousMonths = availableMonths.filter(m => {
-  const sep = m.includes("/") ? "/" : "-";
-  let [mStr, yStr] = m.toLowerCase().split(sep);
-  
-  // Converter inglês para português se necessário
-  mStr = englishToPortuguese[mStr] || mStr;
-  
-  const mIndex = monthNames.indexOf(mStr);
-  const mYear = parseInt(yStr) + (parseInt(yStr) < 100 ? 2000 : 0);
-  
-  // Ignorar meses não reconhecidos (índice -1)
-  if (mIndex === -1) return false;
-  
-  return mYear === currentYear && mIndex < currentMonthIndex;
-});
-```
+Modificar a função `calculateICMGeral` para aceitar um parâmetro opcional `accumulatedGaps` e usá-lo ao calcular os targets.
 
 ### Arquivo a Modificar
 
-**`src/lib/kpiUtils.ts`** - Linhas 817-823
+**`src/lib/kpiUtils.ts`**
+
+#### 1. Atualizar `calculateICMGeral` (linhas 450-482)
+
+```typescript
+export function calculateICMGeral(
+  data: ProcessedKPI[], 
+  month: string,
+  accumulatedGaps?: Map<string, number>  // NOVO PARÂMETRO
+): number {
+  let weightedSum = 0;
+  let totalWeight = 0;
+
+  Object.entries(KPI_WEIGHTS).forEach(([category, weight]) => {
+    const catData = filterByCategory(data, category);
+    const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+    const realizedData = catData.filter(d => isRealizedStatus(d.status));
+
+    let target = month !== "all" 
+      ? getMonthValue(plannedData, month) 
+      : plannedData.reduce((s, d) => s + d.total, 0);
+    
+    // APLICAR ACCUMULATED GAPS AO TARGET
+    if (accumulatedGaps) {
+      target += accumulatedGaps.get(category) || 0;
+    }
+    
+    let actual = month !== "all" 
+      ? getMonthValue(realizedData, month) 
+      : realizedData.reduce((s, d) => s + d.total, 0);
+
+    // ... resto do código igual
+  });
+
+  return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+}
+```
+
+#### 2. Atualizar chamada do `icmGeral` (linha 999)
+
+```typescript
+const icmGeral = calculateICMGeral(filteredByAssessor, selectedMonth, accumulatedGaps);
+```
+
+#### 3. Atualizar loop do `assessorPerformance` (linhas 1091-1101)
+
+```typescript
+const assessorPerformance: AssessorPerformance[] = allAssessors.map(assessor => {
+  const assessorData = filterByAssessor(data, assessor);
+  const icm = calculateICMGeral(assessorData, selectedMonth, accumulatedGaps);  // PASSAR GAPS
+  const icmSemanal = calculateICMSemanal(assessorData, selectedMonth);
+  return {
+    name: assessor.split(" ").slice(0, 2).join(" "),
+    fullName: assessor,
+    geralPercentage: icm,
+    semanaPercentage: icmSemanal,
+  };
+}).sort((a, b) => b.geralPercentage - a.geralPercentage);
+```
 
 ### Resultado Esperado
 
-Para Fevereiro (índice 1):
-- Janeiro (índice 0) → 0 < 1 = true ✓ (incluído)
-- Março (índice 2) → 2 < 1 = false ✗ (excluído)
-- Meses não reconhecidos → índice -1 → excluídos
+Ao clicar no botão "Meta Acumulada":
+- ICM Geral será recalculado com os targets ajustados
+- ICM de cada assessor será recalculado com os targets ajustados
+- Rankings serão atualizados corretamente
+
+### Exemplo
+
+Para Habilitação em Fevereiro:
+- Meta original: 24
+- Gap de Janeiro: +7
+- **Meta ajustada: 31**
+- Se realizado = 20: Percentual cai de 83% (20/24) para 65% (20/31)
 
