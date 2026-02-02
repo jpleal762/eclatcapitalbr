@@ -1,77 +1,48 @@
 
 
-## Correção: Mapeamento de Meses Inglês → Português
+## Correção: Filtro de Meses Anteriores Incluindo Meses Incorretos
 
 ### Problema Identificado
 
-O `currentMonth` está chegando como **"Feb-26"** (inglês) mas o array `monthNames` usa abreviações em **português** ("jan", "fev", "mar"...).
-
-Logs confirmam:
-```
-currentMonth: Feb-26
-monthStr: "feb"
-currentMonthIndex: -1  ← "feb" não existe em ["jan", "fev", "mar"...]
+Na função `calculateAccumulatedGaps`, linha 820:
+```typescript
+const mIndex = monthNames.indexOf(mStr); // mStr = "mar" (inglês) → índice -1
 ```
 
----
+O mês "mar" (março em inglês/português é igual) funciona, mas outros meses como "feb" retornam -1.
+
+**O bug real**: Quando `mIndex = -1` (mês não reconhecido), a condição `mIndex < currentMonthIndex` é verdadeira (-1 < 1), então meses "inválidos" são incluídos erroneamente.
 
 ### Solução
 
-Adicionar um mapeamento de meses em inglês para português na função `calculateAccumulatedGaps`.
+Aplicar o mesmo mapeamento `englishToPortuguese` ao filtrar os meses anteriores:
 
----
+```typescript
+const previousMonths = availableMonths.filter(m => {
+  const sep = m.includes("/") ? "/" : "-";
+  let [mStr, yStr] = m.toLowerCase().split(sep);
+  
+  // Converter inglês para português se necessário
+  mStr = englishToPortuguese[mStr] || mStr;
+  
+  const mIndex = monthNames.indexOf(mStr);
+  const mYear = parseInt(yStr) + (parseInt(yStr) < 100 ? 2000 : 0);
+  
+  // Ignorar meses não reconhecidos (índice -1)
+  if (mIndex === -1) return false;
+  
+  return mYear === currentYear && mIndex < currentMonthIndex;
+});
+```
 
 ### Arquivo a Modificar
 
-**`src/lib/kpiUtils.ts`** - Função `calculateAccumulatedGaps`
-
-Adicionar mapeamento após extrair `monthStr`:
-
-```typescript
-// Mapeamento inglês → português
-const englishToPortuguese: { [key: string]: string } = {
-  "jan": "jan",
-  "feb": "fev",
-  "mar": "mar",
-  "apr": "abr",
-  "may": "mai",
-  "jun": "jun",
-  "jul": "jul",
-  "aug": "ago",
-  "sep": "set",
-  "oct": "out",
-  "nov": "nov",
-  "dec": "dez"
-};
-
-const separator = currentMonth.includes("/") ? "/" : "-";
-let [monthStr, yearStr] = currentMonth.toLowerCase().split(separator);
-
-// Converter inglês para português se necessário
-monthStr = englishToPortuguese[monthStr] || monthStr;
-
-const currentMonthIndex = monthNames.indexOf(monthStr);
-```
-
----
+**`src/lib/kpiUtils.ts`** - Linhas 817-823
 
 ### Resultado Esperado
 
-Após a correção:
-```
-currentMonth: Feb-26
-monthStr: "feb" → "fev" (convertido)
-currentMonthIndex: 1 ✓
-```
-
-Isso permitirá que a função encontre os meses anteriores (Janeiro/jan-26) e calcule os gaps corretamente.
-
----
-
-### Verificação
-
-Após implementar:
-1. O log deve mostrar `currentMonthIndex: 1` para Fevereiro
-2. `previousMonths` deve conter `["jan-26"]`
-3. Gaps devem ser calculados e aplicados às metas
+Para Fevereiro (índice 1):
+- Janeiro (índice 0) → 0 < 1 = true ✓ (incluído)
+- Março (índice 2) → 2 < 1 = false ✗ (excluído)
+- Meses não reconhecidos → índice -1 → excluídos
 
