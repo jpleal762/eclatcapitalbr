@@ -27,6 +27,8 @@ interface FlipICMCardProps {
   isFlipped?: boolean;
   isLocked?: boolean;
   historicalData?: HistoricalICMData[];
+  isAccumulatedMode?: boolean;
+  onAccumulatedModeChange?: (value: boolean) => void;
 }
 
 interface AnalysisResult {
@@ -55,6 +57,8 @@ export function FlipICMCard({
   isFlipped: controlledFlipped,
   isLocked = false,
   historicalData,
+  isAccumulatedMode = false,
+  onAccumulatedModeChange,
 }: FlipICMCardProps) {
   // Manual flip offset for user-initiated flips
   const [manualFlipOffset, setManualFlipOffset] = useState(0);
@@ -186,6 +190,8 @@ export function FlipICMCard({
               onMonthChange={onMonthChange}
               isLocked={isLocked}
               historicalData={historicalData}
+              isAccumulatedMode={isAccumulatedMode}
+              onAccumulatedModeChange={onAccumulatedModeChange}
             />
             <div className="absolute top-2 right-2 p-1 rounded-full bg-muted/50 opacity-50 hover:opacity-100 transition-opacity z-10">
               <RotateCcw className="w-3 h-3 text-muted-foreground" />
