@@ -1,4 +1,4 @@
-import { ZoomIn, Monitor } from "lucide-react";
+import { ZoomIn, Monitor, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,17 +19,33 @@ const SCALE_OPTIONS = [
 ];
 
 export function ScaleSelector() {
-  const { scaleFactor, setScaleFactor, isTV, tvScale } = useScale();
+  const { scaleFactor, setScaleFactor, isTV, tvScale, effectiveScale, recalculateAutoScale } = useScale();
+  const isAuto = scaleFactor === "auto";
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="h-8 w-8" title="Escala de visualização">
-          {isTV ? <Monitor className="h-4 w-4" /> : <ZoomIn className="h-4 w-4" />}
+          {isTV ? <Monitor className="h-4 w-4" /> : isAuto ? <Sparkles className="h-4 w-4" /> : <ZoomIn className="h-4 w-4" />}
           <span className="sr-only">Escala</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="bg-popover">
+        <DropdownMenuItem
+          onClick={() => {
+            setScaleFactor("auto");
+            recalculateAutoScale();
+          }}
+          className={cn(
+            "cursor-pointer flex items-center gap-2",
+            isAuto && "bg-primary/10 text-primary font-bold"
+          )}
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          Auto ({effectiveScale.toFixed(2)}x)
+          {isAuto && " ✓"}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         {SCALE_OPTIONS.map((option) => (
           <DropdownMenuItem
             key={option.value}
