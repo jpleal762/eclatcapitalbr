@@ -43,7 +43,7 @@ import {
 } from "@/lib/sprintStorage";
 import { SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Maximize2, Minimize2, Layers, RotateCcw, Smartphone, Monitor, Settings } from "lucide-react";
+import { Menu, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
@@ -572,26 +572,6 @@ const Index = () => {
                   />
                 </div>
                 <div className="w-48 flex justify-end items-center gap-2">
-                  {/* Desktop/Mobile View Toggle */}
-                  {hasData && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setViewMode(prev => prev === 'desktop' ? 'mobile' : 'desktop')}
-                            className="h-8 w-8"
-                          >
-                            {viewMode === 'desktop' ? <Smartphone className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {viewMode === 'desktop' ? 'Ver em modo Mobile' : 'Ver em modo Desktop'}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
                   {/* Page Toggle Button */}
                   {hasData && (
                     <PageToggle 
@@ -600,7 +580,7 @@ const Index = () => {
                       allowedScreens={allowedScreens}
                     />
                   )}
-                  {/* Token Access Config Button - only visible when not in token mode */}
+                  {/* Config Button - only visible when not in token mode */}
                   {hasData && !isTokenLocked && (
                     <TooltipProvider>
                       <Tooltip>
@@ -615,56 +595,15 @@ const Index = () => {
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          Configurar Acesso dos Assessores
+                          Configurações
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   )}
-                  {/* Page Rotation Toggle Button */}
-                  {hasData && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setIsPageRotationEnabled(prev => !prev)}
-                      className="h-8 w-8"
-                      title={isPageRotationEnabled ? "Pausar Rotação de Páginas" : "Iniciar Rotação de Páginas"}
-                    >
-                      <Layers className={`h-4 w-4 ${isPageRotationEnabled ? "text-primary" : "text-muted-foreground"}`} />
-                    </Button>
-                  )}
-                  {/* Card Flipping Toggle Button */}
-                  {hasData && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setIsCardFlippingEnabled(prev => !prev)}
-                      className="h-8 w-8"
-                      title={isCardFlippingEnabled ? "Pausar Flip de Cards" : "Iniciar Flip de Cards"}
-                    >
-                      <RotateCcw className={`h-4 w-4 ${isCardFlippingEnabled ? "text-primary" : "text-muted-foreground"}`} />
-                    </Button>
-                  )}
-                  {/* Fullscreen Button */}
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => {
-                      if (!document.fullscreenElement) {
-                        document.documentElement.requestFullscreen?.();
-                        setIsFullscreen(true);
-                      } else {
-                        document.exitFullscreen?.();
-                        setIsFullscreen(false);
-                      }
-                    }}
-                    className="h-8 w-8"
-                    title="Modo Tela Cheia (F11)"
-                  >
-                    {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                  </Button>
                   <ScaleSelector />
                   <ThemeToggle />
-                  {hasData && (
+                  {/* File Upload - only visible when not in token mode */}
+                  {hasData && !isTokenLocked && (
                     <FileUpload onDataLoaded={handleDataLoaded} compact />
                   )}
                 </div>
@@ -1055,7 +994,15 @@ const Index = () => {
         {/* Token Access Configuration Modal */}
         <TokenAccessConfig 
           isOpen={isConfigOpen} 
-          onClose={() => setIsConfigOpen(false)} 
+          onClose={() => setIsConfigOpen(false)}
+          isPageRotationEnabled={isPageRotationEnabled}
+          onPageRotationChange={setIsPageRotationEnabled}
+          isCardFlippingEnabled={isCardFlippingEnabled}
+          onCardFlippingChange={setIsCardFlippingEnabled}
+          isFullscreen={isFullscreen}
+          onFullscreenChange={setIsFullscreen}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
       </div>
     </SidebarProvider>
