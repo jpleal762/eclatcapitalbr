@@ -1,115 +1,79 @@
 
-## Plano: Reorganização dos Controles do Header
+# Plano: Auto-Ajuste de Escala para Tela
 
-### Resumo das Mudanças
+## Objetivo
+Ajustar automaticamente a escala do dashboard ao abrir para que todo o conteúdo caiba na tela sem sobreposição de dados e sem alterar o layout existente.
 
-1. **Travar botão de IA (flip de cards) para tokens**: Esconder o botão de flip de cards quando acessado via token
-2. **Mover botões para dentro do modal de Config**: Rotação de páginas, Flip de cards, Fullscreen, Desktop/Mobile serão movidos para o modal
-3. **Manter no header apenas**: ScaleSelector (zoom), ThemeToggle (modo escuro), PageToggle (navegação entre telas), e FileUpload
-
----
-
-### Parte 1: Modificar Header (Index.tsx)
-
-#### Botões a REMOVER do header (linhas 575-664):
-- Desktop/Mobile View Toggle (`viewMode`)
-- Token Access Config Button (⚙️ Settings)
-- Page Rotation Toggle (Layers)
-- Card Flipping Toggle (RotateCcw)
-- Fullscreen Button (Maximize2/Minimize2)
-
-#### Botões que PERMANECEM no header:
-- PageToggle (navegação entre telas - necessário para navegar)
-- ScaleSelector (zoom)
-- ThemeToggle (modo escuro/claro)
-- FileUpload (apenas quando não é token)
-
-#### Novo botão Config no header:
-- Botão ⚙️ visível apenas para modo escritório (não token)
-- Abre o modal TokenAccessConfig expandido
+## Resumo da Solução
+Implementar detecção automática do tamanho da tela e calcular um fator de escala ideal que garanta que todos os elementos do dashboard sejam visíveis sem scroll ou sobreposição.
 
 ---
 
-### Parte 2: Expandir TokenAccessConfig.tsx
+## Detalhes Técnicos
 
-#### Adicionar novas seções ao modal:
+### 1. Modificar ScaleContext.tsx
 
-```text
-┌─────────────────────────────────────────────────────────┐
-│ ⚙️ Configurações do Dashboard                       ✕  │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│ ▶ CONTROLES DO DASHBOARD                               │
-│ ┌─────────────────────────────────────────────────────┐ │
-│ │ ☑ Rotação automática de páginas (90s)              │ │
-│ │ ☑ Flip automático de cards (30s)                   │ │
-│ │ ☑ Modo tela cheia                                   │ │
-│ │ ○ Desktop  ● Mobile (visualização)                 │ │
-│ └─────────────────────────────────────────────────────┘ │
-│                                                         │
-│ ▶ ACESSO DOS ASSESSORES                                │
-│ ┌─────────────────────────────────────────────────────┐ │
-│ │ Assessor         │ 📊 │ 📈 │ 🎯 │ 🏃 │ 📋 │        │ │
-│ │ Hingrid Bold     │ ✓  │ ✓  │ ✓  │ ✗  │ ✓  │        │ │
-│ │ ...                                                │ │
-│ └─────────────────────────────────────────────────────┘ │
-│                                                         │
-│                              [ Cancelar ] [ Salvar ]    │
-└─────────────────────────────────────────────────────────┘
-```
-
-#### Props necessárias para o componente:
+Adicionar lógica de auto-escala inicial:
 
 ```typescript
-interface TokenAccessConfigProps {
-  isOpen: boolean;
-  onClose: () => void;
-  // Novos props para controles do dashboard
-  isPageRotationEnabled: boolean;
-  onPageRotationChange: (enabled: boolean) => void;
-  isCardFlippingEnabled: boolean;
-  onCardFlippingChange: (enabled: boolean) => void;
-  isFullscreen: boolean;
-  onFullscreenChange: (enabled: boolean) => void;
-  viewMode: 'desktop' | 'mobile';
-  onViewModeChange: (mode: 'desktop' | 'mobile') => void;
-}
+// Calcular escala ideal baseado no viewport
+const calculateOptimalScale = () => {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  
+  // Dimensões de referência do dashboard (1600x900 - design base)
+  const baseWidth = 1600;
+  const baseHeight = 900;
+  
+  // Calcular escala para caber na tela
+  const scaleX = width / baseWidth;
+  const scaleY = height / baseHeight;
+  
+  // Usar o menor para garantir que caiba em ambas dimensões
+  const optimalScale = Math.min(scaleX, scaleY);
+  
+  // Limitar entre 0.8 e 2.0 para manter legibilidade
+  return Math.max(0.8, Math.min(2.0, optimalScale));
+};
 ```
 
----
+### 2. Nova Lógica de Inicialização
 
-### Parte 3: Visibilidade por Tipo de Acesso
+- Na primeira carga (sem escala salva), calcular automaticamente
+- Arredondar para valores válidos (1, 1.25, 1.5, 1.75, 2)
+- Respeitar escala salva se usuário já escolheu manualmente
 
-| Elemento | Escritório | Token |
-|----------|------------|-------|
-| PageToggle | ✓ (todas telas) | ✓ (telas permitidas) |
-| Botão Config (⚙️) | ✓ | ✗ |
-| ScaleSelector | ✓ | ✓ |
-| ThemeToggle | ✓ | ✓ |
-| FileUpload | ✓ | ✗ |
-| Rotação automática | Via modal | Desabilitado |
-| Flip de cards | Via modal | Desabilitado |
-| Fullscreen | Via modal | Desabilitado |
-| Desktop/Mobile toggle | Via modal | Desabilitado |
-
----
-
-### Arquivos a Modificar
+### 3. Arquivos a Modificar
 
 | Arquivo | Alteração |
 |---------|-----------|
-| `src/pages/Index.tsx` | Remover botões do header, passar props para TokenAccessConfig |
-| `src/components/dashboard/TokenAccessConfig.tsx` | Adicionar seção de controles do dashboard |
+| `src/contexts/ScaleContext.tsx` | Adicionar `calculateOptimalScale()` e aplicar na inicialização |
+| `src/components/ScaleSelector.tsx` | Adicionar opção "Auto" que recalcula |
+
+### 4. Comportamento Esperado
+
+1. **Primeira Visita**: Dashboard calcula escala ideal automaticamente
+2. **Visitas Subsequentes**: Usa escala salva no localStorage
+3. **Opção Manual**: Usuário pode ajustar via ScaleSelector (override)
+4. **Opção "Auto"**: Nova opção para recalcular escala ideal
+
+### 5. Fluxo de Decisão
+
+```
+Ao carregar o dashboard:
+├── Tem escala salva no localStorage?
+│   ├── SIM → Usar escala salva
+│   └── NÃO → Calcular escala ideal automaticamente
+│       └── Arredondar para valor válido mais próximo
+│           └── Aplicar e salvar
+```
 
 ---
 
-### Resultado Esperado
+## Resultado Esperado
 
-**Modo Escritório:**
-- Header limpo: PageToggle, ⚙️ Config, Zoom, Tema, Upload
-- Modal Config contém: Controles automáticos + Configuração de acesso dos tokens
-
-**Modo Token (Assessor):**
-- Header mínimo: PageToggle (telas permitidas), Zoom, Tema
-- Sem acesso a configurações, rotação automática ou flip de cards
-- Funcionalidade de IA (verso dos cards) bloqueada pois flip está desabilitado
+- Dashboard sempre abre ajustado para a tela atual
+- Sem scroll horizontal ou vertical em desktop/TV
+- Sem sobreposição de cards ou dados
+- Layout permanece inalterado (apenas escala proporcionalmente)
+- Usuário pode ajustar manualmente se preferir
