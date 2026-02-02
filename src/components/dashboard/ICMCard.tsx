@@ -1,9 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "./ProgressBar";
-import { CheckCircle, Clock, AlertTriangle, Calendar, TrendingUp } from "lucide-react";
+import { CheckCircle, Clock, AlertTriangle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTheme } from "next-themes";
 interface HistoricalICMData {
   month: string;
@@ -23,8 +22,6 @@ interface ICMCardProps {
   onMonthChange: (value: string) => void;
   isLocked?: boolean;
   historicalData?: HistoricalICMData[];
-  isAccumulatedMode?: boolean;
-  onAccumulatedModeChange?: (value: boolean) => void;
 }
 export function ICMCard({
   icmGeral,
@@ -38,8 +35,6 @@ export function ICMCard({
   onMonthChange,
   isLocked = false,
   historicalData,
-  isAccumulatedMode = false,
-  onAccumulatedModeChange,
 }: ICMCardProps) {
   const { theme } = useTheme();
 
@@ -81,43 +76,13 @@ export function ICMCard({
     return `${monthNames[now.getMonth()]}/${now.getFullYear().toString().slice(-2)}`;
   };
 
-  const handleAccumulatedToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onAccumulatedModeChange?.(!isAccumulatedMode);
-  };
-
   return <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden">
       {/* Header compacto com filtros */}
       <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0 flex-wrap">
-        <div className="flex items-center gap-2">
-          <h3 className="text-responsive-sm font-semibold text-foreground">
-            ICM Geral
-          </h3>
-          {isAccumulatedMode && (
-            <span className="text-responsive-4xs px-1.5 py-0.5 rounded-full bg-orange-500/20 text-orange-600 dark:text-orange-400 font-medium border border-orange-500/30 animate-pulse">
-              ⚡ META ACUMULADA
-            </span>
-          )}
-        </div>
+        <h3 className="text-responsive-sm font-semibold text-foreground">
+          ICM Geral
+        </h3>
         <div className="flex items-center gap-2 flex-wrap">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={isAccumulatedMode ? "default" : "ghost"}
-                  size="icon"
-                  className={`h-7 w-7 ${isAccumulatedMode ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                  onClick={handleAccumulatedToggle}
-                >
-                  <TrendingUp className="h-3.5 w-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p className="text-xs">Meta Acumulada</p>
-                <p className="text-xs text-muted-foreground">Inclui gaps de meses anteriores</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
 
           <Select value={selectedAssessor} onValueChange={onAssessorChange} disabled={isLocked}>
             <SelectTrigger className={`w-[120px] bg-background text-responsive-xs h-7 py-0.5 ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}`}>

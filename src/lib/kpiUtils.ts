@@ -449,8 +449,7 @@ export function getMonthValue(records: ProcessedKPI[], month: string): number {
 // CRITICAL: Cap individual KPI percentages at 120% before weighted average
 export function calculateICMGeral(
   data: ProcessedKPI[], 
-  month: string,
-  accumulatedGaps?: Map<string, number>
+  month: string
 ): number {
   let weightedSum = 0;
   let totalWeight = 0;
@@ -461,12 +460,6 @@ export function calculateICMGeral(
     const realizedData = catData.filter(d => isRealizedStatus(d.status));
 
     let target = month !== "all" ? getMonthValue(plannedData, month) : plannedData.reduce((s, d) => s + d.total, 0);
-    
-    // Aplicar accumulated gaps ao target quando em modo Meta Acumulada
-    if (accumulatedGaps) {
-      target += accumulatedGaps.get(category) || 0;
-    }
-    
     let actual = month !== "all" ? getMonthValue(realizedData, month) : realizedData.reduce((s, d) => s + d.total, 0);
 
     // Verificar se há additionalActualCategory para esta categoria (ex: Receita Empilhada)
@@ -1001,12 +994,11 @@ export function calculateAssessorRemainingForKPI(
 export function processDashboardData(
   data: ProcessedKPI[], 
   selectedMonth: string, 
-  selectedAssessor: string = "all",
-  accumulatedGaps?: Map<string, number>
+  selectedAssessor: string = "all"
 ): DashboardData {
   const filteredByAssessor = filterByAssessor(data, selectedAssessor);
   
-  const icmGeral = calculateICMGeral(filteredByAssessor, selectedMonth, accumulatedGaps);
+  const icmGeral = calculateICMGeral(filteredByAssessor, selectedMonth);
   // Ritmo Ideal = percentage of elapsed business days in the selected month
   const ritmoIdeal = calculateIdealRhythm(selectedMonth);
   const diasUteisRestantes = getWorkingDaysRemaining(selectedMonth);
@@ -1100,7 +1092,7 @@ export function processDashboardData(
   const allAssessors = [...new Set(data.map(d => d.assessor))];
   const assessorPerformance: AssessorPerformance[] = allAssessors.map(assessor => {
     const assessorData = filterByAssessor(data, assessor);
-    const icm = calculateICMGeral(assessorData, selectedMonth, accumulatedGaps);
+    const icm = calculateICMGeral(assessorData, selectedMonth);
     const icmSemanal = calculateICMSemanal(assessorData, selectedMonth);
     return {
       name: assessor.split(" ").slice(0, 2).join(" "),
@@ -1188,15 +1180,6 @@ export function processDashboardData(
       value = selectedMonth !== "all"
         ? getMonthValue(realizedData, selectedMonth)
         : realizedData.reduce((s, d) => s + d.total, 0);
-    }
-
-    // Add accumulated gaps to target if provided
-    if (accumulatedGaps) {
-      const gap = accumulatedGaps.get(kpi.category) || 0;
-      if (gap > 0) {
-        console.log(`[Meta Acumulada] ${kpi.label}: +${gap} ao target (${target} → ${target + gap})`);
-      }
-      target += gap;
     }
 
     const percentage = target > 0 ? Math.round((value / target) * 100) : 0;

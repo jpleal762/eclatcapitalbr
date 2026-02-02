@@ -29,7 +29,6 @@ import {
   getWeightForLabel,
   calculateSprintData,
   getAssessorHistoricalICMFromCurrent,
-  calculateAccumulatedGaps,
 } from "@/lib/kpiUtils";
 import { 
   processYearlyDashboardData, 
@@ -133,8 +132,6 @@ const Index = () => {
   const [evolutionMap, setEvolutionMap] = useState<Map<string, SprintEvolution> | undefined>(undefined);
   const [evolution48h, setEvolution48h] = useState<SprintEvolution48h | null>(null);
   
-  // Accumulated gaps mode state
-  const [isAccumulatedMode, setIsAccumulatedMode] = useState(false);
   
   // Estado para controle da visão
   // null = Escritório (filtros livres) - padrão
@@ -351,15 +348,9 @@ const Index = () => {
     }
   }, [filters.month]);
 
-  // Calculate accumulated gaps when mode is active
-  const accumulatedGaps = useMemo(() => {
-    if (!isAccumulatedMode) return undefined;
-    return calculateAccumulatedGaps(processedData, filters.month, filters.assessor);
-  }, [isAccumulatedMode, processedData, filters.month, filters.assessor]);
-
   const dashboardData = useMemo(
-    () => processDashboardData(processedData, filters.month, filters.assessor, accumulatedGaps),
-    [processedData, filters.month, filters.assessor, accumulatedGaps]
+    () => processDashboardData(processedData, filters.month, filters.assessor),
+    [processedData, filters.month, filters.assessor]
   );
 
   // Calculate assessor historical ICM based on CURRENT month (not selected month)
@@ -759,8 +750,6 @@ const Index = () => {
                             isFlipped={isGlobalFlipped}
                             isLocked={isViewLocked}
                             historicalData={assessorHistoricalICM}
-                            isAccumulatedMode={isAccumulatedMode}
-                            onAccumulatedModeChange={setIsAccumulatedMode}
                           />
                         </ExpandableCard>
                       </div>
