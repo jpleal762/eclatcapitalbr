@@ -1,10 +1,9 @@
-import { QuarterlyKPI, AssessorQuarterlyGap, MonthlyGapData } from "@/lib/quarterlyKpiUtils";
+import { QuarterlyKPI, MonthlyGapData } from "@/lib/quarterlyKpiUtils";
 
 interface QuarterlyKPIBarProps extends QuarterlyKPI {
   ritmoIdeal: number;
   headName?: string;
   isTopGap?: boolean;
-  topAssessorGaps?: AssessorQuarterlyGap[];
   monthlyGaps?: MonthlyGapData[];
 }
 
@@ -60,7 +59,6 @@ export function QuarterlyKPIBar({
   ritmoIdeal,
   headName,
   isTopGap,
-  topAssessorGaps,
   monthlyGaps
 }: QuarterlyKPIBarProps) {
   const barWidth = Math.min(percentage, 100);
@@ -146,18 +144,6 @@ export function QuarterlyKPIBar({
           {" / "}
           {formatValue(target, isCurrency)}
         </span>
-        
-        {/* TOP 2 ASSESSOR GAPS - inline, compacto */}
-        {topAssessorGaps && topAssessorGaps.length > 0 && <div className="flex items-center gap-0.5">
-            <span className="text-scale-5 text-muted-foreground mr-0.5">Maiores Gaps:</span>
-            {topAssessorGaps.map(a => <span key={a.name} className={`px-0.5 py-[1px] text-scale-8 rounded border text-right font-semibold ${
-              percentage >= ritmoIdeal ? 'bg-green-500/10 text-green-600 border-green-500/20' :
-              percentage >= ritmoIdeal * 0.5 ? 'bg-eclat-gold/10 text-eclat-gold border-eclat-gold/20' :
-              'bg-red-500/10 text-red-500 border-red-500/20'
-            }`}>
-                {a.name}: -{formatValue(a.gap, isCurrency)}
-              </span>)}
-          </div>}
         
         {/* Rhythm status indicator */}
         {atingiuRitmo ? <span className="text-green-500 font-medium">✓ OK</span> : faltaParaRitmo > 0 ? <span className={`font-medium whitespace-nowrap ${textColor.includes("red") ? "text-red-500" : "text-blue-500"}`}>
