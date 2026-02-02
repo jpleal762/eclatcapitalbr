@@ -439,8 +439,6 @@ export function calculateMonthlyGapsForBar(
   
   for (let i = 0; i < 3; i++) {
     const monthName = quarterDef.months[i];
-    const monthKey = `${monthName}-${yearSuffix}`;
-    const monthKeyAlt = `${monthName}/${yearSuffix}`;
     
     let target = 0;
     let actual = 0;
@@ -450,42 +448,49 @@ export function calculateMonthlyGapsForBar(
       targetCategories.forEach(targetCat => {
         const catData = filteredData.filter(d => d.category === targetCat);
         const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
-        target += getMonthValueFlexible(plannedData, monthKey, monthKeyAlt);
+        target += getMonthValueFlexible(plannedData, monthName, yearSuffix);
       });
     } else {
       const catData = filteredData.filter(d => d.category === category);
       const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
-      target = getMonthValueFlexible(plannedData, monthKey, monthKeyAlt);
+      target = getMonthValueFlexible(plannedData, monthName, yearSuffix);
     }
     
     // Calculate ACTUAL
     if (isSpecial && actualCategory) {
       const catData = filteredData.filter(d => d.category === actualCategory);
       const realizedData = catData.filter(d => isRealizedStatus(d.status));
-      actual = getMonthValueFlexible(realizedData, monthKey, monthKeyAlt);
+      actual = getMonthValueFlexible(realizedData, monthName, yearSuffix);
     } else if (category === "Receita") {
       const receitaData = filteredData.filter(d => d.category === "Receita");
       const receitaRealized = receitaData.filter(d => isRealizedStatus(d.status));
-      actual = getMonthValueFlexible(receitaRealized, monthKey, monthKeyAlt);
+      actual = getMonthValueFlexible(receitaRealized, monthName, yearSuffix);
       
       const receitaAcumuladaData = filteredData.filter(d => d.category === "Receita Acumulada");
       const receitaAcumuladaRealized = receitaAcumuladaData.filter(d => isRealizedStatus(d.status));
-      actual += getMonthValueFlexible(receitaAcumuladaRealized, monthKey, monthKeyAlt);
+      actual += getMonthValueFlexible(receitaAcumuladaRealized, monthName, yearSuffix);
     } else {
       const catData = filteredData.filter(d => d.category === category);
       const realizedData = catData.filter(d => isRealizedStatus(d.status));
-      actual = getMonthValueFlexible(realizedData, monthKey, monthKeyAlt);
+      actual = getMonthValueFlexible(realizedData, monthName, yearSuffix);
     }
     
     // Add additional actual category if exists
     if (additionalActualCategory) {
       const additionalData = filteredData.filter(d => d.category === additionalActualCategory);
       const additionalRealized = additionalData.filter(d => isRealizedStatus(d.status));
-      actual += getMonthValueFlexible(additionalRealized, monthKey, monthKeyAlt);
+      actual += getMonthValueFlexible(additionalRealized, monthName, yearSuffix);
     }
     
     // Gap = max(0, target - actual)
     const gap = Math.max(0, target - actual);
+    
+    // Debug log for verification
+    console.log(`[GAP DEBUG] ${kpiConfig.label} - ${monthName}/${yearSuffix}:`, {
+      target,
+      actual,
+      gap
+    });
     
     // Capitalize first letter
     const monthLabel = monthName.charAt(0).toUpperCase() + monthName.slice(1);
@@ -524,13 +529,21 @@ export function calculateMonthlyGapsForBar(
   return result;
 }
 
-// Helper to get month value with flexible key format
-function getMonthValueFlexible(records: ProcessedKPI[], key1: string, key2: string): number {
+// Helper to get month value with flexible key format and month normalization
+function getMonthValueFlexible(records: ProcessedKPI[], monthName: string, yearSuffix: string): number {
   return records.reduce((sum, r) => {
-    const monthData = r.monthlyData.find(m => 
-      m.month.toLowerCase() === key1.toLowerCase() || 
-      m.month.toLowerCase() === key2.toLowerCase()
-    );
+    const monthData = r.monthlyData.find(m => {
+      // Support both "/" and "-" separators
+      const sep = m.month.includes("/") ? "/" : "-";
+      const parts = m.month.toLowerCase().split(sep);
+      if (parts.length !== 2) return false;
+      
+      let [mStr, yStr] = parts;
+      // Normalize month to Portuguese using MONTH_MAP
+      mStr = MONTH_MAP[mStr] || mStr;
+      
+      return mStr === monthName.toLowerCase() && yStr === yearSuffix;
+    });
     return sum + (monthData?.value || 0);
   }, 0);
 }
