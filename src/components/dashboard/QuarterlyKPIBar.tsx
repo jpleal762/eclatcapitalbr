@@ -101,6 +101,7 @@ export function QuarterlyKPIBar({
           {/* Top 2 Assessor Gaps - Above bar */}
           {topAssessorGaps && topAssessorGaps.length > 0 && (
             <span className="text-muted-foreground/70 text-scale-4 lg:text-scale-5 whitespace-nowrap">
+              <span className="opacity-60">Maiores Gaps:</span>{" "}
               {topAssessorGaps.map((g, i) => (
                 <span key={g.name}>
                   {i > 0 && " · "}
