@@ -1,163 +1,100 @@
 
 
-## Plano: Botão "Meta Acumulada" com Gaps de Meses Anteriores
+## Correção: Botão "Meta Acumulada" não está aplicando gaps
 
-### Objetivo
-Criar um botão no dashboard que, ao ser ativado, recalcula todas as metas adicionando os gaps (falta para bater meta) dos meses anteriores do ano atual.
+### Diagnóstico
 
----
+Após análise do código, identifiquei que:
+1. A passagem de props está correta (`Index.tsx` → `FlipICMCard` → `ICMCard`)
+2. O estado `isAccumulatedMode` está sendo gerenciado corretamente
+3. O cálculo de `accumulatedGaps` está sendo feito, mas possivelmente retornando vazio
 
-### Lógica de Cálculo
+### Problema Potencial
 
-**Fórmula:**
-```
-Nova Meta = Meta do Mês Atual + Σ(Gaps dos Meses Anteriores do Ano)
-```
+A função `calculateAccumulatedGaps` pode estar retornando um Map vazio por uma das seguintes razões:
+- O mês atual pode ser Janeiro (sem meses anteriores no ano)
+- Os meses disponíveis no dados podem ter formato diferente do esperado
+- O filtro de assessor pode estar excluindo dados relevantes
 
-**Onde:**
-```
-Gap de um mês = max(0, Planejado Mês - Realizado)
-```
+### Correções Propostas
 
-**Exemplo:**
-- Meta de Janeiro: 10 (realizado: 8) → Gap: 2
-- Meta de Fevereiro: 12 (realizado: 15) → Gap: 0 (bateu meta)
-- Meta de Março (atual): 12
-- **Nova Meta de Março:** 12 + 2 + 0 = 14
+#### 1. Adicionar logs de debug em `calculateAccumulatedGaps`
+
+Vou adicionar console.log para monitorar:
+- Mês atual e índice
+- Meses anteriores encontrados
+- Gaps calculados para cada categoria
+
+#### 2. Corrigir potencial problema de condição inicial
+
+A condição `currentMonthIndex <= 0` está correta para Janeiro, mas pode estar falhando silenciosamente se o formato do mês não for reconhecido.
+
+#### 3. Adicionar log em `processDashboardData`
+
+Verificar se os gaps estão chegando e sendo aplicados.
 
 ---
 
 ### Arquivos a Modificar
 
-#### 1. **`src/lib/kpiUtils.ts`**
-Nova função para calcular gaps acumulados:
+#### `src/lib/kpiUtils.ts`
+
+**Função `calculateAccumulatedGaps`** - Adicionar logs:
 
 ```typescript
 export function calculateAccumulatedGaps(
   data: ProcessedKPI[],
   currentMonth: string,
   assessor: string
-): Map<string, number>
+): Map<string, number> {
+  const gaps = new Map<string, number>();
+  
+  console.log("=== calculateAccumulatedGaps DEBUG ===");
+  console.log("currentMonth:", currentMonth);
+  console.log("assessor:", assessor);
+  
+  // ... resto da lógica
+  
+  console.log("previousMonths encontrados:", previousMonths);
+  
+  // ... após calcular gaps
+  
+  console.log("Gaps calculados:", Object.fromEntries(gaps));
+  console.log("=====================================");
+  
+  return gaps;
+}
 ```
 
-- Retorna um Map com categoria → valor do gap acumulado
-- Considera apenas meses anteriores ao mês selecionado, no mesmo ano
-- Aplica a mesma lógica de categorias especiais (Receita XP = PJ1 + PJ2)
-
-#### 2. **`src/lib/kpiUtils.ts`** - Modificar `processDashboardData`
-Adicionar parâmetro opcional `accumulatedGaps`:
+**Função `processDashboardData`** - Adicionar log quando gaps são aplicados:
 
 ```typescript
-export function processDashboardData(
-  data: ProcessedKPI[], 
-  selectedMonth: string, 
-  selectedAssessor: string = "all",
-  accumulatedGaps?: Map<string, number>  // NOVO
-): DashboardData
-```
-
-- Quando `accumulatedGaps` é fornecido, adiciona o gap ao target de cada KPI
-
-#### 3. **`src/pages/Index.tsx`**
-- Adicionar estado: `isAccumulatedMode: boolean`
-- Calcular gaps acumulados via `useMemo`
-- Passar gaps para `processDashboardData` quando modo ativo
-- Propagar estado para componentes filhos
-
-#### 4. **`src/components/dashboard/ICMCard.tsx`**
-Adicionar botão toggle ao lado dos filtros:
-
-| Visual |
-|--------|
-| `[📊]` Botão com ícone que alterna entre ativo/inativo |
-| Tooltip: "Meta Acumulada (inclui gaps de meses anteriores)" |
-| Quando ativo: cor primária destacada |
-
----
-
-### Detalhes Técnicos
-
-**Novo estado em Index.tsx:**
-```typescript
-const [isAccumulatedMode, setIsAccumulatedMode] = useState(false);
-```
-
-**Cálculo dos gaps:**
-```typescript
-const accumulatedGaps = useMemo(() => {
-  if (!isAccumulatedMode) return undefined;
-  return calculateAccumulatedGaps(processedData, filters.month, filters.assessor);
-}, [isAccumulatedMode, processedData, filters.month, filters.assessor]);
-```
-
-**Dashboard data com gaps:**
-```typescript
-const dashboardData = useMemo(
-  () => processDashboardData(processedData, filters.month, filters.assessor, accumulatedGaps),
-  [processedData, filters.month, filters.assessor, accumulatedGaps]
-);
+// Add accumulated gaps to target if provided
+if (accumulatedGaps) {
+  const gap = accumulatedGaps.get(kpi.category) || 0;
+  if (gap > 0) {
+    console.log(`[Meta Acumulada] ${kpi.label}: +${gap} ao target (${target} → ${target + gap})`);
+  }
+  target += gap;
+}
 ```
 
 ---
 
-### Componentes Afetados
+### Verificação Adicional
 
-Quando o modo acumulado estiver ativo, todas essas métricas serão recalculadas:
+Após adicionar os logs, poderemos identificar exatamente onde está o problema:
 
-| Componente | Impacto |
-|------------|---------|
-| GaugeChart (todos os 9) | Nova meta → novo percentual |
-| FlipICMCard | ICM Geral recalculado |
-| MetaTable | Valores de meta atualizados |
-| AssessorChart | Rankings recalculados |
-| FlipGaugeChart | "Falta por Assessor" atualizado |
-
----
-
-### Props a Adicionar
-
-**ICMCard / FlipICMCard:**
-```typescript
-isAccumulatedMode: boolean;
-onAccumulatedModeChange: (value: boolean) => void;
-```
-
----
-
-### Visual do Botão
-
-```text
-┌─────────────────────────────────────────────────────────┐
-│ ICM Geral          [Assessor ▾] [Mês ▾] [📊 Acum.]     │
-└─────────────────────────────────────────────────────────┘
-```
-
-- Ícone sugerido: `TrendingUp` ou `Layers` (lucide-react)
-- Estado ativo: fundo primário, ícone branco
-- Estado inativo: fundo muted, ícone cinza
-- Tooltip explicativo
-
----
-
-### Indicador Visual de Modo Ativo
-
-Quando o modo acumulado estiver ativo, adicionar badge visível:
-
-```text
-┌──────────────────────────────────────────────────────────┐
-│ ICM Geral  ⚡ META ACUMULADA    [Assessor ▾] [Mês ▾]    │
-└──────────────────────────────────────────────────────────┘
-```
-
-Badge amarelo/laranja indicando que as metas estão ajustadas.
+1. Se `previousMonths` está vazio → problema no parsing de datas
+2. Se gaps estão sendo calculados mas não aplicados → problema em `processDashboardData`
+3. Se o Map está chegando undefined → problema na passagem do estado
 
 ---
 
 ### Resultado Esperado
 
-1. Botão toggle discreto mas acessível
-2. Ao ativar, todas as metas são recalculadas instantaneamente
-3. Percentuais, "quanto falta", e rankings refletem a nova meta
-4. Ao desativar, volta ao comportamento normal
-5. Estado persistido na sessão (não em localStorage)
+Após as correções:
+- Console mostrará os gaps calculados
+- Meta será atualizada corretamente (ex: 24 + 7 = 31 para Habilitação)
+- Todos os percentuais e "quanto falta" serão recalculados com a nova meta
 
