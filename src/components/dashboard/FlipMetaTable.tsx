@@ -61,7 +61,10 @@ export function FlipMetaTable({
         <div className="absolute inset-0 backface-hidden overflow-hidden">
           <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
             <div className="flex items-center justify-between mb-responsive flex-shrink-0">
-              <h3 className="text-responsive-sm font-semibold text-white">Meta Semanal Acumulada</h3>
+              <div className="flex flex-col">
+                <h3 className="text-responsive-sm font-semibold text-white">Planejamento Semanal Acumulado</h3>
+                <span className="text-responsive-4xs text-white/50 italic">*definido na reunião semanal em equipe</span>
+              </div>
               <div className="flex items-center gap-2">
                 {selectedAssessor && selectedAssessor !== "all" && (
                   <span className="text-responsive-xs px-2 py-responsive-sm rounded-full bg-white/20 text-white font-medium">
