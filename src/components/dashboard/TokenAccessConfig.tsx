@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
   Table,
@@ -20,12 +21,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { LayoutGrid, TrendingUp, Target, Users, Lightbulb, Loader2 } from "lucide-react";
+import { 
+  LayoutGrid, 
+  TrendingUp, 
+  Target, 
+  Users, 
+  Lightbulb, 
+  Loader2,
+  Layers,
+  RotateCcw,
+  Maximize2,
+  Smartphone,
+  Monitor
+} from "lucide-react";
 import { PageType } from "./PageToggle";
+import { Separator } from "@/components/ui/separator";
 
 interface TokenAccessConfigProps {
   isOpen: boolean;
   onClose: () => void;
+  // Dashboard controls
+  isPageRotationEnabled: boolean;
+  onPageRotationChange: (enabled: boolean) => void;
+  isCardFlippingEnabled: boolean;
+  onCardFlippingChange: (enabled: boolean) => void;
+  isFullscreen: boolean;
+  onFullscreenChange: (enabled: boolean) => void;
+  viewMode: 'desktop' | 'mobile';
+  onViewModeChange: (mode: 'desktop' | 'mobile') => void;
 }
 
 interface TokenData {
@@ -46,7 +69,18 @@ const ALL_SCREENS: { key: PageType; label: string; icon: React.ReactNode }[] = [
 
 const DEFAULT_SCREENS: PageType[] = ["dashboard", "analysis", "prospection", "sprint", "tactics"];
 
-export function TokenAccessConfig({ isOpen, onClose }: TokenAccessConfigProps) {
+export function TokenAccessConfig({ 
+  isOpen, 
+  onClose,
+  isPageRotationEnabled,
+  onPageRotationChange,
+  isCardFlippingEnabled,
+  onCardFlippingChange,
+  isFullscreen,
+  onFullscreenChange,
+  viewMode,
+  onViewModeChange,
+}: TokenAccessConfigProps) {
   const [tokens, setTokens] = useState<TokenData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -145,82 +179,196 @@ export function TokenAccessConfig({ isOpen, onClose }: TokenAccessConfigProps) {
     }
   };
 
+  const handleFullscreenToggle = (enabled: boolean) => {
+    onFullscreenChange(enabled);
+    if (enabled) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  };
+
   const hasChanges = changes.size > 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            ⚙️ Configurar Acesso dos Assessores
+            ⚙️ Configurações do Dashboard
           </DialogTitle>
           <DialogDescription>
-            Defina quais telas cada assessor pode acessar via seu link individual.
+            Controle as automações e defina o acesso dos assessores.
           </DialogDescription>
         </DialogHeader>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        ) : tokens.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            Nenhum token ativo encontrado.
-          </div>
-        ) : (
-          <div className="flex-1 overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="min-w-[180px]">Assessor</TableHead>
-                  {ALL_SCREENS.map((screen) => (
-                    <TableHead key={screen.key} className="text-center w-20">
-                      <div className="flex flex-col items-center gap-1">
-                        {screen.icon}
-                        <span className="text-xs">{screen.label}</span>
-                      </div>
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tokens.map((token) => {
-                  const currentScreens = getScreensForToken(token.id, token.allowed_screens);
-                  const hasTokenChanges = changes.has(token.id);
+        <div className="flex-1 overflow-auto space-y-6">
+          {/* Dashboard Controls Section */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+              <Layers className="h-4 w-4" />
+              Controles do Dashboard
+            </h3>
+            
+            <div className="grid gap-4 p-4 bg-muted/30 rounded-lg">
+              {/* Page Rotation */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Layers className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <Label htmlFor="page-rotation" className="font-medium">Rotação automática de páginas</Label>
+                    <p className="text-xs text-muted-foreground">Alterna entre telas a cada 90 segundos</p>
+                  </div>
+                </div>
+                <Switch
+                  id="page-rotation"
+                  checked={isPageRotationEnabled}
+                  onCheckedChange={onPageRotationChange}
+                />
+              </div>
 
-                  return (
-                    <TableRow
-                      key={token.id}
-                      className={hasTokenChanges ? "bg-primary/5" : ""}
-                    >
-                      <TableCell className="font-medium">
-                        <div className="flex flex-col">
-                          <span className="truncate max-w-[160px]">
-                            {token.assessor_name.split(" ").slice(0, 2).join(" ")}
-                          </span>
-                          {hasTokenChanges && (
-                            <span className="text-xs text-primary">modificado</span>
-                          )}
-                        </div>
-                      </TableCell>
+              {/* Card Flipping */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <RotateCcw className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <Label htmlFor="card-flipping" className="font-medium">Flip automático de cards</Label>
+                    <p className="text-xs text-muted-foreground">Gira os cards a cada 30 segundos (inclui IA)</p>
+                  </div>
+                </div>
+                <Switch
+                  id="card-flipping"
+                  checked={isCardFlippingEnabled}
+                  onCheckedChange={onCardFlippingChange}
+                />
+              </div>
+
+              {/* Fullscreen */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Maximize2 className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <Label htmlFor="fullscreen" className="font-medium">Modo tela cheia</Label>
+                    <p className="text-xs text-muted-foreground">Oculta sidebar e expande o conteúdo</p>
+                  </div>
+                </div>
+                <Switch
+                  id="fullscreen"
+                  checked={isFullscreen}
+                  onCheckedChange={handleFullscreenToggle}
+                />
+              </div>
+
+              {/* View Mode */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {viewMode === 'desktop' ? (
+                    <Monitor className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Smartphone className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  <div>
+                    <Label className="font-medium">Visualização</Label>
+                    <p className="text-xs text-muted-foreground">Simula visualização em diferentes dispositivos</p>
+                  </div>
+                </div>
+                <div className="flex gap-1 bg-muted rounded-lg p-1">
+                  <Button
+                    variant={viewMode === 'desktop' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className="h-7 px-3"
+                    onClick={() => onViewModeChange('desktop')}
+                  >
+                    <Monitor className="h-3 w-3 mr-1" />
+                    Desktop
+                  </Button>
+                  <Button
+                    variant={viewMode === 'mobile' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className="h-7 px-3"
+                    onClick={() => onViewModeChange('mobile')}
+                  >
+                    <Smartphone className="h-3 w-3 mr-1" />
+                    Mobile
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Token Access Section */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Acesso dos Assessores
+            </h3>
+
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : tokens.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                Nenhum token ativo encontrado.
+              </div>
+            ) : (
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[180px]">Assessor</TableHead>
                       {ALL_SCREENS.map((screen) => (
-                        <TableCell key={screen.key} className="text-center">
-                          <Checkbox
-                            checked={currentScreens.includes(screen.key)}
-                            onCheckedChange={() =>
-                              handleScreenToggle(token.id, screen.key)
-                            }
-                            className="mx-auto"
-                          />
-                        </TableCell>
+                        <TableHead key={screen.key} className="text-center w-20">
+                          <div className="flex flex-col items-center gap-1">
+                            {screen.icon}
+                            <span className="text-xs">{screen.label}</span>
+                          </div>
+                        </TableHead>
                       ))}
                     </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {tokens.map((token) => {
+                      const currentScreens = getScreensForToken(token.id, token.allowed_screens);
+                      const hasTokenChanges = changes.has(token.id);
+
+                      return (
+                        <TableRow
+                          key={token.id}
+                          className={hasTokenChanges ? "bg-primary/5" : ""}
+                        >
+                          <TableCell className="font-medium">
+                            <div className="flex flex-col">
+                              <span className="truncate max-w-[160px]">
+                                {token.assessor_name.split(" ").slice(0, 2).join(" ")}
+                              </span>
+                              {hasTokenChanges && (
+                                <span className="text-xs text-primary">modificado</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          {ALL_SCREENS.map((screen) => (
+                            <TableCell key={screen.key} className="text-center">
+                              <Checkbox
+                                checked={currentScreens.includes(screen.key)}
+                                onCheckedChange={() =>
+                                  handleScreenToggle(token.id, screen.key)
+                                }
+                                className="mx-auto"
+                              />
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         <DialogFooter className="flex-shrink-0 border-t pt-4 mt-4">
           <div className="flex items-center gap-2 text-xs text-muted-foreground mr-auto">
