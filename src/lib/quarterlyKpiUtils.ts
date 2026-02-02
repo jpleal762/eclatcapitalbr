@@ -117,6 +117,16 @@ export interface AssessorQuarterlyGap {
   gapPercentage: number;  // Gap em pontos percentuais
 }
 
+// ============= MONTHLY GAP DATA FOR BAR VISUALIZATION =============
+export interface MonthlyGapData {
+  position: number;          // 33.33 ou 66.66 (percentual na barra)
+  monthLabel: string;        // "Jan", "Fev", etc.
+  monthIndex: number;        // 0, 1 (mês dentro do trimestre)
+  cumulativeGap: number;     // Gap acumulado até este mês
+  isCurrency: boolean;
+  showGap: boolean;          // Se deve mostrar (baseado na posição da barra e mês atual)
+}
+
 // ============= STATUS HELPERS =============
 function isPlannedMonthStatus(status: string): boolean {
   const s = status.toLowerCase();
@@ -363,4 +373,164 @@ export function calculateAssessorGapsForKPI(
   return assessorGaps
     .sort((a, b) => b.gap - a.gap)
     .slice(0, 2);
+}
+
+// ============= CALCULATE MONTHLY GAPS FOR BAR VISUALIZATION =============
+interface KPIConfig {
+  category: string;
+  label: string;
+  isCurrency?: boolean;
+  isSpecial?: boolean;
+  targetCategories?: string[];
+  actualCategory?: string;
+  additionalActualCategory?: string;
+}
+
+/**
+ * Calculate accumulated monthly gaps for displaying below the month dividers in quarterly bars
+ * Shows gap at month 1 (33.33%) and month 2 (66.66%) positions
+ * Only shows if:
+ * 1. The progress bar is before that position
+ * 2. We are in that month or past it
+ */
+export function calculateMonthlyGapsForBar(
+  data: ProcessedKPI[],
+  year: number,
+  quarter: string,
+  kpiConfig: KPIConfig,
+  currentPercentage: number,
+  assessor: string = "all"
+): MonthlyGapData[] {
+  const quarterDef = QUARTERS.find(q => q.value === quarter);
+  if (!quarterDef) return [];
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonthIndex = now.getMonth(); // 0-11
+  
+  // Get month indices for this quarter (e.g., Q1 = [0, 1, 2])
+  const quarterMonthIndices = [
+    quarterDef.startMonth,
+    quarterDef.startMonth + 1,
+    quarterDef.startMonth + 2
+  ];
+  
+  // Determine which month of the quarter we're currently in
+  // -1 = before quarter, 0 = month 1, 1 = month 2, 2 = month 3, 3 = after quarter
+  let currentQuarterMonth = -1;
+  if (currentYear === year) {
+    if (currentMonthIndex >= quarterDef.startMonth && currentMonthIndex <= quarterDef.endMonth) {
+      currentQuarterMonth = currentMonthIndex - quarterDef.startMonth;
+    } else if (currentMonthIndex > quarterDef.endMonth) {
+      currentQuarterMonth = 3; // Past quarter
+    }
+  } else if (currentYear > year) {
+    currentQuarterMonth = 3; // Past quarter
+  }
+  
+  const yearSuffix = year.toString().slice(-2);
+  const { category, isSpecial, targetCategories, actualCategory, additionalActualCategory } = kpiConfig;
+  
+  // Filter data by assessor
+  const filteredData = assessor === "all" ? data : data.filter(d => d.assessor === assessor);
+  
+  // Calculate gap for each month in the quarter
+  const monthlyGaps: { monthLabel: string; gap: number }[] = [];
+  
+  for (let i = 0; i < 3; i++) {
+    const monthName = quarterDef.months[i];
+    const monthKey = `${monthName}-${yearSuffix}`;
+    const monthKeyAlt = `${monthName}/${yearSuffix}`;
+    
+    let target = 0;
+    let actual = 0;
+    
+    // Calculate TARGET
+    if (isSpecial && targetCategories) {
+      targetCategories.forEach(targetCat => {
+        const catData = filteredData.filter(d => d.category === targetCat);
+        const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+        target += getMonthValueFlexible(plannedData, monthKey, monthKeyAlt);
+      });
+    } else {
+      const catData = filteredData.filter(d => d.category === category);
+      const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+      target = getMonthValueFlexible(plannedData, monthKey, monthKeyAlt);
+    }
+    
+    // Calculate ACTUAL
+    if (isSpecial && actualCategory) {
+      const catData = filteredData.filter(d => d.category === actualCategory);
+      const realizedData = catData.filter(d => isRealizedStatus(d.status));
+      actual = getMonthValueFlexible(realizedData, monthKey, monthKeyAlt);
+    } else if (category === "Receita") {
+      const receitaData = filteredData.filter(d => d.category === "Receita");
+      const receitaRealized = receitaData.filter(d => isRealizedStatus(d.status));
+      actual = getMonthValueFlexible(receitaRealized, monthKey, monthKeyAlt);
+      
+      const receitaAcumuladaData = filteredData.filter(d => d.category === "Receita Acumulada");
+      const receitaAcumuladaRealized = receitaAcumuladaData.filter(d => isRealizedStatus(d.status));
+      actual += getMonthValueFlexible(receitaAcumuladaRealized, monthKey, monthKeyAlt);
+    } else {
+      const catData = filteredData.filter(d => d.category === category);
+      const realizedData = catData.filter(d => isRealizedStatus(d.status));
+      actual = getMonthValueFlexible(realizedData, monthKey, monthKeyAlt);
+    }
+    
+    // Add additional actual category if exists
+    if (additionalActualCategory) {
+      const additionalData = filteredData.filter(d => d.category === additionalActualCategory);
+      const additionalRealized = additionalData.filter(d => isRealizedStatus(d.status));
+      actual += getMonthValueFlexible(additionalRealized, monthKey, monthKeyAlt);
+    }
+    
+    // Gap = max(0, target - actual)
+    const gap = Math.max(0, target - actual);
+    
+    // Capitalize first letter
+    const monthLabel = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+    monthlyGaps.push({ monthLabel, gap });
+  }
+  
+  // Build result for first 2 months (positions 33.33% and 66.66%)
+  const result: MonthlyGapData[] = [];
+  
+  for (let i = 0; i < 2; i++) {
+    const position = i === 0 ? 33.33 : 66.66;
+    
+    // Calculate cumulative gap up to this month (inclusive)
+    let cumulativeGap = 0;
+    for (let j = 0; j <= i; j++) {
+      cumulativeGap += monthlyGaps[j].gap;
+    }
+    
+    // Show gap if:
+    // 1. Current bar percentage is before this position (we haven't reached this point yet)
+    // 2. We are at or past this month in the quarter
+    const barBeforePosition = currentPercentage < position;
+    const atOrPastThisMonth = currentQuarterMonth >= i;
+    const showGap = barBeforePosition && atOrPastThisMonth && cumulativeGap > 0;
+    
+    result.push({
+      position,
+      monthLabel: monthlyGaps[i].monthLabel,
+      monthIndex: i,
+      cumulativeGap,
+      isCurrency: kpiConfig.isCurrency ?? false,
+      showGap,
+    });
+  }
+  
+  return result;
+}
+
+// Helper to get month value with flexible key format
+function getMonthValueFlexible(records: ProcessedKPI[], key1: string, key2: string): number {
+  return records.reduce((sum, r) => {
+    const monthData = r.monthlyData.find(m => 
+      m.month.toLowerCase() === key1.toLowerCase() || 
+      m.month.toLowerCase() === key2.toLowerCase()
+    );
+    return sum + (monthData?.value || 0);
+  }, 0);
 }

@@ -1,9 +1,11 @@
-import { QuarterlyKPI, AssessorQuarterlyGap } from "@/lib/quarterlyKpiUtils";
+import { QuarterlyKPI, AssessorQuarterlyGap, MonthlyGapData } from "@/lib/quarterlyKpiUtils";
+
 interface QuarterlyKPIBarProps extends QuarterlyKPI {
   ritmoIdeal: number;
   headName?: string;
   isTopGap?: boolean;
   topAssessorGaps?: AssessorQuarterlyGap[];
+  monthlyGaps?: MonthlyGapData[];
 }
 
 // Format value for display
@@ -18,6 +20,20 @@ function formatValue(value: number, isCurrency: boolean): string {
     return `R$ ${value.toLocaleString("pt-BR")}`;
   }
   return value.toLocaleString("pt-BR");
+}
+
+// Format gap value compactly
+function formatGapValue(value: number, isCurrency: boolean): string {
+  if (isCurrency) {
+    if (value >= 1000000) {
+      return `-${(value / 1000000).toFixed(1).replace(".", ",")}Mi`;
+    }
+    if (value >= 1000) {
+      return `-${(value / 1000).toFixed(0)}K`;
+    }
+    return `-${value.toLocaleString("pt-BR")}`;
+  }
+  return `-${value.toLocaleString("pt-BR")}`;
 }
 
 // Get color class based on percentage vs ritmo ideal
@@ -44,7 +60,8 @@ export function QuarterlyKPIBar({
   ritmoIdeal,
   headName,
   isTopGap,
-  topAssessorGaps
+  topAssessorGaps,
+  monthlyGaps
 }: QuarterlyKPIBarProps) {
   const barWidth = Math.min(percentage, 100);
   const barColor = getBarColor(percentage, ritmoIdeal);
@@ -98,6 +115,29 @@ export function QuarterlyKPIBar({
             <div className="w-0 h-0 border-l-[1.5px] border-l-transparent border-r-[1.5px] border-r-transparent border-t-[2px] border-t-blue-500" />
           </div>}
       </div>
+      
+      {/* Monthly Gap Indicators - below the bar */}
+      {monthlyGaps && monthlyGaps.some(g => g.showGap) && (
+        <div className="relative h-scale-1.5 lg:h-scale-2">
+          {monthlyGaps.map((gap, idx) => (
+            gap.showGap && (
+              <div 
+                key={idx}
+                className="absolute flex items-center justify-center"
+                style={{
+                  left: `${gap.position}%`,
+                  transform: "translateX(-50%)",
+                  top: 0
+                }}
+              >
+                <span className="text-scale-5 lg:text-scale-6 font-semibold text-red-500 whitespace-nowrap">
+                  {formatGapValue(gap.cumulativeGap, gap.isCurrency)}
+                </span>
+              </div>
+            )
+          ))}
+        </div>
+      )}
 
       {/* Values - compact font */}
       <div className="flex justify-between items-center text-scale-5 text-muted-foreground mt-[1px]">
