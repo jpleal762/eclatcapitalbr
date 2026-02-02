@@ -1,68 +1,103 @@
-# Plano: Gaps Acumulados nas Barras Trimestrais
 
-## Status: ✅ IMPLEMENTADO
+## Correção: Cálculo dos Gaps Acumulados nas Barras Trimestrais
 
-### Mudanças Realizadas
+### Problema Identificado
 
-1. **Dashboard Mensal**: Removido o botão "Meta Acumulada" e toda a lógica associada
-2. **Dashboard Trimestral**: Adicionados indicadores de gap acumulado abaixo de cada traço de mês nas barras de progresso
+O usuário identificou que os cálculos estão incorretos. Usando o exemplo de **Ativação**:
+- Mês 1 (Janeiro): Faltou 6 → Gap M1 = **-6** ✓
+- Mês 2 (Fevereiro): Faltou 18 → Gap acumulado deveria ser M1 + M2 = **-24**
 
----
+A lógica atual calcula corretamente `cumulativeGap = gap M1 + gap M2`, mas pode haver um problema na forma como os gaps individuais estão sendo extraídos dos dados.
 
-### Parte 1: Botão "Meta Acumulada" Removido ✅
+### Análise do Código Atual
 
-- `src/components/dashboard/ICMCard.tsx` - Props e lógica removidos
-- `src/components/dashboard/FlipICMCard.tsx` - Props removidos
-- `src/pages/Index.tsx` - Estado e passagem de props removidos
-- `src/lib/kpiUtils.ts` - Parâmetro `accumulatedGaps` removido de `calculateICMGeral` e `processDashboardData`
-
----
-
-### Parte 2: Gaps Acumulados nas Barras Trimestrais ✅
-
-#### Nova Interface e Função
-
-**`src/lib/quarterlyKpiUtils.ts`**
 ```typescript
-export interface MonthlyGapData {
-  position: number;          // 33.33 ou 66.66 (percentual na barra)
-  monthLabel: string;        // "Jan", "Fev", etc.
-  monthIndex: number;        // 0, 1 (mês dentro do trimestre)
-  cumulativeGap: number;     // Gap acumulado até este mês
-  isCurrency: boolean;
-  showGap: boolean;          // Se deve mostrar
-}
-
-export function calculateMonthlyGapsForBar(
-  data: ProcessedKPI[],
-  year: number,
-  quarter: string,
-  kpiConfig: KPIConfig,
-  currentPercentage: number,
-  assessor: string
-): MonthlyGapData[]
+// Linha 488
+const gap = Math.max(0, target - actual);
 ```
 
-#### Lógica de Exibição
+Isso está correto conceitualmente. O problema pode ser:
 
-- Gap só aparece se:
-  1. A barra de progresso está ANTES daquela posição (não atingiu ainda)
-  2. Estamos naquele mês ou depois (o mês já passou ou é o atual)
-  3. O gap é maior que zero
+1. **Mapeamento de mês incorreto** - Os nomes dos meses podem não estar casando com os dados do Excel (inglês vs português)
+2. **Filtro de assessor** - Se `assessor = "all"`, os dados podem não estar sendo agregados corretamente
 
-- Traço 1 (33.33%): Gap do mês 1
-- Traço 2 (66.66%): Gap do mês 1 + mês 2
+### Solução
 
----
+Adicionar debug logs para verificar os valores calculados e garantir que:
+1. O mapeamento de mês (inglês → português) seja aplicado ao buscar os dados
+2. Os valores de meta e realizado estejam corretos para cada mês
 
-### Arquivos Modificados
+### Arquivo a Modificar
 
-| Arquivo | Ação |
-|---------|------|
-| `src/components/dashboard/ICMCard.tsx` | Removido botão e lógica de meta acumulada |
-| `src/components/dashboard/FlipICMCard.tsx` | Removidas props de meta acumulada |
-| `src/pages/Index.tsx` | Removido estado e cálculo |
-| `src/lib/kpiUtils.ts` | Removido parâmetro accumulatedGaps |
-| `src/lib/quarterlyKpiUtils.ts` | Adicionada função `calculateMonthlyGapsForBar` |
-| `src/components/dashboard/AnalysisPage.tsx` | Passa `monthlyGaps` para `QuarterlyKPIBar` |
-| `src/components/dashboard/QuarterlyKPIBar.tsx` | Renderiza gaps abaixo dos traços |
+**`src/lib/quarterlyKpiUtils.ts`** - Função `calculateMonthlyGapsForBar`
+
+#### Mudanças:
+
+1. Aplicar mapeamento inglês → português nas chaves de busca
+2. Adicionar console.log temporário para debug dos valores
+
+```typescript
+// Mapeamento de meses (já existe no arquivo, linhas 3-21)
+const MONTH_MAP: Record<string, string> = {
+  "jan": "jan", "feb": "fev", "mar": "mar", "apr": "abr",
+  "may": "mai", "jun": "jun", "jul": "jul", "aug": "ago",
+  "sep": "set", "oct": "out", "nov": "nov", "dec": "dez",
+  // Portuguese already correct
+  "fev": "fev", "abr": "abr", "mai": "mai", "ago": "ago",
+  "set": "set", "out": "out", "dez": "dez",
+};
+
+// Na função getMonthValueFlexible (linha 528-536)
+// O problema é que ela compara apenas key1 e key2 exatos,
+// mas os dados podem vir como "Jan-26" ou "jan/26" ou "fev-26"
+```
+
+#### Correção Principal
+
+A função `getMonthValueFlexible` precisa ser mais robusta para lidar com variações nos dados:
+
+```typescript
+function getMonthValueFlexible(records: ProcessedKPI[], monthName: string, yearSuffix: string): number {
+  return records.reduce((sum, r) => {
+    const monthData = r.monthlyData.find(m => {
+      const sep = m.month.includes("/") ? "/" : "-";
+      const parts = m.month.toLowerCase().split(sep);
+      if (parts.length !== 2) return false;
+      
+      let [mStr, yStr] = parts;
+      // Normalizar mês para português
+      mStr = MONTH_MAP[mStr] || mStr;
+      
+      return mStr === monthName.toLowerCase() && yStr === yearSuffix;
+    });
+    return sum + (monthData?.value || 0);
+  }, 0);
+}
+```
+
+### Verificação com Console Logs
+
+Adicionar logs temporários para debug:
+
+```typescript
+for (let i = 0; i < 3; i++) {
+  const monthName = quarterDef.months[i];
+  // ... cálculos ...
+  
+  console.log(`[GAP DEBUG] ${label} - ${monthName}/${yearSuffix}:`, {
+    target,
+    actual,
+    gap: Math.max(0, target - actual)
+  });
+}
+```
+
+### Resultado Esperado
+
+Para Ativação em Q1:
+- Traço M1 (33.33%): Gap = -6 (meta M1 não batida)
+- Traço M2 (66.66%): Gap = -24 (6 de Jan + 18 de Fev)
+
+Conforme a barra avança:
+- Se barra passar de 33.33%, o gap de M1 some (pois já "passamos" daquele ponto)
+- Se barra passar de 66.66%, o gap de M2 some
