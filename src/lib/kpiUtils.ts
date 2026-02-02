@@ -772,7 +772,13 @@ export function calculateAccumulatedGaps(
 ): Map<string, number> {
   const gaps = new Map<string, number>();
   
+  console.log("=== calculateAccumulatedGaps DEBUG ===");
+  console.log("currentMonth:", currentMonth);
+  console.log("assessor:", assessor);
+  console.log("data length:", data?.length);
+  
   if (!data || data.length === 0 || currentMonth === "all") {
+    console.log("Early return: no data or 'all' month");
     return gaps;
   }
 
@@ -783,13 +789,17 @@ export function calculateAccumulatedGaps(
   const currentMonthIndex = monthNames.indexOf(monthStr);
   const currentYear = parseInt(yearStr) + (parseInt(yearStr) < 100 ? 2000 : 0);
   
+  console.log("Parsed:", { monthStr, yearStr, currentMonthIndex, currentYear });
+  
   if (currentMonthIndex <= 0) {
     // January or invalid - no previous months in the year
+    console.log("Early return: January or invalid month index");
     return gaps;
   }
 
   // Get all available months from data
   const availableMonths = getAvailableMonths(data);
+  console.log("Available months:", availableMonths);
 
   // Filter to previous months in the same year
   const previousMonths = availableMonths.filter(m => {
@@ -800,7 +810,10 @@ export function calculateAccumulatedGaps(
     return mYear === currentYear && mIndex < currentMonthIndex;
   });
 
+  console.log("Previous months in same year:", previousMonths);
+
   if (previousMonths.length === 0) {
+    console.log("Early return: no previous months found");
     return gaps;
   }
 
@@ -861,9 +874,14 @@ export function calculateAccumulatedGaps(
 
     if (totalGap > 0) {
       gaps.set(gapConfig.category, totalGap);
+      console.log(`Gap calculado para ${gapConfig.category}: ${totalGap}`);
     }
   }
 
+  console.log("=== GAPS FINAIS ===");
+  console.log("Gaps calculados:", Object.fromEntries(gaps));
+  console.log("=====================================");
+  
   return gaps;
 }
 
@@ -1145,6 +1163,9 @@ export function processDashboardData(
     // Add accumulated gaps to target if provided
     if (accumulatedGaps) {
       const gap = accumulatedGaps.get(kpi.category) || 0;
+      if (gap > 0) {
+        console.log(`[Meta Acumulada] ${kpi.label}: +${gap} ao target (${target} → ${target + gap})`);
+      }
       target += gap;
     }
 
