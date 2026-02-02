@@ -1,162 +1,115 @@
 
-
-## Plano: Alterações na Análise Trimestral e Controle de Acesso por Token
+## Plano: Reorganização dos Controles do Header
 
 ### Resumo das Mudanças
 
-1. **Cor cinza nos gaps**: Mudar os indicadores de gap acumulado para cor cinza
-2. **Rotação desligada por padrão**: Iniciar com rotação de páginas e flip de cards desativados
-3. **Configuração de acesso por token**: Adicionar sistema para controlar quais telas cada token pode acessar
+1. **Travar botão de IA (flip de cards) para tokens**: Esconder o botão de flip de cards quando acessado via token
+2. **Mover botões para dentro do modal de Config**: Rotação de páginas, Flip de cards, Fullscreen, Desktop/Mobile serão movidos para o modal
+3. **Manter no header apenas**: ScaleSelector (zoom), ThemeToggle (modo escuro), PageToggle (navegação entre telas), e FileUpload
 
 ---
 
-### Parte 1: Gaps em Cor Cinza
+### Parte 1: Modificar Header (Index.tsx)
 
-#### Arquivo: `src/components/dashboard/QuarterlyKPIBar.tsx`
+#### Botões a REMOVER do header (linhas 575-664):
+- Desktop/Mobile View Toggle (`viewMode`)
+- Token Access Config Button (⚙️ Settings)
+- Page Rotation Toggle (Layers)
+- Card Flipping Toggle (RotateCcw)
+- Fullscreen Button (Maximize2/Minimize2)
 
-Alterar a linha 131:
-```typescript
-// De:
-<span className="text-scale-5 lg:text-scale-6 font-semibold text-red-500 whitespace-nowrap">
+#### Botões que PERMANECEM no header:
+- PageToggle (navegação entre telas - necessário para navegar)
+- ScaleSelector (zoom)
+- ThemeToggle (modo escuro/claro)
+- FileUpload (apenas quando não é token)
 
-// Para:
-<span className="text-scale-5 lg:text-scale-6 font-semibold text-gray-500 dark:text-gray-400 whitespace-nowrap">
-```
-
----
-
-### Parte 2: Rotação Desligada por Padrão
-
-#### Arquivo: `src/pages/Index.tsx`
-
-Alterar linhas 114-115:
-```typescript
-// De:
-const [isPageRotationEnabled, setIsPageRotationEnabled] = useState(true);
-const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(true);
-
-// Para:
-const [isPageRotationEnabled, setIsPageRotationEnabled] = useState(false);
-const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(false);
-```
+#### Novo botão Config no header:
+- Botão ⚙️ visível apenas para modo escritório (não token)
+- Abre o modal TokenAccessConfig expandido
 
 ---
 
-### Parte 3: Configuração de Acesso por Token
+### Parte 2: Expandir TokenAccessConfig.tsx
 
-#### 3.1 Migração de Banco de Dados
-
-Adicionar coluna para armazenar telas permitidas por token:
-
-```sql
-ALTER TABLE assessor_tokens 
-ADD COLUMN allowed_screens text[] DEFAULT ARRAY['dashboard', 'analysis', 'prospection', 'sprint', 'tactics']::text[];
-```
-
-Telas disponíveis:
-- `dashboard` - Dashboard principal mensal
-- `analysis` - Análise Trimestral
-- `prospection` - Prospecção
-- `sprint` - Sprint
-- `tactics` - Táticas da Semana
-
-#### 3.2 Novo Componente: `TokenAccessConfig.tsx`
-
-Criar modal de configuração com:
-- Lista de tokens existentes
-- Checkboxes para cada tela por token
-- Botão de salvar
-
-```typescript
-interface TokenAccessConfigProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-// Componente exibe tabela com:
-// | Assessor | Dashboard | Análise | Prospecção | Sprint | Táticas |
-// |----------|-----------|---------|------------|--------|---------|
-// | Hingrid  |    ✓      |    ✓    |     ✓      |   ✗    |    ✓    |
-```
-
-#### 3.3 Botão de Configuração no Header
-
-Apenas visível quando NÃO está em acesso via token (escritório):
-
-```tsx
-{!isTokenLocked && (
-  <Button variant="ghost" size="icon" onClick={() => setIsConfigOpen(true)}>
-    <Settings className="h-4 w-4" />
-  </Button>
-)}
-```
-
-#### 3.4 Validação de Acesso às Telas
-
-No `Index.tsx`, ao validar token, carregar `allowed_screens`:
-
-```typescript
-const { data } = await supabase
-  .from("assessor_tokens")
-  .select("assessor_name, is_active, allowed_screens")
-  .eq("token", tokenToValidate)
-  .maybeSingle();
-
-// Guardar telas permitidas no estado
-setAllowedScreens(data.allowed_screens || ['dashboard']);
-```
-
-Filtrar rotação automática e PageToggle para mostrar apenas telas permitidas.
-
----
-
-### Arquivos a Criar/Modificar
-
-| Arquivo | Ação |
-|---------|------|
-| `src/components/dashboard/QuarterlyKPIBar.tsx` | Mudar cor dos gaps para cinza |
-| `src/pages/Index.tsx` | Desabilitar rotação por padrão, adicionar lógica de telas permitidas |
-| `src/components/dashboard/TokenAccessConfig.tsx` | **NOVO** - Modal de configuração de acesso |
-| `src/components/dashboard/PageToggle.tsx` | Filtrar telas baseado em `allowedScreens` |
-| Migração SQL | Adicionar coluna `allowed_screens` |
-
----
-
-### Fluxo de Uso
-
-1. **Escritório (sem token)**: 
-   - Acesso a todas as telas
-   - Botão de engrenagem (⚙️) no header para configurar acessos dos tokens
-
-2. **Acesso via Token**:
-   - Carrega `allowed_screens` do banco
-   - PageToggle mostra apenas telas permitidas
-   - Rotação automática apenas entre telas permitidas
-   - Sem botão de configuração
-
----
-
-### Interface de Configuração
+#### Adicionar novas seções ao modal:
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
-│ ⚙️ Configurar Acesso dos Assessores                 ✕  │
+│ ⚙️ Configurações do Dashboard                       ✕  │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
+│ ▶ CONTROLES DO DASHBOARD                               │
 │ ┌─────────────────────────────────────────────────────┐ │
-│ │ Assessor         │ 📊 │ 📈 │ 🎯 │ 🏃 │ 📋 │        │ │
-│ ├──────────────────┼────┼────┼────┼────┼────┤        │ │
-│ │ Hingrid Bold     │ ✓  │ ✓  │ ✓  │ ✗  │ ✓  │        │ │
-│ │ José Júlio       │ ✓  │ ✓  │ ✗  │ ✗  │ ✓  │        │ │
-│ │ Marcela Maria    │ ✓  │ ✓  │ ✓  │ ✓  │ ✓  │        │ │
-│ │ Onacilda Barros  │ ✓  │ ✓  │ ✓  │ ✗  │ ✗  │        │ │
-│ │ Rômulo Vicente   │ ✓  │ ✓  │ ✓  │ ✓  │ ✓  │        │ │
+│ │ ☑ Rotação automática de páginas (90s)              │ │
+│ │ ☑ Flip automático de cards (30s)                   │ │
+│ │ ☑ Modo tela cheia                                   │ │
+│ │ ○ Desktop  ● Mobile (visualização)                 │ │
 │ └─────────────────────────────────────────────────────┘ │
 │                                                         │
-│ Legenda: 📊 Dashboard  📈 Análise  🎯 Prospecção        │
-│          🏃 Sprint  📋 Táticas                          │
+│ ▶ ACESSO DOS ASSESSORES                                │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ Assessor         │ 📊 │ 📈 │ 🎯 │ 🏃 │ 📋 │        │ │
+│ │ Hingrid Bold     │ ✓  │ ✓  │ ✓  │ ✗  │ ✓  │        │ │
+│ │ ...                                                │ │
+│ └─────────────────────────────────────────────────────┘ │
 │                                                         │
 │                              [ Cancelar ] [ Salvar ]    │
 └─────────────────────────────────────────────────────────┘
 ```
 
+#### Props necessárias para o componente:
+
+```typescript
+interface TokenAccessConfigProps {
+  isOpen: boolean;
+  onClose: () => void;
+  // Novos props para controles do dashboard
+  isPageRotationEnabled: boolean;
+  onPageRotationChange: (enabled: boolean) => void;
+  isCardFlippingEnabled: boolean;
+  onCardFlippingChange: (enabled: boolean) => void;
+  isFullscreen: boolean;
+  onFullscreenChange: (enabled: boolean) => void;
+  viewMode: 'desktop' | 'mobile';
+  onViewModeChange: (mode: 'desktop' | 'mobile') => void;
+}
+```
+
+---
+
+### Parte 3: Visibilidade por Tipo de Acesso
+
+| Elemento | Escritório | Token |
+|----------|------------|-------|
+| PageToggle | ✓ (todas telas) | ✓ (telas permitidas) |
+| Botão Config (⚙️) | ✓ | ✗ |
+| ScaleSelector | ✓ | ✓ |
+| ThemeToggle | ✓ | ✓ |
+| FileUpload | ✓ | ✗ |
+| Rotação automática | Via modal | Desabilitado |
+| Flip de cards | Via modal | Desabilitado |
+| Fullscreen | Via modal | Desabilitado |
+| Desktop/Mobile toggle | Via modal | Desabilitado |
+
+---
+
+### Arquivos a Modificar
+
+| Arquivo | Alteração |
+|---------|-----------|
+| `src/pages/Index.tsx` | Remover botões do header, passar props para TokenAccessConfig |
+| `src/components/dashboard/TokenAccessConfig.tsx` | Adicionar seção de controles do dashboard |
+
+---
+
+### Resultado Esperado
+
+**Modo Escritório:**
+- Header limpo: PageToggle, ⚙️ Config, Zoom, Tema, Upload
+- Modal Config contém: Controles automáticos + Configuração de acesso dos tokens
+
+**Modo Token (Assessor):**
+- Header mínimo: PageToggle (telas permitidas), Zoom, Tema
+- Sem acesso a configurações, rotação automática ou flip de cards
+- Funcionalidade de IA (verso dos cards) bloqueada pois flip está desabilitado
