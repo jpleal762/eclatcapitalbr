@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       assessor_tokens: {
         Row: {
+          allowed_screens: string[] | null
           assessor_name: string
           created_at: string | null
           id: string
@@ -23,6 +24,7 @@ export type Database = {
           token: string
         }
         Insert: {
+          allowed_screens?: string[] | null
           assessor_name: string
           created_at?: string | null
           id?: string
@@ -30,6 +32,7 @@ export type Database = {
           token: string
         }
         Update: {
+          allowed_screens?: string[] | null
           assessor_name?: string
           created_at?: string | null
           id?: string

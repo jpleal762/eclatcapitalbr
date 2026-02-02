@@ -128,7 +128,7 @@ export function QuarterlyKPIBar({
                   top: 0
                 }}
               >
-                <span className="text-scale-5 lg:text-scale-6 font-semibold text-red-500 whitespace-nowrap">
+                <span className="text-scale-5 lg:text-scale-6 font-semibold text-muted-foreground whitespace-nowrap">
                   {formatGapValue(gap.cumulativeGap, gap.isCurrency)}
                 </span>
               </div>
