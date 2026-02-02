@@ -97,9 +97,22 @@ export function QuarterlyKPIBar({
               ⚠️ PRIORIDADE
             </span>}
         </div>
-        <span className={`font-bold text-scale-6 lg:text-scale-7 ${textColor}`}>
-          {percentage}%
-        </span>
+        <div className="flex items-center gap-1">
+          {/* Top 2 Assessor Gaps - Above bar */}
+          {topAssessorGaps && topAssessorGaps.length > 0 && (
+            <span className="text-muted-foreground/70 text-scale-4 lg:text-scale-5 whitespace-nowrap">
+              {topAssessorGaps.map((g, i) => (
+                <span key={g.name}>
+                  {i > 0 && " · "}
+                  <span className="font-medium">{g.name}</span>: -{formatAssessorGap(g.gap, isCurrency)}
+                </span>
+              ))}
+            </span>
+          )}
+          <span className={`font-bold text-scale-6 lg:text-scale-7 ${textColor}`}>
+            {percentage}%
+          </span>
+        </div>
       </div>
 
       {/* Progress bar - 2x height */}
@@ -160,18 +173,6 @@ export function QuarterlyKPIBar({
           {" / "}
           {formatValue(target, isCurrency)}
         </span>
-        
-        {/* Top 2 Assessor Gaps - Gray */}
-        {topAssessorGaps && topAssessorGaps.length > 0 && (
-          <span className="text-muted-foreground/70 text-scale-4 lg:text-scale-5 whitespace-nowrap">
-            {topAssessorGaps.map((g, i) => (
-              <span key={g.name}>
-                {i > 0 && " · "}
-                <span className="font-medium">{g.name}</span>: -{formatAssessorGap(g.gap, isCurrency)}
-              </span>
-            ))}
-          </span>
-        )}
         
         {/* Rhythm status indicator */}
         {atingiuRitmo ? <span className="text-green-500 font-medium">✓ OK</span> : faltaParaRitmo > 0 ? <span className={`font-medium whitespace-nowrap ${textColor.includes("red") ? "text-red-500" : "text-blue-500"}`}>
