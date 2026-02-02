@@ -816,9 +816,17 @@ export function calculateAccumulatedGaps(
   // Filter to previous months in the same year
   const previousMonths = availableMonths.filter(m => {
     const sep = m.includes("/") ? "/" : "-";
-    const [mStr, yStr] = m.toLowerCase().split(sep);
+    let [mStr, yStr] = m.toLowerCase().split(sep);
+    
+    // Converter inglês para português se necessário
+    mStr = englishToPortuguese[mStr] || mStr;
+    
     const mIndex = monthNames.indexOf(mStr);
     const mYear = parseInt(yStr) + (parseInt(yStr) < 100 ? 2000 : 0);
+    
+    // Ignorar meses não reconhecidos (índice -1)
+    if (mIndex === -1) return false;
+    
     return mYear === currentYear && mIndex < currentMonthIndex;
   });
 
