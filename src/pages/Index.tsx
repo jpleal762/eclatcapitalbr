@@ -338,8 +338,12 @@ const Index = () => {
     if (months.length > 0) {
       const currentMonthValue = getCurrentMonthValue();
       
-      // Busca exata do mês atual nos dados (case-insensitive)
-      const exactMatch = months.find(m => m.toLowerCase() === currentMonthValue.toLowerCase());
+      // Normaliza para comparação (remove separadores e converte para minúsculo)
+      const normalizeMonth = (m: string) => m.toLowerCase().replace(/[\/\-]/g, '');
+      const currentNormalized = normalizeMonth(currentMonthValue);
+      
+      // Busca do mês atual nos dados (case-insensitive e separator-agnostic)
+      const exactMatch = months.find(m => normalizeMonth(m) === currentNormalized);
       
       if (exactMatch) {
         // Se o mês atual existe nos dados, seleciona ele
