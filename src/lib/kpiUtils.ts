@@ -756,6 +756,117 @@ export function calculateAssessorReceitaEmpilhada(
     .sort((a, b) => b.value - a.value);
 }
 
+// ============= ACCUMULATED GAPS CALCULATION =============
+/**
+ * Calculate accumulated gaps from previous months in the same year
+ * Gap = max(0, Planejado Mês - Realizado) for each month
+ * @param data - Processed KPI data
+ * @param currentMonth - Selected month (e.g., "jan/26")
+ * @param assessor - Selected assessor or "all"
+ * @returns Map of category -> accumulated gap value
+ */
+export function calculateAccumulatedGaps(
+  data: ProcessedKPI[],
+  currentMonth: string,
+  assessor: string
+): Map<string, number> {
+  const gaps = new Map<string, number>();
+  
+  if (!data || data.length === 0 || currentMonth === "all") {
+    return gaps;
+  }
+
+  // Parse current month to extract year and month index
+  const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const separator = currentMonth.includes("/") ? "/" : "-";
+  const [monthStr, yearStr] = currentMonth.toLowerCase().split(separator);
+  const currentMonthIndex = monthNames.indexOf(monthStr);
+  const currentYear = parseInt(yearStr) + (parseInt(yearStr) < 100 ? 2000 : 0);
+  
+  if (currentMonthIndex <= 0) {
+    // January or invalid - no previous months in the year
+    return gaps;
+  }
+
+  // Get all available months from data
+  const availableMonths = getAvailableMonths(data);
+
+  // Filter to previous months in the same year
+  const previousMonths = availableMonths.filter(m => {
+    const sep = m.includes("/") ? "/" : "-";
+    const [mStr, yStr] = m.toLowerCase().split(sep);
+    const mIndex = monthNames.indexOf(mStr);
+    const mYear = parseInt(yStr) + (parseInt(yStr) < 100 ? 2000 : 0);
+    return mYear === currentYear && mIndex < currentMonthIndex;
+  });
+
+  if (previousMonths.length === 0) {
+    return gaps;
+  }
+
+  // Filter data by assessor
+  const filteredData = filterByAssessor(data, assessor);
+
+  // Categories to calculate gaps for (aligned with KPI_CATEGORIES)
+  const gapCategories = [
+    { category: "Captação net", targetCategories: undefined },
+    { category: "Receita", targetCategories: ["PJ1 XP Mês", "PJ2 XP Mês"], additionalActualCategory: "Receita Empilhada" },
+    { category: "Primeira reuniao", targetCategories: undefined },
+    { category: "Diversificada ( ROA>1,5)", targetCategories: undefined },
+    { category: "Parceiros Tri", targetCategories: undefined },
+    { category: "PJ1 XP Mês", targetCategories: undefined, actualCategory: "PJ1 XP" },
+    { category: "PJ2 XP Mês", targetCategories: undefined, actualCategory: "PJ2 XP", additionalActualCategory: "Receita Empilhada" },
+    { category: "Habilitacao", targetCategories: undefined },
+    { category: "Ativacao", targetCategories: undefined },
+  ];
+
+  // For each category, calculate accumulated gap
+  for (const gapConfig of gapCategories) {
+    let totalGap = 0;
+
+    for (const prevMonth of previousMonths) {
+      let target = 0;
+      let actual = 0;
+
+      if (gapConfig.targetCategories && gapConfig.targetCategories.length > 0) {
+        // Target from multiple categories (Receita case)
+        target = gapConfig.targetCategories.reduce((sum, cat) => {
+          const catData = filterByCategory(filteredData, cat);
+          const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+          return sum + getMonthValue(plannedData, prevMonth);
+        }, 0);
+      } else {
+        // Target from same category
+        const catData = filterByCategory(filteredData, gapConfig.category);
+        const plannedData = catData.filter(d => isPlannedMonthStatus(d.status));
+        target = getMonthValue(plannedData, prevMonth);
+      }
+
+      // Actual value
+      const actualCat = (gapConfig as any).actualCategory || gapConfig.category;
+      const catData = filterByCategory(filteredData, actualCat);
+      const realizedData = catData.filter(d => isRealizedStatus(d.status));
+      actual = getMonthValue(realizedData, prevMonth);
+
+      // Add additional category if present
+      if ((gapConfig as any).additionalActualCategory) {
+        const additionalData = filterByCategory(filteredData, (gapConfig as any).additionalActualCategory);
+        const additionalRealizedData = additionalData.filter(d => isRealizedStatus(d.status));
+        actual += getMonthValue(additionalRealizedData, prevMonth);
+      }
+
+      // Gap = max(0, target - actual)
+      totalGap += Math.max(0, target - actual);
+    }
+
+    if (totalGap > 0) {
+      gaps.set(gapConfig.category, totalGap);
+    }
+  }
+
+  return gaps;
+}
+
 // ============= ASSESSOR REMAINING CALCULATION =============
 export interface AssessorRemainingData {
   name: string;
@@ -842,7 +953,8 @@ export function calculateAssessorRemainingForKPI(
 export function processDashboardData(
   data: ProcessedKPI[], 
   selectedMonth: string, 
-  selectedAssessor: string = "all"
+  selectedAssessor: string = "all",
+  accumulatedGaps?: Map<string, number>
 ): DashboardData {
   const filteredByAssessor = filterByAssessor(data, selectedAssessor);
   
@@ -1028,6 +1140,12 @@ export function processDashboardData(
       value = selectedMonth !== "all"
         ? getMonthValue(realizedData, selectedMonth)
         : realizedData.reduce((s, d) => s + d.total, 0);
+    }
+
+    // Add accumulated gaps to target if provided
+    if (accumulatedGaps) {
+      const gap = accumulatedGaps.get(kpi.category) || 0;
+      target += gap;
     }
 
     const percentage = target > 0 ? Math.round((value / target) * 100) : 0;
