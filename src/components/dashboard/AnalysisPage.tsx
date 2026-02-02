@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { ProcessedKPI } from "@/types/kpi";
-import { QUARTERS, processQuarterlyDashboardData, getCurrentQuarter, calculateQuarterlyIdealRhythm, calculateMonthlyGapsForBar, MonthlyGapData } from "@/lib/quarterlyKpiUtils";
+import { QUARTERS, processQuarterlyDashboardData, getCurrentQuarter, calculateQuarterlyIdealRhythm, calculateMonthlyGapsForBar, calculateAssessorGapsForKPI, MonthlyGapData, AssessorQuarterlyGap } from "@/lib/quarterlyKpiUtils";
 import { QuarterlyKPIBar } from "./QuarterlyKPIBar";
 import { KPI_CATEGORIES } from "@/lib/kpiUtils";
 import {
@@ -79,12 +79,14 @@ export function AnalysisPage({
     return new Set(withGap);
   }, [quarterlyKPIs, ritmoIdeal]);
 
-  // Calculate monthly gaps for bar visualization
-  const kpisWithMonthlyGaps = useMemo(() => {
+  // Calculate monthly gaps and assessor gaps for bar visualization
+  const kpisWithGaps = useMemo(() => {
     return quarterlyKPIs.map(kpi => {
       const kpiConfig = KPI_CATEGORIES.find(k => k.label === kpi.label);
       
       let monthlyGaps: MonthlyGapData[] = [];
+      let topAssessorGaps: AssessorQuarterlyGap[] = [];
+      
       if (kpiConfig) {
         monthlyGaps = calculateMonthlyGapsForBar(
           processedData,
@@ -94,36 +96,47 @@ export function AnalysisPage({
           kpi.percentage,
           selectedAssessor
         );
+        
+        // Calculate top 2 assessor gaps (only when viewing "all" assessors)
+        if (selectedAssessor === "all") {
+          topAssessorGaps = calculateAssessorGapsForKPI(
+            processedData,
+            selectedYear,
+            selectedQuarter,
+            kpiConfig,
+            ritmoIdeal
+          );
+        }
       }
       
-      return { ...kpi, monthlyGaps };
+      return { ...kpi, monthlyGaps, topAssessorGaps };
     });
-  }, [quarterlyKPIs, processedData, selectedYear, selectedQuarter, selectedAssessor]);
+  }, [quarterlyKPIs, processedData, selectedYear, selectedQuarter, selectedAssessor, ritmoIdeal]);
 
   // Group KPIs by category for "by-category" view mode
   const kpisByCategory = useMemo(() => ({
-    prospeccao: kpisWithMonthlyGaps.filter(kpi => 
+    prospeccao: kpisWithGaps.filter(kpi => 
       (CATEGORY_GROUPS.prospeccao.kpis as readonly string[]).includes(kpi.label)
     ),
-    investimentos: kpisWithMonthlyGaps.filter(kpi => 
+    investimentos: kpisWithGaps.filter(kpi => 
       (CATEGORY_GROUPS.investimentos.kpis as readonly string[]).includes(kpi.label)
     ),
-    receita: kpisWithMonthlyGaps.filter(kpi => 
+    receita: kpisWithGaps.filter(kpi => 
       (CATEGORY_GROUPS.receita.kpis as readonly string[]).includes(kpi.label)
     )
-  }), [kpisWithMonthlyGaps]);
+  }), [kpisWithGaps]);
 
   // Sort KPIs based on selected order
   const sortedKPIs = useMemo(() => {
-    if (viewMode === "default" || viewMode === "by-category") return kpisWithMonthlyGaps;
+    if (viewMode === "default" || viewMode === "by-category") return kpisWithGaps;
     
-    return [...kpisWithMonthlyGaps].sort((a, b) => {
+    return [...kpisWithGaps].sort((a, b) => {
       if (viewMode === "best-to-worst") {
         return b.percentage - a.percentage;
       }
       return a.percentage - b.percentage; // worst-to-best
     });
-  }, [kpisWithMonthlyGaps, viewMode]);
+  }, [kpisWithGaps, viewMode]);
 
   // Check if we have any data
   const hasData = quarterlyKPIs.some(kpi => kpi.target > 0 || kpi.value > 0);
@@ -233,7 +246,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.prospeccao.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} />
               </div>
             ))}
 
@@ -247,7 +260,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.investimentos.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} />
               </div>
             ))}
 
@@ -261,7 +274,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.receita.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} />
               </div>
             ))}
           </div>
@@ -270,7 +283,7 @@ export function AnalysisPage({
           <div className="flex-1 min-h-0 flex flex-col gap-[1px] lg:gap-0.5 overflow-hidden lg:overflow-hidden overflow-y-auto">
             {sortedKPIs.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} />
               </div>
             ))}
           </div>

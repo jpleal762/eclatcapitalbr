@@ -1,10 +1,11 @@
-import { QuarterlyKPI, MonthlyGapData } from "@/lib/quarterlyKpiUtils";
+import { QuarterlyKPI, MonthlyGapData, AssessorQuarterlyGap } from "@/lib/quarterlyKpiUtils";
 
 interface QuarterlyKPIBarProps extends QuarterlyKPI {
   ritmoIdeal: number;
   headName?: string;
   isTopGap?: boolean;
   monthlyGaps?: MonthlyGapData[];
+  topAssessorGaps?: AssessorQuarterlyGap[];
 }
 
 // Format value for display
@@ -50,6 +51,20 @@ function getTextColor(percentage: number, ritmoIdeal: number): string {
   if (percentage >= ritmoIdeal * 0.5) return "text-eclat-gold";
   return "text-red-600 dark:text-red-400";
 }
+// Format gap for assessor display (compact)
+function formatAssessorGap(value: number, isCurrency: boolean): string {
+  if (isCurrency) {
+    if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1).replace(".", ",")}Mi`;
+    }
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(0)}K`;
+    }
+    return value.toLocaleString("pt-BR");
+  }
+  return value.toLocaleString("pt-BR");
+}
+
 export function QuarterlyKPIBar({
   label,
   value,
@@ -59,7 +74,8 @@ export function QuarterlyKPIBar({
   ritmoIdeal,
   headName,
   isTopGap,
-  monthlyGaps
+  monthlyGaps,
+  topAssessorGaps
 }: QuarterlyKPIBarProps) {
   const barWidth = Math.min(percentage, 100);
   const barColor = getBarColor(percentage, ritmoIdeal);
@@ -144,6 +160,18 @@ export function QuarterlyKPIBar({
           {" / "}
           {formatValue(target, isCurrency)}
         </span>
+        
+        {/* Top 2 Assessor Gaps - Gray */}
+        {topAssessorGaps && topAssessorGaps.length > 0 && (
+          <span className="text-muted-foreground/70 text-scale-4 lg:text-scale-5 whitespace-nowrap">
+            {topAssessorGaps.map((g, i) => (
+              <span key={g.name}>
+                {i > 0 && " · "}
+                <span className="font-medium">{g.name}</span>: -{formatAssessorGap(g.gap, isCurrency)}
+              </span>
+            ))}
+          </span>
+        )}
         
         {/* Rhythm status indicator */}
         {atingiuRitmo ? <span className="text-green-500 font-medium">✓ OK</span> : faltaParaRitmo > 0 ? <span className={`font-medium whitespace-nowrap ${textColor.includes("red") ? "text-red-500" : "text-blue-500"}`}>
