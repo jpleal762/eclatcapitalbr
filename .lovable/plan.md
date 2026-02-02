@@ -1,54 +1,162 @@
 
 
-## Remoção: "Maiores Gaps" por Assessor na Tela Trimestral
+## Plano: Alterações na Análise Trimestral e Controle de Acesso por Token
 
-### O que será removido
+### Resumo das Mudanças
 
-A seção que mostra "Maiores Gaps: ASSESSOR_1: -R$ XXK, ASSESSOR_2: -R$ XXK" em cada barra de progresso trimestral.
+1. **Cor cinza nos gaps**: Mudar os indicadores de gap acumulado para cor cinza
+2. **Rotação desligada por padrão**: Iniciar com rotação de páginas e flip de cards desativados
+3. **Configuração de acesso por token**: Adicionar sistema para controlar quais telas cada token pode acessar
 
-### Arquivos a Modificar
+---
 
-#### 1. `src/components/dashboard/QuarterlyKPIBar.tsx`
+### Parte 1: Gaps em Cor Cinza
 
-**Remover prop:**
-- Linha 7: `topAssessorGaps?: AssessorQuarterlyGap[];`
+#### Arquivo: `src/components/dashboard/QuarterlyKPIBar.tsx`
 
-**Remover da desestruturação (linha 63):**
-- `topAssessorGaps`
+Alterar a linha 131:
+```typescript
+// De:
+<span className="text-scale-5 lg:text-scale-6 font-semibold text-red-500 whitespace-nowrap">
 
-**Remover bloco JSX (linhas 150-160):**
-```tsx
-{/* TOP 2 ASSESSOR GAPS - inline, compacto */}
-{topAssessorGaps && topAssessorGaps.length > 0 && <div className="flex items-center gap-0.5">
-    <span className="text-scale-5 text-muted-foreground mr-0.5">Maiores Gaps:</span>
-    {topAssessorGaps.map(a => <span key={a.name} className={`...`}>
-        {a.name}: -{formatValue(a.gap, isCurrency)}
-      </span>)}
-  </div>}
+// Para:
+<span className="text-scale-5 lg:text-scale-6 font-semibold text-gray-500 dark:text-gray-400 whitespace-nowrap">
 ```
 
-#### 2. `src/components/dashboard/AnalysisPage.tsx`
+---
 
-**Remover cálculo de assessor gaps:**
-- Linhas no `kpisWithAssessorGaps` que calculam `topAssessorGaps`
-- Simplificar para apenas calcular `monthlyGaps`
+### Parte 2: Rotação Desligada por Padrão
 
-**Remover passagem de prop:**
-- `topAssessorGaps={kpi.topAssessorGaps}` das chamadas de `QuarterlyKPIBar`
+#### Arquivo: `src/pages/Index.tsx`
 
-#### 3. `src/lib/quarterlyKpiUtils.ts`
+Alterar linhas 114-115:
+```typescript
+// De:
+const [isPageRotationEnabled, setIsPageRotationEnabled] = useState(true);
+const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(true);
 
-**Opcional - limpar código não utilizado:**
-- Remover função `calculateAssessorGapsForKPI` se não for usada em outro lugar
-- Remover export de `AssessorQuarterlyGap` se não for mais necessário
+// Para:
+const [isPageRotationEnabled, setIsPageRotationEnabled] = useState(false);
+const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(false);
+```
 
-### Resultado
+---
 
-As barras trimestrais continuarão exibindo:
-- Label e percentual
-- Barra de progresso com traços de mês e marcador de ritmo ideal
-- Gaps acumulados abaixo dos traços de mês (nova funcionalidade)
-- Valores realizados/meta, status de ritmo e "Falta"
+### Parte 3: Configuração de Acesso por Token
 
-**Removido:** Os badges "Maiores Gaps: ASSESSOR: -R$ XXK" não aparecerão mais.
+#### 3.1 Migração de Banco de Dados
+
+Adicionar coluna para armazenar telas permitidas por token:
+
+```sql
+ALTER TABLE assessor_tokens 
+ADD COLUMN allowed_screens text[] DEFAULT ARRAY['dashboard', 'analysis', 'prospection', 'sprint', 'tactics']::text[];
+```
+
+Telas disponíveis:
+- `dashboard` - Dashboard principal mensal
+- `analysis` - Análise Trimestral
+- `prospection` - Prospecção
+- `sprint` - Sprint
+- `tactics` - Táticas da Semana
+
+#### 3.2 Novo Componente: `TokenAccessConfig.tsx`
+
+Criar modal de configuração com:
+- Lista de tokens existentes
+- Checkboxes para cada tela por token
+- Botão de salvar
+
+```typescript
+interface TokenAccessConfigProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+// Componente exibe tabela com:
+// | Assessor | Dashboard | Análise | Prospecção | Sprint | Táticas |
+// |----------|-----------|---------|------------|--------|---------|
+// | Hingrid  |    ✓      |    ✓    |     ✓      |   ✗    |    ✓    |
+```
+
+#### 3.3 Botão de Configuração no Header
+
+Apenas visível quando NÃO está em acesso via token (escritório):
+
+```tsx
+{!isTokenLocked && (
+  <Button variant="ghost" size="icon" onClick={() => setIsConfigOpen(true)}>
+    <Settings className="h-4 w-4" />
+  </Button>
+)}
+```
+
+#### 3.4 Validação de Acesso às Telas
+
+No `Index.tsx`, ao validar token, carregar `allowed_screens`:
+
+```typescript
+const { data } = await supabase
+  .from("assessor_tokens")
+  .select("assessor_name, is_active, allowed_screens")
+  .eq("token", tokenToValidate)
+  .maybeSingle();
+
+// Guardar telas permitidas no estado
+setAllowedScreens(data.allowed_screens || ['dashboard']);
+```
+
+Filtrar rotação automática e PageToggle para mostrar apenas telas permitidas.
+
+---
+
+### Arquivos a Criar/Modificar
+
+| Arquivo | Ação |
+|---------|------|
+| `src/components/dashboard/QuarterlyKPIBar.tsx` | Mudar cor dos gaps para cinza |
+| `src/pages/Index.tsx` | Desabilitar rotação por padrão, adicionar lógica de telas permitidas |
+| `src/components/dashboard/TokenAccessConfig.tsx` | **NOVO** - Modal de configuração de acesso |
+| `src/components/dashboard/PageToggle.tsx` | Filtrar telas baseado em `allowedScreens` |
+| Migração SQL | Adicionar coluna `allowed_screens` |
+
+---
+
+### Fluxo de Uso
+
+1. **Escritório (sem token)**: 
+   - Acesso a todas as telas
+   - Botão de engrenagem (⚙️) no header para configurar acessos dos tokens
+
+2. **Acesso via Token**:
+   - Carrega `allowed_screens` do banco
+   - PageToggle mostra apenas telas permitidas
+   - Rotação automática apenas entre telas permitidas
+   - Sem botão de configuração
+
+---
+
+### Interface de Configuração
+
+```text
+┌─────────────────────────────────────────────────────────┐
+│ ⚙️ Configurar Acesso dos Assessores                 ✕  │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ Assessor         │ 📊 │ 📈 │ 🎯 │ 🏃 │ 📋 │        │ │
+│ ├──────────────────┼────┼────┼────┼────┼────┤        │ │
+│ │ Hingrid Bold     │ ✓  │ ✓  │ ✓  │ ✗  │ ✓  │        │ │
+│ │ José Júlio       │ ✓  │ ✓  │ ✗  │ ✗  │ ✓  │        │ │
+│ │ Marcela Maria    │ ✓  │ ✓  │ ✓  │ ✓  │ ✓  │        │ │
+│ │ Onacilda Barros  │ ✓  │ ✓  │ ✓  │ ✗  │ ✗  │        │ │
+│ │ Rômulo Vicente   │ ✓  │ ✓  │ ✓  │ ✓  │ ✓  │        │ │
+│ └─────────────────────────────────────────────────────┘ │
+│                                                         │
+│ Legenda: 📊 Dashboard  📈 Análise  🎯 Prospecção        │
+│          🏃 Sprint  📋 Táticas                          │
+│                                                         │
+│                              [ Cancelar ] [ Salvar ]    │
+└─────────────────────────────────────────────────────────┘
+```
 
