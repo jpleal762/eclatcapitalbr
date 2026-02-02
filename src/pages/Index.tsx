@@ -43,7 +43,7 @@ import {
 } from "@/lib/sprintStorage";
 import { SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Maximize2, Minimize2, Layers, RotateCcw, Smartphone, Monitor } from "lucide-react";
+import { Menu, Maximize2, Minimize2, Layers, RotateCcw, Smartphone, Monitor, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
@@ -61,6 +61,7 @@ import { SprintPage } from "@/components/dashboard/SprintPage";
 import { ProspectionQualityPage } from "@/components/dashboard/ProspectionQualityPage";
 import { TacticsWeekPage } from "@/components/dashboard/TacticsWeekPage";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { TokenAccessConfig } from "@/components/dashboard/TokenAccessConfig";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 const SPRINT_PRODUCTS_STORAGE_KEY = "sprint-selected-products";
@@ -111,8 +112,10 @@ const Index = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentPage, setCurrentPage] = useState<PageType>("dashboard");
   const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
-  const [isPageRotationEnabled, setIsPageRotationEnabled] = useState(true);
-  const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(true);
+  const [isPageRotationEnabled, setIsPageRotationEnabled] = useState(false);
+  const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(false);
+  const [allowedScreens, setAllowedScreens] = useState<PageType[]>(['dashboard', 'analysis', 'prospection', 'sprint', 'tactics']);
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   
   // Sprint product selection state with localStorage persistence
@@ -160,7 +163,7 @@ const Index = () => {
       try {
         const { data, error } = await supabase
           .from("assessor_tokens")
-          .select("assessor_name, is_active")
+          .select("assessor_name, is_active, allowed_screens")
           .eq("token", tokenToValidate)
           .maybeSingle();
 
@@ -200,6 +203,14 @@ const Index = () => {
         setFilters(prev => ({ ...prev, assessor: data.assessor_name }));
         setIsTokenLocked(true);
         setTokenValidated(true);
+        
+        // Configura telas permitidas
+        const screens = (data.allowed_screens as PageType[]) || ['dashboard', 'analysis', 'prospection', 'sprint', 'tactics'];
+        setAllowedScreens(screens);
+        // Se a página atual não é permitida, muda para a primeira permitida
+        if (!screens.includes(currentPage)) {
+          setCurrentPage(screens[0] || 'dashboard');
+        }
       } catch (err) {
         console.error("Erro inesperado:", err);
         // Se era token salvo e falhou, limpa do localStorage
@@ -430,11 +441,16 @@ const Index = () => {
 
   const hasData = rawData.length > 0;
 
-  // Auto-rotate between dashboard, analysis, sprint, and prospection pages every 90 seconds
+  // Auto-rotate between allowed pages every 90 seconds
   useEffect(() => {
     if (!hasData || !isPageRotationEnabled) return;
     
-    const pageOrder: PageType[] = ["dashboard", "analysis", "prospection"];
+    // Filter rotation pages based on allowed screens
+    const rotationPages: PageType[] = ["dashboard", "analysis", "prospection"];
+    const pageOrder = rotationPages.filter(page => allowedScreens.includes(page));
+    
+    if (pageOrder.length <= 1) return; // No rotation if only one page allowed
+    
     const interval = setInterval(() => {
       setCurrentPage(prev => {
         const currentIndex = pageOrder.indexOf(prev);
@@ -444,7 +460,7 @@ const Index = () => {
     }, 90000); // 1 minuto e 30 segundos
     
     return () => clearInterval(interval);
-  }, [hasData, isPageRotationEnabled]);
+  }, [hasData, isPageRotationEnabled, allowedScreens]);
 
   // Global flip state - toggles every 30 seconds to sync all flip cards
   useEffect(() => {
@@ -580,8 +596,29 @@ const Index = () => {
                   {hasData && (
                     <PageToggle 
                       currentPage={currentPage} 
-                      onPageChange={setCurrentPage} 
+                      onPageChange={setCurrentPage}
+                      allowedScreens={allowedScreens}
                     />
+                  )}
+                  {/* Token Access Config Button - only visible when not in token mode */}
+                  {hasData && !isTokenLocked && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setIsConfigOpen(true)}
+                            className="h-8 w-8"
+                          >
+                            <Settings className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Configurar Acesso dos Assessores
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   )}
                   {/* Page Rotation Toggle Button */}
                   {hasData && (
@@ -1013,6 +1050,12 @@ const Index = () => {
         <PWAInstallPrompt 
           assessorName={isTokenLocked ? selectedView : null} 
           enabled={!searchParams.get("token") || tokenValidated}
+        />
+        
+        {/* Token Access Configuration Modal */}
+        <TokenAccessConfig 
+          isOpen={isConfigOpen} 
+          onClose={() => setIsConfigOpen(false)} 
         />
       </div>
     </SidebarProvider>

@@ -7,38 +7,49 @@ export type PageType = "dashboard" | "analysis" | "sprint" | "prospection" | "ta
 interface PageToggleProps {
   currentPage: PageType;
   onPageChange: (page: PageType) => void;
+  allowedScreens?: PageType[];
 }
 
-const pageOrder: PageType[] = ["dashboard", "analysis", "sprint", "prospection", "tactics"];
+const defaultPageOrder: PageType[] = ["dashboard", "analysis", "sprint", "prospection", "tactics"];
 
-const pageConfig: Record<PageType, { icon: React.ReactNode; nextTooltip: string }> = {
+const pageConfig: Record<PageType, { icon: React.ReactNode; label: string }> = {
   dashboard: {
     icon: <LayoutGrid className="h-4 w-4" />,
-    nextTooltip: "Ir para Análises",
+    label: "Dashboard",
   },
   analysis: {
     icon: <TrendingUp className="h-4 w-4" />,
-    nextTooltip: "Ir para Sprint",
+    label: "Análises",
   },
   sprint: {
     icon: <Target className="h-4 w-4" />,
-    nextTooltip: "Ir para Prospecção",
+    label: "Sprint",
   },
   prospection: {
     icon: <Users className="h-4 w-4" />,
-    nextTooltip: "Ir para Táticas",
+    label: "Prospecção",
   },
   tactics: {
     icon: <Lightbulb className="h-4 w-4" />,
-    nextTooltip: "Voltar ao Dashboard",
+    label: "Táticas",
   },
 };
 
-export function PageToggle({ currentPage, onPageChange }: PageToggleProps) {
+export function PageToggle({ currentPage, onPageChange, allowedScreens }: PageToggleProps) {
+  // Filter page order based on allowed screens
+  const pageOrder = allowedScreens 
+    ? defaultPageOrder.filter(page => allowedScreens.includes(page))
+    : defaultPageOrder;
+
+  // If only one page is allowed, don't show the toggle
+  if (pageOrder.length <= 1) {
+    return null;
+  }
+
   const currentIndex = pageOrder.indexOf(currentPage);
   const nextIndex = (currentIndex + 1) % pageOrder.length;
   const nextPage = pageOrder[nextIndex];
-  const config = pageConfig[nextPage];
+  const nextConfig = pageConfig[nextPage];
 
   return (
     <Tooltip>
@@ -49,11 +60,11 @@ export function PageToggle({ currentPage, onPageChange }: PageToggleProps) {
           onClick={() => onPageChange(nextPage)}
           className="h-8 w-8"
         >
-          {config.icon}
+          {nextConfig.icon}
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        {pageConfig[currentPage].nextTooltip}
+        Ir para {nextConfig.label}
       </TooltipContent>
     </Tooltip>
   );
