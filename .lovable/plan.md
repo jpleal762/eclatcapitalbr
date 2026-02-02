@@ -1,161 +1,163 @@
 
 
-## Plano: Tela "Tática da Semana"
+## Plano: Botão "Meta Acumulada" com Gaps de Meses Anteriores
 
 ### Objetivo
-Criar uma nova página que exibe 3 táticas semanais por assessor, com visual amigável, fácil leitura e integração com os dados de KPI existentes.
+Criar um botão no dashboard que, ao ser ativado, recalcula todas as metas adicionando os gaps (falta para bater meta) dos meses anteriores do ano atual.
 
 ---
 
-### Design Visual (Sugestões)
+### Lógica de Cálculo
 
-**Opção Recomendada: Cards por Assessor**
+**Fórmula:**
+```
+Nova Meta = Meta do Mês Atual + Σ(Gaps dos Meses Anteriores do Ano)
+```
+
+**Onde:**
+```
+Gap de um mês = max(0, Planejado Mês - Realizado)
+```
+
+**Exemplo:**
+- Meta de Janeiro: 10 (realizado: 8) → Gap: 2
+- Meta de Fevereiro: 12 (realizado: 15) → Gap: 0 (bateu meta)
+- Meta de Março (atual): 12
+- **Nova Meta de Março:** 12 + 2 + 0 = 14
+
+---
+
+### Arquivos a Modificar
+
+#### 1. **`src/lib/kpiUtils.ts`**
+Nova função para calcular gaps acumulados:
+
+```typescript
+export function calculateAccumulatedGaps(
+  data: ProcessedKPI[],
+  currentMonth: string,
+  assessor: string
+): Map<string, number>
+```
+
+- Retorna um Map com categoria → valor do gap acumulado
+- Considera apenas meses anteriores ao mês selecionado, no mesmo ano
+- Aplica a mesma lógica de categorias especiais (Receita XP = PJ1 + PJ2)
+
+#### 2. **`src/lib/kpiUtils.ts`** - Modificar `processDashboardData`
+Adicionar parâmetro opcional `accumulatedGaps`:
+
+```typescript
+export function processDashboardData(
+  data: ProcessedKPI[], 
+  selectedMonth: string, 
+  selectedAssessor: string = "all",
+  accumulatedGaps?: Map<string, number>  // NOVO
+): DashboardData
+```
+
+- Quando `accumulatedGaps` é fornecido, adiciona o gap ao target de cada KPI
+
+#### 3. **`src/pages/Index.tsx`**
+- Adicionar estado: `isAccumulatedMode: boolean`
+- Calcular gaps acumulados via `useMemo`
+- Passar gaps para `processDashboardData` quando modo ativo
+- Propagar estado para componentes filhos
+
+#### 4. **`src/components/dashboard/ICMCard.tsx`**
+Adicionar botão toggle ao lado dos filtros:
+
+| Visual |
+|--------|
+| `[📊]` Botão com ícone que alterna entre ativo/inativo |
+| Tooltip: "Meta Acumulada (inclui gaps de meses anteriores)" |
+| Quando ativo: cor primária destacada |
+
+---
+
+### Detalhes Técnicos
+
+**Novo estado em Index.tsx:**
+```typescript
+const [isAccumulatedMode, setIsAccumulatedMode] = useState(false);
+```
+
+**Cálculo dos gaps:**
+```typescript
+const accumulatedGaps = useMemo(() => {
+  if (!isAccumulatedMode) return undefined;
+  return calculateAccumulatedGaps(processedData, filters.month, filters.assessor);
+}, [isAccumulatedMode, processedData, filters.month, filters.assessor]);
+```
+
+**Dashboard data com gaps:**
+```typescript
+const dashboardData = useMemo(
+  () => processDashboardData(processedData, filters.month, filters.assessor, accumulatedGaps),
+  [processedData, filters.month, filters.assessor, accumulatedGaps]
+);
+```
+
+---
+
+### Componentes Afetados
+
+Quando o modo acumulado estiver ativo, todas essas métricas serão recalculadas:
+
+| Componente | Impacto |
+|------------|---------|
+| GaugeChart (todos os 9) | Nova meta → novo percentual |
+| FlipICMCard | ICM Geral recalculado |
+| MetaTable | Valores de meta atualizados |
+| AssessorChart | Rankings recalculados |
+| FlipGaugeChart | "Falta por Assessor" atualizado |
+
+---
+
+### Props a Adicionar
+
+**ICMCard / FlipICMCard:**
+```typescript
+isAccumulatedMode: boolean;
+onAccumulatedModeChange: (value: boolean) => void;
+```
+
+---
+
+### Visual do Botão
 
 ```text
-+------------------------------------------------------------------+
-| TÁTICA DA SEMANA                     [Assessor ▾] [Mês ▾]        |
-+------------------------------------------------------------------+
-|                                                                  |
-| ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────┐|
-| │  🔵 BRUNO           │  │  🟢 CAROLINA        │  │  🟡 ANA     │|
-| │  ─────────────────  │  │  ─────────────────  │  │  ─────────  │|
-| │  1. Ligar para 5    │  │  1. Blitz de 20     │  │  1. Follow  │|
-| │     clientes com    │  │     ligações        │  │     up nas  │|
-| │     CDB vencendo    │  │     (10h-12h)       │  │     propost │|
-| │  ○ Captação NET     │  │  ○ Reuniões         │  │  ○ Receita  │|
-| │                     │  │                     │  │             │|
-| │  2. Propor FIIs     │  │  2. Pedir 2         │  │  2. Revisar │|
-| │     para 3 clientes │  │     indicações      │  │     3 carte │|
-| │  ○ Diversificação   │  │  ○ Prospecção       │  │  ○ ROA      │|
-| │                     │  │                     │  │             │|
-| │  3. Champion Letter │  │  3. Recontatar      │  │  3. Ligar   │|
-| │     em aportes      │  │     leads frios     │  │     PJ1 XP  │|
-| │  ○ NNM              │  │  ○ Pipeline         │  │  ○ PJ       │|
-| └─────────────────────┘  └─────────────────────┘  └─────────────┘|
-|                                                                  |
-+------------------------------------------------------------------+
+┌─────────────────────────────────────────────────────────┐
+│ ICM Geral          [Assessor ▾] [Mês ▾] [📊 Acum.]     │
+└─────────────────────────────────────────────────────────┘
 ```
 
-**Características do Design:**
-
-1. **Avatar/Inicial colorida** - Identificação rápida do assessor
-2. **Texto conciso** - Máximo 2 linhas por tática
-3. **Badge de categoria** - Indica qual KPI a tática impacta
-4. **Cores de status** - Verde (feito), Amarelo (em andamento), Cinza (pendente)
-5. **Responsivo** - 3 colunas no desktop, 1 coluna no mobile
+- Ícone sugerido: `TrendingUp` ou `Layers` (lucide-react)
+- Estado ativo: fundo primário, ícone branco
+- Estado inativo: fundo muted, ícone cinza
+- Tooltip explicativo
 
 ---
 
-### Arquivos a Criar/Modificar
+### Indicador Visual de Modo Ativo
 
-#### 1. **Criar** `src/components/dashboard/TacticsWeekPage.tsx`
+Quando o modo acumulado estiver ativo, adicionar badge visível:
 
-Componente principal da página com:
-- Grid de cards de assessores
-- 3 táticas por assessor
-- Filtro de assessor e mês
-- Modo de exibição: todos ou individual
-
-#### 2. **Criar** `src/components/dashboard/AssessorTacticsCard.tsx`
-
-Card individual de assessor com:
-- Cabeçalho com avatar/nome
-- Lista de 3 táticas
-- Badge de categoria KPI
-- Checkbox de status (opcional)
-
-#### 3. **Modificar** `src/components/dashboard/PageToggle.tsx`
-
-Adicionar navegação para a nova página:
-- Novo tipo: `"tactics"`
-- Ícone sugerido: `Lightbulb` ou `ClipboardList`
-- Tooltip: "Tática da Semana"
-
-#### 4. **Modificar** `src/pages/Index.tsx`
-
-- Importar `TacticsWeekPage`
-- Adicionar ao render condicional
-- **Opcional:** Adicionar ao giro automático
-
-#### 5. **Modificar** `src/types/kpi.ts`
-
-Adicionar tipos para táticas:
-
-```tsx
-export interface WeeklyTactic {
-  id: string;
-  text: string;
-  category: string;       // KPI relacionado
-  status: "pending" | "in_progress" | "done";
-}
-
-export interface AssessorTactics {
-  assessorName: string;
-  tactics: WeeklyTactic[];
-}
+```text
+┌──────────────────────────────────────────────────────────┐
+│ ICM Geral  ⚡ META ACUMULADA    [Assessor ▾] [Mês ▾]    │
+└──────────────────────────────────────────────────────────┘
 ```
 
----
-
-### Fonte dos Dados (Opções)
-
-**Opção A: Táticas pré-definidas do Playbook (Recomendada inicialmente)**
-- Usa o `KPI_PLAYBOOK` já existente
-- Rotaciona táticas por assessor baseado nos gaps de KPI
-- Sem necessidade de entrada manual
-
-**Opção B: Geração via IA**
-- Chama edge function que analisa gaps individuais
-- Gera 3 táticas personalizadas por assessor
-- Mais dinâmico, mas requer API calls
-
-**Opção C: Entrada manual**
-- Interface para gestor inserir táticas
-- Salvamento no Lovable Cloud (banco de dados)
-- Maior controle, mas requer manutenção
-
----
-
-### Detalhes de Implementação
-
-**Cores dos avatares:**
-```tsx
-const AVATAR_COLORS = [
-  "bg-blue-500",    // Bruno
-  "bg-green-500",   // Carolina
-  "bg-amber-500",   // Ana
-  "bg-purple-500",  // Paulo
-  "bg-rose-500",    // Maria
-];
-```
-
-**Badges de categoria:**
-```tsx
-const CATEGORY_BADGES = {
-  "Captação NET": { bg: "bg-emerald-500/10", text: "text-emerald-600" },
-  "Receita": { bg: "bg-blue-500/10", text: "text-blue-600" },
-  "Reuniões": { bg: "bg-amber-500/10", text: "text-amber-600" },
-  "Diversificação": { bg: "bg-purple-500/10", text: "text-purple-600" },
-};
-```
-
----
-
-### Layout Responsivo
-
-| Tela | Colunas | Comportamento |
-|------|---------|---------------|
-| Desktop/TV (lg+) | 3-4 colunas | Grid fixo, sem scroll |
-| Tablet (md) | 2 colunas | Grid com scroll vertical |
-| Mobile | 1 coluna | Cards empilhados |
+Badge amarelo/laranja indicando que as metas estão ajustadas.
 
 ---
 
 ### Resultado Esperado
 
-- Visual limpo e escaneável (ideal para TV)
-- Cada assessor vê suas 3 prioridades da semana
-- Gestor visualiza todas as táticas do time de uma vez
-- Fácil identificação de qual KPI cada tática impacta
-- Possibilidade futura de marcar como concluído
+1. Botão toggle discreto mas acessível
+2. Ao ativar, todas as metas são recalculadas instantaneamente
+3. Percentuais, "quanto falta", e rankings refletem a nova meta
+4. Ao desativar, volta ao comportamento normal
+5. Estado persistido na sessão (não em localStorage)
 
