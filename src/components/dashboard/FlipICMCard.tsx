@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { ICMCard } from "./ICMCard";
+import { ReportButton } from "./ReportButton";
 import { DashboardData } from "@/types/kpi";
 import { RotateCcw, RefreshCw, CheckCircle, AlertTriangle, Sparkles, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -187,8 +188,16 @@ export function FlipICMCard({
               isLocked={isLocked}
               historicalData={historicalData}
             />
-            <div className="absolute top-2 right-2 p-1 rounded-full bg-muted/50 opacity-50 hover:opacity-100 transition-opacity z-10">
-              <RotateCcw className="w-3 h-3 text-muted-foreground" />
+            <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
+              <ReportButton
+                dashboardData={dashboardData}
+                selectedAssessor={selectedAssessor}
+                selectedMonth={selectedMonth}
+                disabled={!dashboardData.gaugeKPIs?.length}
+              />
+              <div className="p-1 rounded-full bg-muted/50 opacity-50 hover:opacity-100 transition-opacity">
+                <RotateCcw className="w-3 h-3 text-muted-foreground" />
+              </div>
             </div>
           </div>
         </div>
