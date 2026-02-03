@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { DashboardData } from "@/types/kpi";
+import eclatLogoDark from "@/assets/eclat-xp-logo-dark.png";
 
 // ============= DARK THEME COLORS =============
 const COLORS = {
@@ -63,37 +64,36 @@ export const generateWeeklyReport = (
   // ===== PAGE 1 - DARK BACKGROUND =====
   drawDarkBackground(doc);
 
+  // ===== LOGO =====
+  doc.addImage(eclatLogoDark, "PNG", 14, 8, 40, 10);
+
   // ===== CABEÇALHO =====
   doc.setTextColor(...COLORS.gold);
-  doc.setFontSize(18);
+  doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text("RELATÓRIO SEMANAL DE KPIs", 14, 20);
+  doc.text("RELATÓRIO SEMANAL DE KPIs", 60, 14);
   
   doc.setTextColor(...COLORS.text);
-  doc.setFontSize(12);
+  doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(`Visão: ${visao}`, 14, 30);
-  doc.text(`Período: ${selectedMonth.toUpperCase()}`, 14, 37);
-  doc.text(`Data de Geração: ${new Date().toLocaleString("pt-BR")}`, 14, 44);
+  doc.text(`Visão: ${visao}  |  Período: ${selectedMonth.toUpperCase()}  |  Gerado: ${new Date().toLocaleDateString("pt-BR")}`, 60, 20);
 
   // ===== INDICADORES GERAIS =====
-  doc.setTextColor(...COLORS.gold);
-  doc.setFontSize(14);
+  doc.setTextColor(...COLORS.text);
+  doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.text("INDICADORES GERAIS", 14, 58);
+  doc.text("INDICADORES GERAIS", 14, 32);
   
   // ICM Geral - highlight in red if below ritmo
   const icmColor = dashboardData.icmGeral < ritmoIdeal ? COLORS.red : COLORS.text;
   doc.setTextColor(...icmColor);
-  doc.setFontSize(11);
+  doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  doc.text(`ICM Geral: ${formatPercentage(dashboardData.icmGeral)}`, 14, 66);
+  doc.text(`ICM Geral: ${formatPercentage(dashboardData.icmGeral)}`, 14, 38);
   
   doc.setTextColor(...COLORS.text);
-  doc.text(`Ritmo Ideal: ${formatPercentage(ritmoIdeal)}`, 80, 66);
-  doc.text(`Dias Úteis Restantes: ${dashboardData.diasUteisRestantes}`, 140, 66);
-  doc.text(`Total Dias Úteis: ${dashboardData.totalDiasUteis}`, 14, 73);
-  doc.text(`Dias Decorridos: ${dashboardData.diasUteisDecorridos}`, 80, 73);
+  doc.text(`Ritmo Ideal: ${formatPercentage(ritmoIdeal)}`, 60, 38);
+  doc.text(`Dias Úteis: ${dashboardData.diasUteisDecorridos}/${dashboardData.totalDiasUteis} (${dashboardData.diasUteisRestantes} restantes)`, 110, 38);
 
   // ===== TABELA: PLANEJAMENTO SEMANAL =====
   const semanalRows = dashboardData.metaSemanal.map((kpi) => {
@@ -112,25 +112,25 @@ export const generateWeeklyReport = (
     ];
   });
 
-  doc.setTextColor(...COLORS.gold);
-  doc.setFontSize(12);
+  doc.setTextColor(...COLORS.text);
+  doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.text("PLANEJAMENTO SEMANAL ACUMULADO", 14, 87);
+  doc.text("PLANEJAMENTO SEMANAL ACUMULADO", 14, 48);
 
   autoTable(doc, {
-    startY: 92,
+    startY: 51,
     head: [["KPI", "Meta Semanal", "Realizado", "% Atingido", "Falta"]],
-    body: semanalRows.map(row => row.slice(0, 5)), // exclude hidden percentage column
+    body: semanalRows.map(row => row.slice(0, 5)),
     theme: "plain",
     headStyles: { 
       fillColor: COLORS.gold,
       textColor: COLORS.goldDark,
       fontStyle: "bold",
-      fontSize: 9,
+      fontSize: 8,
     },
     styles: { 
-      fontSize: 9,
-      cellPadding: 3,
+      fontSize: 8,
+      cellPadding: 2,
     },
     bodyStyles: {
       fillColor: COLORS.cardBg,
@@ -140,11 +140,11 @@ export const generateWeeklyReport = (
       fillColor: COLORS.alternateBg,
     },
     columnStyles: {
-      0: { cellWidth: 50 },
-      1: { cellWidth: 35, halign: "right" },
-      2: { cellWidth: 35, halign: "right" },
-      3: { cellWidth: 25, halign: "center" },
-      4: { cellWidth: 35, halign: "right" },
+      0: { cellWidth: 45 },
+      1: { cellWidth: 32, halign: "right" },
+      2: { cellWidth: 32, halign: "right" },
+      3: { cellWidth: 22, halign: "center" },
+      4: { cellWidth: 32, halign: "right" },
     },
     didParseCell: (data) => {
       if (data.section === 'body') {
@@ -171,27 +171,27 @@ export const generateWeeklyReport = (
     ];
   });
 
-  const finalY = (doc as any).lastAutoTable?.finalY || 130;
+  const finalY = (doc as any).lastAutoTable?.finalY || 90;
 
-  doc.setTextColor(...COLORS.gold);
-  doc.setFontSize(12);
+  doc.setTextColor(...COLORS.text);
+  doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.text("METAS MENSAIS (KPIs)", 14, finalY + 15);
+  doc.text("METAS MENSAIS (KPIs)", 14, finalY + 8);
 
   autoTable(doc, {
-    startY: finalY + 20,
+    startY: finalY + 11,
     head: [["KPI", "Meta Mensal", "Realizado", "% Atingido", "Status"]],
-    body: mensalRows.map(row => row.slice(0, 5)), // exclude hidden percentage column
+    body: mensalRows.map(row => row.slice(0, 5)),
     theme: "plain",
     headStyles: { 
       fillColor: COLORS.gold,
       textColor: COLORS.goldDark,
       fontStyle: "bold",
-      fontSize: 9,
+      fontSize: 8,
     },
     styles: { 
-      fontSize: 9,
-      cellPadding: 3,
+      fontSize: 8,
+      cellPadding: 2,
     },
     bodyStyles: {
       fillColor: COLORS.cardBg,
@@ -201,11 +201,11 @@ export const generateWeeklyReport = (
       fillColor: COLORS.alternateBg,
     },
     columnStyles: {
-      0: { cellWidth: 50 },
-      1: { cellWidth: 35, halign: "right" },
-      2: { cellWidth: 35, halign: "right" },
-      3: { cellWidth: 25, halign: "center" },
-      4: { cellWidth: 35 },
+      0: { cellWidth: 45 },
+      1: { cellWidth: 32, halign: "right" },
+      2: { cellWidth: 32, halign: "right" },
+      3: { cellWidth: 22, halign: "center" },
+      4: { cellWidth: 32 },
     },
     didParseCell: (data) => {
       if (data.section === 'body') {
@@ -227,89 +227,45 @@ export const generateWeeklyReport = (
       a.geralPercentage, // hidden for conditional formatting
     ]);
 
-    const finalY2 = (doc as any).lastAutoTable?.finalY || 200;
+    const finalY2 = (doc as any).lastAutoTable?.finalY || 180;
 
-    // Check if we need a new page
-    if (finalY2 + 50 > doc.internal.pageSize.height) {
-      doc.addPage();
-      drawDarkBackground(doc);
-      
-      doc.setTextColor(...COLORS.gold);
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.text("PERFORMANCE POR ASSESSOR", 14, 20);
+    doc.setTextColor(...COLORS.text);
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("PERFORMANCE POR ASSESSOR", 14, finalY2 + 8);
 
-      autoTable(doc, {
-        startY: 25,
-        head: [["Assessor", "ICM Geral %", "ICM Semanal %"]],
-        body: assessorRows.map(row => row.slice(0, 3)),
-        theme: "plain",
-        headStyles: { 
-          fillColor: COLORS.gold,
-          textColor: COLORS.goldDark,
-          fontStyle: "bold",
-          fontSize: 9,
-        },
-        styles: { 
-          fontSize: 9,
-          cellPadding: 3,
-        },
-        bodyStyles: {
-          fillColor: COLORS.cardBg,
-          textColor: COLORS.text,
-        },
-        alternateRowStyles: {
-          fillColor: COLORS.alternateBg,
-        },
-        didParseCell: (data) => {
-          if (data.section === 'body') {
-            const rowIndex = data.row.index;
-            const percentage = assessorRows[rowIndex]?.[3] as number;
-            if (percentage < ritmoIdeal) {
-              data.cell.styles.textColor = COLORS.red;
-            }
+    autoTable(doc, {
+      startY: finalY2 + 11,
+      head: [["Assessor", "ICM Geral %", "ICM Semanal %"]],
+      body: assessorRows.map(row => row.slice(0, 3)),
+      theme: "plain",
+      headStyles: { 
+        fillColor: COLORS.gold,
+        textColor: COLORS.goldDark,
+        fontStyle: "bold",
+        fontSize: 8,
+      },
+      styles: { 
+        fontSize: 8,
+        cellPadding: 2,
+      },
+      bodyStyles: {
+        fillColor: COLORS.cardBg,
+        textColor: COLORS.text,
+      },
+      alternateRowStyles: {
+        fillColor: COLORS.alternateBg,
+      },
+      didParseCell: (data) => {
+        if (data.section === 'body') {
+          const rowIndex = data.row.index;
+          const percentage = assessorRows[rowIndex]?.[3] as number;
+          if (percentage < ritmoIdeal) {
+            data.cell.styles.textColor = COLORS.red;
           }
-        },
-      });
-    } else {
-      doc.setTextColor(...COLORS.gold);
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.text("PERFORMANCE POR ASSESSOR", 14, finalY2 + 15);
-
-      autoTable(doc, {
-        startY: finalY2 + 20,
-        head: [["Assessor", "ICM Geral %", "ICM Semanal %"]],
-        body: assessorRows.map(row => row.slice(0, 3)),
-        theme: "plain",
-        headStyles: { 
-          fillColor: COLORS.gold,
-          textColor: COLORS.goldDark,
-          fontStyle: "bold",
-          fontSize: 9,
-        },
-        styles: { 
-          fontSize: 9,
-          cellPadding: 3,
-        },
-        bodyStyles: {
-          fillColor: COLORS.cardBg,
-          textColor: COLORS.text,
-        },
-        alternateRowStyles: {
-          fillColor: COLORS.alternateBg,
-        },
-        didParseCell: (data) => {
-          if (data.section === 'body') {
-            const rowIndex = data.row.index;
-            const percentage = assessorRows[rowIndex]?.[3] as number;
-            if (percentage < ritmoIdeal) {
-              data.cell.styles.textColor = COLORS.red;
-            }
-          }
-        },
-      });
-    }
+        }
+      },
+    });
   }
 
   // Gerar arquivo PDF
