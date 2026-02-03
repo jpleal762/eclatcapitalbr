@@ -1,4 +1,5 @@
-import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { DashboardData } from "@/types/kpi";
 
 // Formatar valor monetário para exibição
@@ -33,45 +34,37 @@ export const generateWeeklyReport = (
   selectedAssessor: string,
   selectedMonth: string
 ) => {
-  const wb = XLSX.utils.book_new();
+  const doc = new jsPDF();
   const visao = selectedAssessor === "all" ? "Escritório Eclat" : selectedAssessor;
   const visaoFileName = selectedAssessor === "all" 
     ? "escritorio" 
     : selectedAssessor.toLowerCase().replace(/\s+/g, "_");
 
-  // ===== ABA 1: RESUMO =====
-  const resumoData = [
-    ["RELATÓRIO SEMANAL DE KPIs"],
-    [""],
-    ["Campo", "Valor"],
-    ["Período", selectedMonth.toUpperCase()],
-    ["Visão", visao],
-    ["Data de Geração", new Date().toLocaleString("pt-BR")],
-    [""],
-    ["INDICADORES GERAIS"],
-    ["ICM Geral", formatPercentage(dashboardData.icmGeral)],
-    ["Ritmo Ideal", formatPercentage(dashboardData.ritmoIdeal)],
-    ["Dias Úteis Restantes", dashboardData.diasUteisRestantes],
-    ["Total Dias Úteis", dashboardData.totalDiasUteis],
-    ["Dias Decorridos", dashboardData.diasUteisDecorridos],
-  ];
-
-  const wsResumo = XLSX.utils.aoa_to_sheet(resumoData);
+  // ===== CABEÇALHO =====
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text("RELATÓRIO SEMANAL DE KPIs", 14, 20);
   
-  // Ajustar largura das colunas
-  wsResumo["!cols"] = [{ wch: 25 }, { wch: 30 }];
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Visão: ${visao}`, 14, 30);
+  doc.text(`Período: ${selectedMonth.toUpperCase()}`, 14, 37);
+  doc.text(`Data de Geração: ${new Date().toLocaleString("pt-BR")}`, 14, 44);
+
+  // ===== INDICADORES GERAIS =====
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("INDICADORES GERAIS", 14, 58);
   
-  XLSX.utils.book_append_sheet(wb, wsResumo, "Resumo");
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  doc.text(`ICM Geral: ${formatPercentage(dashboardData.icmGeral)}`, 14, 66);
+  doc.text(`Ritmo Ideal: ${formatPercentage(dashboardData.ritmoIdeal)}`, 80, 66);
+  doc.text(`Dias Úteis Restantes: ${dashboardData.diasUteisRestantes}`, 140, 66);
+  doc.text(`Total Dias Úteis: ${dashboardData.totalDiasUteis}`, 14, 73);
+  doc.text(`Dias Decorridos: ${dashboardData.diasUteisDecorridos}`, 80, 73);
 
-  // ===== ABA 2: PLANEJAMENTO SEMANAL =====
-  const semanalHeader = [
-    "KPI",
-    "Meta Semanal",
-    "Realizado",
-    "% Atingido",
-    "Falta",
-  ];
-
+  // ===== TABELA: PLANEJAMENTO SEMANAL =====
   const semanalRows = dashboardData.metaSemanal.map((kpi) => {
     const meta = typeof kpi.value === "number" ? kpi.value : parseFloat(String(kpi.value)) || 0;
     const realizado = kpi.realizedValue || 0;
@@ -87,32 +80,33 @@ export const generateWeeklyReport = (
     ];
   });
 
-  const wsSemanal = XLSX.utils.aoa_to_sheet([
-    ["PLANEJAMENTO SEMANAL ACUMULADO"],
-    [""],
-    semanalHeader,
-    ...semanalRows,
-  ]);
+  autoTable(doc, {
+    startY: 82,
+    head: [["KPI", "Meta Semanal", "Realizado", "% Atingido", "Falta"]],
+    body: semanalRows,
+    theme: "striped",
+    headStyles: { 
+      fillColor: [59, 130, 246],
+      textColor: 255,
+      fontStyle: "bold"
+    },
+    styles: { fontSize: 9 },
+    columnStyles: {
+      0: { cellWidth: 50 },
+      1: { cellWidth: 35, halign: "right" },
+      2: { cellWidth: 35, halign: "right" },
+      3: { cellWidth: 25, halign: "center" },
+      4: { cellWidth: 35, halign: "right" },
+    },
+    didDrawPage: (data) => {
+      // Add section title before table
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("PLANEJAMENTO SEMANAL ACUMULADO", 14, (data.settings.startY || 82) - 5);
+    }
+  });
 
-  wsSemanal["!cols"] = [
-    { wch: 25 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 12 },
-    { wch: 18 },
-  ];
-
-  XLSX.utils.book_append_sheet(wb, wsSemanal, "Planejamento Semanal");
-
-  // ===== ABA 3: METAS MENSAIS (KPIs) =====
-  const mensalHeader = [
-    "KPI",
-    "Meta Mensal",
-    "Realizado",
-    "% Atingido",
-    "Status",
-  ];
-
+  // ===== TABELA: METAS MENSAIS (KPIs) =====
   const mensalRows = dashboardData.gaugeKPIs.map((kpi) => {
     const status = getStatus(kpi.percentage, dashboardData.ritmoIdeal);
 
@@ -125,56 +119,84 @@ export const generateWeeklyReport = (
     ];
   });
 
-  const wsMensal = XLSX.utils.aoa_to_sheet([
-    ["METAS MENSAIS (KPIs)"],
-    [""],
-    mensalHeader,
-    ...mensalRows,
-  ]);
+  const finalY = (doc as any).lastAutoTable?.finalY || 120;
 
-  wsMensal["!cols"] = [
-    { wch: 25 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 12 },
-    { wch: 20 },
-  ];
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("METAS MENSAIS (KPIs)", 14, finalY + 15);
 
-  XLSX.utils.book_append_sheet(wb, wsMensal, "Metas Mensais");
+  autoTable(doc, {
+    startY: finalY + 20,
+    head: [["KPI", "Meta Mensal", "Realizado", "% Atingido", "Status"]],
+    body: mensalRows,
+    theme: "striped",
+    headStyles: { 
+      fillColor: [16, 185, 129],
+      textColor: 255,
+      fontStyle: "bold"
+    },
+    styles: { fontSize: 9 },
+    columnStyles: {
+      0: { cellWidth: 50 },
+      1: { cellWidth: 35, halign: "right" },
+      2: { cellWidth: 35, halign: "right" },
+      3: { cellWidth: 25, halign: "center" },
+      4: { cellWidth: 35 },
+    },
+  });
 
-  // ===== ABA 4: PERFORMANCE POR ASSESSOR (se visão escritório) =====
+  // ===== TABELA: PERFORMANCE POR ASSESSOR (se visão escritório) =====
   if (selectedAssessor === "all" && dashboardData.assessorPerformance.length > 0) {
-    const assessorHeader = [
-      "Assessor",
-      "ICM Geral %",
-      "ICM Semanal %",
-    ];
-
     const assessorRows = dashboardData.assessorPerformance.map((a) => [
       a.fullName || a.name,
       formatPercentage(a.geralPercentage),
       formatPercentage(a.semanaPercentage),
     ]);
 
-    const wsAssessor = XLSX.utils.aoa_to_sheet([
-      ["PERFORMANCE POR ASSESSOR"],
-      [""],
-      assessorHeader,
-      ...assessorRows,
-    ]);
+    const finalY2 = (doc as any).lastAutoTable?.finalY || 200;
 
-    wsAssessor["!cols"] = [
-      { wch: 30 },
-      { wch: 15 },
-      { wch: 15 },
-    ];
+    // Check if we need a new page
+    if (finalY2 + 50 > doc.internal.pageSize.height) {
+      doc.addPage();
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("PERFORMANCE POR ASSESSOR", 14, 20);
 
-    XLSX.utils.book_append_sheet(wb, wsAssessor, "Performance Assessores");
+      autoTable(doc, {
+        startY: 25,
+        head: [["Assessor", "ICM Geral %", "ICM Semanal %"]],
+        body: assessorRows,
+        theme: "striped",
+        headStyles: { 
+          fillColor: [139, 92, 246],
+          textColor: 255,
+          fontStyle: "bold"
+        },
+        styles: { fontSize: 9 },
+      });
+    } else {
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("PERFORMANCE POR ASSESSOR", 14, finalY2 + 15);
+
+      autoTable(doc, {
+        startY: finalY2 + 20,
+        head: [["Assessor", "ICM Geral %", "ICM Semanal %"]],
+        body: assessorRows,
+        theme: "striped",
+        headStyles: { 
+          fillColor: [139, 92, 246],
+          textColor: 255,
+          fontStyle: "bold"
+        },
+        styles: { fontSize: 9 },
+      });
+    }
   }
 
-  // Gerar arquivo
-  const fileName = `relatorio_${visaoFileName}_${selectedMonth.replace("/", "-")}.xlsx`;
-  XLSX.writeFile(wb, fileName);
+  // Gerar arquivo PDF
+  const fileName = `relatorio_${visaoFileName}_${selectedMonth.replace("/", "-")}.pdf`;
+  doc.save(fileName);
 
   return fileName;
 };

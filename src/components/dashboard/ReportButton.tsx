@@ -1,4 +1,4 @@
-import { Download } from "lucide-react";
+import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { generateWeeklyReport } from "@/lib/reportUtils";
@@ -26,16 +26,12 @@ export function ReportButton({
         selectedAssessor,
         selectedMonth
       );
-      toast.success(`Relatório gerado: ${fileName}`);
+      toast.success(`Relatório PDF gerado: ${fileName}`);
     } catch (error) {
       console.error("Error generating report:", error);
-      toast.error("Erro ao gerar relatório");
+      toast.error("Erro ao gerar relatório PDF");
     }
   };
-
-  const visao = selectedAssessor === "all" 
-    ? "Escritório" 
-    : selectedAssessor.split(" ").slice(0, 2).join(" ");
 
   return (
     <Button
@@ -43,11 +39,10 @@ export function ReportButton({
       size="sm"
       onClick={handleGenerateReport}
       disabled={disabled}
-      className="h-7 text-responsive-xs gap-1.5 bg-primary/10 hover:bg-primary/20 border-primary/30"
+      className="h-6 text-responsive-xs gap-1 px-2 bg-primary/10 hover:bg-primary/20 border-primary/30"
     >
-      <Download className="w-3.5 h-3.5" />
+      <FileText className="w-3 h-3" />
       <span className="hidden sm:inline">Relatório</span>
-      <span className="text-muted-foreground hidden md:inline">({visao})</span>
     </Button>
   );
 }

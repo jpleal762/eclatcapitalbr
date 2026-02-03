@@ -4,6 +4,9 @@ import { CheckCircle, Clock, AlertTriangle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "next-themes";
+import { ReportButton } from "./ReportButton";
+import { DashboardData } from "@/types/kpi";
+
 interface HistoricalICMData {
   month: string;
   icmGeral: number;
@@ -22,6 +25,7 @@ interface ICMCardProps {
   onMonthChange: (value: string) => void;
   isLocked?: boolean;
   historicalData?: HistoricalICMData[];
+  dashboardData?: DashboardData;
 }
 export function ICMCard({
   icmGeral,
@@ -35,6 +39,7 @@ export function ICMCard({
   onMonthChange,
   isLocked = false,
   historicalData,
+  dashboardData,
 }: ICMCardProps) {
   const { theme } = useTheme();
 
@@ -77,38 +82,46 @@ export function ICMCard({
   };
 
   return <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden">
-      {/* Header compacto com filtros */}
-      <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0 flex-wrap">
+      {/* Header compacto com título e botão relatório */}
+      <div className="flex items-center justify-between gap-2 mb-1 flex-shrink-0">
         <h3 className="text-responsive-sm font-semibold text-foreground">
           ICM Geral
         </h3>
-        <div className="flex items-center gap-2 flex-wrap">
+        {dashboardData && (
+          <ReportButton
+            dashboardData={dashboardData}
+            selectedAssessor={selectedAssessor}
+            selectedMonth={selectedMonth}
+            disabled={!dashboardData.gaugeKPIs?.length}
+          />
+        )}
+      </div>
+      
+      {/* Filtros */}
+      <div className="flex items-center gap-2 mb-2 flex-shrink-0 flex-wrap">
+        <Select value={selectedAssessor} onValueChange={onAssessorChange} disabled={isLocked}>
+          <SelectTrigger className={`w-[120px] bg-background text-responsive-xs h-7 py-0.5 ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}`}>
+            <SelectValue placeholder="TODOS" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">TODOS (Escritório)</SelectItem>
+            {assessors.map(a => <SelectItem key={a} value={a}>
+                {a.split(" ").slice(0, 2).join(" ")}
+              </SelectItem>)}
+          </SelectContent>
+        </Select>
 
-          <Select value={selectedAssessor} onValueChange={onAssessorChange} disabled={isLocked}>
-            <SelectTrigger className={`w-[120px] bg-background text-responsive-xs h-7 py-0.5 ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}`}>
-              <SelectValue placeholder="TODOS" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">TODOS (Escritório)</SelectItem>
-              {assessors.map(a => <SelectItem key={a} value={a}>
-                  {a.split(" ").slice(0, 2).join(" ")}
-                </SelectItem>)}
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedMonth} onValueChange={onMonthChange}>
-            <SelectTrigger className="w-[85px] bg-background text-responsive-xs h-7 py-0.5">
-              <SelectValue placeholder={getCurrentMonthLabel()} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              {months.map(m => <SelectItem key={m} value={m}>
-                  {m.toUpperCase()}
-                </SelectItem>)}
-            </SelectContent>
-          </Select>
-
-        </div>
+        <Select value={selectedMonth} onValueChange={onMonthChange}>
+          <SelectTrigger className="w-[85px] bg-background text-responsive-xs h-7 py-0.5">
+            <SelectValue placeholder={getCurrentMonthLabel()} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            {months.map(m => <SelectItem key={m} value={m}>
+                {m.toUpperCase()}
+              </SelectItem>)}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex items-center justify-center gap-4 flex-1 min-h-0">
