@@ -85,7 +85,7 @@ export const generateWeeklyReport = (
   doc.text("INDICADORES GERAIS", 14, 32);
   
   // ICM Geral - highlight in red if below ritmo
-  const icmColor = dashboardData.icmGeral < ritmoIdeal ? COLORS.red : COLORS.text;
+  const icmColor = dashboardData.icmGeral < ritmoIdeal ? COLORS.red : COLORS.green;
   doc.setTextColor(...icmColor);
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
@@ -152,6 +152,8 @@ export const generateWeeklyReport = (
         const percentage = semanalRows[rowIndex]?.[5] as number;
         if (percentage < ritmoIdeal) {
           data.cell.styles.textColor = COLORS.red;
+        } else {
+          data.cell.styles.textColor = COLORS.green;
         }
       }
     },
@@ -213,6 +215,8 @@ export const generateWeeklyReport = (
         const percentage = mensalRows[rowIndex]?.[5] as number;
         if (percentage < ritmoIdeal) {
           data.cell.styles.textColor = COLORS.red;
+        } else {
+          data.cell.styles.textColor = COLORS.green;
         }
       }
     },
@@ -262,6 +266,8 @@ export const generateWeeklyReport = (
           const percentage = assessorRows[rowIndex]?.[3] as number;
           if (percentage < ritmoIdeal) {
             data.cell.styles.textColor = COLORS.red;
+          } else {
+            data.cell.styles.textColor = COLORS.green;
           }
         }
       },
