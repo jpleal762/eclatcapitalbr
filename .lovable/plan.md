@@ -1,137 +1,137 @@
 
 
-# Plano: Realocar Botão e Gerar PDF
+# Plano: Corrigir Build e Melhorar Visual do PDF
 
 ## Objetivo
-1. Mover o botão de relatório para abaixo do título no ICMCard
-2. Alterar a geração de Excel (.xlsx) para PDF
+1. Corrigir os erros de build (xlsx e @import)
+2. Aplicar identidade visual dark theme no PDF
+3. Destacar em vermelho itens abaixo do ritmo ideal
 
 ---
 
-## Detalhes Técnicos
+## Parte 1: Correção de Erros de Build
 
-### 1. Realocar Botão de Relatório
+### Erro 1: Import xlsx em kpiUtils.ts
+O arquivo `kpiUtils.ts` ainda importa `xlsx` (linha 2), mas a dependência foi removida.
 
-**Problema Atual**: O botão está posicionado com `absolute top-2 right-2` no FlipICMCard, sobrepondo os filtros do ICMCard.
+**Solução**: Verificar se xlsx ainda é usado em kpiUtils.ts. Se for usado apenas para parse de arquivos, manter. Caso contrário, remover o import.
 
-**Solução**: Mover o botão para dentro do ICMCard, logo abaixo do título "ICM Geral", ao lado direito.
+### Erro 2: @import deve vir antes de @tailwind
+O CSS exige que `@import` venha antes de qualquer outra declaração.
 
-**Layout Proposto**:
+**Solução**: Mover os imports de fontes para o topo do arquivo `index.css`.
+
+---
+
+## Parte 2: Visual do PDF - Dark Theme
+
+### Cores da Identidade Éclat XP (Dark Mode)
+| Elemento | Cor |
+|----------|-----|
+| Background | #1a1a1a (dark) |
+| Texto Principal | #f5f5f5 (light) |
+| Headers | Gold Gradient (#FFE066 → #E6A800) |
+| Acento | Gold (#D4A000) |
+| Abaixo do Ritmo | Vermelho (#DC2626) |
+
+### Estrutura Visual do PDF
+
 ```
 +------------------------------------------+
-|  ICM Geral        [Relatório]            |
-|  [Assessor v] [Mês v]                    |
+| [FUNDO ESCURO #1a1a1a]                   |
 |                                          |
-|       [GAUGE 85%]                        |
+| ██ RELATÓRIO SEMANAL DE KPIs ██          |
+|    (Texto dourado #D4A000)               |
+|                                          |
+| Visão: Escritório Eclat (texto claro)    |
+| Período: FEV-26                          |
+|                                          |
+| ┌──────────────────────────────────────┐ |
+| │ INDICADORES GERAIS                   │ |
+| │ (Header com gradiente dourado)       │ |
+| ├──────────────────────────────────────┤ |
+| │ ICM Geral: 85%   Ritmo Ideal: 45%    │ |
+| │ (Se ICM < Ritmo = VERMELHO)          │ |
+| └──────────────────────────────────────┘ |
+|                                          |
+| ┌──────────────────────────────────────┐ |
+| │ PLANEJAMENTO SEMANAL                 │ |
+| │ (Header dourado)                     │ |
+| ├──────────────────────────────────────┤ |
+| │ Captação | R$500K | R$320K | 64% ❌  │ |
+| │ Receita  | R$25K  | R$30K  | 120% ✓  │ |
+| │ (Linhas abaixo ritmo = vermelho)     │ |
+| └──────────────────────────────────────┘ |
 +------------------------------------------+
 ```
 
-### 2. Arquivos a Modificar para Posição
+---
+
+## Arquivos a Modificar
 
 | Arquivo | Alteração |
 |---------|-----------|
-| `src/components/dashboard/FlipICMCard.tsx` | Remover ReportButton do overlay absoluto |
-| `src/components/dashboard/ICMCard.tsx` | Adicionar ReportButton no header ao lado do título |
-
-### 3. Mudança de Excel para PDF
-
-**Abordagem**: Usar a biblioteca `jspdf` com `jspdf-autotable` para gerar tabelas formatadas em PDF.
-
-**Nova dependência necessária**:
-- `jspdf` - Biblioteca para geração de PDF
-- `jspdf-autotable` - Plugin para criar tabelas automáticas
-
-**Estrutura do PDF**:
-
-```
-Página 1:
-+------------------------------------------+
-|  RELATÓRIO SEMANAL DE KPIs               |
-|  Escritório Eclat / Nome Assessor        |
-|  Período: FEV/26                         |
-|  Gerado em: 03/02/2026 às 14:30          |
-+------------------------------------------+
-|  INDICADORES GERAIS                      |
-|  ICM Geral: 85%  |  Ritmo Ideal: 45%     |
-|  Dias Úteis Restantes: 12                |
-+------------------------------------------+
-|  PLANEJAMENTO SEMANAL                    |
-|  KPI    | Meta | Realizado | % | Falta   |
-|  ...    | ...  | ...       |...|  ...    |
-+------------------------------------------+
-|  METAS MENSAIS (KPIs)                    |
-|  KPI    | Meta | Realizado | % | Status  |
-|  ...    | ...  | ...       |...|  ...    |
-+------------------------------------------+
-```
-
-### 4. Modificações em reportUtils.ts
-
-```typescript
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-
-export const generateWeeklyReportPDF = (
-  dashboardData: DashboardData,
-  selectedAssessor: string,
-  selectedMonth: string
-) => {
-  const doc = new jsPDF();
-  
-  // Título
-  doc.setFontSize(18);
-  doc.text("RELATÓRIO SEMANAL DE KPIs", 14, 20);
-  
-  // Visão e Período
-  doc.setFontSize(12);
-  doc.text(`Visão: ${selectedAssessor === "all" ? "Escritório Eclat" : selectedAssessor}`, 14, 30);
-  doc.text(`Período: ${selectedMonth.toUpperCase()}`, 14, 36);
-  
-  // Indicadores Gerais
-  doc.setFontSize(14);
-  doc.text("INDICADORES GERAIS", 14, 50);
-  doc.setFontSize(11);
-  doc.text(`ICM Geral: ${dashboardData.icmGeral}%`, 14, 58);
-  doc.text(`Ritmo Ideal: ${dashboardData.ritmoIdeal}%`, 80, 58);
-  doc.text(`Dias Úteis Restantes: ${dashboardData.diasUteisRestantes}`, 14, 64);
-  
-  // Tabela Planejamento Semanal
-  autoTable(doc, {
-    startY: 75,
-    head: [['KPI', 'Meta Semanal', 'Realizado', '% Atingido', 'Falta']],
-    body: dashboardData.metaSemanal.map(kpi => [...]),
-    theme: 'striped'
-  });
-  
-  // Tabela Metas Mensais
-  autoTable(doc, {
-    startY: doc.lastAutoTable.finalY + 15,
-    head: [['KPI', 'Meta Mensal', 'Realizado', '%', 'Status']],
-    body: dashboardData.gaugeKPIs.map(kpi => [...]),
-    theme: 'striped'
-  });
-  
-  // Salvar
-  doc.save(`relatorio_${visao}_${selectedMonth}.pdf`);
-};
-```
-
-### 5. Resumo das Alterações
-
-| Arquivo | Ação |
-|---------|------|
-| `src/components/dashboard/ICMCard.tsx` | Adicionar prop `dashboardData` e incluir ReportButton no header |
-| `src/components/dashboard/FlipICMCard.tsx` | Remover ReportButton do overlay absoluto, passar dashboardData para ICMCard |
-| `src/components/dashboard/ReportButton.tsx` | Atualizar para chamar função de PDF |
-| `src/lib/reportUtils.ts` | Substituir lógica Excel por PDF usando jspdf |
-| `package.json` | Adicionar dependências `jspdf` e `jspdf-autotable` |
+| `src/index.css` | Mover @imports para o topo (antes de @tailwind) |
+| `src/lib/kpiUtils.ts` | Reinstalar xlsx pois é usado para parse de arquivos |
+| `src/lib/reportUtils.ts` | Aplicar dark theme e cores condicionais |
 
 ---
 
-## Comportamento Esperado
+## Detalhes da Implementação do PDF
 
-1. Botão aparece ao lado do título "ICM Geral" (não sobrepõe filtros)
-2. Ao clicar, gera PDF com todas as informações
-3. Download automático do arquivo PDF
-4. Toast de confirmação: "Relatório PDF gerado!"
+### 1. Background e Página
+```typescript
+// Aplicar fundo escuro em toda a página
+doc.setFillColor(26, 26, 26); // #1a1a1a
+doc.rect(0, 0, 210, 297, "F");
+```
+
+### 2. Título com Cor Dourada
+```typescript
+doc.setTextColor(212, 160, 0); // Gold #D4A000
+doc.setFontSize(18);
+doc.text("RELATÓRIO SEMANAL DE KPIs", 14, 20);
+```
+
+### 3. Headers das Tabelas
+```typescript
+headStyles: {
+  fillColor: [212, 160, 0], // Gold
+  textColor: [26, 26, 26],  // Dark text on gold
+  fontStyle: "bold"
+}
+```
+
+### 4. Linhas Condicionais (Vermelho se abaixo do ritmo)
+```typescript
+didParseCell: (data) => {
+  if (data.section === 'body') {
+    const percentage = parseFloat(data.row.raw[3]); // coluna %
+    if (percentage < ritmoIdeal) {
+      data.cell.styles.textColor = [220, 38, 38]; // Red
+    }
+  }
+}
+```
+
+### 5. Corpo da Tabela com Fundo Escuro
+```typescript
+styles: {
+  fillColor: [38, 38, 38],  // #262626 - slightly lighter than bg
+  textColor: [245, 245, 245], // Light text
+}
+alternateRowStyles: {
+  fillColor: [51, 51, 51],  // #333333 - alternate rows
+}
+```
+
+---
+
+## Resultado Esperado
+
+- PDF com fundo escuro (#1a1a1a)
+- Texto principal em branco/claro
+- Headers dourados (identidade Éclat)
+- KPIs abaixo do ritmo em vermelho
+- Visual consistente com o dashboard dark mode
 
