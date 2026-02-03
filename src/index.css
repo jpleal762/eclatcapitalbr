@@ -1,11 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import "@fontsource/geist-sans/400.css";
 @import "@fontsource/geist-sans/500.css";
 @import "@fontsource/geist-sans/600.css";
 @import "@fontsource/geist-sans/700.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Clean Corporate Dashboard - Light Theme with Yellow Accent */
 
