@@ -1,137 +1,103 @@
 
 
-# Plano: Corrigir Build e Melhorar Visual do PDF
+# Plano: Otimizar PDF para Uma Pagina com Logo
 
 ## Objetivo
-1. Corrigir os erros de build (xlsx e @import)
-2. Aplicar identidade visual dark theme no PDF
-3. Destacar em vermelho itens abaixo do ritmo ideal
+1. Adicionar logo Eclat XP no topo do relatorio
+2. Mudar titulos das secoes de dourado para branco
+3. Otimizar layout para manter tudo em uma pagina
 
 ---
 
-## Parte 1: Correção de Erros de Build
+## Detalhes Tecnicos
 
-### Erro 1: Import xlsx em kpiUtils.ts
-O arquivo `kpiUtils.ts` ainda importa `xlsx` (linha 2), mas a dependência foi removida.
+### 1. Adicionar Logo no Topo
 
-**Solução**: Verificar se xlsx ainda é usado em kpiUtils.ts. Se for usado apenas para parse de arquivos, manter. Caso contrário, remover o import.
+**Abordagem**: Usar o arquivo PNG existente (`src/assets/eclat-xp-logo-dark.png`) e converte-lo para base64 para embedding no PDF.
 
-### Erro 2: @import deve vir antes de @tailwind
-O CSS exige que `@import` venha antes de qualquer outra declaração.
+```typescript
+// Importar logo como base64
+import eclatLogoDark from "@/assets/eclat-xp-logo-dark.png";
 
-**Solução**: Mover os imports de fontes para o topo do arquivo `index.css`.
-
----
-
-## Parte 2: Visual do PDF - Dark Theme
-
-### Cores da Identidade Éclat XP (Dark Mode)
-| Elemento | Cor |
-|----------|-----|
-| Background | #1a1a1a (dark) |
-| Texto Principal | #f5f5f5 (light) |
-| Headers | Gold Gradient (#FFE066 → #E6A800) |
-| Acento | Gold (#D4A000) |
-| Abaixo do Ritmo | Vermelho (#DC2626) |
-
-### Estrutura Visual do PDF
-
-```
-+------------------------------------------+
-| [FUNDO ESCURO #1a1a1a]                   |
-|                                          |
-| ██ RELATÓRIO SEMANAL DE KPIs ██          |
-|    (Texto dourado #D4A000)               |
-|                                          |
-| Visão: Escritório Eclat (texto claro)    |
-| Período: FEV-26                          |
-|                                          |
-| ┌──────────────────────────────────────┐ |
-| │ INDICADORES GERAIS                   │ |
-| │ (Header com gradiente dourado)       │ |
-| ├──────────────────────────────────────┤ |
-| │ ICM Geral: 85%   Ritmo Ideal: 45%    │ |
-| │ (Se ICM < Ritmo = VERMELHO)          │ |
-| └──────────────────────────────────────┘ |
-|                                          |
-| ┌──────────────────────────────────────┐ |
-| │ PLANEJAMENTO SEMANAL                 │ |
-| │ (Header dourado)                     │ |
-| ├──────────────────────────────────────┤ |
-| │ Captação | R$500K | R$320K | 64% ❌  │ |
-| │ Receita  | R$25K  | R$30K  | 120% ✓  │ |
-| │ (Linhas abaixo ritmo = vermelho)     │ |
-| └──────────────────────────────────────┘ |
-+------------------------------------------+
+// No PDF, adicionar a imagem no topo
+doc.addImage(eclatLogoDark, "PNG", 14, 10, 50, 12);
 ```
 
+**Posicao**: Canto superior esquerdo, antes do titulo do relatorio.
+
+### 2. Titulos das Secoes em Branco
+
+**Alteracoes**:
+- "INDICADORES GERAIS" → COLORS.text (branco)
+- "PLANEJAMENTO SEMANAL ACUMULADO" → COLORS.text (branco)
+- "METAS MENSAIS (KPIs)" → COLORS.text (branco)
+- "PERFORMANCE POR ASSESSOR" → COLORS.text (branco)
+
+```typescript
+// Antes (dourado)
+doc.setTextColor(...COLORS.gold);
+doc.text("INDICADORES GERAIS", 14, 58);
+
+// Depois (branco)
+doc.setTextColor(...COLORS.text);
+doc.text("INDICADORES GERAIS", 14, 58);
+```
+
+### 3. Otimizar Layout para Uma Pagina
+
+**Estrategias de compactacao**:
+
+| Elemento | Antes | Depois |
+|----------|-------|--------|
+| Fonte das tabelas | 9px | 8px |
+| Cell padding | 3px | 2px |
+| Espaco entre secoes | 15-20px | 8-10px |
+| Fonte indicadores | 11px | 10px |
+| Titulo principal | 18px | 16px |
+| Subtitulos | 14px | 12px |
+
+**Layout compacto proposto**:
+```
++------------------------------------------+
+| [LOGO]  RELATORIO SEMANAL DE KPIs        | Y: 10-28
+|         Visao | Periodo | Data           |
++------------------------------------------+
+| INDICADORES GERAIS                       | Y: 35-45
+| ICM | Ritmo | Dias                       |
++------------------------------------------+
+| PLANEJAMENTO SEMANAL ACUMULADO           | Y: 50-100
+| [Tabela compacta - 4 linhas]             |
++------------------------------------------+
+| METAS MENSAIS (KPIs)                     | Y: 105-180
+| [Tabela compacta - 9 linhas]             |
++------------------------------------------+
+| PERFORMANCE POR ASSESSOR (se escritorio) | Y: 185-270
+| [Tabela compacta - 7 linhas]             |
++------------------------------------------+
+```
+
+### 4. Remover Logica de Nova Pagina
+
+Como o objetivo e manter tudo em uma pagina, remover a verificacao `if (finalY2 + 50 > doc.internal.pageSize.height)` que adiciona nova pagina.
+
 ---
 
-## Arquivos a Modificar
+## Arquivo a Modificar
 
-| Arquivo | Alteração |
+| Arquivo | Alteracao |
 |---------|-----------|
-| `src/index.css` | Mover @imports para o topo (antes de @tailwind) |
-| `src/lib/kpiUtils.ts` | Reinstalar xlsx pois é usado para parse de arquivos |
-| `src/lib/reportUtils.ts` | Aplicar dark theme e cores condicionais |
+| `src/lib/reportUtils.ts` | Adicionar logo, mudar cor titulos, compactar layout |
 
 ---
 
-## Detalhes da Implementação do PDF
+## Resumo das Alteracoes em reportUtils.ts
 
-### 1. Background e Página
-```typescript
-// Aplicar fundo escuro em toda a página
-doc.setFillColor(26, 26, 26); // #1a1a1a
-doc.rect(0, 0, 210, 297, "F");
-```
-
-### 2. Título com Cor Dourada
-```typescript
-doc.setTextColor(212, 160, 0); // Gold #D4A000
-doc.setFontSize(18);
-doc.text("RELATÓRIO SEMANAL DE KPIs", 14, 20);
-```
-
-### 3. Headers das Tabelas
-```typescript
-headStyles: {
-  fillColor: [212, 160, 0], // Gold
-  textColor: [26, 26, 26],  // Dark text on gold
-  fontStyle: "bold"
-}
-```
-
-### 4. Linhas Condicionais (Vermelho se abaixo do ritmo)
-```typescript
-didParseCell: (data) => {
-  if (data.section === 'body') {
-    const percentage = parseFloat(data.row.raw[3]); // coluna %
-    if (percentage < ritmoIdeal) {
-      data.cell.styles.textColor = [220, 38, 38]; // Red
-    }
-  }
-}
-```
-
-### 5. Corpo da Tabela com Fundo Escuro
-```typescript
-styles: {
-  fillColor: [38, 38, 38],  // #262626 - slightly lighter than bg
-  textColor: [245, 245, 245], // Light text
-}
-alternateRowStyles: {
-  fillColor: [51, 51, 51],  // #333333 - alternate rows
-}
-```
-
----
-
-## Resultado Esperado
-
-- PDF com fundo escuro (#1a1a1a)
-- Texto principal em branco/claro
-- Headers dourados (identidade Éclat)
-- KPIs abaixo do ritmo em vermelho
-- Visual consistente com o dashboard dark mode
+1. Importar o logo PNG
+2. Ajustar posicionamento Y para acomodar logo no topo
+3. Trocar `COLORS.gold` por `COLORS.text` nos titulos de secao
+4. Reduzir fontSize em todos os elementos
+5. Reduzir cellPadding nas tabelas
+6. Reduzir espacamento entre secoes
+7. Manter headers das tabelas em dourado (identidade visual)
+8. Remover logica de adicionar nova pagina
 
