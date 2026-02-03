@@ -1,79 +1,130 @@
 
-# Plano: Auto-Ajuste de Escala para Tela
+# Plano: Botao de Relatorio Semanal no Dashboard
 
 ## Objetivo
-Ajustar automaticamente a escala do dashboard ao abrir para que todo o conteúdo caiba na tela sem sobreposição de dados e sem alterar o layout existente.
+Adicionar um botao no primeiro dashboard que gera um relatorio com todos os KPIs, metas planejadas e valores realizados da semana, respeitando os filtros selecionados (assessor ou escritorio).
 
-## Resumo da Solução
-Implementar detecção automática do tamanho da tela e calcular um fator de escala ideal que garanta que todos os elementos do dashboard sejam visíveis sem scroll ou sobreposição.
+## Resumo da Solucao
+Criar um componente de botao que, ao ser clicado, gera um arquivo Excel (.xlsx) contendo os dados do dashboard filtrados. O relatorio sera dinamico - se "TODOS" estiver selecionado, gera relatorio do escritorio; se um assessor especifico, gera relatorio individual.
 
 ---
 
-## Detalhes Técnicos
+## Detalhes Tecnicos
 
-### 1. Modificar ScaleContext.tsx
+### 1. Criar Novo Componente: ReportButton.tsx
 
-Adicionar lógica de auto-escala inicial:
+Localização: `src/components/dashboard/ReportButton.tsx`
+
+```text
++----------------------------------+
+|  [Download]  Relatorio Semanal   |
++----------------------------------+
+```
+
+Props:
+- `dashboardData`: DashboardData (dados processados)
+- `selectedAssessor`: string (filtro atual)
+- `selectedMonth`: string (mes selecionado)
+
+### 2. Estrutura do Relatorio Excel
+
+O arquivo gerado tera multiplas abas:
+
+**Aba 1 - Resumo**
+| Campo | Valor |
+|-------|-------|
+| Periodo | fev-26 |
+| Visao | Escritorio / Nome Assessor |
+| ICM Geral | 85% |
+| Ritmo Ideal | 45% |
+| Dias Uteis Restantes | 12 |
+
+**Aba 2 - Planejamento Semanal**
+| KPI | Meta Semanal | Realizado | % Atingido | Falta |
+|-----|--------------|-----------|------------|-------|
+| Captacao NET | R$ 500.000 | R$ 320.000 | 64% | R$ 180.000 |
+| Receita | R$ 25.000 | R$ 18.000 | 72% | R$ 7.000 |
+| ... | ... | ... | ... | ... |
+
+**Aba 3 - Metas Mensais (KPIs)**
+| KPI | Meta Mensal | Realizado | % | Status |
+|-----|-------------|-----------|---|--------|
+| Captacao NET | R$ 2.000.000 | R$ 1.500.000 | 75% | Em andamento |
+| Receita XP | R$ 100.000 | R$ 80.000 | 80% | No ritmo |
+| ... | ... | ... | ... | ... |
+
+### 3. Logica de Geracao
 
 ```typescript
-// Calcular escala ideal baseado no viewport
-const calculateOptimalScale = () => {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
+// Pseudocodigo
+function generateReport(dashboardData, assessor, month) {
+  const wb = XLSX.utils.book_new();
   
-  // Dimensões de referência do dashboard (1600x900 - design base)
-  const baseWidth = 1600;
-  const baseHeight = 900;
+  // Aba Resumo
+  const resumoData = [
+    ["Relatorio Semanal de KPIs"],
+    [""],
+    ["Periodo:", formatMonth(month)],
+    ["Visao:", assessor === "all" ? "Escritorio Eclat" : assessor],
+    ["Data de Geracao:", new Date().toLocaleString()],
+    [""],
+    ["ICM Geral:", `${dashboardData.icmGeral}%`],
+    ["Ritmo Ideal:", `${dashboardData.ritmoIdeal}%`],
+    ["Dias Uteis Restantes:", dashboardData.diasUteisRestantes]
+  ];
   
-  // Calcular escala para caber na tela
-  const scaleX = width / baseWidth;
-  const scaleY = height / baseHeight;
+  // Aba Planejamento Semanal (metaSemanal)
+  // Aba KPIs Mensais (gaugeKPIs)
   
-  // Usar o menor para garantir que caiba em ambas dimensões
-  const optimalScale = Math.min(scaleX, scaleY);
-  
-  // Limitar entre 0.8 e 2.0 para manter legibilidade
-  return Math.max(0.8, Math.min(2.0, optimalScale));
-};
+  // Exportar arquivo
+  XLSX.writeFile(wb, `relatorio_${assessor}_${month}.xlsx`);
+}
 ```
 
-### 2. Nova Lógica de Inicialização
+### 4. Posicao do Botao no Layout
 
-- Na primeira carga (sem escala salva), calcular automaticamente
-- Arredondar para valores válidos (1, 1.25, 1.5, 1.75, 2)
-- Respeitar escala salva se usuário já escolheu manualmente
+Adicionar no card FlipICMCard, proximo aos filtros existentes:
 
-### 3. Arquivos a Modificar
+```text
++------------------------------------------+
+|  ICM Geral: 85%                          |
+|  [Assessor: TODOS v] [Mes: fev-26 v]     |
+|                                          |
+|  [Download] Gerar Relatorio              |
++------------------------------------------+
+```
 
-| Arquivo | Alteração |
+### 5. Arquivos a Modificar
+
+| Arquivo | Alteracao |
 |---------|-----------|
-| `src/contexts/ScaleContext.tsx` | Adicionar `calculateOptimalScale()` e aplicar na inicialização |
-| `src/components/ScaleSelector.tsx` | Adicionar opção "Auto" que recalcula |
+| `src/components/dashboard/ReportButton.tsx` | CRIAR - Novo componente do botao |
+| `src/components/dashboard/FlipICMCard.tsx` | Adicionar botao de relatorio |
+| `src/lib/reportUtils.ts` | CRIAR - Funcoes de geracao do Excel |
 
-### 4. Comportamento Esperado
+### 6. Dependencias
 
-1. **Primeira Visita**: Dashboard calcula escala ideal automaticamente
-2. **Visitas Subsequentes**: Usa escala salva no localStorage
-3. **Opção Manual**: Usuário pode ajustar via ScaleSelector (override)
-4. **Opção "Auto"**: Nova opção para recalcular escala ideal
+A biblioteca `xlsx` ja esta instalada no projeto (versao ^0.18.5), entao nao ha necessidade de adicionar dependencias.
 
-### 5. Fluxo de Decisão
+### 7. Nome do Arquivo Gerado
 
-```
-Ao carregar o dashboard:
-├── Tem escala salva no localStorage?
-│   ├── SIM → Usar escala salva
-│   └── NÃO → Calcular escala ideal automaticamente
-│       └── Arredondar para valor válido mais próximo
-│           └── Aplicar e salvar
-```
+Formato dinamico baseado nos filtros:
+- Escritorio: `relatorio_escritorio_fev-26.xlsx`
+- Assessor: `relatorio_joao_silva_fev-26.xlsx`
 
 ---
 
-## Resultado Esperado
+## Comportamento Esperado
 
-- Dashboard sempre abre ajustado para a tela atual
-- Sem scroll horizontal ou vertical em desktop/TV
-- Sem sobreposição de cards ou dados
-- Layout permanece inalterado (apenas escala proporcionalmente)
-- Usuário pode ajustar manualmente se preferir
+1. Usuario clica no botao "Gerar Relatorio"
+2. Sistema identifica o filtro ativo (escritorio ou assessor)
+3. Gera arquivo Excel com dados correspondentes
+4. Download automatico do arquivo
+5. Toast de confirmacao: "Relatorio gerado com sucesso!"
+
+## Validacoes
+
+- Se nao houver dados carregados, botao fica desabilitado
+- Valores monetarios formatados em Real (R$)
+- Valores numericos com separador de milhar
+
