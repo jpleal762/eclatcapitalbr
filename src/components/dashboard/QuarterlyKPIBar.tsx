@@ -175,15 +175,23 @@ export function QuarterlyKPIBar({
           {formatValue(target, isCurrency)}
         </span>
         
-        {/* Rhythm status indicator */}
-        {atingiuRitmo ? <span className="text-green-500 font-medium">✓ OK</span> : faltaParaRitmo > 0 ? <span className={`font-medium whitespace-nowrap ${textColor.includes("red") ? "text-red-500" : "text-blue-500"}`}>
-            {textColor.includes("red") && "! "}Ritmo: -{formatValue(faltaParaRitmo, isCurrency)}
-          </span> : null}
-        
-        {/* Total remaining */}
-        {percentage < 100 && target > 0 && <span className="text-muted-foreground whitespace-nowrap">
-            Falta: {formatValue(target - value, isCurrency)}
-          </span>}
+        {/* Rhythm status indicator with gap combined */}
+        <div className="flex items-center gap-2">
+          {atingiuRitmo ? (
+            <span className="text-green-500 font-medium">✓ OK</span>
+          ) : faltaParaRitmo > 0 ? (
+            <span className={`font-medium whitespace-nowrap ${textColor.includes("red") ? "text-red-500" : "text-blue-500"}`}>
+              {textColor.includes("red") && "! "}Ritmo: -{formatValue(faltaParaRitmo, isCurrency)}
+            </span>
+          ) : null}
+          
+          {/* Total remaining - ao lado do ritmo */}
+          {percentage < 100 && target > 0 && (
+            <span className="text-muted-foreground whitespace-nowrap">
+              | Falta: {formatValue(target - value, isCurrency)}
+            </span>
+          )}
+        </div>
       </div>
     </div>;
 }
