@@ -1,77 +1,60 @@
 
-
-# Plano: Adicionar Verde para KPIs Acima do Ritmo
+# Plano: Reduzir Escala dos Percentuais nos Gauges pela Metade
 
 ## Objetivo
-Destacar em verde os KPIs que estao acima ou igual ao ritmo ideal no relatorio PDF.
+Diminuir em 50% o tamanho dos textos de porcentagem em todos os componentes de gauge.
 
 ---
 
-## Alteracoes Necessarias
+## Arquivos a Modificar
 
-### Arquivo: `src/lib/reportUtils.ts`
+### 1. `src/components/dashboard/GaugeChart.tsx`
 
-A cor verde ja esta definida em `COLORS.green: [34, 197, 94]`. Basta adicionar a logica condicional para aplicar verde quando `percentage >= ritmoIdeal`.
+**Linha 216 - Percentual acima do gauge:**
 
-### Pontos de Alteracao
+| Antes | Depois |
+|-------|--------|
+| `text-[clamp(18px,2.5vw,28px)]` | `text-[clamp(9px,1.25vw,14px)]` |
 
-**1. ICM Geral (linha 88)**
 ```typescript
 // Antes
-const icmColor = dashboardData.icmGeral < ritmoIdeal ? COLORS.red : COLORS.text;
+<span className={`text-[clamp(18px,2.5vw,28px)] font-bold ...`}>
+  {percentage}%
+</span>
 
-// Depois
-const icmColor = dashboardData.icmGeral < ritmoIdeal ? COLORS.red : COLORS.green;
+// Depois (metade)
+<span className={`text-[clamp(9px,1.25vw,14px)] font-bold ...`}>
+  {percentage}%
+</span>
 ```
 
-**2. Tabela Planejamento Semanal (linhas 149-157)**
-```typescript
-didParseCell: (data) => {
-  if (data.section === 'body') {
-    const percentage = semanalRows[data.row.index]?.[5] as number;
-    if (percentage < ritmoIdeal) {
-      data.cell.styles.textColor = COLORS.red;
-    } else {
-      data.cell.styles.textColor = COLORS.green; // ADICIONAR
-    }
-  }
-}
-```
+### 2. `src/components/dashboard/YearlyGaugeChart.tsx`
 
-**3. Tabela Metas Mensais (linhas 210-218)**
-```typescript
-didParseCell: (data) => {
-  if (data.section === 'body') {
-    const percentage = mensalRows[data.row.index]?.[5] as number;
-    if (percentage < ritmoIdeal) {
-      data.cell.styles.textColor = COLORS.red;
-    } else {
-      data.cell.styles.textColor = COLORS.green; // ADICIONAR
-    }
-  }
-}
-```
+**Linha 73 - Percentual acima do gauge:**
 
-**4. Tabela Performance por Assessor (linhas 259-267)**
+| Antes | Depois |
+|-------|--------|
+| `text-responsive-sm` | `text-responsive-xs` |
+
 ```typescript
-didParseCell: (data) => {
-  if (data.section === 'body') {
-    const percentage = assessorRows[data.row.index]?.[3] as number;
-    if (percentage < ritmoIdeal) {
-      data.cell.styles.textColor = COLORS.red;
-    } else {
-      data.cell.styles.textColor = COLORS.green; // ADICIONAR
-    }
-  }
-}
+// Antes
+<span className="text-responsive-sm font-bold text-outline" ...>
+  {percentage}%
+</span>
+
+// Depois (classe menor)
+<span className="text-responsive-xs font-bold text-outline" ...>
+  {percentage}%
+</span>
 ```
 
 ---
 
-## Resultado Esperado
+## Resumo
 
-| Condicao | Cor |
-|----------|-----|
-| KPI abaixo do ritmo ideal | Vermelho (#DC2626) |
-| KPI igual ou acima do ritmo ideal | Verde (#22c55e) |
+| Componente | Valor Atual | Novo Valor |
+|------------|-------------|------------|
+| GaugeChart | `clamp(18px, 2.5vw, 28px)` | `clamp(9px, 1.25vw, 14px)` |
+| YearlyGaugeChart | `text-responsive-sm` | `text-responsive-xs` |
 
+Ambas as mudancas reduzem o tamanho pela metade, mantendo a proporcionalidade responsiva.
