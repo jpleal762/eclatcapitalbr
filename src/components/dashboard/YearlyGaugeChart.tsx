@@ -69,7 +69,7 @@ export function YearlyGaugeChart({
         </div>
 
         {/* Percentage label - acima do gauge */}
-        <div className="flex justify-center">
+        <div className="flex justify-center -mb-1">
           <span className="text-responsive-xs font-bold text-outline" style={{ color: "hsl(var(--chart-graphite))" }}>
             {percentage}%
           </span>
