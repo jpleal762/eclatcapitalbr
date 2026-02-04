@@ -1,39 +1,26 @@
 
-# Plano: Aproximar Percentuais das Barras dos Gauges
-
-## Objetivo
-Reduzir o espaco entre os labels de porcentagem e os arcos dos gauges.
-
----
+# Plano: Aproximar Mais os Percentuais dos Gauges
 
 ## Alteracoes
 
 ### 1. `src/components/dashboard/GaugeChart.tsx` (linha 215)
 
-Adicionar margem inferior negativa ao container do percentual:
-
 ```typescript
 // Antes
-<div className="flex justify-center flex-shrink-0">
+<div className="flex justify-center flex-shrink-0 -mb-1">
 
 // Depois
-<div className="flex justify-center flex-shrink-0 -mb-1">
+<div className="flex justify-center flex-shrink-0 -mb-2">
 ```
 
 ### 2. `src/components/dashboard/YearlyGaugeChart.tsx` (linha 72)
 
-Adicionar margem inferior negativa ao container do percentual:
-
 ```typescript
 // Antes
-<div className="flex justify-center">
+<div className="flex justify-center -mb-1">
 
 // Depois
-<div className="flex justify-center -mb-1">
+<div className="flex justify-center -mb-2">
 ```
 
----
-
-## Resultado
-
-Os percentuais ficarao mais proximos dos arcos dos gauges, eliminando o espaco excessivo entre eles.
+Aumentar a margem negativa de `-mb-1` para `-mb-2` em ambos os componentes.
