@@ -1,60 +1,39 @@
 
-# Plano: Reduzir Escala dos Percentuais nos Gauges pela Metade
+# Plano: Aproximar Percentuais das Barras dos Gauges
 
 ## Objetivo
-Diminuir em 50% o tamanho dos textos de porcentagem em todos os componentes de gauge.
+Reduzir o espaco entre os labels de porcentagem e os arcos dos gauges.
 
 ---
 
-## Arquivos a Modificar
+## Alteracoes
 
-### 1. `src/components/dashboard/GaugeChart.tsx`
+### 1. `src/components/dashboard/GaugeChart.tsx` (linha 215)
 
-**Linha 216 - Percentual acima do gauge:**
-
-| Antes | Depois |
-|-------|--------|
-| `text-[clamp(18px,2.5vw,28px)]` | `text-[clamp(9px,1.25vw,14px)]` |
+Adicionar margem inferior negativa ao container do percentual:
 
 ```typescript
 // Antes
-<span className={`text-[clamp(18px,2.5vw,28px)] font-bold ...`}>
-  {percentage}%
-</span>
+<div className="flex justify-center flex-shrink-0">
 
-// Depois (metade)
-<span className={`text-[clamp(9px,1.25vw,14px)] font-bold ...`}>
-  {percentage}%
-</span>
+// Depois
+<div className="flex justify-center flex-shrink-0 -mb-1">
 ```
 
-### 2. `src/components/dashboard/YearlyGaugeChart.tsx`
+### 2. `src/components/dashboard/YearlyGaugeChart.tsx` (linha 72)
 
-**Linha 73 - Percentual acima do gauge:**
-
-| Antes | Depois |
-|-------|--------|
-| `text-responsive-sm` | `text-responsive-xs` |
+Adicionar margem inferior negativa ao container do percentual:
 
 ```typescript
 // Antes
-<span className="text-responsive-sm font-bold text-outline" ...>
-  {percentage}%
-</span>
+<div className="flex justify-center">
 
-// Depois (classe menor)
-<span className="text-responsive-xs font-bold text-outline" ...>
-  {percentage}%
-</span>
+// Depois
+<div className="flex justify-center -mb-1">
 ```
 
 ---
 
-## Resumo
+## Resultado
 
-| Componente | Valor Atual | Novo Valor |
-|------------|-------------|------------|
-| GaugeChart | `clamp(18px, 2.5vw, 28px)` | `clamp(9px, 1.25vw, 14px)` |
-| YearlyGaugeChart | `text-responsive-sm` | `text-responsive-xs` |
-
-Ambas as mudancas reduzem o tamanho pela metade, mantendo a proporcionalidade responsiva.
+Os percentuais ficarao mais proximos dos arcos dos gauges, eliminando o espaco excessivo entre eles.
