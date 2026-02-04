@@ -79,7 +79,7 @@ export function FlipGaugeChart({
         }`}
       >
         {/* Frente - Gauge Chart */}
-        <div className="absolute inset-0 backface-hidden overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 backface-hidden overflow-hidden flex items-start justify-center">
           <div className="relative h-full w-full">
             <GaugeChart
               label={label}

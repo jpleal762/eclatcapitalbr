@@ -152,7 +152,7 @@ export function AssessorChart({
           ICM Geral - {filteredData[0].name}
         </h3>
         
-        <div className="flex-1 flex items-center justify-center p-2">
+        <div className="flex-1 flex items-start justify-center p-2">
           <div className="w-full max-w-md">
             {renderAssessor(filteredData[0], 0)}
           </div>
