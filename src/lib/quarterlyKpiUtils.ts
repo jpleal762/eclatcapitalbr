@@ -133,6 +133,11 @@ function isPlannedMonthStatus(status: string): boolean {
   return s.includes("planejado m") || s === "planejado mês" || s === "planejado mes";
 }
 
+function isPlannedWeekStatus(status: string): boolean {
+  const s = status.toLowerCase();
+  return s.includes("planejado s") || s === "planejado semana" || s.includes("planejado sem");
+}
+
 function isRealizedStatus(status: string): boolean {
   const s = status.toLowerCase();
   return s.includes("realizado") || s.includes("real.") || s === "realizado";
@@ -546,4 +551,87 @@ function getMonthValueFlexible(records: ProcessedKPI[], monthName: string, yearS
     });
     return sum + (monthData?.value || 0);
   }, 0);
+}
+
+// ============= WEEKLY GAP INTERFACE =============
+export interface WeeklyGapData {
+  target: number;      // Meta da semana
+  realized: number;    // Realizado
+  gap: number;         // Falta para meta da semana
+  isCurrency: boolean;
+}
+
+// ============= CALCULATE WEEKLY GAP FOR KPI =============
+export function calculateWeeklyGapForKPI(
+  data: ProcessedKPI[],
+  year: number,
+  quarter: string,
+  kpiConfig: KPIConfig,
+  assessor: string = "all"
+): WeeklyGapData {
+  const quarterDef = QUARTERS.find(q => q.value === quarter);
+  if (!quarterDef) return { target: 0, realized: 0, gap: 0, isCurrency: kpiConfig.isCurrency ?? false };
+
+  // Get current month in Portuguese format
+  const now = new Date();
+  const monthIndex = now.getMonth();
+  const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const currentMonthName = monthNames[monthIndex];
+  const yearSuffix = year.toString().slice(-2);
+  
+  const { category, isSpecial, targetCategories, actualCategory, additionalActualCategory } = kpiConfig;
+  
+  // Filter data by assessor
+  const filteredData = assessor === "all" ? data : data.filter(d => d.assessor === assessor);
+  
+  let weeklyTarget = 0;
+  let realized = 0;
+  
+  // Calculate WEEKLY TARGET (Planejado Semana)
+  if (isSpecial && targetCategories) {
+    targetCategories.forEach(targetCat => {
+      const catData = filteredData.filter(d => d.category === targetCat);
+      const plannedData = catData.filter(d => isPlannedWeekStatus(d.status));
+      weeklyTarget += getMonthValueFlexible(plannedData, currentMonthName, yearSuffix);
+    });
+  } else {
+    const catData = filteredData.filter(d => d.category === category);
+    const plannedData = catData.filter(d => isPlannedWeekStatus(d.status));
+    weeklyTarget = getMonthValueFlexible(plannedData, currentMonthName, yearSuffix);
+  }
+  
+  // Calculate REALIZED
+  if (isSpecial && actualCategory) {
+    const catData = filteredData.filter(d => d.category === actualCategory);
+    const realizedData = catData.filter(d => isRealizedStatus(d.status));
+    realized = getMonthValueFlexible(realizedData, currentMonthName, yearSuffix);
+  } else if (category === "Receita") {
+    const receitaData = filteredData.filter(d => d.category === "Receita");
+    const receitaRealized = receitaData.filter(d => isRealizedStatus(d.status));
+    realized = getMonthValueFlexible(receitaRealized, currentMonthName, yearSuffix);
+    
+    const receitaAcumuladaData = filteredData.filter(d => d.category === "Receita Acumulada");
+    const receitaAcumuladaRealized = receitaAcumuladaData.filter(d => isRealizedStatus(d.status));
+    realized += getMonthValueFlexible(receitaAcumuladaRealized, currentMonthName, yearSuffix);
+  } else {
+    const catData = filteredData.filter(d => d.category === category);
+    const realizedData = catData.filter(d => isRealizedStatus(d.status));
+    realized = getMonthValueFlexible(realizedData, currentMonthName, yearSuffix);
+  }
+  
+  // Add additional actual category if exists (e.g., Receita Empilhada)
+  if (additionalActualCategory) {
+    const additionalData = filteredData.filter(d => d.category === additionalActualCategory);
+    const additionalRealized = additionalData.filter(d => isRealizedStatus(d.status));
+    realized += getMonthValueFlexible(additionalRealized, currentMonthName, yearSuffix);
+  }
+  
+  const gap = Math.max(0, weeklyTarget - realized);
+  
+  return {
+    target: weeklyTarget,
+    realized,
+    gap,
+    isCurrency: kpiConfig.isCurrency ?? false,
+  };
 }
