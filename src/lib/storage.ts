@@ -114,3 +114,22 @@ export async function hasStoredData(): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Get the timestamp of the last update from cloud database
+ */
+export async function getLastUpdateTimestamp(): Promise<string | null> {
+  try {
+    const { data, error } = await supabase
+      .from('kpi_records')
+      .select('updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (error || !data) return null;
+    return data.updated_at;
+  } catch {
+    return null;
+  }
+}
