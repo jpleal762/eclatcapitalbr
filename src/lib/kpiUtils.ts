@@ -1009,7 +1009,10 @@ export function processDashboardData(
   // Ordem: Captação NET → Receita → Diversificação → Primeiras Reuniões → Habilitação → Ativação
   const metaSemanalCategories = [
     { category: "Captação net", label: "Captação NET", isCurrency: true },
-    { category: "Receita", label: "Receita", isCurrency: true },
+    // Receita PJ1 XP: Meta = PJ1 XP Mês (Planejado Semana), Realizado = PJ1 XP (Realizado)
+    { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true, actualCategory: "PJ1 XP" },
+    // Receita PJ2 XP: Meta = PJ2 XP Mês (Planejado Semana), Realizado = PJ2 XP + Receita Empilhada (Realizado)
+    { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, actualCategory: "PJ2 XP", additionalActualCategory: "Receita Empilhada" },
     { category: "Diversificada ( ROA>1,5)", label: "Diversificação (ROA>1,5)", isCurrency: true },
     { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
     { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
@@ -1020,23 +1023,27 @@ export function processDashboardData(
   const metaSemanal: MetaSemanal[] = metaSemanalCategories.map(item => {
     const catData = filterByCategory(filteredByAssessor, item.category);
     const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
-    const realizedData = catData.filter(d => isRealizedStatus(d.status));
     
     const value = selectedMonth !== "all" 
       ? getMonthValue(weeklyPlanned, selectedMonth)
       : weeklyPlanned.reduce((s, d) => s + d.total, 0);
     
+    // Determinar categoria para valor realizado (pode ser diferente da meta)
+    const actualCat = (item as any).actualCategory || item.category;
+    const actualCatData = filterByCategory(filteredByAssessor, actualCat);
+    const realizedData = actualCatData.filter(d => isRealizedStatus(d.status));
+    
     let realizedValue = selectedMonth !== "all"
       ? getMonthValue(realizedData, selectedMonth)
       : realizedData.reduce((s, d) => s + d.total, 0);
     
-    // Para Receita, adicionar também a Receita Empilhada
-    if (item.category === "Receita") {
-      const empilhadaData = filterByCategory(filteredByAssessor, "Receita Empilhada");
-      const empilhadaRealized = empilhadaData.filter(d => isRealizedStatus(d.status));
+    // Adicionar categoria adicional se definida (ex: Receita Empilhada para PJ2 XP)
+    if ((item as any).additionalActualCategory) {
+      const additionalData = filterByCategory(filteredByAssessor, (item as any).additionalActualCategory);
+      const additionalRealized = additionalData.filter(d => isRealizedStatus(d.status));
       realizedValue += selectedMonth !== "all"
-        ? getMonthValue(empilhadaRealized, selectedMonth)
-        : empilhadaRealized.reduce((s, d) => s + d.total, 0);
+        ? getMonthValue(additionalRealized, selectedMonth)
+        : additionalRealized.reduce((s, d) => s + d.total, 0);
     }
       
     return { label: item.label, value, realizedValue, isCurrency: item.isCurrency };
@@ -1049,7 +1056,8 @@ export function processDashboardData(
     "Ativacao",
     "Captacao net",
     "Diversificada ( ROA>1,5)",
-    "Receita",
+    "PJ1 XP Mês",  // Substituído de "Receita"
+    "PJ2 XP Mês",  // Adicionado
     "Parceiros Tri",
     "Primeira Reuniao"
   ];
