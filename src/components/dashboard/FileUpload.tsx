@@ -8,9 +8,10 @@ import { parseXLSXFile } from "@/lib/kpiUtils";
 interface FileUploadProps {
   onDataLoaded: (data: KPIRecord[]) => void;
   compact?: boolean;
+  lastUpdate?: string | null;
 }
 
-export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
+export function FileUpload({ onDataLoaded, compact = false, lastUpdate }: FileUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -95,7 +96,7 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
 
   if (compact) {
     return (
-      <div className="relative">
+      <div className="relative flex flex-col items-center">
         <input
           type="file"
           accept=".xlsx,.xls,.json"
@@ -106,6 +107,11 @@ export function FileUpload({ onDataLoaded, compact = false }: FileUploadProps) {
           <RefreshCw className="h-4 w-4" />
           Atualizar dados
         </Button>
+        {lastUpdate && (
+          <span className="text-[8px] text-muted-foreground mt-1">
+            Atualizado: {new Date(lastUpdate).toLocaleString('pt-BR')}
+          </span>
+        )}
       </div>
     );
   }

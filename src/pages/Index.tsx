@@ -34,7 +34,7 @@ import {
   processYearlyDashboardData, 
   getAvailableYears 
 } from "@/lib/yearlyKpiUtils";
-import { loadExcelData, saveExcelData } from "@/lib/storage";
+import { loadExcelData, saveExcelData, getLastUpdateTimestamp } from "@/lib/storage";
 import { 
   saveSprintSnapshot, 
   getLatestSnapshot, 
@@ -86,6 +86,7 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const [rawData, setRawData] = useState<KPIRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [isTokenValidating, setIsTokenValidating] = useState(false);
   const [tokenValidated, setTokenValidated] = useState(false);
@@ -281,6 +282,9 @@ const Index = () => {
         if (storedData && storedData.length > 0) {
           setRawData(storedData);
         }
+        // Load last update timestamp
+        const timestamp = await getLastUpdateTimestamp();
+        setLastUpdateTime(timestamp);
       } catch (error) {
         console.error("Error loading stored data:", error);
       } finally {
@@ -294,6 +298,9 @@ const Index = () => {
   const handleDataLoaded = async (data: KPIRecord[]) => {
     setRawData(data);
     await saveExcelData(data);
+    
+    // Update last update timestamp
+    setLastUpdateTime(new Date().toISOString());
     
     // Save sprint snapshot for evolution tracking
     const currentMonth = getCurrentMonthValue();
@@ -608,7 +615,7 @@ const Index = () => {
                   <ThemeToggle />
                   {/* File Upload - only visible when not in token mode */}
                   {hasData && !isTokenLocked && (
-                    <FileUpload onDataLoaded={handleDataLoaded} compact />
+                    <FileUpload onDataLoaded={handleDataLoaded} compact lastUpdate={lastUpdateTime} />
                   )}
                 </div>
               </div>
