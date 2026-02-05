@@ -187,13 +187,6 @@ export function QuarterlyKPIBar({
             </span>
           ) : null}
           
-          {/* Total remaining - ao lado do ritmo */}
-          {percentage < 100 && target > 0 && (
-            <span className="text-muted-foreground whitespace-nowrap">
-              | Falta: {formatValue(target - value, isCurrency)}
-            </span>
-          )}
-          
           {/* Weekly target gap - ao lado do ritmo ideal */}
           {weeklyGap && weeklyGap.gap > 0 && (
             <span className="text-orange-500 font-medium whitespace-nowrap">
