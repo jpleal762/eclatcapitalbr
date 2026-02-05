@@ -1,56 +1,101 @@
 
-# Plano: Corrigir Deslocamento de Conteudo nos Cards Inferiores
+# Plano: Exibir Data/Hora da Ultima Atualizacao
 
-## Diagnostico
+## Objetivo
+Mostrar abaixo do botao "Atualizar dados" a data e hora da ultima vez que os dados foram carregados/atualizados.
 
-Os pares de cards na parte inferior estao com conteudo deslocado para baixo devido ao uso de `justify-center` nos wrappers internos dos componentes. Quando o container flex tem mais espaco vertical do que o conteudo necessita, o `justify-center` empurra o conteudo para o centro, causando o deslocamento para baixo.
+---
 
-## Arquivos a Modificar
+## Alteracoes
 
-### 1. `src/components/dashboard/GaugeChart.tsx` (linha 213)
+### 1. `src/lib/storage.ts`
 
-Mudar alinhamento vertical de `justify-center` para `justify-start`:
+Criar nova funcao para obter o timestamp da ultima atualizacao:
 
 ```typescript
-// Antes
-<div className="flex flex-col items-center justify-center flex-1 min-h-0">
-
-// Depois
-<div className="flex flex-col items-center justify-start flex-1 min-h-0">
+export async function getLastUpdateTimestamp(): Promise<string | null> {
+  try {
+    const { data, error } = await supabase
+      .from('kpi_records')
+      .select('updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (error || !data) return null;
+    return data.updated_at;
+  } catch {
+    return null;
+  }
+}
 ```
 
-### 2. `src/components/dashboard/AssessorChart.tsx` (linha 155)
+### 2. `src/pages/Index.tsx`
 
-O layout de assessor unico usa `items-center justify-center` que pode causar deslocamento:
-
+- Adicionar estado para armazenar o timestamp:
 ```typescript
-// Antes
-<div className="flex-1 flex items-center justify-center p-2">
-
-// Depois
-<div className="flex-1 flex items-center justify-start p-2">
+const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
 ```
 
-### 3. `src/components/dashboard/FlipGaugeChart.tsx` (linha 58)
+- Importar a nova funcao `getLastUpdateTimestamp`
 
-O wrapper do gauge na frente usa centralizacao que pode afetar:
-
+- Atualizar `loadStoredData` para carregar o timestamp:
 ```typescript
-// Antes
-<div className="absolute inset-0 backface-hidden overflow-hidden flex items-center justify-center">
+const loadStoredData = async () => {
+  // ... codigo existente ...
+  const timestamp = await getLastUpdateTimestamp();
+  setLastUpdateTime(timestamp);
+};
+```
 
-// Depois
-<div className="absolute inset-0 backface-hidden overflow-hidden flex items-start justify-center">
+- Atualizar `handleDataLoaded` para atualizar o timestamp apos upload:
+```typescript
+const handleDataLoaded = async (data: KPIRecord[]) => {
+  // ... codigo existente ...
+  setLastUpdateTime(new Date().toISOString());
+};
+```
+
+- Passar o timestamp para o FileUpload:
+```typescript
+<FileUpload 
+  onDataLoaded={handleDataLoaded} 
+  compact 
+  lastUpdate={lastUpdateTime}
+/>
+```
+
+### 3. `src/components/dashboard/FileUpload.tsx`
+
+- Adicionar prop `lastUpdate`:
+```typescript
+interface FileUploadProps {
+  onDataLoaded: (data: KPIRecord[]) => void;
+  compact?: boolean;
+  lastUpdate?: string | null;
+}
+```
+
+- No modo compact, exibir o timestamp abaixo do botao:
+```typescript
+if (compact) {
+  return (
+    <div className="relative flex flex-col items-center">
+      <input ... />
+      <Button ...>Atualizar dados</Button>
+      {lastUpdate && (
+        <span className="text-[8px] text-muted-foreground mt-1">
+          Atualizado: {new Date(lastUpdate).toLocaleString('pt-BR')}
+        </span>
+      )}
+    </div>
+  );
+}
 ```
 
 ---
 
-## Resumo das Mudancas
+## Resultado
 
-| Arquivo | Linha | Antes | Depois |
-|---------|-------|-------|--------|
-| GaugeChart.tsx | 213 | `justify-center` | `justify-start` |
-| AssessorChart.tsx | 155 | `justify-center` | `justify-start` |
-| FlipGaugeChart.tsx | 58 | `items-center` | `items-start` |
-
-Essas alteracoes manterao o conteudo alinhado ao topo de cada card, evitando o deslocamento para baixo.
+O usuario vera abaixo do botao "Atualizar dados" uma linha com:
+`Atualizado: 05/02/2026, 14:30:45` (formato brasileiro)
