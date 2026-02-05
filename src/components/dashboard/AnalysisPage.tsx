@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { ProcessedKPI } from "@/types/kpi";
-import { QUARTERS, processQuarterlyDashboardData, getCurrentQuarter, calculateQuarterlyIdealRhythm, calculateMonthlyGapsForBar, calculateAssessorGapsForKPI, MonthlyGapData, AssessorQuarterlyGap } from "@/lib/quarterlyKpiUtils";
+import { QUARTERS, processQuarterlyDashboardData, getCurrentQuarter, calculateQuarterlyIdealRhythm, calculateMonthlyGapsForBar, calculateAssessorGapsForKPI, calculateWeeklyGapForKPI, MonthlyGapData, AssessorQuarterlyGap, WeeklyGapData } from "@/lib/quarterlyKpiUtils";
 import { QuarterlyKPIBar } from "./QuarterlyKPIBar";
 import { KPI_CATEGORIES } from "@/lib/kpiUtils";
 import {
@@ -86,6 +86,7 @@ export function AnalysisPage({
       
       let monthlyGaps: MonthlyGapData[] = [];
       let topAssessorGaps: AssessorQuarterlyGap[] = [];
+      let weeklyGap: WeeklyGapData | undefined;
       
       if (kpiConfig) {
         monthlyGaps = calculateMonthlyGapsForBar(
@@ -107,9 +108,18 @@ export function AnalysisPage({
             ritmoIdeal
           );
         }
+        
+        // Calculate weekly gap for this KPI
+        weeklyGap = calculateWeeklyGapForKPI(
+          processedData,
+          selectedYear,
+          selectedQuarter,
+          kpiConfig,
+          selectedAssessor
+        );
       }
       
-      return { ...kpi, monthlyGaps, topAssessorGaps };
+      return { ...kpi, monthlyGaps, topAssessorGaps, weeklyGap };
     });
   }, [quarterlyKPIs, processedData, selectedYear, selectedQuarter, selectedAssessor, ritmoIdeal]);
 
@@ -246,7 +256,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.prospeccao.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} weeklyGap={kpi.weeklyGap} />
               </div>
             ))}
 
@@ -260,7 +270,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.investimentos.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} weeklyGap={kpi.weeklyGap} />
               </div>
             ))}
 
@@ -274,7 +284,7 @@ export function AnalysisPage({
             </div>
             {kpisByCategory.receita.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} weeklyGap={kpi.weeklyGap} />
               </div>
             ))}
           </div>
@@ -283,7 +293,7 @@ export function AnalysisPage({
           <div className="flex-1 min-h-0 flex flex-col gap-[1px] lg:gap-0.5 overflow-hidden lg:overflow-hidden overflow-y-auto">
             {sortedKPIs.map((kpi) => (
               <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
-                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} />
+                <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} weeklyGap={kpi.weeklyGap} />
               </div>
             ))}
           </div>

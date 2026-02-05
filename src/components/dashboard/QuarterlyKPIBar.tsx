@@ -1,4 +1,4 @@
-import { QuarterlyKPI, MonthlyGapData, AssessorQuarterlyGap } from "@/lib/quarterlyKpiUtils";
+import { QuarterlyKPI, MonthlyGapData, AssessorQuarterlyGap, WeeklyGapData } from "@/lib/quarterlyKpiUtils";
 
 interface QuarterlyKPIBarProps extends QuarterlyKPI {
   ritmoIdeal: number;
@@ -6,6 +6,7 @@ interface QuarterlyKPIBarProps extends QuarterlyKPI {
   isTopGap?: boolean;
   monthlyGaps?: MonthlyGapData[];
   topAssessorGaps?: AssessorQuarterlyGap[];
+  weeklyGap?: WeeklyGapData;
 }
 
 // Format value for display
@@ -75,7 +76,8 @@ export function QuarterlyKPIBar({
   headName,
   isTopGap,
   monthlyGaps,
-  topAssessorGaps
+  topAssessorGaps,
+  weeklyGap
 }: QuarterlyKPIBarProps) {
   const barWidth = Math.min(percentage, 100);
   const barColor = getBarColor(percentage, ritmoIdeal);
@@ -189,6 +191,13 @@ export function QuarterlyKPIBar({
           {percentage < 100 && target > 0 && (
             <span className="text-muted-foreground whitespace-nowrap">
               | Falta: {formatValue(target - value, isCurrency)}
+            </span>
+          )}
+          
+          {/* Weekly target gap - ao lado do ritmo ideal */}
+          {weeklyGap && weeklyGap.gap > 0 && (
+            <span className="text-orange-500 font-medium whitespace-nowrap">
+              | Meta Semana Falta: {formatValue(weeklyGap.gap, weeklyGap.isCurrency)}
             </span>
           )}
         </div>
