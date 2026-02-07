@@ -41,7 +41,7 @@ interface ProductionEditModalProps {
   openMonth: string | null;
   tokenId: string | null;
   onDataUpdated: () => void;
-  filterCategory?: string | null;
+  filterCategory?: string | string[] | null;
 }
 
 // Map "fev-26" -> "Feb-26" for monthly_data keys
@@ -101,7 +101,11 @@ export function ProductionEditModal({
 
       // Filter by category if specified
       if (filterCategory) {
-        query = query.eq("categorias", filterCategory);
+        if (Array.isArray(filterCategory)) {
+          query = query.in("categorias", filterCategory);
+        } else {
+          query = query.eq("categorias", filterCategory);
+        }
       }
 
       // Sócio only sees their own records
@@ -214,7 +218,7 @@ export function ProductionEditModal({
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            📝 {filterCategory ? `Editar: ${filterCategory}` : "Editar Produção Individual"}
+            📝 {filterCategory ? `Editar: ${Array.isArray(filterCategory) ? filterCategory.join(' + ') : filterCategory}` : "Editar Produção Individual"}
           </DialogTitle>
           <DialogDescription>
             {isLocked ? (

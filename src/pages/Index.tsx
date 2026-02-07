@@ -121,7 +121,7 @@ const Index = () => {
   const [allowedScreens, setAllowedScreens] = useState<PageType[]>(['dashboard', 'analysis', 'prospection', 'sprint', 'tactics']);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isProductionEditOpen, setIsProductionEditOpen] = useState(false);
-  const [productionEditCategory, setProductionEditCategory] = useState<string | null>(null);
+  const [productionEditCategory, setProductionEditCategory] = useState<string | string[] | null>(null);
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [tokenRole, setTokenRole] = useState<string | null>(null);
   const [tokenAssessorName, setTokenAssessorName] = useState<string | null>(null);
@@ -359,20 +359,20 @@ const Index = () => {
   const processedData = useMemo(() => processKPIData(rawData), [rawData]);
 
   // Helper to open production edit modal for a specific category
-  const handleEditProductionForKPI = (category: string) => {
+  const handleEditProductionForKPI = (category: string | string[]) => {
     setProductionEditCategory(category);
     setIsProductionEditOpen(true);
   };
 
   // Mapeamento dos índices de gaugeKPIs para as categorias do banco
-  const GAUGE_CATEGORY_MAP: Record<number, string> = {
-    0: "Captacao net",
+  const GAUGE_CATEGORY_MAP: Record<number, string | string[]> = {
+    0: "Captação net",
     1: "Receita",
     2: "Primeira reuniao",
     3: "Diversificada ( ROA>1,5)",
     4: "Parceiros Tri",
     5: "PJ1 XP",
-    6: "PJ2 XP",
+    6: ["PJ2 XP", "Receita Empilhada"],
     7: "Habilitacao",
     8: "Ativacao",
   };
@@ -851,36 +851,45 @@ const Index = () => {
                       </ExpandableCard>
                     )}
                     {visibility.card3 && (
-                      <div className="flex flex-col gap-2 h-full lg:overflow-hidden">
-                        {/* AgendadasCard (metade superior) */}
-                        <div className="flex-1 min-h-0">
-                          <ExpandableCard>
-                            <AgendadasCard
-                              agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
-                              assessorData={assessorAgendadas}
-                            />
-                          </ExpandableCard>
+                      <ExpandableCard>
+                        <div 
+                          className="relative h-full cursor-pointer perspective-1000"
+                          onClick={() => {}}
+                        >
+                          <div 
+                            className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
+                              isGlobalFlipped ? 'rotate-y-180' : ''
+                            }`}
+                          >
+                            {/* Frente - Gauge Primeiras Reuniões */}
+                            <div className="absolute inset-0 backface-hidden overflow-hidden flex items-start justify-center">
+                              <div className="relative h-full w-full">
+                                <GaugeChart
+                                  label={dashboardData.gaugeKPIs[2]?.label || "Primeiras Reuniões"}
+                                  value={dashboardData.gaugeKPIs[2]?.value || 0}
+                                  target={dashboardData.gaugeKPIs[2]?.target || 0}
+                                  percentage={dashboardData.gaugeKPIs[2]?.percentage || 0}
+                                  isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
+                                  warning={dashboardData.gaugeKPIs[2]?.warning}
+                                  size="lg"
+                                  showRemaining={true}
+                                  ritmoIdeal={dashboardData.ritmoIdeal}
+                                  weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label || "")}
+                                  compact={false}
+                                  onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[2])}
+                                />
+                              </div>
+                            </div>
+                            {/* Verso - AgendadasCard */}
+                            <div className="absolute inset-0 backface-hidden rotate-y-180 overflow-hidden">
+                              <AgendadasCard
+                                agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
+                                assessorData={assessorAgendadas}
+                              />
+                            </div>
+                          </div>
                         </div>
-                        {/* Gráfico Primeiras Reuniões (metade inferior) */}
-                        <div className="flex-1 min-h-0">
-                          <ExpandableCard>
-                            <GaugeChart
-                              label={dashboardData.gaugeKPIs[2]?.label || "Primeiras Reuniões"}
-                              value={dashboardData.gaugeKPIs[2]?.value || 0}
-                              target={dashboardData.gaugeKPIs[2]?.target || 0}
-                              percentage={dashboardData.gaugeKPIs[2]?.percentage || 0}
-                              isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
-                              warning={dashboardData.gaugeKPIs[2]?.warning}
-                              size="lg"
-                              showRemaining={true}
-                              ritmoIdeal={dashboardData.ritmoIdeal}
-                              weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label || "")}
-                              compact={true}
-                              onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[2])}
-                            />
-                          </ExpandableCard>
-                        </div>
-                      </div>
+                      </ExpandableCard>
                     )}
                   </div>
                 )}
