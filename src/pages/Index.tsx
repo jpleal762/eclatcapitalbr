@@ -35,6 +35,7 @@ import {
   getAvailableYears 
 } from "@/lib/yearlyKpiUtils";
 import { loadExcelData, saveExcelData, getLastUpdateTimestamp } from "@/lib/storage";
+import { getOpenMonth, updateLastProductionUpdate } from "@/lib/permissions";
 import { 
   saveSprintSnapshot, 
   getLatestSnapshot, 
@@ -118,6 +119,11 @@ const Index = () => {
   const [allowedScreens, setAllowedScreens] = useState<PageType[]>(['dashboard', 'analysis', 'prospection', 'sprint', 'tactics']);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
+  const [tokenRole, setTokenRole] = useState<string | null>(null);
+  const [tokenAssessorName, setTokenAssessorName] = useState<string | null>(null);
+  const [tokenId, setTokenId] = useState<string | null>(null);
+  const [openMonth, setOpenMonth] = useState<string | null>(null);
+  const [lastProductionUpdate, setLastProductionUpdate] = useState<string | null>(null);
   
   // Sprint product selection state with localStorage persistence
   const [selectedSprintProducts, setSelectedSprintProducts] = useState<Set<string>>(() => {
@@ -164,7 +170,7 @@ const Index = () => {
       try {
         const { data, error } = await supabase
           .from("assessor_tokens")
-          .select("assessor_name, is_active, allowed_screens")
+          .select("id, assessor_name, is_active, allowed_screens, role, last_production_update_at")
           .eq("token", tokenToValidate)
           .maybeSingle();
 
@@ -204,6 +210,12 @@ const Index = () => {
         setFilters(prev => ({ ...prev, assessor: data.assessor_name }));
         setIsTokenLocked(true);
         setTokenValidated(true);
+        
+        // Store role and token info
+        setTokenRole((data as any).role || 'socio');
+        setTokenAssessorName(data.assessor_name);
+        setTokenId(data.id);
+        setLastProductionUpdate((data as any).last_production_update_at || null);
         
         // Configura telas permitidas
         const screens = (data.allowed_screens as PageType[]) || ['dashboard', 'analysis', 'prospection', 'sprint', 'tactics'];
@@ -273,18 +285,21 @@ const Index = () => {
 
   // Handlers de seleção de visão removidos - acesso direto ao dashboard
 
-  // Load data from storage on mount
+  // Load data from storage and open month on mount
   useEffect(() => {
     const loadStoredData = async () => {
       setIsLoading(true);
       try {
-        const storedData = await loadExcelData();
+        const [storedData, timestamp, month] = await Promise.all([
+          loadExcelData(),
+          getLastUpdateTimestamp(),
+          getOpenMonth(),
+        ]);
         if (storedData && storedData.length > 0) {
           setRawData(storedData);
         }
-        // Load last update timestamp
-        const timestamp = await getLastUpdateTimestamp();
         setLastUpdateTime(timestamp);
+        setOpenMonth(month);
       } catch (error) {
         console.error("Error loading stored data:", error);
       } finally {
@@ -296,11 +311,18 @@ const Index = () => {
 
   // Handle data loaded from file upload
   const handleDataLoaded = async (data: KPIRecord[]) => {
+    const auditName = tokenAssessorName || "Escritório";
     setRawData(data);
-    await saveExcelData(data);
+    await saveExcelData(data, { createdBy: auditName, updatedBy: auditName });
     
     // Update last update timestamp
     setLastUpdateTime(new Date().toISOString());
+    
+    // Update last production update for token user
+    if (tokenId) {
+      await updateLastProductionUpdate(tokenId);
+      setLastProductionUpdate(new Date().toISOString());
+    }
     
     // Save sprint snapshot for evolution tracking
     const currentMonth = getCurrentMonthValue();
@@ -570,9 +592,16 @@ const Index = () => {
                   )}
                   {/* Badge indicando sessão bloqueada via token */}
                   {isTokenLocked && selectedView && (
-                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full flex items-center gap-1">
-                      🔒 {selectedView.split(' ')[0]}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full flex items-center gap-1">
+                        🔒 {selectedView.split(' ')[0]}
+                      </span>
+                      {lastProductionUpdate && (
+                        <span className="text-[8px] text-muted-foreground mt-0.5 text-center">
+                          Atualizado: {new Date(lastProductionUpdate).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
                 <div className="flex-1 flex flex-col items-center">
@@ -615,7 +644,7 @@ const Index = () => {
                   <ThemeToggle />
                   {/* File Upload - only visible when not in token mode */}
                   {hasData && !isTokenLocked && (
-                    <FileUpload onDataLoaded={handleDataLoaded} compact lastUpdate={lastUpdateTime} />
+                    <FileUpload onDataLoaded={handleDataLoaded} compact lastUpdate={lastUpdateTime} role={tokenRole} assessorName={tokenAssessorName} openMonth={openMonth} />
                   )}
                 </div>
               </div>
@@ -1014,6 +1043,8 @@ const Index = () => {
           onFullscreenChange={setIsFullscreen}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
+          openMonth={openMonth}
+          onOpenMonthChange={setOpenMonth}
         />
       </div>
     </SidebarProvider>

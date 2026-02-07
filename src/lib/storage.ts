@@ -4,7 +4,10 @@ import { KPIRecord } from "@/types/kpi";
 /**
  * Save Excel data to cloud database (replaces existing data)
  */
-export async function saveExcelData(data: KPIRecord[]): Promise<boolean> {
+export async function saveExcelData(
+  data: KPIRecord[],
+  options?: { createdBy?: string; updatedBy?: string }
+): Promise<boolean> {
   try {
     // First, clear existing data
     const { error: deleteError } = await supabase
@@ -23,7 +26,9 @@ export async function saveExcelData(data: KPIRecord[]): Promise<boolean> {
       status: record.Status,
       monthly_data: Object.fromEntries(
         Object.entries(record).filter(([key]) => !['Assessor', 'Categorias', 'Status'].includes(key))
-      )
+      ),
+      ...(options?.createdBy && { created_by: options.createdBy }),
+      ...(options?.updatedBy && { updated_by: options.updatedBy }),
     }));
     
     // Insert new data in batches of 100
