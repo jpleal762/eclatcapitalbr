@@ -1,98 +1,31 @@
 
-# Plano: Card Azul "Planejamento" + Reordenacao de Cards + HEAD BRUNO em Diversificacao
+# Plano: Ajustes visuais nos cards
 
-## Resumo
+## 1. Remover underline pontilhado do numero de producao
 
-Tres alteracoes principais:
-1. Renomear o card azul para "Planejamento" e adicionar coluna "Meta Mes" com indicacao visual do tipo de meta
-2. Adicionar HEAD BRUNO em Diversificacao
-3. Reorganizar cards de gauge: remover "Receita XP", subir "Receita PJ1 XP" para posicao principal, mover "Receita Parceiros" e "Receita PJ2 XP"
+**Arquivo:** `src/components/dashboard/GaugeChart.tsx` (linha 271)
 
----
+Remover `underline decoration-dotted` da classe do span clicavel. Manter `cursor-pointer` e `hover:text-eclat-gold` para feedback sutil sem os pontinhos.
 
-## 1. Card Azul - "Planejamento" com Meta Mes
+## 2. Card azul "Falta para Meta Semanal" - mostrar numero ao lado do check quando atingido
 
-### Alteracoes em `src/lib/kpiUtils.ts`
+**Arquivo:** `src/components/dashboard/FlipMetaTable.tsx` (linhas 183-192)
 
-- Adicionar campo `monthlyTarget` ao calculo de `metaSemanal`, buscando o valor de "Planejado Mes" para cada categoria
-- Adicionar campo `metaType` indicando se a linha e "Semana" ou "Mes"
+Quando a meta e atingida, em vez de mostrar apenas o icone de check + "Atingido", mostrar o icone de check + o nome do KPI + o valor realizado atual. Exemplo: `check Atingido 45` ao inves de so `check Atingido`.
 
-### Alteracoes em `src/types/kpi.ts`
+Alteracao: trocar `<span>Atingido</span>` por `<span>{formatNumber(item.realizedValue!, item.isCurrency)}</span>` ao lado do check.
 
-- Adicionar `monthlyTarget?: number` ao tipo `MetaSemanal`
+## 3. Meta Mes com cor mais discreta no card azul
 
-### Alteracoes em `src/components/dashboard/FlipMetaTable.tsx`
+**Arquivo:** `src/components/dashboard/FlipMetaTable.tsx` (linhas 99, 172)
 
-**Frente:**
-- Titulo: "Planejamento" (em vez de "Planejamento Semanal Acumulado")
-- Subtitulo mantido: "*definido na reuniao semanal em equipe"
-- Nova coluna "Meta Mes" na tabela entre "KPI" e "Meta" (que passa a se chamar "Meta Sem.")
-- Cada linha mostra Meta Mensal (Planejado Mes) e Meta Semanal lado a lado
-- Indicadores visuais: badges pequenos "S" (semana) e "M" (mes) nas colunas para clareza
-
-**Verso:**
-- Titulo: "Falta para Meta Semanal" (mantido)
-- Mesma estrutura atualizada com a coluna extra
+Trocar a cor `text-amber-300/80` para `text-white/40` nas celulas de Meta Mes (tanto na frente quanto no verso), tornando-a mais discreta e menos chamativa que as outras colunas.
 
 ---
 
-## 2. HEAD BRUNO em Diversificacao
-
-### Alteracoes em `src/pages/Index.tsx`
-
-- No gauge de Diversificacao (index 3), adicionar prop `headName="BRUNO"` (similar ao que ja existe em PJ1 XP)
-
-### Alteracoes em `src/components/dashboard/AnalysisPage.tsx`
-
-- Adicionar `"Diversificacao": "BRUNO"` no mapeamento `KPI_HEADS`
-
----
-
-## 3. Reorganizacao dos Cards de Gauge
-
-### Contexto atual (KPI_CATEGORIES, indices 0-8):
-```text
-[0] Captacao NET
-[1] Receita XP         <-- REMOVER do dashboard
-[2] Primeiras Reunioes
-[3] Diversificacao
-[4] Receita Parceiros
-[5] Receita PJ1 XP
-[6] Receita PJ2 XP
-[7] Habilitacao
-[8] Ativacao
-```
-
-### Nova disposicao nos cards do dashboard (Index.tsx):
-
-**Coluna 2 (Graph 2 - posicao principal, 65%):**
-- Antes: Receita XP (gaugeKPIs[1]) com assessor list
-- Depois: **Receita PJ1 XP (gaugeKPIs[5])** com assessor list e headName="BRUNO"
-
-**Coluna 2 (Graph 6 - sub-gauge esquerdo, 35%):**
-- Antes: Receita PJ1 XP (gaugeKPIs[5]) com headName="BRUNO"
-- Depois: **Receita PJ2 XP (gaugeKPIs[6])** com Receita Empilhada flip
-
-**Coluna 2 (Graph 7 - sub-gauge direito, 35%):**
-- Antes: Receita PJ2 XP (gaugeKPIs[6]) com flip empilhada
-- Depois: **Receita Parceiros (gaugeKPIs[4])** com flip "Falta por Assessor"
-
-### Alteracoes em `src/pages/Index.tsx`
-
-- Graph 2: trocar referencia de `gaugeKPIs[1]` para `gaugeKPIs[5]`, adicionar `headName="BRUNO"`, manter `showAssessorList`
-- Graph 6: trocar de `gaugeKPIs[5]` para `gaugeKPIs[6]`, usar FlipGaugeChart com additionalValue/empilhada
-- Graph 7: trocar de `gaugeKPIs[6]` para `gaugeKPIs[4]`, usar FlipGaugeChart com assessorRemainingParceiros
-- Atualizar `GAUGE_CATEGORY_MAP` para refletir os novos mapeamentos
-- Atualizar `assessorRemainingReceita` para calcular remaining baseado em PJ1 XP (nova posicao principal)
-
----
-
-## 4. Resumo de Arquivos
+## Resumo de Arquivos
 
 | Arquivo | Alteracao |
 |---------|-----------|
-| `src/types/kpi.ts` | Adicionar `monthlyTarget` ao MetaSemanal |
-| `src/lib/kpiUtils.ts` | Calcular monthlyTarget no metaSemanal |
-| `src/components/dashboard/FlipMetaTable.tsx` | Renomear titulo, adicionar coluna Meta Mes |
-| `src/pages/Index.tsx` | Reorganizar gauges, HEAD BRUNO em Diversificacao |
-| `src/components/dashboard/AnalysisPage.tsx` | Adicionar Diversificacao ao KPI_HEADS |
+| `src/components/dashboard/GaugeChart.tsx` | Remover `underline decoration-dotted` do span clicavel |
+| `src/components/dashboard/FlipMetaTable.tsx` | Mostrar valor ao lado do check; Meta Mes cor mais discreta |
