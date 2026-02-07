@@ -44,7 +44,7 @@ import {
 } from "@/lib/sprintStorage";
 import { SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Settings } from "lucide-react";
+import { Menu, Settings, Edit3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
@@ -63,6 +63,7 @@ import { ProspectionQualityPage } from "@/components/dashboard/ProspectionQualit
 import { TacticsWeekPage } from "@/components/dashboard/TacticsWeekPage";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { TokenAccessConfig } from "@/components/dashboard/TokenAccessConfig";
+import { ProductionEditModal } from "@/components/dashboard/ProductionEditModal";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 const SPRINT_PRODUCTS_STORAGE_KEY = "sprint-selected-products";
@@ -118,6 +119,7 @@ const Index = () => {
   const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(false);
   const [allowedScreens, setAllowedScreens] = useState<PageType[]>(['dashboard', 'analysis', 'prospection', 'sprint', 'tactics']);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isProductionEditOpen, setIsProductionEditOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [tokenRole, setTokenRole] = useState<string | null>(null);
   const [tokenAssessorName, setTokenAssessorName] = useState<string | null>(null);
@@ -640,6 +642,26 @@ const Index = () => {
                       </Tooltip>
                     </TooltipProvider>
                   )}
+                  {/* Production Edit Button - visible when has data */}
+                  {hasData && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setIsProductionEditOpen(true)}
+                            className="h-8 w-8"
+                          >
+                            <Edit3 className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Editar Produção
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                   <ScaleSelector />
                   <ThemeToggle />
                   {/* File Upload - only visible when not in token mode */}
@@ -1045,6 +1067,22 @@ const Index = () => {
           onViewModeChange={setViewMode}
           openMonth={openMonth}
           onOpenMonthChange={setOpenMonth}
+        />
+
+        {/* Production Edit Modal */}
+        <ProductionEditModal
+          isOpen={isProductionEditOpen}
+          onClose={() => setIsProductionEditOpen(false)}
+          role={isTokenLocked ? tokenRole : 'admin'}
+          assessorName={tokenAssessorName}
+          openMonth={openMonth}
+          tokenId={tokenId}
+          onDataUpdated={async () => {
+            const data = await loadExcelData();
+            if (data) setRawData(data);
+            setLastUpdateTime(new Date().toISOString());
+            if (tokenId) setLastProductionUpdate(new Date().toISOString());
+          }}
         />
       </div>
     </SidebarProvider>
