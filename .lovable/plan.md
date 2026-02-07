@@ -1,31 +1,85 @@
 
-# Plano: Ajustes visuais nos cards
+# Plano: Layout Primeiras Reunioes + Correcao de bugs de edicao
 
-## 1. Remover underline pontilhado do numero de producao
+## 1. Primeiras Reunioes ocupa espaco total com AgendadasCard atras (flip)
 
-**Arquivo:** `src/components/dashboard/GaugeChart.tsx` (linha 271)
+**Arquivo:** `src/pages/Index.tsx` (linhas 854-883)
 
-Remover `underline decoration-dotted` da classe do span clicavel. Manter `cursor-pointer` e `hover:text-eclat-gold` para feedback sutil sem os pontinhos.
+Substituir os dois containers separados (AgendadasCard + GaugeChart Primeiras Reunioes) por um unico componente FlipGaugeChart que ocupa todo o espaco do card3.
 
-## 2. Card azul "Falta para Meta Semanal" - mostrar numero ao lado do check quando atingido
+- **Frente:** Gauge de Primeiras Reunioes (como esta hoje, com barra secundaria de Agendadas)
+- **Verso:** AgendadasCard (lista de reunioes agendadas por assessor)
 
-**Arquivo:** `src/components/dashboard/FlipMetaTable.tsx` (linhas 183-192)
+Sera necessario criar uma versao do flip que mostra o AgendadasCard no verso em vez da lista padrao. Para simplificar, usaremos a estrutura de flip manual com CSS, similar ao FlipGaugeChart existente, mas com o AgendadasCard como conteudo do verso.
 
-Quando a meta e atingida, em vez de mostrar apenas o icone de check + "Atingido", mostrar o icone de check + o nome do KPI + o valor realizado atual. Exemplo: `check Atingido 45` ao inves de so `check Atingido`.
+## 2. Corrigir bug: Captacao NET diz "nao existe"
 
-Alteracao: trocar `<span>Atingido</span>` por `<span>{formatNumber(item.realizedValue!, item.isCurrency)}</span>` ao lado do check.
+**Arquivo:** `src/pages/Index.tsx` (linha 369)
 
-## 3. Meta Mes com cor mais discreta no card azul
+O mapeamento `GAUGE_CATEGORY_MAP` tem `"Captacao net"` (sem acento), mas no banco de dados a categoria e `"Captação net"` (com acento no "a"). O modal de edicao faz `.eq("categorias", filterCategory)` e nao encontra nada.
 
-**Arquivo:** `src/components/dashboard/FlipMetaTable.tsx` (linhas 99, 172)
+**Correcao:** Trocar `"Captacao net"` por `"Captação net"` no mapa.
 
-Trocar a cor `text-amber-300/80` para `text-white/40` nas celulas de Meta Mes (tanto na frente quanto no verso), tornando-a mais discreta e menos chamativa que as outras colunas.
+## 3. Corrigir bug: PJ2 XP mostra zero
+
+**Arquivo:** `src/pages/Index.tsx` (linha 376)
+
+O gauge de PJ2 XP mostra a soma de `PJ2 XP` + `Receita Empilhada` (Realizado), mas o modal de edicao filtra apenas por `categorias = 'PJ2 XP'`, e a maioria dos assessores tem valor nulo nessa categoria. Os valores reais estao em `Receita Empilhada`.
+
+**Correcao:** O modal de edicao para PJ2 XP deve incluir ambas as categorias. Mudar `GAUGE_CATEGORY_MAP[6]` para passar ambas as categorias, ou alterar o `ProductionEditModal` para aceitar multiplas categorias.
+
+Abordagem escolhida: Modificar `ProductionEditModal` para aceitar `filterCategory` como string ou array, e quando for PJ2 XP, passar `["PJ2 XP", "Receita Empilhada"]`. No modal, usar `.in("categorias", [...])` em vez de `.eq()`.
 
 ---
 
-## Resumo de Arquivos
+## Resumo de alteracoes
 
 | Arquivo | Alteracao |
 |---------|-----------|
-| `src/components/dashboard/GaugeChart.tsx` | Remover `underline decoration-dotted` do span clicavel |
-| `src/components/dashboard/FlipMetaTable.tsx` | Mostrar valor ao lado do check; Meta Mes cor mais discreta |
+| `src/pages/Index.tsx` | (1) Substituir AgendadasCard + Primeiras Reunioes por flip card unico; (2) Corrigir acento em "Captação net"; (3) Passar array de categorias para PJ2 XP |
+| `src/components/dashboard/ProductionEditModal.tsx` | Aceitar `filterCategory` como `string \| string[] \| null` e usar `.in()` quando for array |
+
+## Detalhes tecnicos
+
+### Flip card Primeiras Reunioes (Index.tsx, linhas 853-883)
+
+```text
+Antes:
++------------------+
+| AgendadasCard    |  flex-1
++------------------+
+| Primeiras Reunioes| flex-1
++------------------+
+
+Depois:
++------------------+
+|  [FLIP CARD]     |  ocupa todo espaco
+|  Frente: Gauge   |
+|  Verso: Agendadas|
++------------------+
+```
+
+Implementar usando o mesmo padrao de flip CSS do FlipGaugeChart: container com `perspective`, face frontal com GaugeChart e face traseira com AgendadasCard, controlado pelo `isGlobalFlipped`.
+
+### ProductionEditModal (filterCategory)
+
+Alterar a interface para aceitar `filterCategory?: string | string[] | null`. Na query:
+- Se for string: `.eq("categorias", filterCategory)`
+- Se for array: `.in("categorias", filterCategory)`
+
+### GAUGE_CATEGORY_MAP correcoes
+
+```
+0: "Captação net"    // acento corrigido
+6: ["PJ2 XP", "Receita Empilhada"]  // ou manter string e tratar no handler
+```
+
+Para PJ2 XP, o handler passara as categorias como array:
+```typescript
+onEditProduction={() => {
+  setProductionEditCategory(["PJ2 XP", "Receita Empilhada"]);
+  setIsProductionEditOpen(true);
+}}
+```
+
+Isso requer tambem ajustar o state `productionEditCategory` para aceitar `string | string[] | null`.
