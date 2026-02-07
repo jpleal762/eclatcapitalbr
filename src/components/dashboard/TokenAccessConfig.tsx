@@ -20,6 +20,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { 
   LayoutGrid, 
@@ -32,15 +39,16 @@ import {
   RotateCcw,
   Maximize2,
   Smartphone,
-  Monitor
+  Monitor,
+  CalendarDays
 } from "lucide-react";
 import { PageType } from "./PageToggle";
 import { Separator } from "@/components/ui/separator";
+import { setOpenMonth as saveOpenMonth } from "@/lib/permissions";
 
 interface TokenAccessConfigProps {
   isOpen: boolean;
   onClose: () => void;
-  // Dashboard controls
   isPageRotationEnabled: boolean;
   onPageRotationChange: (enabled: boolean) => void;
   isCardFlippingEnabled: boolean;
@@ -49,6 +57,8 @@ interface TokenAccessConfigProps {
   onFullscreenChange: (enabled: boolean) => void;
   viewMode: 'desktop' | 'mobile';
   onViewModeChange: (mode: 'desktop' | 'mobile') => void;
+  openMonth: string | null;
+  onOpenMonthChange: (month: string | null) => void;
 }
 
 interface TokenData {
@@ -57,7 +67,22 @@ interface TokenData {
   token: string;
   is_active: boolean;
   allowed_screens: PageType[];
+  role: string;
 }
+
+// Generate month options for the dropdown
+const generateMonthOptions = () => {
+  const months = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const currentYear = new Date().getFullYear();
+  const options: { value: string; label: string }[] = [];
+  for (let y = currentYear - 1; y <= currentYear + 1; y++) {
+    const shortYear = y.toString().slice(-2);
+    for (const m of months) {
+      options.push({ value: `${m}-${shortYear}`, label: `${m.charAt(0).toUpperCase() + m.slice(1)}/${shortYear}` });
+    }
+  }
+  return options;
+};
 
 const ALL_SCREENS: { key: PageType; label: string; icon: React.ReactNode }[] = [
   { key: "dashboard", label: "Dashboard", icon: <LayoutGrid className="h-4 w-4" /> },
@@ -80,6 +105,8 @@ export function TokenAccessConfig({
   onFullscreenChange,
   viewMode,
   onViewModeChange,
+  openMonth,
+  onOpenMonthChange,
 }: TokenAccessConfigProps) {
   const [tokens, setTokens] = useState<TokenData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +124,7 @@ export function TokenAccessConfig({
     try {
       const { data, error } = await supabase
         .from("assessor_tokens")
-        .select("id, assessor_name, token, is_active, allowed_screens")
+        .select("id, assessor_name, token, is_active, allowed_screens, role")
         .eq("is_active", true)
         .order("assessor_name");
 
@@ -109,6 +136,7 @@ export function TokenAccessConfig({
         token: t.token,
         is_active: t.is_active ?? true,
         allowed_screens: (t.allowed_screens as PageType[]) || DEFAULT_SCREENS,
+        role: (t as any).role || 'socio',
       }));
 
       setTokens(tokensData);
@@ -298,6 +326,47 @@ export function TokenAccessConfig({
 
           <Separator />
 
+          {/* Open Month Section */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+              <CalendarDays className="h-4 w-4" />
+              Mês Aberto para Lançamentos
+            </h3>
+            <div className="p-4 bg-muted/30 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Mês aberto</Label>
+                  <p className="text-xs text-muted-foreground">Sócios só podem criar/editar/excluir dados dentro deste mês</p>
+                </div>
+                <Select
+                  value={openMonth || ""}
+                  onValueChange={async (value) => {
+                    const success = await saveOpenMonth(value, "Admin");
+                    if (success) {
+                      onOpenMonthChange(value);
+                      toast.success(`Mês aberto alterado para ${value}`);
+                    } else {
+                      toast.error("Erro ao alterar mês aberto");
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {generateMonthOptions().map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
           {/* Token Access Section */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
@@ -319,6 +388,9 @@ export function TokenAccessConfig({
                   <TableHeader>
                     <TableRow>
                       <TableHead className="min-w-[180px]">Assessor</TableHead>
+                      <TableHead className="text-center w-16">
+                        <span className="text-xs">Role</span>
+                      </TableHead>
                       {ALL_SCREENS.map((screen) => (
                         <TableHead key={screen.key} className="text-center w-20">
                           <div className="flex flex-col items-center gap-1">
@@ -348,6 +420,11 @@ export function TokenAccessConfig({
                                 <span className="text-xs text-primary">modificado</span>
                               )}
                             </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${token.role === 'admin' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                              {token.role === 'admin' ? 'Admin' : 'Sócio'}
+                            </span>
                           </TableCell>
                           {ALL_SCREENS.map((screen) => (
                             <TableCell key={screen.key} className="text-center">

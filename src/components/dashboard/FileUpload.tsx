@@ -1,17 +1,22 @@
 import { useCallback, useState } from "react";
-import { Upload, FileSpreadsheet, AlertCircle, Check, RefreshCw } from "lucide-react";
+import { Upload, FileSpreadsheet, AlertCircle, Check, RefreshCw, Lock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { KPIRecord } from "@/types/kpi";
 import { parseXLSXFile } from "@/lib/kpiUtils";
+import { validateUploadPermissions, validateMonthRestriction } from "@/lib/permissions";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 
 interface FileUploadProps {
   onDataLoaded: (data: KPIRecord[]) => void;
   compact?: boolean;
   lastUpdate?: string | null;
+  role?: string | null;
+  assessorName?: string | null;
+  openMonth?: string | null;
 }
 
-export function FileUpload({ onDataLoaded, compact = false, lastUpdate }: FileUploadProps) {
+export function FileUpload({ onDataLoaded, compact = false, lastUpdate, role, assessorName, openMonth }: FileUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -57,6 +62,24 @@ export function FileUpload({ onDataLoaded, compact = false, lastUpdate }: FileUp
             return;
           }
 
+          // Validate open month restriction
+          if (openMonth) {
+            const monthCheck = validateMonthRestriction(records, openMonth);
+            if (!monthCheck.valid) {
+              setError(monthCheck.error || "Mês não está aberto para lançamentos.");
+              return;
+            }
+          }
+
+          // Validate upload permissions (sócio can only upload own records)
+          if (role && assessorName) {
+            const permCheck = validateUploadPermissions(records, role, assessorName);
+            if (!permCheck.valid) {
+              setError(permCheck.error || "Sem permissão para este upload.");
+              return;
+            }
+          }
+
           setSuccess(true);
           onDataLoaded(records);
         } catch (err) {
@@ -71,7 +94,7 @@ export function FileUpload({ onDataLoaded, compact = false, lastUpdate }: FileUp
         reader.readAsText(file);
       }
     },
-    [onDataLoaded]
+    [onDataLoaded, role, assessorName, openMonth]
   );
 
   const handleDrop = useCallback(
@@ -94,7 +117,29 @@ export function FileUpload({ onDataLoaded, compact = false, lastUpdate }: FileUp
     [processFile]
   );
 
+  const isMonthClosed = !openMonth;
+
   if (compact) {
+    if (isMonthClosed) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex flex-col items-center">
+                <Button variant="outline" size="sm" className="gap-2 opacity-50 cursor-not-allowed" disabled>
+                  <Lock className="h-4 w-4" />
+                  Mês fechado
+                </Button>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              Nenhum mês aberto para lançamentos
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
     return (
       <div className="relative flex flex-col items-center">
         <input

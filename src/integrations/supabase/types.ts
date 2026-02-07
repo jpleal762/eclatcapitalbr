@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string | null
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       assessor_tokens: {
         Row: {
           allowed_screens: string[] | null
@@ -21,6 +45,8 @@ export type Database = {
           created_at: string | null
           id: string
           is_active: boolean | null
+          last_production_update_at: string | null
+          role: string
           token: string
         }
         Insert: {
@@ -29,6 +55,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_active?: boolean | null
+          last_production_update_at?: string | null
+          role?: string
           token: string
         }
         Update: {
@@ -37,6 +65,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_active?: boolean | null
+          last_production_update_at?: string | null
+          role?: string
           token?: string
         }
         Relationships: []
@@ -46,28 +76,34 @@ export type Database = {
           assessor: string
           categorias: string
           created_at: string | null
+          created_by: string | null
           id: string
           monthly_data: Json
           status: string
           updated_at: string | null
+          updated_by: string | null
         }
         Insert: {
           assessor: string
           categorias: string
           created_at?: string | null
+          created_by?: string | null
           id?: string
           monthly_data: Json
           status: string
           updated_at?: string | null
+          updated_by?: string | null
         }
         Update: {
           assessor?: string
           categorias?: string
           created_at?: string | null
+          created_by?: string | null
           id?: string
           monthly_data?: Json
           status?: string
           updated_at?: string | null
+          updated_by?: string | null
         }
         Relationships: []
       }
