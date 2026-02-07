@@ -1,195 +1,102 @@
 
-
-# Plano: Controle de Permissoes e Mes Aberto para Producao
+# Plano: Lapis de Edicao nos Cards + Download da Base de Dados
 
 ## Resumo
 
-Implementar controle de acesso baseado em roles (Socio/Admin) usando o sistema de tokens existente, com restricao por mes aberto, validacao de upload em massa, e auditoria.
+Duas funcionalidades:
+1. Adicionar um icone de lapis (Edit) em cada card de gauge KPI para editar a producao daquele item especifico, abrindo o modal de edicao ja filtrado pela categoria do card.
+2. Adicionar um botao para baixar a base de dados atualizada em formato XLSX.
 
 ---
 
-## 1. Alteracoes no Banco de Dados
+## 1. Lapis de Edicao nos Cards
 
-### 1.1 Adicionar campo `role` na tabela `assessor_tokens`
+### Abordagem
 
-```sql
-ALTER TABLE assessor_tokens ADD COLUMN role text NOT NULL DEFAULT 'socio';
--- Valores possíveis: 'admin', 'socio'
-```
+Cada `GaugeChart` e `FlipGaugeChart` recebera uma nova prop opcional `onEditProduction` (callback). Quando presente, um pequeno icone de lapis aparecera no canto do card. Ao clicar, abrira o `ProductionEditModal` ja filtrado pela categoria especifica daquele KPI.
 
-### 1.2 Criar tabela `app_settings` para mes aberto
+### Alteracoes
 
-```sql
-CREATE TABLE public.app_settings (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  key text UNIQUE NOT NULL,
-  value text NOT NULL,
-  updated_at timestamptz DEFAULT now(),
-  updated_by text
-);
+**1.1 `ProductionEditModal.tsx`** - Adicionar prop opcional `filterCategory`
+- Quando `filterCategory` e passado, o modal filtra `kpi_records` somente para aquela categoria (e.g., `categorias = 'Captacao net'`)
+- O titulo do modal mostra qual categoria esta sendo editada
 
-ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
+**1.2 `GaugeChart.tsx`** - Adicionar prop `onEditProduction`
+- Nova prop opcional: `onEditProduction?: () => void`
+- Quando presente, renderiza um pequeno botao com icone de lapis no header do card (ao lado do titulo)
+- O `onClick` chama `onEditProduction` (com `e.stopPropagation()` para nao interferir com flip)
 
--- Leitura publica (todos precisam saber o mes aberto)
-CREATE POLICY "Allow public read settings" ON app_settings
-  FOR SELECT USING (true);
+**1.3 `FlipGaugeChart.tsx`** - Repassar `onEditProduction` para o `GaugeChart` interno
 
--- Insert/Update publico (admin valida no frontend)
-CREATE POLICY "Allow public upsert settings" ON app_settings
-  FOR INSERT WITH CHECK (true);
+**1.4 `Index.tsx`** - Conectar tudo
+- Novo estado: `productionEditCategory` (string | null) para saber qual categoria filtrar
+- Criar funcao `handleEditProductionForKPI(category: string)` que define a categoria e abre o modal
+- Passar `onEditProduction={() => handleEditProductionForKPI("Captacao net")}` para cada GaugeChart/FlipGaugeChart
+- Passar `filterCategory={productionEditCategory}` para o `ProductionEditModal`
+- Mapeamento dos indices de `gaugeKPIs` para as categorias corretas usando `KPI_CATEGORIES`
 
-CREATE POLICY "Allow public update settings" ON app_settings
-  FOR UPDATE USING (true);
-
--- Inserir mes aberto padrao
-INSERT INTO app_settings (key, value) VALUES ('open_month', 'fev-26');
-```
-
-### 1.3 Adicionar campos de auditoria na tabela `kpi_records`
-
-```sql
-ALTER TABLE kpi_records
-  ADD COLUMN created_by text,
-  ADD COLUMN updated_by text;
-```
-
-### 1.4 Adicionar `last_production_update_at` na tabela `assessor_tokens`
-
-```sql
-ALTER TABLE assessor_tokens
-  ADD COLUMN last_production_update_at timestamptz;
-```
-
-### 1.5 Atualizar tipos gerados
-
-O Supabase atualizara automaticamente `src/integrations/supabase/types.ts`.
+### Permissoes (mantidas)
+- Socio: so edita registros do proprio assessor
+- Admin: edita todos
+- Mes fechado: botao desabilitado ou oculto
 
 ---
 
-## 2. Logica de Negocio
+## 2. Download da Base de Dados (XLSX)
 
-### 2.1 Arquivo novo: `src/lib/permissions.ts`
+### Abordagem
 
-Funcoes utilitarias para verificar permissoes:
+Adicionar um botao de download no header do dashboard (ao lado dos botoes existentes). Ao clicar, busca todos os `kpi_records` do banco, transforma de volta para o formato XLSX original e baixa o arquivo.
 
-```typescript
-// Verifica se o usuario eh admin
-export function isAdmin(role: string | null): boolean
+### Alteracoes
 
-// Verifica se o mes esta aberto para lancamentos
-export async function getOpenMonth(): Promise<string | null>
+**2.1 `src/lib/exportUtils.ts`** - Novo arquivo
+- Funcao `exportDatabaseToXLSX()`:
+  - Busca todos os registros de `kpi_records`
+  - Transforma de volta para formato tabular (Assessor, Categorias, Status, colunas de meses)
+  - Usa a biblioteca `xlsx` (ja instalada) para gerar o arquivo
+  - Faz download automatico com nome `base_dados_YYYY-MM-DD.xlsx`
 
-// Verifica se o usuario pode editar registros de um assessor
-export function canEditAssessor(role: string, tokenAssessor: string, targetAssessor: string): boolean
+**2.2 `Index.tsx`** - Adicionar botao de download
+- Botao com icone `Download` ao lado do botao de edicao no header
+- Visivel para todos (admin e socio)
+- Chama `exportDatabaseToXLSX()`
 
-// Valida arquivo XLSX para upload - socio so pode subir seus proprios dados
-export function validateUploadPermissions(records: KPIRecord[], role: string, assessorName: string): { valid: boolean; error?: string }
+---
 
-// Valida que todas as linhas estao no mes aberto
-export function validateMonthRestriction(records: KPIRecord[], openMonth: string): { valid: boolean; error?: string }
-```
+## 3. Resumo dos Arquivos
 
-### 2.2 Fluxo do Upload em Massa (FileUpload)
+| Arquivo | Alteracao |
+|---------|-----------|
+| `src/components/dashboard/GaugeChart.tsx` | Nova prop `onEditProduction`, icone de lapis |
+| `src/components/dashboard/FlipGaugeChart.tsx` | Repassar `onEditProduction` |
+| `src/components/dashboard/ProductionEditModal.tsx` | Nova prop `filterCategory` para filtrar por categoria |
+| `src/lib/exportUtils.ts` | **Novo** - funcao de export XLSX |
+| `src/pages/Index.tsx` | Estado de categoria, callbacks nos cards, botao download |
+
+---
+
+## Detalhes Tecnicos
+
+### Mapeamento Card -> Categoria (baseado em KPI_CATEGORIES)
 
 ```text
-Upload XLSX
-  |
-  v
-Parsear arquivo
-  |
-  v
-Verificar mes aberto?
-  |-- Nao --> Bloquear + aviso "Mes X nao esta aberto para lancamentos"
-  |-- Sim --> Continuar
-  |
-  v
-Verificar role?
-  |-- Admin --> Permitir qualquer assessor
-  |-- Socio --> Validar que TODAS as linhas sao do proprio assessor
-       |-- Linhas de outro assessor --> Rejeitar + aviso "Arquivo contem registros de outros usuarios"
-       |-- OK --> Continuar
-  |
-  v
-Salvar dados
-  |
-  v
-Atualizar last_production_update_at do socio
-  |
-  v
-Atualizar campos de auditoria (created_by, updated_by)
+gaugeKPIs[0] -> "Captacao net"      (Graph 3 - Captacao NET)
+gaugeKPIs[1] -> "Receita"           (Graph 2 - Receita XP)
+gaugeKPIs[2] -> "Primeira reuniao"  (Graph 3 - Primeiras Reunioes)
+gaugeKPIs[3] -> "Diversificada ( ROA>1,5)" (Graph 4)
+gaugeKPIs[4] -> "Parceiros Tri"     (Graph 5)
+gaugeKPIs[5] -> "PJ1 XP Mes"       (Graph 6)
+gaugeKPIs[6] -> "PJ2 XP Mes"       (Graph 7)
+gaugeKPIs[7] -> "Habilitacao"       (Graph 8)
+gaugeKPIs[8] -> "Ativacao"          (Graph 9)
 ```
 
----
+### Export XLSX - Formato de saida
 
-## 3. Alteracoes nos Componentes
+```text
+| Assessor | Categorias | Status | jan-26 | fev-26 | mar-26 | ... |
+|----------|------------|--------|--------|--------|--------|-----|
+```
 
-### 3.1 `src/pages/Index.tsx`
-
-- Armazenar `role` e `assessorName` do token validado no estado
-- Passar `role`, `assessorName`, e `openMonth` para componentes filhos
-- Buscar `openMonth` de `app_settings` no carregamento
-
-### 3.2 `src/components/dashboard/FileUpload.tsx`
-
-- Receber novas props: `role`, `assessorName`, `openMonth`
-- Antes de processar o arquivo:
-  - Validar que o mes aberto permite lancamento
-  - Se Socio: validar que todas as linhas sao do proprio assessor
-- Exibir aviso discreto quando mes esta fechado (botao desabilitado + tooltip)
-- Apos upload bem-sucedido: atualizar `last_production_update_at` e campos de auditoria
-
-### 3.3 `src/components/dashboard/TokenAccessConfig.tsx`
-
-- Adicionar secao "Mes Aberto" nas configuracoes:
-  - Dropdown para selecionar o mes aberto para lancamentos
-  - Apenas visivel para admins (modo escritorio)
-- Exibir coluna de role na tabela de tokens (informativo)
-
-### 3.4 `src/lib/storage.ts`
-
-- Atualizar `saveExcelData()` para aceitar `createdBy` e `updatedBy` opcionais
-- Atualizar funcao para registrar quem salvou
-- Nova funcao `updateLastProductionUpdate(tokenId: string)` para atualizar timestamp do socio
-
----
-
-## 4. Exibicao "Ultima Atualizacao do Socio"
-
-- No header, quando o acesso eh via token (socio), exibir discretamente:
-  `Atualizado em: DD/MM HH:MM`
-- Buscar de `assessor_tokens.last_production_update_at` na validacao do token
-- Atualizar apos qualquer operacao de producao bem-sucedida
-
----
-
-## 5. Resumo dos Arquivos Afetados
-
-| Arquivo | Tipo de Alteracao |
-|---------|-------------------|
-| Migration SQL | Criar tabela `app_settings`, alterar `assessor_tokens` e `kpi_records` |
-| `src/lib/permissions.ts` | **Novo** - funcoes de permissao |
-| `src/lib/storage.ts` | Adicionar auditoria no save |
-| `src/pages/Index.tsx` | Estado de role/openMonth, passar props |
-| `src/components/dashboard/FileUpload.tsx` | Validacoes de permissao e mes |
-| `src/components/dashboard/TokenAccessConfig.tsx` | Config de mes aberto |
-
----
-
-## 6. Regras de Seguranca Resumidas
-
-| Regra | Socio | Admin |
-|-------|-------|-------|
-| Upload em massa | Apenas seus registros | Qualquer assessor |
-| Criar/Editar/Excluir | Apenas seus registros | Tudo |
-| Mes aberto | So opera no mes aberto | So opera no mes aberto |
-| Definir mes aberto | Nao | Sim |
-| Ver configuracoes | Nao | Sim |
-
----
-
-## Observacoes
-
-- A validacao de permissao ocorre no frontend pois nao ha autenticacao Supabase Auth (apenas tokens). As politicas RLS continuam publicas como ja estao.
-- O campo `role` no token determina se o acesso eh de admin ou socio.
-- O modo "Escritorio" (sem token na URL) continua funcionando como admin implicitamente.
-
+Reconstroi o formato original do upload a partir do campo `monthly_data` (JSONB) de cada registro.
