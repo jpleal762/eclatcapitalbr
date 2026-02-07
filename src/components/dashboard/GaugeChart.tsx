@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, CheckCircle, CheckCircle2, Pencil } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
 import { useTheme } from "next-themes";
@@ -31,6 +31,8 @@ interface GaugeChartProps {
   compact?: boolean;
   // Nome do head responsável pelo KPI (exibido abaixo do título em caixa alta)
   headName?: string;
+  // Callback para editar produção deste KPI
+  onEditProduction?: () => void;
 }
 // Determina o alerta baseado na performance vs ritmo ideal
 const getGaugeAlert = (currentPercentage: number, ritmoIdeal?: number): "GREEN" | "ORANGE" | "RED" | undefined => {
@@ -106,7 +108,8 @@ export function GaugeChart({
   additionalValue,
   weight,
   compact = false,
-  headName
+  headName,
+  onEditProduction
 }: GaugeChartProps) {
   const {
     theme
@@ -204,7 +207,16 @@ export function GaugeChart({
                   HEAD {headName}
                 </span>}
             </div>
-            <div className="flex-shrink-0 ml-1">
+            <div className="flex-shrink-0 ml-1 flex items-center gap-1">
+              {onEditProduction && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onEditProduction(); }}
+                  className="p-0.5 rounded hover:bg-muted/80 transition-colors text-muted-foreground hover:text-foreground"
+                  title="Editar produção"
+                >
+                  <Pencil className="w-3 h-3" />
+                </button>
+              )}
               <RitmoAlertDisplay alertType={alertType} difference={ritmoIdealDifference} isCurrency={isCurrency} weight={weight} gapPercentage={gapPercentage} />
             </div>
           </div>

@@ -41,6 +41,7 @@ interface ProductionEditModalProps {
   openMonth: string | null;
   tokenId: string | null;
   onDataUpdated: () => void;
+  filterCategory?: string | null;
 }
 
 // Map "fev-26" -> "Feb-26" for monthly_data keys
@@ -72,6 +73,7 @@ export function ProductionEditModal({
   openMonth,
   tokenId,
   onDataUpdated,
+  filterCategory,
 }: ProductionEditModalProps) {
   const [rows, setRows] = useState<KPIEditRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -96,6 +98,11 @@ export function ProductionEditModal({
         .eq("status", "Realizado")
         .order("assessor")
         .order("categorias");
+
+      // Filter by category if specified
+      if (filterCategory) {
+        query = query.eq("categorias", filterCategory);
+      }
 
       // Sócio only sees their own records
       if (!isAdmin(role) && assessorName) {
@@ -207,7 +214,7 @@ export function ProductionEditModal({
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            📝 Editar Produção Individual
+            📝 {filterCategory ? `Editar: ${filterCategory}` : "Editar Produção Individual"}
           </DialogTitle>
           <DialogDescription>
             {isLocked ? (

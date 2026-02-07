@@ -44,7 +44,7 @@ import {
 } from "@/lib/sprintStorage";
 import { SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Settings, Edit3 } from "lucide-react";
+import { Menu, Settings, Edit3, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
@@ -64,6 +64,7 @@ import { TacticsWeekPage } from "@/components/dashboard/TacticsWeekPage";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { TokenAccessConfig } from "@/components/dashboard/TokenAccessConfig";
 import { ProductionEditModal } from "@/components/dashboard/ProductionEditModal";
+import { exportDatabaseToXLSX } from "@/lib/exportUtils";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 const SPRINT_PRODUCTS_STORAGE_KEY = "sprint-selected-products";
@@ -120,6 +121,7 @@ const Index = () => {
   const [allowedScreens, setAllowedScreens] = useState<PageType[]>(['dashboard', 'analysis', 'prospection', 'sprint', 'tactics']);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isProductionEditOpen, setIsProductionEditOpen] = useState(false);
+  const [productionEditCategory, setProductionEditCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [tokenRole, setTokenRole] = useState<string | null>(null);
   const [tokenAssessorName, setTokenAssessorName] = useState<string | null>(null);
@@ -355,6 +357,25 @@ const Index = () => {
   };
 
   const processedData = useMemo(() => processKPIData(rawData), [rawData]);
+
+  // Helper to open production edit modal for a specific category
+  const handleEditProductionForKPI = (category: string) => {
+    setProductionEditCategory(category);
+    setIsProductionEditOpen(true);
+  };
+
+  // Mapeamento dos índices de gaugeKPIs para as categorias do banco
+  const GAUGE_CATEGORY_MAP: Record<number, string> = {
+    0: "Captacao net",
+    1: "Receita",
+    2: "Primeira reuniao",
+    3: "Diversificada ( ROA>1,5)",
+    4: "Parceiros Tri",
+    5: "PJ1 XP",
+    6: "PJ2 XP",
+    7: "Habilitacao",
+    8: "Ativacao",
+  };
   
   const assessors = useMemo(() => getUniqueValues(processedData, "assessor"), [processedData]);
   const months = useMemo(() => getAvailableMonths(processedData), [processedData]);
@@ -662,6 +683,26 @@ const Index = () => {
                       </Tooltip>
                     </TooltipProvider>
                   )}
+                  {/* Download Button */}
+                  {hasData && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => exportDatabaseToXLSX()}
+                            className="h-8 w-8"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Baixar Base de Dados
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                   <ScaleSelector />
                   <ThemeToggle />
                   {/* File Upload - only visible when not in token mode */}
@@ -829,6 +870,7 @@ const Index = () => {
                               ritmoIdeal={dashboardData.ritmoIdeal}
                               weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label || "")}
                               compact={true}
+                              onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[2])}
                             />
                           </ExpandableCard>
                         </div>
@@ -872,6 +914,7 @@ const Index = () => {
                                   ritmoIdeal={dashboardData.ritmoIdeal}
                                   weight={getWeightForLabel(dashboardData.gaugeKPIs[3]?.label)}
                                   compact={true}
+                                  onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[3])}
                                 />
                               </ExpandableCard>
                             )}
@@ -894,6 +937,7 @@ const Index = () => {
                                   isFlipped={isGlobalFlipped}
                                   weight={getWeightForLabel(dashboardData.gaugeKPIs[4]?.label)}
                                   compact={true}
+                                  onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[4])}
                                 />
                               </ExpandableCard>
                             )}
@@ -921,8 +965,9 @@ const Index = () => {
                               ritmoIdeal={dashboardData.ritmoIdeal}
                               showAssessorList={true}
                               assessorRemainingData={assessorRemainingReceita}
-                              weight={getWeightForLabel(dashboardData.gaugeKPIs[1]?.label)}
+                               weight={getWeightForLabel(dashboardData.gaugeKPIs[1]?.label)}
                               compact={true}
+                              onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[1])}
                             />
                           </ExpandableCard>
                           </div>
@@ -944,6 +989,7 @@ const Index = () => {
                                   ritmoIdeal={dashboardData.ritmoIdeal}
                                   compact={true}
                                   headName="BRUNO"
+                                  onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[5])}
                                 />
                               </ExpandableCard>
                             )}
@@ -964,6 +1010,7 @@ const Index = () => {
                                   backData={assessorReceitaEmpilhada}
                                   isFlipped={isGlobalFlipped}
                                   compact={true}
+                                  onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[6])}
                                 />
                               </ExpandableCard>
                             )}
@@ -991,8 +1038,9 @@ const Index = () => {
                               ritmoIdeal={dashboardData.ritmoIdeal}
                               showAssessorList={true}
                               assessorRemainingData={assessorRemainingCaptacao}
-                              weight={getWeightForLabel(dashboardData.gaugeKPIs[0]?.label)}
+                               weight={getWeightForLabel(dashboardData.gaugeKPIs[0]?.label)}
                               compact={true}
+                              onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[0])}
                             />
                           </ExpandableCard>
                           </div>
@@ -1014,6 +1062,7 @@ const Index = () => {
                                   ritmoIdeal={dashboardData.ritmoIdeal}
                                   weight={getWeightForLabel(dashboardData.gaugeKPIs[7]?.label)}
                                   compact={true}
+                                  onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[7])}
                                 />
                               </ExpandableCard>
                             )}
@@ -1031,6 +1080,7 @@ const Index = () => {
                                   ritmoIdeal={dashboardData.ritmoIdeal}
                                   weight={getWeightForLabel(dashboardData.gaugeKPIs[8]?.label)}
                                   compact={true}
+                                  onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[8])}
                                 />
                               </ExpandableCard>
                             )}
@@ -1072,11 +1122,12 @@ const Index = () => {
         {/* Production Edit Modal */}
         <ProductionEditModal
           isOpen={isProductionEditOpen}
-          onClose={() => setIsProductionEditOpen(false)}
+          onClose={() => { setIsProductionEditOpen(false); setProductionEditCategory(null); }}
           role={isTokenLocked ? tokenRole : 'admin'}
           assessorName={tokenAssessorName}
           openMonth={openMonth}
           tokenId={tokenId}
+          filterCategory={productionEditCategory}
           onDataUpdated={async () => {
             const data = await loadExcelData();
             if (data) setRawData(data);
