@@ -203,7 +203,7 @@ export function GaugeChart({
                     x{weight}
                   </span>}
               </h4>
-              {headName && <span className="inline-flex items-center text-responsive-4xs font-bold text-muted-foreground uppercase tracking-wide">
+              {headName && <span className="inline-flex items-center text-responsive-4xs font-bold text-eclat-gold uppercase tracking-wide">
                   HEAD {headName}
                 </span>}
             </div>
