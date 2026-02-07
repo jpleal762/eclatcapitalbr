@@ -77,18 +77,8 @@ export function FlipMetaTable({
                 <thead>
                   <tr className="border-b border-white/20">
                     <th className="text-left py-responsive-sm text-responsive-xs font-medium text-white/70">KPI</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">
-                      <span className="inline-flex items-center gap-0.5">
-                        Meta Mês
-                        <span className="text-[8px] px-1 py-0.5 rounded bg-amber-500/30 text-amber-300 font-bold leading-none">M</span>
-                      </span>
-                    </th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">
-                      <span className="inline-flex items-center gap-0.5">
-                        Meta Sem.
-                        <span className="text-[8px] px-1 py-0.5 rounded bg-blue-500/30 text-blue-300 font-bold leading-none">S</span>
-                      </span>
-                    </th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Mês</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Sem.</th>
                     <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Realizado</th>
                   </tr>
                 </thead>
@@ -146,18 +136,8 @@ export function FlipMetaTable({
                 <thead>
                   <tr className="border-b border-white/20">
                     <th className="text-left py-responsive-sm text-responsive-xs font-medium text-white/70">KPI</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">
-                      <span className="inline-flex items-center gap-0.5">
-                        Meta Mês
-                        <span className="text-[8px] px-1 py-0.5 rounded bg-amber-500/30 text-amber-300 font-bold leading-none">M</span>
-                      </span>
-                    </th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">
-                      <span className="inline-flex items-center gap-0.5">
-                        Meta Sem.
-                        <span className="text-[8px] px-1 py-0.5 rounded bg-blue-500/30 text-blue-300 font-bold leading-none">S</span>
-                      </span>
-                    </th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Mês</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Sem.</th>
                     <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Falta</th>
                   </tr>
                 </thead>
