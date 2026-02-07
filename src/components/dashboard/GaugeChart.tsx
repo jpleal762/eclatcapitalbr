@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle, CheckCircle2, Pencil } from "lucide-react";
+import { AlertTriangle, CheckCircle, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
 import { useTheme } from "next-themes";
@@ -208,15 +208,6 @@ export function GaugeChart({
                 </span>}
             </div>
             <div className="flex-shrink-0 ml-1 flex items-center gap-1">
-              {onEditProduction && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onEditProduction(); }}
-                  className="p-0.5 rounded hover:bg-muted/80 transition-colors text-muted-foreground hover:text-foreground"
-                  title="Editar produção"
-                >
-                  <Pencil className="w-3 h-3" />
-                </button>
-              )}
               <RitmoAlertDisplay alertType={alertType} difference={ritmoIdealDifference} isCurrency={isCurrency} weight={weight} gapPercentage={gapPercentage} />
             </div>
           </div>
@@ -275,8 +266,11 @@ export function GaugeChart({
           </svg>
 
           {/* Center content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-end pb-1 pointer-events-none">
-            <span className={`text-responsive-lg font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"}`}>
+          <div className={`absolute inset-0 flex flex-col items-center justify-end pb-1 ${onEditProduction ? '' : 'pointer-events-none'}`}>
+            <span
+              className={`text-responsive-lg font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"} ${onEditProduction ? "cursor-pointer underline decoration-dotted hover:text-eclat-gold transition-colors pointer-events-auto" : ""}`}
+              onClick={onEditProduction ? (e) => { e.stopPropagation(); onEditProduction(); } : undefined}
+            >
               {formatNumber(value, isCurrency)}
             </span>
             {showRemaining && <span className={`text-responsive-3xs text-muted-foreground font-medium whitespace-nowrap ${remainingValue <= 0 ? 'invisible' : ''}`}>
