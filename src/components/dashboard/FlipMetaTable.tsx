@@ -96,7 +96,7 @@ export function FlipMetaTable({
                   {data.map((item, index) => (
                     <tr key={index} className="border-b border-white/10 hover:bg-white/10 transition-colors">
                       <td className="py-responsive-sm text-responsive-xs text-white">{item.label}</td>
-                      <td className="py-responsive-sm text-responsive-xs text-right font-medium text-amber-300/80">
+                      <td className="py-responsive-sm text-responsive-xs text-right font-medium text-white/40">
                         {item.monthlyTarget !== undefined && item.monthlyTarget > 0
                           ? item.isCurrency ? formatNumber(item.monthlyTarget, true) : formatNumber(item.monthlyTarget)
                           : "-"}
@@ -169,7 +169,7 @@ export function FlipMetaTable({
                     return (
                       <tr key={index} className="border-b border-white/10 hover:bg-white/10 transition-colors">
                         <td className="py-responsive-sm text-responsive-xs text-white">{item.label}</td>
-                        <td className="py-responsive-sm text-responsive-xs text-right font-medium text-amber-300/80">
+                        <td className="py-responsive-sm text-responsive-xs text-right font-medium text-white/40">
                           {item.monthlyTarget !== undefined && item.monthlyTarget > 0
                             ? item.isCurrency ? formatNumber(item.monthlyTarget, true) : formatNumber(item.monthlyTarget)
                             : "-"}
@@ -185,7 +185,7 @@ export function FlipMetaTable({
                           ) : goalMet ? (
                             <span className="inline-flex items-center gap-1">
                               <Check className="w-3 h-3" />
-                              <span>Atingido</span>
+                              <span>{formatNumber(item.realizedValue, item.isCurrency)}</span>
                             </span>
                           ) : (
                             formatNumber(remaining, item.isCurrency)
