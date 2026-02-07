@@ -34,6 +34,8 @@ interface FlipGaugeChartProps {
   isFlipped?: boolean;
   // Modo compacto - reduz escala do gauge
   compact?: boolean;
+  // Callback para editar produção deste KPI
+  onEditProduction?: () => void;
 }
 
 export function FlipGaugeChart({
@@ -54,6 +56,7 @@ export function FlipGaugeChart({
   backData,
   isFlipped: controlledFlipped,
   compact = false,
+  onEditProduction,
 }: FlipGaugeChartProps) {
   // Manual flip offset for user-initiated flips
   const [manualFlipOffset, setManualFlipOffset] = useState(0);
@@ -96,6 +99,7 @@ export function FlipGaugeChart({
               additionalValue={additionalValue}
               weight={weight}
               compact={compact}
+              onEditProduction={onEditProduction}
             />
             {/* Indicador de flip */}
             <div className="absolute top-1 right-1 p-1 rounded-full bg-muted/50 opacity-50 hover:opacity-100 transition-opacity">
