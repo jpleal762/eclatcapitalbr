@@ -268,7 +268,7 @@ export function GaugeChart({
           {/* Center content */}
           <div className={`absolute inset-0 flex flex-col items-center justify-end pb-1 ${onEditProduction ? '' : 'pointer-events-none'}`}>
             <span
-              className={`text-responsive-lg font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"} ${onEditProduction ? "cursor-pointer underline decoration-dotted hover:text-eclat-gold transition-colors pointer-events-auto" : ""}`}
+              className={`text-responsive-lg font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"} ${onEditProduction ? "cursor-pointer hover:text-eclat-gold transition-colors pointer-events-auto" : ""}`}
               onClick={onEditProduction ? (e) => { e.stopPropagation(); onEditProduction(); } : undefined}
             >
               {formatNumber(value, isCurrency)}
