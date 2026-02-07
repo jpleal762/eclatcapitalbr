@@ -479,6 +479,12 @@ const Index = () => {
     [processedData, filters.month]
   );
 
+  // Calculate assessor remaining data for Diversificação
+  const assessorRemainingDiversificacao = useMemo(
+    () => calculateAssessorRemainingForKPI(processedData, "Diversificada ( ROA>1,5)", filters.month),
+    [processedData, filters.month]
+  );
+
 
   // Debug: Log completo para diagnóstico
   useEffect(() => {
@@ -1060,6 +1066,8 @@ const Index = () => {
                                 ritmoIdeal={dashboardData.ritmoIdeal}
                                 weight={getWeightForLabel(dashboardData.gaugeKPIs[3]?.label)}
                                 compact={true}
+                                showAssessorList={true}
+                                assessorRemainingData={assessorRemainingDiversificacao}
                                 headName="BRUNO"
                                 onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[3])}
                               />
