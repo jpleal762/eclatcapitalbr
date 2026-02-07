@@ -1,125 +1,195 @@
 
-# Plano: Substituir Receita por Receita PJ1 XP e PJ2 XP no Card Semanal
 
-## Objetivo
-No card "Planejamento Semanal Acumulado", remover a linha "Receita" e adicionar duas novas linhas:
-- **Receita PJ1 XP**: Meta de "PJ1 XP Mês" (Planejado Semana), Realizado de "PJ1 XP" (Realizado)
-- **Receita PJ2 XP**: Meta de "PJ2 XP Mês" (Planejado Semana), Realizado de "PJ2 XP" + "Receita Empilhada" (Realizado)
+# Plano: Controle de Permissoes e Mes Aberto para Producao
 
----
+## Resumo
 
-## Alteracoes
-
-### Arquivo: `src/lib/kpiUtils.ts`
-
-#### 1. Atualizar array metaSemanalCategories (linhas 1010-1018)
-
-**Antes:**
-```typescript
-const metaSemanalCategories = [
-  { category: "Captação net", label: "Captação NET", isCurrency: true },
-  { category: "Receita", label: "Receita", isCurrency: true },
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação (ROA>1,5)", isCurrency: true },
-  { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
-  { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
-  { category: "Habilitacao", label: "Habilitação", isCurrency: false },
-  { category: "Ativacao", label: "Ativação", isCurrency: false },
-];
-```
-
-**Depois:**
-```typescript
-const metaSemanalCategories = [
-  { category: "Captação net", label: "Captação NET", isCurrency: true },
-  // Receita PJ1 XP: Meta = PJ1 XP Mês (Planejado Semana), Realizado = PJ1 XP (Realizado)
-  { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true, actualCategory: "PJ1 XP" },
-  // Receita PJ2 XP: Meta = PJ2 XP Mês (Planejado Semana), Realizado = PJ2 XP + Receita Empilhada (Realizado)
-  { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, actualCategory: "PJ2 XP", additionalActualCategory: "Receita Empilhada" },
-  { category: "Diversificada ( ROA>1,5)", label: "Diversificação (ROA>1,5)", isCurrency: true },
-  { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
-  { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
-  { category: "Habilitacao", label: "Habilitação", isCurrency: false },
-  { category: "Ativacao", label: "Ativação", isCurrency: false },
-];
-```
-
-#### 2. Atualizar logica do map metaSemanal (linhas 1020-1043)
-
-**Antes:** A logica tratava apenas "Receita" como caso especial.
-
-**Depois:** Tratar casos onde `actualCategory` e `additionalActualCategory` sao definidos:
-
-```typescript
-const metaSemanal: MetaSemanal[] = metaSemanalCategories.map(item => {
-  const catData = filterByCategory(filteredByAssessor, item.category);
-  const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
-  
-  const value = selectedMonth !== "all" 
-    ? getMonthValue(weeklyPlanned, selectedMonth)
-    : weeklyPlanned.reduce((s, d) => s + d.total, 0);
-  
-  // Determinar categoria para valor realizado
-  const actualCat = (item as any).actualCategory || item.category;
-  const actualCatData = filterByCategory(filteredByAssessor, actualCat);
-  const realizedData = actualCatData.filter(d => isRealizedStatus(d.status));
-  
-  let realizedValue = selectedMonth !== "all"
-    ? getMonthValue(realizedData, selectedMonth)
-    : realizedData.reduce((s, d) => s + d.total, 0);
-  
-  // Adicionar categoria adicional se definida (ex: Receita Empilhada)
-  if ((item as any).additionalActualCategory) {
-    const additionalData = filterByCategory(filteredByAssessor, (item as any).additionalActualCategory);
-    const additionalRealized = additionalData.filter(d => isRealizedStatus(d.status));
-    realizedValue += selectedMonth !== "all"
-      ? getMonthValue(additionalRealized, selectedMonth)
-      : additionalRealized.reduce((s, d) => s + d.total, 0);
-  }
-    
-  return { label: item.label, value, realizedValue, isCurrency: item.isCurrency };
-});
-```
-
-#### 3. Atualizar weeklyCategories para calculo de percentual (linhas 1047-1055)
-
-**Antes:**
-```typescript
-const weeklyCategories = [
-  "Habilitacao",
-  "Ativacao",
-  "Captacao net",
-  "Diversificada ( ROA>1,5)",
-  "Receita",
-  "Parceiros Tri",
-  "Primeira Reuniao"
-];
-```
-
-**Depois:**
-```typescript
-const weeklyCategories = [
-  "Habilitacao",
-  "Ativacao",
-  "Captacao net",
-  "Diversificada ( ROA>1,5)",
-  "PJ1 XP Mês",  // Substituido de "Receita"
-  "PJ2 XP Mês",  // Adicionado
-  "Parceiros Tri",
-  "Primeira Reuniao"
-];
-```
+Implementar controle de acesso baseado em roles (Socio/Admin) usando o sistema de tokens existente, com restricao por mes aberto, validacao de upload em massa, e auditoria.
 
 ---
 
-## Resumo das Mudancas
+## 1. Alteracoes no Banco de Dados
 
-| Item | Antes | Depois |
-|------|-------|--------|
-| Linha 2 do card | Receita | Receita PJ1 XP |
-| Linha 3 do card | - | Receita PJ2 XP (nova) |
-| Meta PJ1 XP | - | PJ1 XP Mês + Planejado Semana |
-| Realizado PJ1 XP | - | PJ1 XP + Realizado |
-| Meta PJ2 XP | - | PJ2 XP Mês + Planejado Semana |
-| Realizado PJ2 XP | - | PJ2 XP + Receita Empilhada + Realizado |
+### 1.1 Adicionar campo `role` na tabela `assessor_tokens`
 
-O card passara a ter 8 linhas (era 7), seguindo a mesma logica de calculo dos gauges individuais de PJ1 XP e PJ2 XP.
+```sql
+ALTER TABLE assessor_tokens ADD COLUMN role text NOT NULL DEFAULT 'socio';
+-- Valores possíveis: 'admin', 'socio'
+```
+
+### 1.2 Criar tabela `app_settings` para mes aberto
+
+```sql
+CREATE TABLE public.app_settings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  key text UNIQUE NOT NULL,
+  value text NOT NULL,
+  updated_at timestamptz DEFAULT now(),
+  updated_by text
+);
+
+ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
+
+-- Leitura publica (todos precisam saber o mes aberto)
+CREATE POLICY "Allow public read settings" ON app_settings
+  FOR SELECT USING (true);
+
+-- Insert/Update publico (admin valida no frontend)
+CREATE POLICY "Allow public upsert settings" ON app_settings
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Allow public update settings" ON app_settings
+  FOR UPDATE USING (true);
+
+-- Inserir mes aberto padrao
+INSERT INTO app_settings (key, value) VALUES ('open_month', 'fev-26');
+```
+
+### 1.3 Adicionar campos de auditoria na tabela `kpi_records`
+
+```sql
+ALTER TABLE kpi_records
+  ADD COLUMN created_by text,
+  ADD COLUMN updated_by text;
+```
+
+### 1.4 Adicionar `last_production_update_at` na tabela `assessor_tokens`
+
+```sql
+ALTER TABLE assessor_tokens
+  ADD COLUMN last_production_update_at timestamptz;
+```
+
+### 1.5 Atualizar tipos gerados
+
+O Supabase atualizara automaticamente `src/integrations/supabase/types.ts`.
+
+---
+
+## 2. Logica de Negocio
+
+### 2.1 Arquivo novo: `src/lib/permissions.ts`
+
+Funcoes utilitarias para verificar permissoes:
+
+```typescript
+// Verifica se o usuario eh admin
+export function isAdmin(role: string | null): boolean
+
+// Verifica se o mes esta aberto para lancamentos
+export async function getOpenMonth(): Promise<string | null>
+
+// Verifica se o usuario pode editar registros de um assessor
+export function canEditAssessor(role: string, tokenAssessor: string, targetAssessor: string): boolean
+
+// Valida arquivo XLSX para upload - socio so pode subir seus proprios dados
+export function validateUploadPermissions(records: KPIRecord[], role: string, assessorName: string): { valid: boolean; error?: string }
+
+// Valida que todas as linhas estao no mes aberto
+export function validateMonthRestriction(records: KPIRecord[], openMonth: string): { valid: boolean; error?: string }
+```
+
+### 2.2 Fluxo do Upload em Massa (FileUpload)
+
+```text
+Upload XLSX
+  |
+  v
+Parsear arquivo
+  |
+  v
+Verificar mes aberto?
+  |-- Nao --> Bloquear + aviso "Mes X nao esta aberto para lancamentos"
+  |-- Sim --> Continuar
+  |
+  v
+Verificar role?
+  |-- Admin --> Permitir qualquer assessor
+  |-- Socio --> Validar que TODAS as linhas sao do proprio assessor
+       |-- Linhas de outro assessor --> Rejeitar + aviso "Arquivo contem registros de outros usuarios"
+       |-- OK --> Continuar
+  |
+  v
+Salvar dados
+  |
+  v
+Atualizar last_production_update_at do socio
+  |
+  v
+Atualizar campos de auditoria (created_by, updated_by)
+```
+
+---
+
+## 3. Alteracoes nos Componentes
+
+### 3.1 `src/pages/Index.tsx`
+
+- Armazenar `role` e `assessorName` do token validado no estado
+- Passar `role`, `assessorName`, e `openMonth` para componentes filhos
+- Buscar `openMonth` de `app_settings` no carregamento
+
+### 3.2 `src/components/dashboard/FileUpload.tsx`
+
+- Receber novas props: `role`, `assessorName`, `openMonth`
+- Antes de processar o arquivo:
+  - Validar que o mes aberto permite lancamento
+  - Se Socio: validar que todas as linhas sao do proprio assessor
+- Exibir aviso discreto quando mes esta fechado (botao desabilitado + tooltip)
+- Apos upload bem-sucedido: atualizar `last_production_update_at` e campos de auditoria
+
+### 3.3 `src/components/dashboard/TokenAccessConfig.tsx`
+
+- Adicionar secao "Mes Aberto" nas configuracoes:
+  - Dropdown para selecionar o mes aberto para lancamentos
+  - Apenas visivel para admins (modo escritorio)
+- Exibir coluna de role na tabela de tokens (informativo)
+
+### 3.4 `src/lib/storage.ts`
+
+- Atualizar `saveExcelData()` para aceitar `createdBy` e `updatedBy` opcionais
+- Atualizar funcao para registrar quem salvou
+- Nova funcao `updateLastProductionUpdate(tokenId: string)` para atualizar timestamp do socio
+
+---
+
+## 4. Exibicao "Ultima Atualizacao do Socio"
+
+- No header, quando o acesso eh via token (socio), exibir discretamente:
+  `Atualizado em: DD/MM HH:MM`
+- Buscar de `assessor_tokens.last_production_update_at` na validacao do token
+- Atualizar apos qualquer operacao de producao bem-sucedida
+
+---
+
+## 5. Resumo dos Arquivos Afetados
+
+| Arquivo | Tipo de Alteracao |
+|---------|-------------------|
+| Migration SQL | Criar tabela `app_settings`, alterar `assessor_tokens` e `kpi_records` |
+| `src/lib/permissions.ts` | **Novo** - funcoes de permissao |
+| `src/lib/storage.ts` | Adicionar auditoria no save |
+| `src/pages/Index.tsx` | Estado de role/openMonth, passar props |
+| `src/components/dashboard/FileUpload.tsx` | Validacoes de permissao e mes |
+| `src/components/dashboard/TokenAccessConfig.tsx` | Config de mes aberto |
+
+---
+
+## 6. Regras de Seguranca Resumidas
+
+| Regra | Socio | Admin |
+|-------|-------|-------|
+| Upload em massa | Apenas seus registros | Qualquer assessor |
+| Criar/Editar/Excluir | Apenas seus registros | Tudo |
+| Mes aberto | So opera no mes aberto | So opera no mes aberto |
+| Definir mes aberto | Nao | Sim |
+| Ver configuracoes | Nao | Sim |
+
+---
+
+## Observacoes
+
+- A validacao de permissao ocorre no frontend pois nao ha autenticacao Supabase Auth (apenas tokens). As politicas RLS continuam publicas como ja estao.
+- O campo `role` no token determina se o acesso eh de admin ou socio.
+- O modo "Escritorio" (sem token na URL) continua funcionando como admin implicitamente.
+
