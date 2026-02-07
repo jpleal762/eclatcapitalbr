@@ -19,6 +19,7 @@ type ViewMode = "default" | "best-to-worst" | "worst-to-best" | "by-category";
 // Mapeamento de KPIs para seus heads responsáveis
 const KPI_HEADS: Record<string, string> = {
   "Receita PJ1 XP": "BRUNO",
+  "Diversificação": "BRUNO",
 };
 
 const CATEGORY_GROUPS = {

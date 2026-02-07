@@ -56,6 +56,7 @@ export interface MetaSemanal {
   value: number | string;
   realizedValue?: number;
   isCurrency?: boolean;
+  monthlyTarget?: number;
 }
 
 export interface DashboardData {
