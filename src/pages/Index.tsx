@@ -449,14 +449,14 @@ const Index = () => {
     [processedData, filters.month]
   );
 
+  // assessorRemainingReceita now for PJ1 XP (main position)
   const assessorRemainingReceita = useMemo(
     () => calculateAssessorRemainingForKPI(
       processedData, 
-      "Receita", 
+      "PJ1 XP Mês", 
       filters.month, 
-      ["PJ1 XP Mês", "PJ2 XP Mês"],  // Target from these categories
-      undefined,                      // actualCategory (uses category default)
-      "Receita Empilhada"             // additionalActualCategory
+      undefined,        // Target from same category
+      "PJ1 XP",         // actualCategory
     ),
     [processedData, filters.month]
   );
@@ -914,6 +914,7 @@ const Index = () => {
                                   ritmoIdeal={dashboardData.ritmoIdeal}
                                   weight={getWeightForLabel(dashboardData.gaugeKPIs[3]?.label)}
                                   compact={true}
+                                  headName="BRUNO"
                                   onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[3])}
                                 />
                               </ExpandableCard>
@@ -954,20 +955,20 @@ const Index = () => {
                           <div className="flex-[65] min-h-0 overflow-hidden">
                           <ExpandableCard>
                             <GaugeChart
-                              label={dashboardData.gaugeKPIs[1]?.label}
-                              value={dashboardData.gaugeKPIs[1]?.value}
-                              target={dashboardData.gaugeKPIs[1]?.target}
-                              percentage={dashboardData.gaugeKPIs[1]?.percentage}
-                              isCurrency={dashboardData.gaugeKPIs[1]?.isCurrency}
-                              warning={dashboardData.gaugeKPIs[1]?.warning}
+                              label={dashboardData.gaugeKPIs[5]?.label}
+                              value={dashboardData.gaugeKPIs[5]?.value}
+                              target={dashboardData.gaugeKPIs[5]?.target}
+                              percentage={dashboardData.gaugeKPIs[5]?.percentage}
+                              isCurrency={dashboardData.gaugeKPIs[5]?.isCurrency}
+                              warning={dashboardData.gaugeKPIs[5]?.warning}
                               size="lg"
                               showRemaining={true}
                               ritmoIdeal={dashboardData.ritmoIdeal}
                               showAssessorList={true}
                               assessorRemainingData={assessorRemainingReceita}
-                               weight={getWeightForLabel(dashboardData.gaugeKPIs[1]?.label)}
+                              headName="BRUNO"
                               compact={true}
-                              onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[1])}
+                              onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[5])}
                             />
                           </ExpandableCard>
                           </div>
@@ -976,24 +977,6 @@ const Index = () => {
                           <div className="flex-[35] min-h-0 overflow-hidden">
                             <div className="grid grid-cols-2 gap-2 h-full">
                             {visibility.graph6 && (
-                              <ExpandableCard>
-                                <GaugeChart
-                                  label={dashboardData.gaugeKPIs[5]?.label}
-                                  value={dashboardData.gaugeKPIs[5]?.value}
-                                  target={dashboardData.gaugeKPIs[5]?.target}
-                                  percentage={dashboardData.gaugeKPIs[5]?.percentage}
-                                  isCurrency={dashboardData.gaugeKPIs[5]?.isCurrency}
-                                  warning={dashboardData.gaugeKPIs[5]?.warning}
-                                  size="sm"
-                                  showRemaining={true}
-                                  ritmoIdeal={dashboardData.ritmoIdeal}
-                                  compact={true}
-                                  headName="BRUNO"
-                                  onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[5])}
-                                />
-                              </ExpandableCard>
-                            )}
-                            {visibility.graph7 && (
                               <ExpandableCard>
                                 <FlipGaugeChart
                                   label={dashboardData.gaugeKPIs[6]?.label}
@@ -1011,6 +994,29 @@ const Index = () => {
                                   isFlipped={isGlobalFlipped}
                                   compact={true}
                                   onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[6])}
+                                />
+                              </ExpandableCard>
+                            )}
+                            {visibility.graph7 && (
+                              <ExpandableCard>
+                                <FlipGaugeChart
+                                  label={dashboardData.gaugeKPIs[4]?.label}
+                                  value={dashboardData.gaugeKPIs[4]?.value}
+                                  target={dashboardData.gaugeKPIs[4]?.target}
+                                  percentage={dashboardData.gaugeKPIs[4]?.percentage}
+                                  isCurrency={dashboardData.gaugeKPIs[4]?.isCurrency}
+                                  warning={dashboardData.gaugeKPIs[4]?.warning}
+                                  size="sm"
+                                  showRemaining={true}
+                                  ritmoIdeal={dashboardData.ritmoIdeal}
+                                  backTitle="Falta por Assessor"
+                                  backData={assessorRemainingParceiros
+                                    .filter(a => !a.achieved)
+                                    .map(a => ({ name: a.name, value: a.remaining }))}
+                                  isFlipped={isGlobalFlipped}
+                                  weight={getWeightForLabel(dashboardData.gaugeKPIs[4]?.label)}
+                                  compact={true}
+                                  onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[4])}
                                 />
                               </ExpandableCard>
                             )}

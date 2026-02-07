@@ -1045,8 +1045,14 @@ export function processDashboardData(
         ? getMonthValue(additionalRealized, selectedMonth)
         : additionalRealized.reduce((s, d) => s + d.total, 0);
     }
+    
+    // Calcular Meta Mês (Planejado Mês) para a mesma categoria
+    const monthlyPlanned = catData.filter(d => isPlannedMonthStatus(d.status));
+    const monthlyTarget = selectedMonth !== "all"
+      ? getMonthValue(monthlyPlanned, selectedMonth)
+      : monthlyPlanned.reduce((s, d) => s + d.total, 0);
       
-    return { label: item.label, value, realizedValue, isCurrency: item.isCurrency };
+    return { label: item.label, value, realizedValue, isCurrency: item.isCurrency, monthlyTarget };
   });
 
   // Calculate metaSemanalPercentage: sum of Planejado Semana (6 KPIs) / sum of Planejado Mês (8 KPIs)
