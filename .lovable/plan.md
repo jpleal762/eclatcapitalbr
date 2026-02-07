@@ -1,102 +1,45 @@
 
-# Plano: Lapis de Edicao nos Cards + Download da Base de Dados
+# Plano: Numero clicavel no lugar do lapis
 
 ## Resumo
 
-Duas funcionalidades:
-1. Adicionar um icone de lapis (Edit) em cada card de gauge KPI para editar a producao daquele item especifico, abrindo o modal de edicao ja filtrado pela categoria do card.
-2. Adicionar um botao para baixar a base de dados atualizada em formato XLSX.
+Substituir o icone de lapis nos cards por um comportamento onde o proprio numero de producao (o valor central do gauge) se torna clicavel para abrir o modal de edicao.
 
 ---
 
-## 1. Lapis de Edicao nos Cards
+## Alteracoes
 
-### Abordagem
+### 1. `src/components/dashboard/GaugeChart.tsx`
 
-Cada `GaugeChart` e `FlipGaugeChart` recebera uma nova prop opcional `onEditProduction` (callback). Quando presente, um pequeno icone de lapis aparecera no canto do card. Ao clicar, abrira o `ProductionEditModal` ja filtrado pela categoria especifica daquele KPI.
+- **Remover** o botao com icone de lapis (linhas 211-219)
+- **Remover** import do `Pencil`
+- **Tornar o valor central clicavel**: O `span` que exibe `formatNumber(value, isCurrency)` (linha 279) deixa de ter `pointer-events-none` no container pai quando `onEditProduction` esta presente
+  - O container (linha 278) tera `pointer-events-none` condicional: so aplica quando NAO tem `onEditProduction`
+  - O `span` do valor recebe `onClick` com `e.stopPropagation()` + `onEditProduction()`
+  - Adiciona estilo visual sutil: `cursor-pointer underline decoration-dotted hover:text-eclat-gold transition-colors` para indicar que e clicavel
+  - Mantem `pointer-events-auto` no span do valor para garantir clique mesmo com container `pointer-events-none`
 
-### Alteracoes
+### 2. `src/components/dashboard/FlipGaugeChart.tsx`
 
-**1.1 `ProductionEditModal.tsx`** - Adicionar prop opcional `filterCategory`
-- Quando `filterCategory` e passado, o modal filtra `kpi_records` somente para aquela categoria (e.g., `categorias = 'Captacao net'`)
-- O titulo do modal mostra qual categoria esta sendo editada
+- Nenhuma alteracao necessaria (ja repassa `onEditProduction` para o `GaugeChart`)
 
-**1.2 `GaugeChart.tsx`** - Adicionar prop `onEditProduction`
-- Nova prop opcional: `onEditProduction?: () => void`
-- Quando presente, renderiza um pequeno botao com icone de lapis no header do card (ao lado do titulo)
-- O `onClick` chama `onEditProduction` (com `e.stopPropagation()` para nao interferir com flip)
+### 3. Nenhuma outra alteracao
 
-**1.3 `FlipGaugeChart.tsx`** - Repassar `onEditProduction` para o `GaugeChart` interno
-
-**1.4 `Index.tsx`** - Conectar tudo
-- Novo estado: `productionEditCategory` (string | null) para saber qual categoria filtrar
-- Criar funcao `handleEditProductionForKPI(category: string)` que define a categoria e abre o modal
-- Passar `onEditProduction={() => handleEditProductionForKPI("Captacao net")}` para cada GaugeChart/FlipGaugeChart
-- Passar `filterCategory={productionEditCategory}` para o `ProductionEditModal`
-- Mapeamento dos indices de `gaugeKPIs` para as categorias corretas usando `KPI_CATEGORIES`
-
-### Permissoes (mantidas)
-- Socio: so edita registros do proprio assessor
-- Admin: edita todos
-- Mes fechado: botao desabilitado ou oculto
+O `ProductionEditModal` e `Index.tsx` continuam iguais - apenas muda o elemento de gatilho dentro do `GaugeChart`.
 
 ---
 
-## 2. Download da Base de Dados (XLSX)
+## Detalhe Tecnico
 
-### Abordagem
-
-Adicionar um botao de download no header do dashboard (ao lado dos botoes existentes). Ao clicar, busca todos os `kpi_records` do banco, transforma de volta para o formato XLSX original e baixa o arquivo.
-
-### Alteracoes
-
-**2.1 `src/lib/exportUtils.ts`** - Novo arquivo
-- Funcao `exportDatabaseToXLSX()`:
-  - Busca todos os registros de `kpi_records`
-  - Transforma de volta para formato tabular (Assessor, Categorias, Status, colunas de meses)
-  - Usa a biblioteca `xlsx` (ja instalada) para gerar o arquivo
-  - Faz download automatico com nome `base_dados_YYYY-MM-DD.xlsx`
-
-**2.2 `Index.tsx`** - Adicionar botao de download
-- Botao com icone `Download` ao lado do botao de edicao no header
-- Visivel para todos (admin e socio)
-- Chama `exportDatabaseToXLSX()`
-
----
-
-## 3. Resumo dos Arquivos
-
-| Arquivo | Alteracao |
-|---------|-----------|
-| `src/components/dashboard/GaugeChart.tsx` | Nova prop `onEditProduction`, icone de lapis |
-| `src/components/dashboard/FlipGaugeChart.tsx` | Repassar `onEditProduction` |
-| `src/components/dashboard/ProductionEditModal.tsx` | Nova prop `filterCategory` para filtrar por categoria |
-| `src/lib/exportUtils.ts` | **Novo** - funcao de export XLSX |
-| `src/pages/Index.tsx` | Estado de categoria, callbacks nos cards, botao download |
-
----
-
-## Detalhes Tecnicos
-
-### Mapeamento Card -> Categoria (baseado em KPI_CATEGORIES)
+Trecho do valor central atualizado:
 
 ```text
-gaugeKPIs[0] -> "Captacao net"      (Graph 3 - Captacao NET)
-gaugeKPIs[1] -> "Receita"           (Graph 2 - Receita XP)
-gaugeKPIs[2] -> "Primeira reuniao"  (Graph 3 - Primeiras Reunioes)
-gaugeKPIs[3] -> "Diversificada ( ROA>1,5)" (Graph 4)
-gaugeKPIs[4] -> "Parceiros Tri"     (Graph 5)
-gaugeKPIs[5] -> "PJ1 XP Mes"       (Graph 6)
-gaugeKPIs[6] -> "PJ2 XP Mes"       (Graph 7)
-gaugeKPIs[7] -> "Habilitacao"       (Graph 8)
-gaugeKPIs[8] -> "Ativacao"          (Graph 9)
+Container: pointer-events-none (quando sem onEditProduction)
+           pointer-events-auto  (quando com onEditProduction, apenas no span do valor)
+
+Span do valor:
+  - Com onEditProduction: cursor-pointer, underline dotted, hover dourado, onClick abre modal
+  - Sem onEditProduction: comportamento atual (sem interacao)
 ```
 
-### Export XLSX - Formato de saida
-
-```text
-| Assessor | Categorias | Status | jan-26 | fev-26 | mar-26 | ... |
-|----------|------------|--------|--------|--------|--------|-----|
-```
-
-Reconstroi o formato original do upload a partir do campo `monthly_data` (JSONB) de cada registro.
+Isso mantem o click do FlipGaugeChart funcionando normalmente (o stopPropagation no valor impede que o flip seja acionado ao clicar no numero).
