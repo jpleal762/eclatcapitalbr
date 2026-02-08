@@ -1,8 +1,8 @@
-import { LayoutGrid, TrendingUp, Target, Users, Lightbulb } from "lucide-react";
+import { LayoutGrid, TrendingUp, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-export type PageType = "dashboard" | "analysis" | "sprint" | "prospection" | "tactics";
+export type PageType = "dashboard" | "analysis" | "sprint";
 
 interface PageToggleProps {
   currentPage: PageType;
@@ -10,7 +10,7 @@ interface PageToggleProps {
   allowedScreens?: PageType[];
 }
 
-const defaultPageOrder: PageType[] = ["dashboard", "analysis", "sprint", "prospection", "tactics"];
+const defaultPageOrder: PageType[] = ["dashboard", "analysis", "sprint"];
 
 const pageConfig: Record<PageType, { icon: React.ReactNode; label: string }> = {
   dashboard: {
@@ -24,14 +24,6 @@ const pageConfig: Record<PageType, { icon: React.ReactNode; label: string }> = {
   sprint: {
     icon: <Target className="h-4 w-4" />,
     label: "Sprint",
-  },
-  prospection: {
-    icon: <Users className="h-4 w-4" />,
-    label: "Prospecção",
-  },
-  tactics: {
-    icon: <Lightbulb className="h-4 w-4" />,
-    label: "Táticas",
   },
 };
 
