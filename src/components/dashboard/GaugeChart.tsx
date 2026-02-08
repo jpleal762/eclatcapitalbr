@@ -242,11 +242,11 @@ export function GaugeChart({
           </div>
 
           {/* Dynamic SVG gauge */}
-          <div className="relative flex-shrink-0 my-auto" style={{
-            width: dynamicWidth,
-            height: dynamicHeight
+          <div className="relative flex-shrink-0 my-auto w-full" style={{
+            maxWidth: dynamicWidth,
+            aspectRatio: `${dynamicWidth}/${dynamicHeight}`
           }}>
-          <svg width={dynamicWidth} height={dynamicHeight} viewBox={`0 0 ${dynamicWidth} ${dynamicHeight}`} overflow="visible">
+          <svg width="100%" height="100%" viewBox={`0 0 ${dynamicWidth} ${dynamicHeight}`} overflow="visible" preserveAspectRatio="xMidYMid meet">
             {/* Definições de gradientes SVG */}
             <defs>
               <linearGradient id="eclat-arc-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -326,7 +326,7 @@ export function GaugeChart({
         </div>
 
         {/* Lista de Falta por Assessor - always reserve space when showAssessorList is true */}
-        {showAssessorList && <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
+        {showAssessorList && <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2 hide-on-small-container">
             <p className="text-responsive-3xs text-muted-foreground mb-1 flex-shrink-0 font-semibold truncate whitespace-nowrap">
               Falta p/ Assessor
             </p>

@@ -168,7 +168,7 @@ export function AssessorChart({
       </h3>
       
       {/* Coluna única com distribuição vertical - justify-between para espaçar, gap-0.5 mínimo */}
-      <div className="flex-1 min-h-0 flex flex-col justify-between gap-[1px] overflow-hidden">
+      <div className="flex-1 min-h-0 flex flex-col justify-between gap-[1px] overflow-y-auto">
         {filteredData.map((assessor, index) => renderAssessor(assessor, index))}
       </div>
     </Card>

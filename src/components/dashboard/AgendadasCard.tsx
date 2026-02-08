@@ -20,7 +20,7 @@ export function AgendadasCard({
       </div>
 
       {/* Content - Horizontal layout: Number left, Assessors right */}
-      <div className="flex flex-row flex-1 gap-2 min-h-0 overflow-hidden">
+      <div className="flex flex-row flex-1 gap-2 min-h-0 overflow-auto">
         {/* Left: Large number - vertically centered */}
         <div className="flex flex-col items-center justify-center flex-shrink-0 min-w-[60px]">
           <span className="text-responsive-2xl font-bold text-foreground whitespace-nowrap">
