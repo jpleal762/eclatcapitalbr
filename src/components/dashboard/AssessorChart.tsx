@@ -148,7 +148,7 @@ export function AssessorChart({
   if (isSingleAssessor) {
     return (
       <Card className="p-1 shadow-card h-full flex flex-col overflow-hidden">
-       <h3 className="text-responsive-sm font-semibold mb-0.5 text-foreground flex items-center gap-0.5 flex-shrink-0">
+       <h3 className="text-responsive-sm font-semibold mb-0.5 text-foreground flex items-center justify-center gap-0.5 flex-shrink-0 w-full text-center">
           <Trophy className="icon-responsive-sm text-eclat-gold" /> ICM Geral - {filteredData[0].name}
         </h3>
         
@@ -163,7 +163,7 @@ export function AssessorChart({
   
   return (
     <Card className="p-1 shadow-card h-full flex flex-col overflow-hidden">
-      <h3 className="text-responsive-sm font-semibold mb-0.5 text-foreground flex items-center gap-0.5 flex-shrink-0">
+      <h3 className="text-responsive-sm font-semibold mb-0.5 text-foreground flex items-center justify-center gap-0.5 flex-shrink-0 w-full text-center">
         <Trophy className="icon-responsive-sm text-eclat-gold" /> ICM Geral por Assessor
       </h3>
       
