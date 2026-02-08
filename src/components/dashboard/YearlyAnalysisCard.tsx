@@ -41,6 +41,7 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastHash, setLastHash] = useState<string | null>(null);
+  const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
   const { toast } = useToast();
 
   const displayAssessor = selectedAssessor === "all" 
@@ -60,6 +61,7 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
           const parsedCache = JSON.parse(cached);
           setAnalysis(parsedCache);
           setLastHash(currentHash);
+          setLastFetchTime(new Date(localStorage.getItem(LAST_FETCH_KEY) || Date.now()));
           return;
         } catch (e) {
           // Cache invalid, proceed to fetch
@@ -112,6 +114,7 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
 
       setAnalysis(data);
       setLastHash(currentHash);
+      setLastFetchTime(new Date());
       
       // Cache the result
       localStorage.setItem(cacheKey, JSON.stringify(data));
@@ -215,6 +218,12 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
       {isLoading && analysis && (
         <div className="mt-1 text-[6px] text-muted-foreground text-center">
           Atualizando análise...
+        </div>
+      )}
+
+      {lastFetchTime && !isLoading && (
+        <div className="mt-1 text-[6px] text-muted-foreground text-right italic">
+          Última análise: {lastFetchTime.toLocaleDateString("pt-BR")} {lastFetchTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
         </div>
       )}
     </Card>
