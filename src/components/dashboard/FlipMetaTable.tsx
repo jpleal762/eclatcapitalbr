@@ -57,7 +57,7 @@ export function FlipMetaTable({
           <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
             <div className="flex items-center justify-between mb-responsive flex-shrink-0">
               <div className="flex flex-col">
-                <h3 className="text-responsive-lg font-semibold text-white flex items-center gap-1"><ClipboardList className="icon-responsive-sm" /> Planejamento</h3>
+                <h3 className="text-responsive-lg font-semibold text-white flex items-center gap-1">Planejamento <ClipboardList className="icon-responsive" /></h3>
                 <span className="text-responsive-4xs text-white/50 italic">*definido na reunião semanal em equipe</span>
               </div>
               <div className="flex items-center gap-2">
