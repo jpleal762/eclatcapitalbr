@@ -68,6 +68,7 @@ export function FlipICMCard({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastHash, setLastHash] = useState<string>("");
+  const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
 
   const displayAssessor = selectedAssessor === "all" 
     ? "Escritório" 
@@ -86,6 +87,7 @@ export function FlipICMCard({
           if (parsed.timestamp && Date.now() - parsed.timestamp < 30 * 60 * 1000) {
             setAnalysis(parsed.data);
             setLastHash(currentHash);
+            setLastFetchTime(new Date(parsed.timestamp));
             return;
           }
         } catch (e) {
@@ -129,6 +131,7 @@ export function FlipICMCard({
 
       setAnalysis(data);
       setLastHash(currentHash);
+      setLastFetchTime(new Date());
 
       // Cache the result
       localStorage.setItem(cacheKey, JSON.stringify({
@@ -304,7 +307,9 @@ export function FlipICMCard({
                 {selectedMonth.toUpperCase()}
               </span>
               <p className="text-responsive-xs text-muted-foreground italic">
-                Análise gerada por IA
+                {lastFetchTime 
+                  ? `Análise: ${lastFetchTime.toLocaleDateString("pt-BR")} ${lastFetchTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                  : "Análise gerada por IA"}
               </p>
             </div>
           </Card>
