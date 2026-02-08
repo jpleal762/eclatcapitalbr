@@ -147,13 +147,7 @@ export function FlipICMCard({
     }
   }, [dashboardData, selectedMonth, selectedAssessor, lastHash]);
 
-  // Fetch analysis when data changes (debounced)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchAnalysis();
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [fetchAnalysis]);
+  // No auto-fetch - only fetch when user clicks refresh button
 
   const handleFlip = () => {
     setManualFlipOffset(prev => prev + 1);

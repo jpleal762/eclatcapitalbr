@@ -129,16 +129,12 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
     }
   }, [yearlyData, selectedYear, selectedAssessor, lastHash, analysis, toast]);
 
-  // Debounced effect to fetch analysis when data changes (auto-refresh once per day)
+  // No auto-fetch - only fetch when user clicks refresh button
+  // Load from cache on mount/data change
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (yearlyData.gaugeKPIs.length > 0) {
-        const shouldForceRefresh = canRefreshToday();
-        fetchAnalysis(shouldForceRefresh);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
+    if (yearlyData.gaugeKPIs.length > 0) {
+      fetchAnalysis(false); // only loads from cache, won't call API
+    }
   }, [fetchAnalysis, yearlyData.gaugeKPIs.length]);
 
   return (
