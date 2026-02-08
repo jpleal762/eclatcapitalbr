@@ -15,7 +15,7 @@ export function AgendadasCard({
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-1 flex-shrink-0">
         <h3 className="text-responsive-sm font-semibold text-foreground whitespace-nowrap truncate flex items-center gap-1">
-          <CalendarClock className="icon-responsive-sm flex-shrink-0" /> Reuniões Agendadas Semana
+          Reuniões Agendadas Semana <CalendarClock className="icon-responsive flex-shrink-0" />
         </h3>
       </div>
 

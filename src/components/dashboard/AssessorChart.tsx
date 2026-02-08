@@ -149,7 +149,7 @@ export function AssessorChart({
     return (
       <Card className="p-1 shadow-card h-full flex flex-col overflow-hidden">
        <h3 className="text-responsive-sm font-semibold mb-0.5 text-foreground flex items-center gap-0.5 flex-shrink-0">
-          <Trophy className="icon-responsive-sm text-eclat-gold" /> ICM Geral - {filteredData[0].name}
+          ICM Geral - {filteredData[0].name} <Trophy className="icon-responsive text-eclat-gold" />
         </h3>
         
         <div className="flex-1 flex items-start justify-center p-2">
@@ -164,7 +164,7 @@ export function AssessorChart({
   return (
     <Card className="p-1 shadow-card h-full flex flex-col overflow-hidden">
       <h3 className="text-responsive-sm font-semibold mb-0.5 text-foreground flex items-center gap-0.5 flex-shrink-0">
-        <Trophy className="icon-responsive-sm text-eclat-gold" /> ICM Geral por Assessor
+        ICM Geral por Assessor <Trophy className="icon-responsive text-eclat-gold" />
       </h3>
       
       {/* Coluna única com distribuição vertical - justify-between para espaçar, gap-0.5 mínimo */}

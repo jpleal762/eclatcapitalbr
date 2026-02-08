@@ -50,21 +50,21 @@ const getGaugeAlert = (currentPercentage: number, ritmoIdeal?: number): "GREEN" 
 const TOTAL_ICM_WEIGHT = 9.5;
 
 const LABEL_ICON_MAP: Record<string, React.ReactNode> = {
-  "Primeiras Reuniões": <CalendarCheck className="icon-responsive-sm flex-shrink-0" />,
-  "Primeira reuniao": <CalendarCheck className="icon-responsive-sm flex-shrink-0" />,
-  "Captação NET": <TrendingUp className="icon-responsive-sm flex-shrink-0" />,
-  "Captação net": <TrendingUp className="icon-responsive-sm flex-shrink-0" />,
-  "Receita": <DollarSign className="icon-responsive-sm flex-shrink-0" />,
-  "PJ1 XP": <DollarSign className="icon-responsive-sm flex-shrink-0" />,
-  "PJ2 XP": <Coins className="icon-responsive-sm flex-shrink-0" />,
-  "Parceiros Tri": <Handshake className="icon-responsive-sm flex-shrink-0" />,
-  "Receita Parceiros": <Handshake className="icon-responsive-sm flex-shrink-0" />,
-  "Habilitacao": <BadgeCheck className="icon-responsive-sm flex-shrink-0" />,
-  "Habilitação": <BadgeCheck className="icon-responsive-sm flex-shrink-0" />,
-  "Ativacao": <Zap className="icon-responsive-sm flex-shrink-0" />,
-  "Ativação": <Zap className="icon-responsive-sm flex-shrink-0" />,
-  "Diversificada ( ROA>1,5)": <PieChart className="icon-responsive-sm flex-shrink-0" />,
-  "Diversificação": <PieChart className="icon-responsive-sm flex-shrink-0" />,
+  "Primeiras Reuniões": <CalendarCheck className="icon-responsive flex-shrink-0" />,
+  "Primeira reuniao": <CalendarCheck className="icon-responsive flex-shrink-0" />,
+  "Captação NET": <TrendingUp className="icon-responsive flex-shrink-0" />,
+  "Captação net": <TrendingUp className="icon-responsive flex-shrink-0" />,
+  "Receita": <DollarSign className="icon-responsive flex-shrink-0" />,
+  "PJ1 XP": <DollarSign className="icon-responsive flex-shrink-0" />,
+  "PJ2 XP": <Coins className="icon-responsive flex-shrink-0" />,
+  "Parceiros Tri": <Handshake className="icon-responsive flex-shrink-0" />,
+  "Receita Parceiros": <Handshake className="icon-responsive flex-shrink-0" />,
+  "Habilitacao": <BadgeCheck className="icon-responsive flex-shrink-0" />,
+  "Habilitação": <BadgeCheck className="icon-responsive flex-shrink-0" />,
+  "Ativacao": <Zap className="icon-responsive flex-shrink-0" />,
+  "Ativação": <Zap className="icon-responsive flex-shrink-0" />,
+  "Diversificada ( ROA>1,5)": <PieChart className="icon-responsive flex-shrink-0" />,
+  "Diversificação": <PieChart className="icon-responsive flex-shrink-0" />,
 };
 function RitmoAlertDisplay({
   alertType,
@@ -217,8 +217,8 @@ export function GaugeChart({
           <div className="flex items-center justify-between w-full mb-responsive flex-shrink-0">
             <div className="flex flex-col flex-1 min-w-0">
               <h4 className={`font-semibold text-responsive-xs ${isHighlight ? "text-card" : "text-foreground"} truncate whitespace-nowrap flex items-center gap-1`}>
-                {LABEL_ICON_MAP[label]}
                 {label}
+                {LABEL_ICON_MAP[label]}
                 {weight !== undefined && <span className="ml-1 text-muted-foreground font-normal">
                     x{weight}
                   </span>}

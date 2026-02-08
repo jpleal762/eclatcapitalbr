@@ -197,7 +197,7 @@ export function FlipICMCard({
             <div className="flex items-center justify-between mb-2 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-primary" />
-                <h3 className="text-responsive-lg font-semibold text-foreground flex items-center gap-1"><Gauge className="icon-responsive-sm" /> Análise IA</h3>
+                <h3 className="text-responsive-lg font-semibold text-foreground flex items-center gap-1">Análise IA <Gauge className="icon-responsive" /></h3>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-responsive-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
