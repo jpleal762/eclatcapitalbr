@@ -44,7 +44,7 @@ import {
 } from "@/lib/sprintStorage";
 import { SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Settings, Edit3, Download } from "lucide-react";
+import { Menu, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
@@ -52,7 +52,7 @@ import eclatLogoDark from "@/assets/eclat-xp-logo-dark.svg";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
+
 import { ScaleSelector } from "@/components/ScaleSelector";
 import { useScale } from "@/contexts/ScaleContext";
 import { Card } from "@/components/ui/card";
@@ -668,48 +668,7 @@ const Index = () => {
                       </Tooltip>
                     </TooltipProvider>
                   )}
-                  {/* Production Edit Button - visible when has data */}
-                  {hasData && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setIsProductionEditOpen(true)}
-                            className="h-8 w-8"
-                          >
-                            <Edit3 className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          Editar Produção
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                  {/* Download Button */}
-                  {hasData && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => exportDatabaseToXLSX()}
-                            className="h-8 w-8"
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          Baixar Base de Dados
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
                   <ScaleSelector />
-                  <ThemeToggle />
                   {/* File Upload - only visible when not in token mode */}
                   {hasData && !isTokenLocked && (
                     <FileUpload onDataLoaded={handleDataLoaded} compact lastUpdate={lastUpdateTime} role={tokenRole} assessorName={tokenAssessorName} openMonth={openMonth} />
@@ -1088,6 +1047,8 @@ const Index = () => {
           onViewModeChange={setViewMode}
           openMonth={openMonth}
           onOpenMonthChange={setOpenMonth}
+          onEditProduction={() => { setIsConfigOpen(false); setIsProductionEditOpen(true); }}
+          onExportDatabase={() => { setIsConfigOpen(false); exportDatabaseToXLSX(); }}
         />
 
         {/* Production Edit Modal */}

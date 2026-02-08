@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "./ProgressBar";
-import { CheckCircle, Clock, AlertTriangle, Calendar } from "lucide-react";
+import { CheckCircle, Clock, AlertTriangle, Calendar, Gauge } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "next-themes";
@@ -84,8 +84,8 @@ export function ICMCard({
   return <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden">
       {/* Header compacto com título e botão relatório */}
       <div className="flex items-center justify-between gap-2 mb-1 flex-shrink-0">
-        <h3 className="text-responsive-sm font-semibold text-foreground">
-          ICM Geral
+        <h3 className="text-responsive-lg font-semibold text-foreground flex items-center gap-1">
+          <Gauge className="icon-responsive-sm" /> ICM Geral
         </h3>
         {dashboardData && (
           <ReportButton

@@ -1,4 +1,5 @@
-import { AlertTriangle, CheckCircle, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, CheckCircle, CheckCircle2, CalendarCheck, TrendingUp, DollarSign, Coins, Handshake, BadgeCheck, Zap, PieChart } from "lucide-react";
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { formatNumber } from "@/lib/kpiUtils";
 import { useTheme } from "next-themes";
@@ -47,6 +48,24 @@ const getGaugeAlert = (currentPercentage: number, ritmoIdeal?: number): "GREEN" 
   return "ORANGE";
 };
 const TOTAL_ICM_WEIGHT = 9.5;
+
+const LABEL_ICON_MAP: Record<string, React.ReactNode> = {
+  "Primeiras Reuniões": <CalendarCheck className="icon-responsive-sm flex-shrink-0" />,
+  "Primeira reuniao": <CalendarCheck className="icon-responsive-sm flex-shrink-0" />,
+  "Captação NET": <TrendingUp className="icon-responsive-sm flex-shrink-0" />,
+  "Captação net": <TrendingUp className="icon-responsive-sm flex-shrink-0" />,
+  "Receita": <DollarSign className="icon-responsive-sm flex-shrink-0" />,
+  "PJ1 XP": <DollarSign className="icon-responsive-sm flex-shrink-0" />,
+  "PJ2 XP": <Coins className="icon-responsive-sm flex-shrink-0" />,
+  "Parceiros Tri": <Handshake className="icon-responsive-sm flex-shrink-0" />,
+  "Receita Parceiros": <Handshake className="icon-responsive-sm flex-shrink-0" />,
+  "Habilitacao": <BadgeCheck className="icon-responsive-sm flex-shrink-0" />,
+  "Habilitação": <BadgeCheck className="icon-responsive-sm flex-shrink-0" />,
+  "Ativacao": <Zap className="icon-responsive-sm flex-shrink-0" />,
+  "Ativação": <Zap className="icon-responsive-sm flex-shrink-0" />,
+  "Diversificada ( ROA>1,5)": <PieChart className="icon-responsive-sm flex-shrink-0" />,
+  "Diversificação": <PieChart className="icon-responsive-sm flex-shrink-0" />,
+};
 function RitmoAlertDisplay({
   alertType,
   difference,
@@ -197,7 +216,8 @@ export function GaugeChart({
           {/* Header with title and alert */}
           <div className="flex items-center justify-between w-full mb-responsive flex-shrink-0">
             <div className="flex flex-col flex-1 min-w-0">
-              <h4 className={`font-semibold text-responsive-3xs ${isHighlight ? "text-card" : "text-foreground"} truncate whitespace-nowrap`}>
+              <h4 className={`font-semibold text-responsive-xs ${isHighlight ? "text-card" : "text-foreground"} truncate whitespace-nowrap flex items-center gap-1`}>
+                {LABEL_ICON_MAP[label]}
                 {label}
                 {weight !== undefined && <span className="ml-1 text-muted-foreground font-normal">
                     x{weight}

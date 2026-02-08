@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { CalendarClock } from "lucide-react";
 
 interface AgendadasCardProps {
   agendadasValue: number;
@@ -13,8 +14,8 @@ export function AgendadasCard({
     <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-1 flex-shrink-0">
-        <h3 className="text-responsive-xs font-semibold text-foreground whitespace-nowrap truncate">
-          Reuniões Agendadas Semana
+        <h3 className="text-responsive-sm font-semibold text-foreground whitespace-nowrap truncate flex items-center gap-1">
+          <CalendarClock className="icon-responsive-sm flex-shrink-0" /> Reuniões Agendadas Semana
         </h3>
       </div>
 

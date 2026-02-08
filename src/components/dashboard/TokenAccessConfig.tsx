@@ -40,8 +40,13 @@ import {
   Maximize2,
   Smartphone,
   Monitor,
-  CalendarDays
+  CalendarDays,
+  Moon,
+  Sun,
+  Edit3,
+  Download
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { PageType } from "./PageToggle";
 import { Separator } from "@/components/ui/separator";
 import { setOpenMonth as saveOpenMonth } from "@/lib/permissions";
@@ -59,6 +64,8 @@ interface TokenAccessConfigProps {
   onViewModeChange: (mode: 'desktop' | 'mobile') => void;
   openMonth: string | null;
   onOpenMonthChange: (month: string | null) => void;
+  onEditProduction: () => void;
+  onExportDatabase: () => void;
 }
 
 interface TokenData {
@@ -105,7 +112,10 @@ export function TokenAccessConfig({
   onViewModeChange,
   openMonth,
   onOpenMonthChange,
+  onEditProduction,
+  onExportDatabase,
 }: TokenAccessConfigProps) {
+  const { theme, setTheme } = useTheme();
   const [tokens, setTokens] = useState<TokenData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -318,6 +328,54 @@ export function TokenAccessConfig({
                     Mobile
                   </Button>
                 </div>
+              </div>
+
+              {/* Theme Toggle */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {theme === 'dark' ? (
+                    <Moon className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Sun className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  <div>
+                    <Label htmlFor="theme-toggle" className="font-medium">Tema escuro</Label>
+                    <p className="text-xs text-muted-foreground">Alterna entre tema claro e escuro</p>
+                  </div>
+                </div>
+                <Switch
+                  id="theme-toggle"
+                  checked={theme === 'dark'}
+                  onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                />
+              </div>
+
+              {/* Edit Production */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Edit3 className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <Label className="font-medium">Editar Produção</Label>
+                    <p className="text-xs text-muted-foreground">Abre o modal de edição de produção</p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="h-7" onClick={onEditProduction}>
+                  Abrir
+                </Button>
+              </div>
+
+              {/* Export Database */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Download className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <Label className="font-medium">Baixar Base de Dados</Label>
+                    <p className="text-xs text-muted-foreground">Exporta todos os dados em XLSX</p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="h-7" onClick={onExportDatabase}>
+                  Baixar
+                </Button>
               </div>
             </div>
           </div>
