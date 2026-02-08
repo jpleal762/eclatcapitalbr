@@ -72,14 +72,14 @@ export function FlipMetaTable({
               </div>
             </div>
             
-            <div className="flex-1 overflow-hidden min-h-0">
+            <div className="flex-1 overflow-auto min-h-0">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/20">
-                    <th className="text-left py-responsive-sm text-responsive-xs font-medium text-white/70">KPI</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Mês</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Sem.</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Realizado</th>
+                    <th className="text-left py-responsive-sm text-responsive-xs font-medium text-white/70 whitespace-nowrap">KPI</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70 whitespace-nowrap">Meta Mês</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70 whitespace-nowrap">Meta Sem.</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70 whitespace-nowrap">Realizado</th>
                   </tr>
                 </thead>
                 <tbody>
