@@ -43,11 +43,11 @@ export function ICMCard({
 }: ICMCardProps) {
   const { theme } = useTheme();
 
-  // Fixed gauge dimensions - 5x increase for ICM Geral
-  const gaugeWidth = 350;
-  const gaugeHeight = 200;
-  const gaugeRadius = 150;
-  const strokeWidth = 30;
+  // Fixed gauge dimensions - 2.5x (halved from 5x)
+  const gaugeWidth = 175;
+  const gaugeHeight = 100;
+  const gaugeRadius = 75;
+  const strokeWidth = 15;
   const circumference = Math.PI * gaugeRadius;
   const progress = Math.min(icmGeral, 100) / 100 * circumference;
 
@@ -128,7 +128,7 @@ export function ICMCard({
         {/* Gauge */}
         <div className="flex flex-col items-center justify-center">
           
-          <div className="relative w-full max-w-[350px]" style={{
+          <div className="relative w-full max-w-[175px]" style={{
           aspectRatio: `${gaugeWidth}/${gaugeHeight}`
         }}>
             <svg width="100%" height="100%" viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`} preserveAspectRatio="xMidYMid meet">
@@ -141,7 +141,7 @@ export function ICMCard({
               <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={markerColor} />
             </svg>
             <div className="absolute inset-0 flex items-end justify-center pb-4">
-              <span className="text-responsive-4xl font-bold text-foreground text-outline">{icmGeral}%</span>
+              <span className="text-responsive-2xl font-bold text-foreground text-outline">{icmGeral}%</span>
             </div>
           </div>
         </div>
