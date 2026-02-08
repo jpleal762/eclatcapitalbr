@@ -87,12 +87,10 @@ const generateMonthOptions = () => {
 const ALL_SCREENS: { key: PageType; label: string; icon: React.ReactNode }[] = [
   { key: "dashboard", label: "Dashboard", icon: <LayoutGrid className="h-4 w-4" /> },
   { key: "analysis", label: "Análise", icon: <TrendingUp className="h-4 w-4" /> },
-  { key: "prospection", label: "Prospecção", icon: <Target className="h-4 w-4" /> },
   { key: "sprint", label: "Sprint", icon: <Users className="h-4 w-4" /> },
-  { key: "tactics", label: "Táticas", icon: <Lightbulb className="h-4 w-4" /> },
 ];
 
-const DEFAULT_SCREENS: PageType[] = ["dashboard", "analysis", "prospection", "sprint", "tactics"];
+const DEFAULT_SCREENS: PageType[] = ["dashboard", "analysis", "sprint"];
 
 export function TokenAccessConfig({ 
   isOpen, 

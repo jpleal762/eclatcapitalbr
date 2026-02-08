@@ -59,8 +59,6 @@ import { Card } from "@/components/ui/card";
 import { PageToggle, PageType } from "@/components/dashboard/PageToggle";
 import { AnalysisPage } from "@/components/dashboard/AnalysisPage";
 import { SprintPage } from "@/components/dashboard/SprintPage";
-import { ProspectionQualityPage } from "@/components/dashboard/ProspectionQualityPage";
-import { TacticsWeekPage } from "@/components/dashboard/TacticsWeekPage";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { TokenAccessConfig } from "@/components/dashboard/TokenAccessConfig";
 import { ProductionEditModal } from "@/components/dashboard/ProductionEditModal";
@@ -118,7 +116,7 @@ const Index = () => {
   const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
   const [isPageRotationEnabled, setIsPageRotationEnabled] = useState(false);
   const [isCardFlippingEnabled, setIsCardFlippingEnabled] = useState(false);
-  const [allowedScreens, setAllowedScreens] = useState<PageType[]>(['dashboard', 'analysis', 'prospection', 'sprint', 'tactics']);
+  const [allowedScreens, setAllowedScreens] = useState<PageType[]>(['dashboard', 'analysis', 'sprint']);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isProductionEditOpen, setIsProductionEditOpen] = useState(false);
   const [productionEditCategory, setProductionEditCategory] = useState<string | string[] | null>(null);
@@ -222,7 +220,8 @@ const Index = () => {
         setLastProductionUpdate((data as any).last_production_update_at || null);
         
         // Configura telas permitidas
-        const screens = (data.allowed_screens as PageType[]) || ['dashboard', 'analysis', 'prospection', 'sprint', 'tactics'];
+        const rawScreens = (data.allowed_screens as string[]) || ['dashboard', 'analysis', 'sprint'];
+        const screens = rawScreens.filter((s): s is PageType => ['dashboard', 'analysis', 'sprint'].includes(s));
         setAllowedScreens(screens);
         // Se a página atual não é permitida, muda para a primeira permitida
         if (!screens.includes(currentPage)) {
@@ -508,7 +507,7 @@ const Index = () => {
     if (!hasData || !isPageRotationEnabled) return;
     
     // Filter rotation pages based on allowed screens
-    const rotationPages: PageType[] = ["dashboard", "analysis", "prospection"];
+    const rotationPages: PageType[] = ["dashboard", "analysis"];
     const pageOrder = rotationPages.filter(page => allowedScreens.includes(page));
     
     if (pageOrder.length <= 1) return; // No rotation if only one page allowed
@@ -787,30 +786,6 @@ const Index = () => {
                     return next;
                   });
                 }}
-              />
-            ) : currentPage === "prospection" ? (
-              // PROSPECTION & QUALITY PAGE
-              <ProspectionQualityPage
-                processedData={processedData}
-                assessors={assessors}
-                months={months}
-                selectedAssessor={filters.assessor}
-                selectedMonth={filters.month}
-                onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
-                onMonthChange={(value) => setFilters({ ...filters, month: value })}
-                isAssessorLocked={isViewLocked}
-              />
-            ) : currentPage === "tactics" ? (
-              // TACTICS PAGE
-              <TacticsWeekPage
-                processedData={processedData}
-                assessors={assessors}
-                months={months}
-                selectedAssessor={filters.assessor}
-                selectedMonth={filters.month}
-                onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
-                onMonthChange={(value) => setFilters({ ...filters, month: value })}
-                isAssessorLocked={isViewLocked}
               />
             ) : (
               // MONTHLY VIEW
