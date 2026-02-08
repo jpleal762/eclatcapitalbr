@@ -214,18 +214,20 @@ export function GaugeChart({
         {/* Gauge Container */}
         <div className={`flex flex-col items-center justify-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1 overflow-hidden`}>
           {/* Header with title and alert */}
-          <div className="flex flex-col items-center w-full mb-responsive flex-shrink-0">
-            <h4 className={`font-semibold text-responsive-xs ${isHighlight ? "text-card" : "text-foreground"} truncate whitespace-nowrap flex items-center gap-1 text-center`}>
-              {LABEL_ICON_MAP[label]}
-              {label}
-              {weight !== undefined && <span className="ml-1 text-muted-foreground font-normal">
-                  x{weight}
+          <div className="flex items-center justify-between w-full mb-responsive flex-shrink-0">
+            <div className="flex flex-col flex-1 min-w-0">
+              <h4 className={`font-semibold text-responsive-xs ${isHighlight ? "text-card" : "text-foreground"} truncate whitespace-nowrap flex items-center gap-1`}>
+                {LABEL_ICON_MAP[label]}
+                {label}
+                {weight !== undefined && <span className="ml-1 text-muted-foreground font-normal">
+                    x{weight}
+                  </span>}
+              </h4>
+              {headName && <span className="inline-flex items-center text-responsive-4xs font-bold text-eclat-gold uppercase tracking-wide">
+                  HEAD {headName}
                 </span>}
-            </h4>
-            {headName && <span className="inline-flex items-center text-responsive-4xs font-bold text-eclat-gold uppercase tracking-wide">
-                HEAD {headName}
-              </span>}
-            <div className="flex-shrink-0 flex items-center gap-1">
+            </div>
+            <div className="flex-shrink-0 ml-1 flex items-center gap-1">
               <RitmoAlertDisplay alertType={alertType} difference={ritmoIdealDifference} isCurrency={isCurrency} weight={weight} gapPercentage={gapPercentage} />
             </div>
           </div>
@@ -240,11 +242,11 @@ export function GaugeChart({
           </div>
 
           {/* Dynamic SVG gauge */}
-          <div className="relative flex-shrink-0 my-auto w-full" style={{
-            maxWidth: dynamicWidth,
-            aspectRatio: `${dynamicWidth}/${dynamicHeight}`
+          <div className="relative flex-shrink-0 my-auto" style={{
+            width: dynamicWidth,
+            height: dynamicHeight
           }}>
-          <svg width="100%" height="100%" viewBox={`0 0 ${dynamicWidth} ${dynamicHeight}`} overflow="visible" preserveAspectRatio="xMidYMid meet">
+          <svg width={dynamicWidth} height={dynamicHeight} viewBox={`0 0 ${dynamicWidth} ${dynamicHeight}`} overflow="visible">
             {/* Definições de gradientes SVG */}
             <defs>
               <linearGradient id="eclat-arc-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -324,7 +326,7 @@ export function GaugeChart({
         </div>
 
         {/* Lista de Falta por Assessor - always reserve space when showAssessorList is true */}
-        {showAssessorList && <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2 hide-on-small-container">
+        {showAssessorList && <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
             <p className="text-responsive-3xs text-muted-foreground mb-1 flex-shrink-0 font-semibold truncate whitespace-nowrap">
               Falta p/ Assessor
             </p>

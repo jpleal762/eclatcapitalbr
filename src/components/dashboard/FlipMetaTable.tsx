@@ -55,10 +55,12 @@ export function FlipMetaTable({
         {/* Front - Planejamento */}
         <div className="absolute inset-0 backface-hidden overflow-hidden">
           <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
-            <div className="flex flex-col items-center mb-responsive flex-shrink-0 w-full">
-              <h3 className="text-responsive-lg font-semibold text-white flex items-center gap-1 text-center"><ClipboardList className="icon-responsive-sm" /> Planejamento</h3>
-              <span className="text-responsive-4xs text-white/50 italic">*definido na reunião semanal em equipe</span>
-              <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center justify-between mb-responsive flex-shrink-0">
+              <div className="flex flex-col">
+                <h3 className="text-responsive-lg font-semibold text-white flex items-center gap-1"><ClipboardList className="icon-responsive-sm" /> Planejamento</h3>
+                <span className="text-responsive-4xs text-white/50 italic">*definido na reunião semanal em equipe</span>
+              </div>
+              <div className="flex items-center gap-2">
                 {selectedAssessor && selectedAssessor !== "all" && (
                   <span className="text-responsive-xs px-2 py-responsive-sm rounded-full bg-white/20 text-white font-medium">
                     {selectedAssessor.split(" ").slice(0, 2).join(" ")}
@@ -70,14 +72,14 @@ export function FlipMetaTable({
               </div>
             </div>
             
-            <div className="flex-1 overflow-auto min-h-0">
+            <div className="flex-1 overflow-hidden min-h-0">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/20">
-                    <th className="text-left py-responsive-sm text-responsive-xs font-medium text-white/70 whitespace-nowrap">KPI</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70 whitespace-nowrap">Meta Mês</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70 whitespace-nowrap">Meta Sem.</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70 whitespace-nowrap">Realizado</th>
+                    <th className="text-left py-responsive-sm text-responsive-xs font-medium text-white/70">KPI</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Mês</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Sem.</th>
+                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Realizado</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -43,11 +43,11 @@ export function ICMCard({
 }: ICMCardProps) {
   const { theme } = useTheme();
 
-  // Fixed gauge dimensions - 2.5x (halved from 5x)
-  const gaugeWidth = 175;
-  const gaugeHeight = 100;
-  const gaugeRadius = 75;
-  const strokeWidth = 15;
+  // Fixed gauge dimensions - 5x increase for ICM Geral
+  const gaugeWidth = 350;
+  const gaugeHeight = 200;
+  const gaugeRadius = 150;
+  const strokeWidth = 30;
   const circumference = Math.PI * gaugeRadius;
   const progress = Math.min(icmGeral, 100) / 100 * circumference;
 
@@ -83,8 +83,8 @@ export function ICMCard({
 
   return <Card className="p-2 shadow-card h-full flex flex-col overflow-hidden">
       {/* Header compacto com título e botão relatório */}
-      <div className="flex flex-col items-center gap-1 mb-1 flex-shrink-0">
-        <h3 className="text-responsive-lg font-semibold text-foreground flex items-center gap-1 text-center">
+      <div className="flex items-center justify-between gap-2 mb-1 flex-shrink-0">
+        <h3 className="text-responsive-lg font-semibold text-foreground flex items-center gap-1">
           <Gauge className="icon-responsive-sm" /> ICM Geral
         </h3>
         {dashboardData && (
@@ -128,10 +128,11 @@ export function ICMCard({
         {/* Gauge */}
         <div className="flex flex-col items-center justify-center">
           
-          <div className="relative w-full max-w-[175px]" style={{
-          aspectRatio: `${gaugeWidth}/${gaugeHeight}`
+          <div className="relative" style={{
+          width: gaugeWidth,
+          height: gaugeHeight
         }}>
-            <svg width="100%" height="100%" viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`} preserveAspectRatio="xMidYMid meet">
+            <svg width={gaugeWidth} height={gaugeHeight} viewBox={`0 0 ${gaugeWidth} ${gaugeHeight + 10}`}>
               <path d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`} fill="none" stroke="hsl(var(--muted))" strokeWidth={strokeWidth} strokeLinecap="round" />
               <path d={`M ${strokeWidth / 2} ${gaugeHeight} A ${gaugeRadius} ${gaugeRadius} 0 0 1 ${gaugeWidth - strokeWidth / 2} ${gaugeHeight}`} fill="none" stroke="hsl(var(--primary))" strokeWidth={strokeWidth} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference - progress} style={{
               transition: "stroke-dashoffset 0.8s ease-out"
@@ -141,7 +142,7 @@ export function ICMCard({
               <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={markerColor} />
             </svg>
             <div className="absolute inset-0 flex items-end justify-center pb-4">
-              <span className="text-responsive-2xl font-bold text-foreground text-outline">{icmGeral}%</span>
+              <span className="text-responsive-4xl font-bold text-foreground text-outline">{icmGeral}%</span>
             </div>
           </div>
         </div>

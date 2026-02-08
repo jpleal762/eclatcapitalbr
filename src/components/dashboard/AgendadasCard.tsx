@@ -13,14 +13,14 @@ export function AgendadasCard({
   return (
     <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col items-center gap-1 mb-1 flex-shrink-0 w-full">
-        <h3 className="text-responsive-sm font-semibold text-foreground whitespace-nowrap truncate flex items-center gap-1 text-center">
+      <div className="flex items-center justify-between gap-2 mb-1 flex-shrink-0">
+        <h3 className="text-responsive-sm font-semibold text-foreground whitespace-nowrap truncate flex items-center gap-1">
           <CalendarClock className="icon-responsive-sm flex-shrink-0" /> Reuniões Agendadas Semana
         </h3>
       </div>
 
       {/* Content - Horizontal layout: Number left, Assessors right */}
-      <div className="flex flex-row flex-1 gap-2 min-h-0 overflow-auto">
+      <div className="flex flex-row flex-1 gap-2 min-h-0 overflow-hidden">
         {/* Left: Large number - vertically centered */}
         <div className="flex flex-col items-center justify-center flex-shrink-0 min-w-[60px]">
           <span className="text-responsive-2xl font-bold text-foreground whitespace-nowrap">
