@@ -214,20 +214,18 @@ export function GaugeChart({
         {/* Gauge Container */}
         <div className={`flex flex-col items-center justify-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1 overflow-hidden`}>
           {/* Header with title and alert */}
-          <div className="flex items-center justify-between w-full mb-responsive flex-shrink-0">
-            <div className="flex flex-col flex-1 min-w-0">
-              <h4 className={`font-semibold text-responsive-xs ${isHighlight ? "text-card" : "text-foreground"} truncate whitespace-nowrap flex items-center gap-1`}>
-                {LABEL_ICON_MAP[label]}
-                {label}
-                {weight !== undefined && <span className="ml-1 text-muted-foreground font-normal">
-                    x{weight}
-                  </span>}
-              </h4>
-              {headName && <span className="inline-flex items-center text-responsive-4xs font-bold text-eclat-gold uppercase tracking-wide">
-                  HEAD {headName}
+          <div className="flex flex-col items-center w-full mb-responsive flex-shrink-0">
+            <h4 className={`font-semibold text-responsive-xs ${isHighlight ? "text-card" : "text-foreground"} truncate whitespace-nowrap flex items-center gap-1 text-center`}>
+              {LABEL_ICON_MAP[label]}
+              {label}
+              {weight !== undefined && <span className="ml-1 text-muted-foreground font-normal">
+                  x{weight}
                 </span>}
-            </div>
-            <div className="flex-shrink-0 ml-1 flex items-center gap-1">
+            </h4>
+            {headName && <span className="inline-flex items-center text-responsive-4xs font-bold text-eclat-gold uppercase tracking-wide">
+                HEAD {headName}
+              </span>}
+            <div className="flex-shrink-0 flex items-center gap-1">
               <RitmoAlertDisplay alertType={alertType} difference={ritmoIdealDifference} isCurrency={isCurrency} weight={weight} gapPercentage={gapPercentage} />
             </div>
           </div>
