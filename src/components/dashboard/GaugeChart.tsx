@@ -133,14 +133,15 @@ export function GaugeChart({
   const {
     theme
   } = useTheme();
+  const displayValue = Math.max(value, 0);
   const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
-  const remainingValue = Math.max(target - value, 0);
+  const remainingValue = Math.max(target - displayValue, 0);
 
   // Calcular gap em percentual para impacto no ICM
   const gapPercentage = ritmoIdeal !== undefined && percentage < ritmoIdeal ? ritmoIdeal - percentage : 0;
 
   // Calcular impacto total no ICM se atingir 100% da meta
-  const remainingPercentage = target > 0 ? (target - value) / target * 100 : 0;
+  const remainingPercentage = target > 0 ? (target - displayValue) / target * 100 : 0;
   const remainingImpact = weight && remainingValue > 0 && target > 0 ? (weight / TOTAL_ICM_WEIGHT * remainingPercentage).toFixed(1) : null;
 
   // Fixed dimensions based on size and compact mode - 3x increase
@@ -169,14 +170,14 @@ export function GaugeChart({
 
   // Calcular alerta e diferença para o ritmo ideal
   const ritmoIdealValue = ritmoIdeal !== undefined && target > 0 ? Math.round(ritmoIdeal / 100 * target * 100) / 100 : undefined;
-  const ritmoIdealDifference = ritmoIdealValue !== undefined ? Math.round((value - ritmoIdealValue) * 100) / 100 : undefined;
+  const ritmoIdealDifference = ritmoIdealValue !== undefined ? Math.round((displayValue - ritmoIdealValue) * 100) / 100 : undefined;
   const alertType = getGaugeAlert(percentage, ritmoIdeal);
   const radius = (dynamicWidth - dynamicStrokeWidth) / 2;
   const circumference = Math.PI * radius;
 
   // Calculate segmented bar values when additionalValue is present
   const hasSegmentedBar = additionalValue && additionalValue > 0;
-  const baseValue = hasSegmentedBar ? value - additionalValue : value;
+  const baseValue = hasSegmentedBar ? displayValue - additionalValue : displayValue;
   const basePercentage = target > 0 ? baseValue / target * 100 : 0;
   const clampedBasePercentage = Math.min(Math.max(basePercentage, 0), 100);
   const additionalPercentage = target > 0 && hasSegmentedBar ? additionalValue / target * 100 : 0;
@@ -292,7 +293,7 @@ export function GaugeChart({
               className={`text-responsive-lg font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"} ${onEditProduction ? "cursor-pointer hover:text-eclat-gold transition-colors pointer-events-auto" : ""}`}
               onClick={onEditProduction ? (e) => { e.stopPropagation(); onEditProduction(); } : undefined}
             >
-              {formatNumber(value, isCurrency)}
+              {formatNumber(displayValue, isCurrency)}
             </span>
             {showRemaining && <span className={`text-responsive-3xs text-muted-foreground font-medium whitespace-nowrap ${remainingValue <= 0 ? 'invisible' : ''}`}>
                 Faltam: {formatNumber(remainingValue || 0, isCurrency)}
