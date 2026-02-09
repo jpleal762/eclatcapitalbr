@@ -1,83 +1,58 @@
 
 
-# Plano: Dashboard 100% Responsivo
+# Plano: Toggle de edicao de producao + Arredondamento para cima + Correcao de gauges
 
-## Contexto atual
+## 1. Toggle para liberar/bloquear edicao de producao nas Configuracoes
 
-O dashboard usa um layout fixo com `flex-[45]`/`flex-[55]` e `grid-cols-3` projetado para desktop/TV 16:9. Em telas menores, os cards podem sobrepor ou ficar ilegíveis.
+Adicionar um Switch no modal de Configuracoes (secao "Controles do Dashboard") que permite habilitar ou desabilitar a edicao de producao ao clicar nos numeros dos gauges.
 
-## Alteracoes propostas
+**Arquivo:** `src/pages/Index.tsx`
+- Criar estado `isProductionEditEnabled` (default: `true`)
+- Passar como prop ao `TokenAccessConfig`
+- Condicionar `onEditProduction` nos gauges: so passar o callback se `isProductionEditEnabled` for `true`, caso contrario passar `undefined`
+- O botao "Editar Producao" dentro das configuracoes tambem respeita esse toggle
 
-### 1. Novo arquivo de estilos responsivos (`src/index.css`)
+**Arquivo:** `src/components/dashboard/TokenAccessConfig.tsx`
+- Adicionar prop `isProductionEditEnabled: boolean` e `onProductionEditEnabledChange: (enabled: boolean) => void`
+- Adicionar novo item na grid de controles com icone `Edit3`, label "Liberar edicao de producao" e Switch
+- O botao "Editar Producao" (Abrir) fica desabilitado quando o toggle esta desligado
 
-Adicionar regras globais de seguranca anti-overflow e tipografia com `clamp()`:
+## 2. Arredondamento para cima em Habilitacao e Ativacao
 
-- `* { min-width: 0; box-sizing: border-box; }`
-- Titulos: `font-size: clamp(14px, 1.2vw, 18px)`
-- Metricas principais: `font-size: clamp(22px, 2.2vw, 34px)`
-- Labels: `font-size: clamp(12px, 1vw, 14px)`
-- Regras de truncamento com `-webkit-line-clamp: 2`
-- Container queries: cada card com `container-type: inline-size`
-- Classes utilitarias para scroll interno em cards: `.card-scroll-body { max-height: 240px; overflow-y: auto; }`
+Atualmente o calculo de `value` para todos os KPIs usa os valores brutos. O `percentage` usa `Math.round`. Para Habilitacao e Ativacao, os valores devem ser arredondados para cima (`Math.ceil`).
 
-### 2. Layout principal do dashboard (`src/pages/Index.tsx`)
+**Arquivo:** `src/lib/kpiUtils.ts` (linha ~1184-1197)
+- No bloco "Standard case" onde `value` e calculado para categorias como Habilitacao e Ativacao, aplicar `Math.ceil()` ao valor realizado quando a categoria for "Habilitacao" ou "Ativacao"
+- Tambem aplicar `Math.ceil()` ao target para consistencia
+- Isso afeta os gauges, ICM, e qualquer calculo derivado
 
-Substituir o layout fixo `flex-[45]`/`flex-[55]` por CSS Grid responsivo:
+## 3. Correcao do tamanho dos gauges que ultrapassam limites
 
-**De:**
-```
-<div class="h-full flex flex-col gap-3">
-  <div class="grid gap-3 flex-[45]">...</div>  <!-- top row -->
-  <div class="grid gap-3 flex-[55]">...</div>  <!-- bottom row -->
-</div>
-```
+### ICM Geral (`src/components/dashboard/ICMCard.tsx`)
+- O gauge tem dimensoes fixas de 350x200 que podem ultrapassar o container em telas menores
+- Trocar de dimensoes fixas para um wrapper com `max-width: 100%` e SVG responsivo usando `viewBox` + `width="100%"` + `preserveAspectRatio`
+- Manter o `viewBox="0 0 350 210"` mas usar `width="100%"` e `height="auto"` no SVG
+- Remover o `style={{ width: gaugeWidth, height: gaugeHeight }}` fixo e usar classes CSS com `max-w-[350px] w-full aspect-[350/200]`
 
-**Para:**
-```
-<div class="dashboard-grid">
-  <!-- Todos os cards em um unico grid com auto-fit -->
-</div>
-```
+### Receita Parceiros / FlipGaugeChart
+- O `FlipGaugeChart` usa `compact={true}` e `size="sm"` que gera dimensoes de 135x78
+- Verificar se o container `ExpandableCard` esta limitando corretamente
+- Adicionar `max-w-full` ao wrapper do gauge no `GaugeChart.tsx` para o container SVG (linha ~245)
+- Mudar o div do SVG de dimensoes fixas (`style={{ width, height }}`) para `style={{ maxWidth: width, width: '100%', aspectRatio: `${width}/${height}` }}`
 
-Comportamento por breakpoint:
-- `<= 480px`: 1 coluna, cards empilhados, padding reduzido
-- `481px - 1024px`: 2 colunas
-- `1025px - 1440px`: 3 colunas (layout atual)
-- `> 1440px`: manter 3 colunas (nao expandir para 4, pois o dashboard tem exatamente 3 colunas logicas)
+**Arquivo:** `src/components/dashboard/GaugeChart.tsx` (linha ~245-248)
+- Trocar:
+  ```
+  style={{ width: dynamicWidth, height: dynamicHeight }}
+  ```
+- Por:
+  ```
+  style={{ maxWidth: dynamicWidth, width: '100%', aspectRatio: `${dynamicWidth}/${dynamicHeight}` }}
+  ```
+- Ajustar o SVG para usar `width="100%" height="100%"` com `viewBox` e `preserveAspectRatio="xMidYMax meet"`
 
-**Importante:** Em telas `lg+` (1025px+), manter o comportamento atual de fit-to-screen sem scroll usando `grid-template-rows` com fractions. O CSS Grid auto-fit sera usado apenas em telas menores para empilhamento automatico.
-
-### 3. Cards individuais (`src/components/ui/card.tsx`)
-
-- Adicionar `container-type: inline-size` como classe base
-- Garantir `overflow: hidden` e `min-width: 0`
-
-### 4. GaugeChart responsivo (`src/components/dashboard/GaugeChart.tsx`)
-
-- SVGs com `max-width: 100%` e `aspect-ratio` controlado
-- Percentagens e valores com `clamp()` em vez de classes fixas
-- Lista "Falta por Assessor" com `max-height` e scroll interno
-- Em container queries pequenos (`@container (max-width: 300px)`), esconder elementos secundarios
-
-### 5. ICMCard / FlipICMCard
-
-- Gauge SVG com `max-width: 100%` e viewBox responsivo
-- Filtros em wrap com `flex-wrap` (ja tem)
-- Tipografia com `clamp()`
-
-### 6. AssessorChart
-
-- Lista de assessores com scroll interno quando exceder altura disponivel
-- Barras com largura proporcional ao container
-
-### 7. FlipMetaTable
-
-- Tabela com scroll horizontal em telas pequenas
-- Celulas com `white-space: nowrap` e `overflow: hidden`
-
-### 8. AgendadasCard
-
-- Grid de assessores com `auto-fit` e `minmax`
+**Arquivo:** `src/components/dashboard/ICMCard.tsx` (linha ~131-134)
+- Mesma abordagem: remover dimensoes fixas do wrapper, usar `max-w-[350px] w-full` e SVG com `width="100%"` + `viewBox`
 
 ---
 
@@ -85,20 +60,9 @@ Comportamento por breakpoint:
 
 | Arquivo | Alteracao |
 |---------|-----------|
-| `src/index.css` | Regras globais anti-overflow, tipografia clamp(), container queries, classes utilitarias |
-| `src/pages/Index.tsx` | Refatorar grid do dashboard: manter 3 colunas em lg+, auto-stack em telas menores |
-| `src/components/ui/card.tsx` | Adicionar container-type e overflow seguro |
-| `src/components/dashboard/GaugeChart.tsx` | SVG responsivo, clamp(), scroll interno na lista |
-| `src/components/dashboard/ICMCard.tsx` | Gauge responsivo, tipografia clamp() |
-| `src/components/dashboard/FlipICMCard.tsx` | Propagar responsividade |
-| `src/components/dashboard/AssessorChart.tsx` | Scroll interno, barras proporcionais |
-| `src/components/dashboard/FlipMetaTable.tsx` | Tabela com scroll horizontal |
-| `src/components/dashboard/AgendadasCard.tsx` | Grid auto-fit para assessores |
-
-## Principio fundamental
-
-- Em `lg+` (desktop/TV): manter layout atual de 3 colunas fit-to-screen sem scroll
-- Em telas menores: cards empilham automaticamente com scroll vertical
-- Nenhum card permite que conteudo vaze ou sobreponha outro
-- Tipografia sempre legivel com `clamp()` garantindo minimos e maximos
+| `src/pages/Index.tsx` | Estado `isProductionEditEnabled`, condicionar callbacks de edicao |
+| `src/components/dashboard/TokenAccessConfig.tsx` | Switch "Liberar edicao de producao" + desabilitar botao Abrir |
+| `src/lib/kpiUtils.ts` | `Math.ceil()` nos valores de Habilitacao e Ativacao |
+| `src/components/dashboard/GaugeChart.tsx` | SVG responsivo com `viewBox` + `max-width` em vez de dimensoes fixas |
+| `src/components/dashboard/ICMCard.tsx` | SVG responsivo com `viewBox` + `max-width` em vez de dimensoes fixas |
 
