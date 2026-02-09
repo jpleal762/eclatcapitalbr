@@ -238,7 +238,7 @@ export function GaugeChart({
           {/* Percentage label - acima do gauge - 3x larger */}
           <div className="flex justify-center flex-shrink-0 -mb-2">
             <span className={`text-[clamp(9px,1.25vw,14px)] font-bold whitespace-nowrap text-outline ${isHighlight ? "text-card" : "text-foreground"}`}>
-              {percentage}%
+              {Math.max(percentage, 0)}%
             </span>
           </div>
 
