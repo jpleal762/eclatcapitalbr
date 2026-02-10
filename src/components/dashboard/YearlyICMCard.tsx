@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "./ProgressBar";
-import { CheckCircle, Clock, AlertTriangle, CalendarDays } from "lucide-react";
+import { CheckCircle, Minus, AlertTriangle, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -194,7 +194,7 @@ export function YearlyICMCard({
         )}
         {icmGeral === ritmoIdeal && (
           <>
-            <Clock className="icon-responsive text-blue-600" />
+            <Minus className="icon-responsive text-blue-600" />
             <span className="text-responsive-sm font-medium text-blue-700">No Ritmo</span>
           </>
         )}
