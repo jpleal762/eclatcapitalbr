@@ -1,24 +1,54 @@
 
-# Plano: Reduzir grafico Diversificacao para o mesmo tamanho do Ativacao
+# Plano: Destacar assessores com alerta vermelho (triangulo) no ranking
 
-## Problema atual
+## O que muda
 
-- **Ativacao** (Coluna 1, linha inferior): ocupa metade da largura em `grid-cols-2`, usa `size="sm"` e `compact={true}`
-- **Diversificacao** (Coluna 3, linha inferior): ocupa 100% da largura, usa `size="lg"` e `compact={true}` com `showAssessorList`
+No card "ICM Geral por Assessor", os assessores que estao com desempenho critico (triangulo vermelho - abaixo de 25% do ritmo ideal) receberao destaque visual adicional para chamar atencao imediatamente.
 
-O grafico de Diversificacao esta muito maior que o de Ativacao por usar `size="lg"` e ocupar a largura total.
+## Alteracoes visuais
 
-## Alteracao
+**Arquivo:** `src/components/dashboard/AssessorChart.tsx`
 
-**Arquivo:** `src/pages/Index.tsx` (linhas 997-1018)
+Na funcao `renderAssessor`, determinar o status do assessor via `getKPIStatusIcon` e aplicar estilos condicionais quando for `RED_ALERT`:
 
-Mudar as props do GaugeChart de Diversificacao:
-- `size="lg"` para `size="sm"`
+1. **Fundo vermelho sutil**: trocar o fundo do item de `bg-muted/50` ou `bg-background` para `bg-red-500/10` com borda `border border-red-500/30`
+2. **Nome em vermelho**: mudar a cor do nome do assessor de `text-foreground` para `text-red-600 dark:text-red-400`
+3. **Percentual em vermelho**: o valor de ICM Geral (atualmente dourado) fica `text-red-600` em vez de `text-eclat-gold`
+4. **Pulso sutil**: adicionar `animate-pulse` leve no container para atrair o olhar
 
-Isso igualara as dimensoes do gauge de Diversificacao as do Ativacao (e Habilitacao), mantendo o `showAssessorList` e `headName="BRUNO"` funcionando normalmente.
+Assessores com status `ORANGE_ALERT` (26-50% do ritmo) tambem receberao um destaque mais leve:
+- Fundo `bg-orange-500/8` com borda `border border-orange-500/20`
+- Nome em `text-orange-600 dark:text-orange-400`
+
+Assessores acima do ritmo ou com alerta amarelo mantem o visual atual sem alteracoes.
+
+## Logica tecnica
+
+```text
+const statusIcon = getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal);
+const isRedAlert = statusIcon === "RED_ALERT";
+const isOrangeAlert = statusIcon === "ORANGE_ALERT";
+
+// Classe do container
+const bgClass = isRedAlert
+  ? 'bg-red-500/10 border border-red-500/30'
+  : isOrangeAlert
+  ? 'bg-orange-500/8 border border-orange-500/20'
+  : index < 3 ? 'bg-muted/50' : 'bg-background';
+
+// Classe do nome
+const nameClass = isRedAlert
+  ? 'text-red-600 dark:text-red-400'
+  : 'text-foreground';
+
+// Classe do percentual geral
+const percentClass = isRedAlert
+  ? 'text-red-600'
+  : 'text-eclat-gold';
+```
 
 ## Resumo
 
 | Arquivo | Alteracao |
 |---------|-----------|
-| `src/pages/Index.tsx` | Linha ~1007: trocar `size="lg"` por `size="sm"` no GaugeChart de Diversificacao |
+| `src/components/dashboard/AssessorChart.tsx` | Estilos condicionais no `renderAssessor` baseados no status RED_ALERT e ORANGE_ALERT |
