@@ -84,12 +84,32 @@ export function AssessorChart({
     const differenceColor = difference >= 0 ? "text-green-600" : "text-red-600";
     const clockStyle = getClockStyle(assessor.geralPercentage, ritmoIdeal);
     
+    const statusIcon = getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal);
+    const isRedAlert = statusIcon === "RED_ALERT";
+    const isOrangeAlert = statusIcon === "ORANGE_ALERT";
+    
+    const bgClass = isRedAlert
+      ? 'bg-red-500/10 border border-red-500/30'
+      : isOrangeAlert
+      ? 'bg-orange-500/8 border border-orange-500/20'
+      : index < 3 ? 'bg-muted/50 border border-transparent' : 'bg-background border border-transparent';
+    
+    const nameClass = isRedAlert
+      ? 'text-red-600 dark:text-red-400'
+      : isOrangeAlert
+      ? 'text-orange-600 dark:text-orange-400'
+      : 'text-foreground';
+    
+    const percentClass = isRedAlert
+      ? 'text-red-600'
+      : 'text-eclat-gold';
+    
     return (
-      <div key={assessor.name} className={`flex items-center gap-0.5 p-0.5 rounded-md transition-all hover:translate-x-0.5 ${index < 3 ? 'bg-muted/50' : 'bg-background'}`}>
+      <div key={assessor.name} className={`flex items-center gap-0.5 p-0.5 rounded-md transition-all hover:translate-x-0.5 ${bgClass}`}>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-0.5">
-            <StatusIcon icon={getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal)} />
-            <p className="text-responsive-2xs font-semibold text-foreground truncate uppercase tracking-wide">{assessor.name}</p>
+            <StatusIcon icon={statusIcon} />
+            <p className={`text-responsive-2xs font-semibold truncate uppercase tracking-wide ${nameClass}`}>{assessor.name}</p>
             {/* Troféu animado para top agendador */}
             {topAgendador === assessor.name && (
               <Trophy className="icon-responsive-sm text-eclat-gold animate-trophy-celebrate flex-shrink-0" />
@@ -133,7 +153,7 @@ export function AssessorChart({
         </div>
         
         <div className="text-right flex-shrink-0">
-          <span className="text-scale-7 font-bold text-eclat-gold">
+          <span className={`text-scale-7 font-bold ${percentClass}`}>
             {assessor.geralPercentage}%
           </span>
           <span className="text-scale-7 font-medium text-blue-500 block leading-tight">
