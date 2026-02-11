@@ -105,7 +105,7 @@ export function AssessorChart({
       : 'text-eclat-gold';
     
     return (
-      <div key={assessor.name} className={`flex items-center gap-0.5 p-0.5 rounded-md transition-all hover:translate-x-0.5 ${bgClass}`}>
+      <div key={assessor.name} className={`flex items-center gap-0.5 p-0.5 rounded-md transition-all hover:translate-x-0.5 ${bgClass} ${isRedAlert ? 'animate-[pulse_3s_ease-in-out_infinite]' : ''}`}>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-0.5">
             <StatusIcon icon={statusIcon} />
