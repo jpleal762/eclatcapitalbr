@@ -1004,7 +1004,7 @@ const Index = () => {
                                 percentage={dashboardData.gaugeKPIs[3]?.percentage}
                                 isCurrency={dashboardData.gaugeKPIs[3]?.isCurrency}
                                 warning={dashboardData.gaugeKPIs[3]?.warning}
-                                size="lg"
+                                size="sm"
                                 showRemaining={true}
                                 ritmoIdeal={dashboardData.ritmoIdeal}
                                 weight={getWeightForLabel(dashboardData.gaugeKPIs[3]?.label)}
