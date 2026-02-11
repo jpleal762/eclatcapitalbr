@@ -1194,12 +1194,6 @@ export function processDashboardData(
       value = selectedMonth !== "all"
         ? getMonthValue(realizedData, selectedMonth)
         : realizedData.reduce((s, d) => s + d.total, 0);
-
-      // Arredondamento para cima em Habilitação e Ativação
-      if (kpi.category === "Habilitacao" || kpi.category === "Ativacao") {
-        value = Math.ceil(value);
-        target = Math.ceil(target);
-      }
     }
 
     const percentage = target > 0 ? Math.round((value / target) * 100) : 0;

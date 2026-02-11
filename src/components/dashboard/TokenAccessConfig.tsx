@@ -66,8 +66,6 @@ interface TokenAccessConfigProps {
   onOpenMonthChange: (month: string | null) => void;
   onEditProduction: () => void;
   onExportDatabase: () => void;
-  isProductionEditEnabled: boolean;
-  onProductionEditEnabledChange: (enabled: boolean) => void;
 }
 
 interface TokenData {
@@ -116,8 +114,6 @@ export function TokenAccessConfig({
   onOpenMonthChange,
   onEditProduction,
   onExportDatabase,
-  isProductionEditEnabled,
-  onProductionEditEnabledChange,
 }: TokenAccessConfigProps) {
   const { theme, setTheme } = useTheme();
   const [tokens, setTokens] = useState<TokenData[]>([]);
@@ -354,22 +350,6 @@ export function TokenAccessConfig({
                 />
               </div>
 
-              {/* Production Edit Toggle */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Edit3 className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label htmlFor="production-edit-toggle" className="font-medium">Liberar edição de produção</Label>
-                    <p className="text-xs text-muted-foreground">Permite editar produção ao clicar nos gauges</p>
-                  </div>
-                </div>
-                <Switch
-                  id="production-edit-toggle"
-                  checked={isProductionEditEnabled}
-                  onCheckedChange={onProductionEditEnabledChange}
-                />
-              </div>
-
               {/* Edit Production */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -379,7 +359,7 @@ export function TokenAccessConfig({
                     <p className="text-xs text-muted-foreground">Abre o modal de edição de produção</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="h-7" onClick={onEditProduction} disabled={!isProductionEditEnabled}>
+                <Button variant="outline" size="sm" className="h-7" onClick={onEditProduction}>
                   Abrir
                 </Button>
               </div>

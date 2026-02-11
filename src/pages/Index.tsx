@@ -126,7 +126,6 @@ const Index = () => {
   const [tokenId, setTokenId] = useState<string | null>(null);
   const [openMonth, setOpenMonth] = useState<string | null>(null);
   const [lastProductionUpdate, setLastProductionUpdate] = useState<string | null>(null);
-  const [isProductionEditEnabled, setIsProductionEditEnabled] = useState(true);
   
   // Sprint product selection state with localStorage persistence
   const [selectedSprintProducts, setSelectedSprintProducts] = useState<Set<string>>(() => {
@@ -360,7 +359,6 @@ const Index = () => {
 
   // Helper to open production edit modal for a specific category
   const handleEditProductionForKPI = (category: string | string[]) => {
-    if (!isProductionEditEnabled) return;
     setProductionEditCategory(category);
     setIsProductionEditOpen(true);
   };
@@ -1051,8 +1049,6 @@ const Index = () => {
           onOpenMonthChange={setOpenMonth}
           onEditProduction={() => { setIsConfigOpen(false); setIsProductionEditOpen(true); }}
           onExportDatabase={() => { setIsConfigOpen(false); exportDatabaseToXLSX(); }}
-          isProductionEditEnabled={isProductionEditEnabled}
-          onProductionEditEnabledChange={setIsProductionEditEnabled}
         />
 
         {/* Production Edit Modal */}
