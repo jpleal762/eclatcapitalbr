@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "./ProgressBar";
-import { CheckCircle, Minus, AlertTriangle, Calendar, Gauge } from "lucide-react";
+import { CheckCircle, Clock, AlertTriangle, Calendar, Gauge } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "next-themes";
@@ -49,7 +49,7 @@ export function ICMCard({
   const gaugeRadius = 150;
   const strokeWidth = 30;
   const circumference = Math.PI * gaugeRadius;
-  const progress = Math.min(Math.max(icmGeral, 0), 100) / 100 * circumference;
+  const progress = Math.min(icmGeral, 100) / 100 * circumference;
 
   // Ritmo ideal marker calculations
   const ritmoIdealAngle = Math.PI - (ritmoIdeal / 100) * Math.PI;
@@ -141,7 +141,7 @@ export function ICMCard({
               <polygon points={`${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`} fill={markerColor} />
             </svg>
             <div className="absolute inset-0 flex items-end justify-center pb-4">
-              <span className="text-responsive-4xl font-bold text-foreground text-outline">{Math.max(icmGeral, 0)}%</span>
+              <span className="text-responsive-4xl font-bold text-foreground text-outline">{icmGeral}%</span>
             </div>
           </div>
         </div>
@@ -198,7 +198,7 @@ export function ICMCard({
             <span className="text-responsive-xs font-medium text-green-700">Acima do esperado</span>
           </>}
         {icmGeral === ritmoIdeal && <>
-            <Minus className="icon-responsive-sm text-blue-600" />
+            <Clock className="icon-responsive-sm text-blue-600" />
             <span className="text-responsive-xs font-medium text-blue-700">No Ritmo</span>
           </>}
         {icmGeral < ritmoIdeal && <>
