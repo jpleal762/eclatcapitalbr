@@ -111,6 +111,7 @@ const Index = () => {
     }
     return defaultVisibility;
   });
+  const [visibilityLoaded, setVisibilityLoaded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentPage, setCurrentPage] = useState<PageType>("dashboard");
   const [isGlobalFlipped, setIsGlobalFlipped] = useState(false);
@@ -272,10 +273,36 @@ const Index = () => {
     };
   }, []);
 
-  // Save visibility to localStorage
+  // Load visibility from cloud on mount
   useEffect(() => {
-    localStorage.setItem(VISIBILITY_STORAGE_KEY, JSON.stringify(visibility));
-  }, [visibility]);
+    const loadVisibility = async () => {
+      try {
+        const { data } = await supabase
+          .from('app_settings')
+          .select('value')
+          .eq('key', 'dashboard-visibility')
+          .maybeSingle();
+        if (data?.value) {
+          const parsed = JSON.parse(data.value);
+          setVisibility(parsed);
+          localStorage.setItem(VISIBILITY_STORAGE_KEY, data.value);
+        }
+      } catch {}
+      setVisibilityLoaded(true);
+    };
+    loadVisibility();
+  }, []);
+
+  // Save visibility to localStorage + cloud
+  useEffect(() => {
+    if (!visibilityLoaded) return;
+    const json = JSON.stringify(visibility);
+    localStorage.setItem(VISIBILITY_STORAGE_KEY, json);
+    supabase
+      .from('app_settings')
+      .upsert({ key: 'dashboard-visibility', value: json, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+      .then();
+  }, [visibility, visibilityLoaded]);
 
   // Save sprint products selection to localStorage
   useEffect(() => {
