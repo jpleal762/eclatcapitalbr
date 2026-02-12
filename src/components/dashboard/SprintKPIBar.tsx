@@ -165,11 +165,11 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
                   
                   const isTop2 = top2Indices.has(idx);
                   
-                  // Determinar classe de cor: verde (atingiu), amarelo (>=50%), vermelho (<50%)
+                  // Determinar classe de cor: verde (atingiu), top2 (destaque forte), amarelo (>=50%), vermelho (<50%)
                   const colorClass = assessor.achieved
                     ? "bg-green-500/15 text-green-400 border border-green-500/20"
                     : isTop2
-                      ? "bg-red-500/30 text-red-300 border-2 border-red-400/60 ring-1 ring-red-400/30"
+                      ? "bg-red-500/40 text-white border-2 border-red-400 ring-2 ring-red-500/40 shadow-[0_0_8px_rgba(239,68,68,0.3)]"
                       : progressPercent >= 50
                         ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
                         : "bg-red-500/20 text-red-400 border border-red-500/30";
@@ -200,9 +200,9 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
                           )}
                         >
                           <span className={cn("font-medium", isTop2 ? "text-scale-8 lg:text-scale-9" : "text-scale-7 lg:text-scale-8")}>
-                            {assessor.name}
+                            {isTop2 && !assessor.achieved ? "🔥 " : ""}{assessor.name}
                           </span>
-                          <span className={cn("font-bold", isTop2 ? "text-scale-9 lg:text-scale-10" : "text-scale-8 lg:text-scale-9")}>
+                          <span className={cn("font-black", isTop2 ? "text-scale-10 lg:text-scale-12 animate-pulse" : "text-scale-8 lg:text-scale-9")}>
                             {assessor.achieved 
                               ? "✓" 
                               : formatValue(assessor.remaining, isCurrency)
