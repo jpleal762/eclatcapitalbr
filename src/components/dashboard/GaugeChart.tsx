@@ -332,14 +332,26 @@ export function GaugeChart({
             </p>
             <div className="overflow-y-auto flex-1 min-h-0">
               <div className="space-y-0.5">
-                {(assessorRemainingData || []).map((item, index) => <div key={index} className="flex items-center justify-between text-responsive-3xs gap-1">
-                    <span className="font-medium truncate max-w-[40px]" title={item.name}>
-                      {item.name}
-                    </span>
-                    {item.achieved ? <CheckCircle2 className="h-3 w-3 text-green-500 flex-shrink-0" /> : <span className="font-medium flex-shrink-0 text-secondary-foreground text-[9px]">
-                        {formatNumber(item.remaining, isCurrency)}
-                      </span>}
-                  </div>)}
+                {(() => {
+                  const items = assessorRemainingData || [];
+                  const nonAchieved = items
+                    .map((a, i) => ({ ...a, originalIdx: i }))
+                    .filter(a => !a.achieved)
+                    .sort((a, b) => b.remaining - a.remaining);
+                  const top2Set = new Set(nonAchieved.slice(0, 2).map(a => a.originalIdx));
+                  
+                  return items.map((item, index) => {
+                    const isTop2 = top2Set.has(index);
+                    return <div key={index} className={`flex items-center justify-between text-responsive-3xs gap-1 ${isTop2 ? "bg-red-500/40 border-2 border-red-400 rounded px-0.5 shadow-[0_0_8px_rgba(239,68,68,0.3)]" : ""}`}>
+                      <span className={`font-medium truncate max-w-[40px] ${isTop2 ? "font-black" : ""}`} title={item.name}>
+                        {isTop2 && !item.achieved ? "🔥 " : ""}{item.name}
+                      </span>
+                      {item.achieved ? <CheckCircle2 className="h-3 w-3 text-green-500 flex-shrink-0" /> : <span className={`font-medium flex-shrink-0 text-[9px] ${isTop2 ? "font-black text-red-300 animate-pulse" : "text-secondary-foreground"}`}>
+                          {formatNumber(item.remaining, isCurrency)}
+                        </span>}
+                    </div>;
+                  });
+                })()}
               </div>
             </div>
           </div>}

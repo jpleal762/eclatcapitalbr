@@ -59,7 +59,8 @@ export function AnalysisPage({
   const [viewMode, setViewMode] = useState<ViewMode>("default");
 
   const quarterlyKPIs = useMemo(
-    () => processQuarterlyDashboardData(processedData, selectedYear, selectedQuarter, selectedAssessor),
+    () => processQuarterlyDashboardData(processedData, selectedYear, selectedQuarter, selectedAssessor)
+      .filter(kpi => kpi.label !== "Receita XP"),
     [processedData, selectedYear, selectedQuarter, selectedAssessor]
   );
 
