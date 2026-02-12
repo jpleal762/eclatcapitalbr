@@ -102,12 +102,12 @@ export function QuarterlyKPIBar({
         <div className="flex items-center gap-1">
           {/* Top 2 Assessor Gaps - Above bar */}
           {topAssessorGaps && topAssessorGaps.length > 0 && (
-            <span className="text-muted-foreground/70 text-scale-4 lg:text-scale-5 whitespace-nowrap">
-              <span className="opacity-60">Maiores Gaps:</span>{" "}
+            <span className="text-red-500 animate-pulse text-scale-4 lg:text-scale-5 whitespace-nowrap font-bold">
+              <span className="opacity-80">Maiores Gaps:</span>{" "}
               {topAssessorGaps.map((g, i) => (
                 <span key={g.name}>
                   {i > 0 && " · "}
-                  <span className="font-medium">{g.name}</span>: -{formatAssessorGap(g.gap, isCurrency)}
+                  <span className="font-bold">{g.name}</span>: -{formatAssessorGap(g.gap, isCurrency)}
                 </span>
               ))}
             </span>
