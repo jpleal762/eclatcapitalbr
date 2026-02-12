@@ -183,7 +183,7 @@ export function QuarterlyKPIBar({
             <span className="text-green-500 font-medium">✓ OK</span>
           ) : faltaParaRitmo > 0 ? (
             <span className={`font-medium whitespace-nowrap ${textColor.includes("red") ? "text-red-500" : "text-blue-500"}`}>
-              {textColor.includes("red") && "! "}Ritmo: -{formatValue(faltaParaRitmo, isCurrency)}
+              {textColor.includes("red") && "! "}Falta p/ Ritmo: {formatValue(faltaParaRitmo, isCurrency)}
             </span>
           ) : null}
           
