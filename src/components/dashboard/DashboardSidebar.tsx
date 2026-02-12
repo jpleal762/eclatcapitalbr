@@ -25,7 +25,6 @@ export interface DashboardVisibility {
   graph6: boolean; // Sub-gauge 6
   graph7: boolean; // Sub-gauge 7
   graph8: boolean; // Sub-gauge 8
-  graph9: boolean; // Sub-gauge 9
 }
 
 export const defaultVisibility: DashboardVisibility = {
@@ -40,7 +39,6 @@ export const defaultVisibility: DashboardVisibility = {
   graph6: true,
   graph7: true,
   graph8: true,
-  graph9: true,
 };
 
 interface DashboardSidebarProps {
@@ -55,15 +53,14 @@ const CARD_ITEMS: { key: keyof DashboardVisibility; label: string }[] = [
 ];
 
 const GRAPH_ITEMS: { key: keyof DashboardVisibility; label: string }[] = [
-  { key: "graph1", label: "Gráfico 1 - Captação NET" },
-  { key: "graph2", label: "Gráfico 2 - Receita XP" },
-  { key: "graph3", label: "Gráfico 3 - Primeiras Reuniões" },
-  { key: "graph4", label: "Gráfico 4 - Diversificação" },
-  { key: "graph5", label: "Gráfico 5 - Receita Parceiros" },
-  { key: "graph6", label: "Gráfico 6 - Receita PJ1 XP (HEAD BRUNO)" },
-  { key: "graph7", label: "Gráfico 7 - Receita PJ2 XP" },
-  { key: "graph8", label: "Gráfico 8 - Habilitação" },
-  { key: "graph9", label: "Gráfico 9 - Ativação" },
+  { key: "graph1", label: "Gráfico 1 - ICM% por Assessor" },
+  { key: "graph2", label: "Gráfico 2 - Receita PJ1 XP (HEAD BRUNO)" },
+  { key: "graph3", label: "Gráfico 3 - Captação NET" },
+  { key: "graph4", label: "Gráfico 4 - Habilitação" },
+  { key: "graph5", label: "Gráfico 5 - Ativação" },
+  { key: "graph6", label: "Gráfico 6 - Receita PJ2 XP / Empilhada" },
+  { key: "graph7", label: "Gráfico 7 - Receita Parceiros" },
+  { key: "graph8", label: "Gráfico 8 - Diversificação" },
 ];
 
 export function DashboardSidebar({ visibility, onVisibilityChange }: DashboardSidebarProps) {
