@@ -143,61 +143,73 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
       {/* Assessor Breakdown - grid format showing all assessors */}
       {assessorBreakdown.length > 0 && (
         <div className="mt-auto pt-1 border-t border-border/50">
-          <span className="text-scale-5 text-muted-foreground mb-1 block">
+          <span className="text-scale-7 text-muted-foreground mb-1 block font-semibold">
             Falta por Assessor:
           </span>
           <TooltipProvider delayDuration={200}>
             <div className="grid grid-cols-3 lg:grid-cols-4 gap-1">
-              {assessorBreakdown.map((assessor, idx) => {
-                // Calcular progresso individual
-                const individualTarget = (assessor.contribution || 0) + assessor.remaining;
-                const progressPercent = individualTarget > 0 
-                  ? ((assessor.contribution || 0) / individualTarget) * 100 
-                  : 0;
-                
-                // Determinar classe de cor: verde (atingiu), amarelo (>=50%), vermelho (<50%)
-                const colorClass = assessor.achieved
-                  ? "bg-green-500/15 text-green-400 border border-green-500/20"
-                  : progressPercent >= 50
-                    ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
-                    : "bg-red-500/20 text-red-400 border border-red-500/30";
-                
-                // Hover elegante (sem animações infinitas)
-                const getHoverClass = () => {
-                  return "transition-all duration-200 hover:scale-[1.03] hover:shadow-md hover:brightness-110";
-                };
+              {(() => {
+                // Find the top 2 remaining (non-achieved) assessors
+                const nonAchieved = assessorBreakdown
+                  .map((a, i) => ({ ...a, originalIdx: i }))
+                  .filter(a => !a.achieved)
+                  .sort((a, b) => b.remaining - a.remaining);
+                const top2Indices = new Set(nonAchieved.slice(0, 2).map(a => a.originalIdx));
 
-                // Emoji e mensagem baseados no status
-                const getStatusInfo = () => {
-                  if (assessor.achieved) return { emoji: "✅", message: "Meta atingida!" };
-                  if (progressPercent >= 80) return { emoji: "🚀", message: "Quase lá!" };
-                  if (progressPercent >= 50) return { emoji: "⏳", message: "Em progresso" };
-                  return { emoji: "🔥", message: "Precisa acelerar!" };
-                };
+                return assessorBreakdown.map((assessor, idx) => {
+                  // Calcular progresso individual
+                  const individualTarget = (assessor.contribution || 0) + assessor.remaining;
+                  const progressPercent = individualTarget > 0 
+                    ? ((assessor.contribution || 0) / individualTarget) * 100 
+                    : 0;
+                  
+                  const isTop2 = top2Indices.has(idx);
+                  
+                  // Determinar classe de cor: verde (atingiu), amarelo (>=50%), vermelho (<50%)
+                  const colorClass = assessor.achieved
+                    ? "bg-green-500/15 text-green-400 border border-green-500/20"
+                    : isTop2
+                      ? "bg-red-500/30 text-red-300 border-2 border-red-400/60 ring-1 ring-red-400/30"
+                      : progressPercent >= 50
+                        ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
+                        : "bg-red-500/20 text-red-400 border border-red-500/30";
+                  
+                  // Hover elegante (sem animações infinitas)
+                  const getHoverClass = () => {
+                    return "transition-all duration-200 hover:scale-[1.03] hover:shadow-md hover:brightness-110";
+                  };
 
-                const statusInfo = getStatusInfo();
-                
-                return (
-                  <Tooltip key={idx}>
-                    <TooltipTrigger asChild>
-                      <div 
-                        className={cn(
-                          "flex flex-col items-center px-1 py-1 rounded text-center cursor-pointer",
-                          colorClass,
-                          getHoverClass()
-                        )}
-                      >
-                        <span className="text-scale-5 lg:text-scale-6 font-medium">
-                          {assessor.name}
-                        </span>
-                        <span className="text-scale-6 font-bold">
-                          {assessor.achieved 
-                            ? "✓" 
-                            : formatValue(assessor.remaining, isCurrency)
-                          }
-                        </span>
-                      </div>
-                    </TooltipTrigger>
+                  // Emoji e mensagem baseados no status
+                  const getStatusInfo = () => {
+                    if (assessor.achieved) return { emoji: "✅", message: "Meta atingida!" };
+                    if (progressPercent >= 80) return { emoji: "🚀", message: "Quase lá!" };
+                    if (progressPercent >= 50) return { emoji: "⏳", message: "Em progresso" };
+                    return { emoji: "🔥", message: "Precisa acelerar!" };
+                  };
+
+                  const statusInfo = getStatusInfo();
+                  
+                  return (
+                    <Tooltip key={idx}>
+                      <TooltipTrigger asChild>
+                        <div 
+                          className={cn(
+                            "flex flex-col items-center px-1 py-1 rounded text-center cursor-pointer",
+                            colorClass,
+                            getHoverClass()
+                          )}
+                        >
+                          <span className={cn("font-medium", isTop2 ? "text-scale-8 lg:text-scale-9" : "text-scale-7 lg:text-scale-8")}>
+                            {assessor.name}
+                          </span>
+                          <span className={cn("font-bold", isTop2 ? "text-scale-9 lg:text-scale-10" : "text-scale-8 lg:text-scale-9")}>
+                            {assessor.achieved 
+                              ? "✓" 
+                              : formatValue(assessor.remaining, isCurrency)
+                            }
+                          </span>
+                        </div>
+                      </TooltipTrigger>
                     <TooltipContent side="top" className="p-2">
                       <div className="text-center space-y-1">
                         <p className="font-bold text-sm flex items-center justify-center gap-1">
@@ -229,7 +241,8 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
                     </TooltipContent>
                   </Tooltip>
                 );
-              })}
+              });
+              })()}
             </div>
           </TooltipProvider>
         </div>
