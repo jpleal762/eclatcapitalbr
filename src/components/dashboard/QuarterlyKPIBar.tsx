@@ -189,7 +189,7 @@ export function QuarterlyKPIBar({
           
           {/* Quarterly target gap */}
           {target > value && (
-            <span className={`font-medium whitespace-nowrap ${isTopGap ? "text-red-500 animate-pulse font-bold" : "text-muted-foreground"}`}>
+            <span className="text-muted-foreground font-medium whitespace-nowrap">
               | Meta Tri Falta: {formatValue(target - value, isCurrency)}
             </span>
           )}
