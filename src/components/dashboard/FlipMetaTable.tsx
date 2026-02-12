@@ -57,8 +57,8 @@ export function FlipMetaTable({
           <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
             <div className="flex items-center justify-between mb-responsive flex-shrink-0">
               <div className="flex flex-col">
-                <h3 className="text-responsive-lg font-semibold text-white flex items-center gap-1">Planejamento <ClipboardList className="icon-responsive" /></h3>
-                <span className="text-responsive-4xs text-white/50 italic">*definido na reunião semanal em equipe</span>
+                <h3 className="text-responsive-2xl font-semibold text-white flex items-center gap-1">Planejamento <ClipboardList className="icon-responsive-lg" /></h3>
+                <span className="text-responsive-xs text-white/50 italic">*definido na reunião semanal em equipe</span>
               </div>
               <div className="flex items-center gap-2">
                 {selectedAssessor && selectedAssessor !== "all" && (
@@ -76,25 +76,25 @@ export function FlipMetaTable({
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/20">
-                    <th className="text-left py-responsive-sm text-responsive-xs font-medium text-white/70">KPI</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Mês</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Sem.</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Realizado</th>
+                    <th className="text-left py-responsive-sm text-responsive-sm font-medium text-white/70">KPI</th>
+                    <th className="text-right py-responsive-sm text-responsive-sm font-medium text-white/70">Meta Mês</th>
+                    <th className="text-right py-responsive-sm text-responsive-sm font-medium text-white/70">Meta Sem.</th>
+                    <th className="text-right py-responsive-sm text-responsive-sm font-medium text-white/70">Realizado</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.map((item, index) => (
                     <tr key={index} className="border-b border-white/10 hover:bg-white/10 transition-colors">
-                      <td className="py-responsive-sm text-responsive-xs text-white">{item.label}</td>
-                      <td className="py-responsive-sm text-responsive-xs text-right font-medium text-white/40">
+                      <td className="py-responsive-sm text-responsive-sm text-white">{item.label}</td>
+                      <td className="py-responsive-sm text-responsive-sm text-right font-medium text-white/40">
                         {item.monthlyTarget !== undefined && item.monthlyTarget > 0
                           ? item.isCurrency ? formatNumber(item.monthlyTarget, true) : formatNumber(item.monthlyTarget)
                           : "-"}
                       </td>
-                      <td className="py-responsive-sm text-responsive-xs text-right font-medium text-blue-300/90">
+                      <td className="py-responsive-sm text-responsive-sm text-right font-medium text-blue-300/90">
                         {typeof item.value === 'number' ? item.isCurrency ? formatNumber(item.value, true) : formatNumber(item.value) : item.value}
                       </td>
-                      <td className="py-responsive-sm text-responsive-xs text-right font-medium text-white/90">
+                      <td className="py-responsive-sm text-responsive-sm text-right font-medium text-white/90">
                         {item.realizedValue !== undefined ? formatNumber(item.realizedValue, item.isCurrency) : "-"}
                       </td>
                     </tr>
@@ -104,10 +104,10 @@ export function FlipMetaTable({
             </div>
 
             <div className="mt-auto pt-responsive border-t border-white/20 flex items-center justify-between flex-shrink-0">
-              <span className="text-responsive-base font-semibold text-white">
+              <span className="text-responsive-lg font-semibold text-white">
                 {weekToMonthPercentage !== undefined ? `${weekToMonthPercentage}%` : "-"}
               </span>
-              <p className="text-responsive-xs text-white/70 italic">
+              <p className="text-responsive-sm text-white/70 italic">
                 {selectedAssessor && selectedAssessor !== "all" ? `Metas individuais de ${selectedAssessor.split(" ")[0]}` : "Valores consolidados do escritório"}
               </p>
             </div>
@@ -118,7 +118,7 @@ export function FlipMetaTable({
         <div className="absolute inset-0 backface-hidden rotate-y-180 overflow-hidden">
           <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#094780' }}>
             <div className="flex items-center justify-between mb-responsive flex-shrink-0">
-              <h3 className="text-responsive-lg font-semibold text-white flex items-center gap-1"><ClipboardList className="icon-responsive-sm" /> Falta para Meta Semanal</h3>
+              <h3 className="text-responsive-2xl font-semibold text-white flex items-center gap-1"><ClipboardList className="icon-responsive-lg" /> Falta para Meta Semanal</h3>
               <div className="flex items-center gap-2">
                 {selectedAssessor && selectedAssessor !== "all" && (
                   <span className="text-responsive-xs px-2 py-responsive-sm rounded-full bg-white/20 text-white font-medium">
@@ -135,10 +135,10 @@ export function FlipMetaTable({
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/20">
-                    <th className="text-left py-responsive-sm text-responsive-xs font-medium text-white/70">KPI</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Mês</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Meta Sem.</th>
-                    <th className="text-right py-responsive-sm text-responsive-xs font-medium text-white/70">Falta</th>
+                    <th className="text-left py-responsive-sm text-responsive-sm font-medium text-white/70">KPI</th>
+                    <th className="text-right py-responsive-sm text-responsive-sm font-medium text-white/70">Meta Mês</th>
+                    <th className="text-right py-responsive-sm text-responsive-sm font-medium text-white/70">Meta Sem.</th>
+                    <th className="text-right py-responsive-sm text-responsive-sm font-medium text-white/70">Falta</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -148,16 +148,16 @@ export function FlipMetaTable({
                     
                     return (
                       <tr key={index} className="border-b border-white/10 hover:bg-white/10 transition-colors">
-                        <td className="py-responsive-sm text-responsive-xs text-white">{item.label}</td>
-                        <td className="py-responsive-sm text-responsive-xs text-right font-medium text-white/40">
+                        <td className="py-responsive-sm text-responsive-sm text-white">{item.label}</td>
+                        <td className="py-responsive-sm text-responsive-sm text-right font-medium text-white/40">
                           {item.monthlyTarget !== undefined && item.monthlyTarget > 0
                             ? item.isCurrency ? formatNumber(item.monthlyTarget, true) : formatNumber(item.monthlyTarget)
                             : "-"}
                         </td>
-                        <td className="py-responsive-sm text-responsive-xs text-right font-medium text-blue-300/90">
+                        <td className="py-responsive-sm text-responsive-sm text-right font-medium text-blue-300/90">
                           {typeof item.value === 'number' ? item.isCurrency ? formatNumber(item.value, true) : formatNumber(item.value) : item.value}
                         </td>
-                        <td className={`py-responsive-sm text-responsive-xs text-right font-medium ${
+                        <td className={`py-responsive-sm text-responsive-sm text-right font-medium ${
                           goalMet ? 'text-green-400' : 'text-red-400'
                         }`}>
                           {item.realizedValue === undefined ? (
@@ -179,10 +179,10 @@ export function FlipMetaTable({
             </div>
 
             <div className="mt-auto pt-responsive border-t border-white/20 flex items-center justify-between flex-shrink-0">
-              <span className="text-responsive-base font-semibold text-white">
+              <span className="text-responsive-lg font-semibold text-white">
                 {weekToMonthPercentage !== undefined ? `${weekToMonthPercentage}%` : "-"}
               </span>
-              <p className="text-responsive-xs text-white/70 italic">
+              <p className="text-responsive-sm text-white/70 italic">
                 Diferença entre meta e realizado
               </p>
             </div>
