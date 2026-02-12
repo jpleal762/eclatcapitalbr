@@ -177,7 +177,7 @@ export function QuarterlyKPIBar({
           {formatValue(target, isCurrency)}
         </span>
         
-        {/* Rhythm status indicator with gap combined */}
+        {/* Rhythm status indicator + quarterly deficit */}
         <div className="flex items-center gap-2">
           {atingiuRitmo ? (
             <span className="text-green-500 font-medium">✓ OK</span>
@@ -187,10 +187,10 @@ export function QuarterlyKPIBar({
             </span>
           ) : null}
           
-          {/* Weekly target gap - ao lado do ritmo ideal */}
-          {weeklyGap && weeklyGap.gap > 0 && (
+          {/* Quarterly target gap */}
+          {target > value && (
             <span className="text-orange-500 font-medium whitespace-nowrap">
-              | Meta Semana Falta: {formatValue(weeklyGap.gap, weeklyGap.isCurrency)}
+              | Meta Tri Falta: {formatValue(target - value, isCurrency)}
             </span>
           )}
         </div>
