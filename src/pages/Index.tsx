@@ -571,7 +571,7 @@ const Index = () => {
   const getVisibleGaugeColumns = () => {
     const col1Visible = visibility.graph1 || visibility.graph4 || visibility.graph5;
     const col2Visible = visibility.graph2 || visibility.graph6 || visibility.graph7;
-    const col3Visible = visibility.graph3 || visibility.graph8 || visibility.graph9;
+    const col3Visible = visibility.graph3 || visibility.graph8;
     const visibleCols = [col1Visible, col2Visible, col3Visible].filter(Boolean).length;
     return visibleCols === 3 ? "lg:grid-cols-3" : 
            visibleCols === 2 ? "lg:grid-cols-2" : 
@@ -581,7 +581,7 @@ const Index = () => {
   const gaugeGridCols = getVisibleGaugeColumns();
   const col1Visible = visibility.graph1 || visibility.graph4 || visibility.graph5;
   const col2Visible = visibility.graph2 || visibility.graph6 || visibility.graph7;
-  const col3Visible = visibility.graph3 || visibility.graph8 || visibility.graph9;
+  const col3Visible = visibility.graph3 || visibility.graph8;
 
   // Tela de erro para token inválido
   if (tokenError) {
@@ -1021,7 +1021,7 @@ const Index = () => {
                           </ExpandableCard>
                           </div>
                         )}
-                        {(visibility.graph8 || visibility.graph9) && (
+                        {visibility.graph8 && (
                           <div className="flex-[35] min-h-0 overflow-hidden">
                             <ExpandableCard>
                               <GaugeChart
