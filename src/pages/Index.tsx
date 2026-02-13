@@ -742,6 +742,7 @@ const Index = () => {
               // ANALYSIS PAGE
               <AnalysisPage 
                 processedData={processedData}
+                rawData={rawData}
                 assessors={assessors}
                 availableYears={availableYears}
                 selectedAssessor={filters.assessor}

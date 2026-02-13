@@ -107,6 +107,33 @@ export type Database = {
         }
         Relationships: []
       }
+      kpi_snapshots: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          month: string
+          record_count: number
+          snapshot_data: Json
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          month: string
+          record_count?: number
+          snapshot_data: Json
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          month?: string
+          record_count?: number
+          snapshot_data?: Json
+        }
+        Relationships: []
+      }
       sprint_snapshots: {
         Row: {
           created_at: string | null

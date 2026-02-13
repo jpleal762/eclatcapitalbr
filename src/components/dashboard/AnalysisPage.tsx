@@ -1,8 +1,10 @@
-import { useState, useMemo } from "react";
-import { ProcessedKPI } from "@/types/kpi";
+import { useState, useMemo, useEffect } from "react";
+import { ProcessedKPI, KPIRecord } from "@/types/kpi";
 import { QUARTERS, processQuarterlyDashboardData, getCurrentQuarter, calculateQuarterlyIdealRhythm, calculateMonthlyGapsForBar, calculateAssessorGapsForKPI, calculateWeeklyGapForKPI, MonthlyGapData, AssessorQuarterlyGap, WeeklyGapData } from "@/lib/quarterlyKpiUtils";
 import { QuarterlyKPIBar } from "./QuarterlyKPIBar";
+import { EvolutionCard } from "./EvolutionCard";
 import { KPI_CATEGORIES } from "@/lib/kpiUtils";
+import { getSnapshotFromDaysAgo, calculateKPIEvolution, KPIEvolutionItem } from "@/lib/evolutionUtils";
 import {
   Select,
   SelectContent,
@@ -39,6 +41,7 @@ const CATEGORY_GROUPS = {
 
 interface AnalysisPageProps {
   processedData: ProcessedKPI[];
+  rawData: KPIRecord[];
   assessors: string[];
   availableYears: number[];
   selectedAssessor: string;
@@ -48,6 +51,7 @@ interface AnalysisPageProps {
 
 export function AnalysisPage({ 
   processedData, 
+  rawData,
   assessors, 
   availableYears,
   selectedAssessor,
@@ -57,6 +61,24 @@ export function AnalysisPage({
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedQuarter, setSelectedQuarter] = useState(getCurrentQuarter());
   const [viewMode, setViewMode] = useState<ViewMode>("default");
+  const [evolutionData, setEvolutionData] = useState<KPIEvolutionItem[]>([]);
+  const [snapshotDate, setSnapshotDate] = useState<string | null>(null);
+
+  // Load evolution data from 7-day snapshot
+  useEffect(() => {
+    const loadEvolution = async () => {
+      const snapshot = await getSnapshotFromDaysAgo(7);
+      if (snapshot && rawData.length > 0) {
+        const evolution = calculateKPIEvolution(rawData, snapshot.snapshot_data, selectedAssessor);
+        setEvolutionData(evolution);
+        setSnapshotDate(snapshot.created_at);
+      } else {
+        setEvolutionData([]);
+        setSnapshotDate(null);
+      }
+    };
+    loadEvolution();
+  }, [rawData, selectedAssessor]);
 
   const quarterlyKPIs = useMemo(
     () => processQuarterlyDashboardData(processedData, selectedYear, selectedQuarter, selectedAssessor)
@@ -242,6 +264,9 @@ export function AnalysisPage({
           </div>
         </div>
       </Card>
+
+      {/* Evolution Card */}
+      <EvolutionCard evolutionData={evolutionData} snapshotDate={snapshotDate} daysAgo={7} />
 
       {/* KPI Bars - Responsive layout without scroll on desktop/TV */}
       {hasData ? (
