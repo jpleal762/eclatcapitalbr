@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { KPIRecord } from "@/types/kpi";
+import { saveKPISnapshot } from "@/lib/evolutionUtils";
 
 /**
  * Save Excel data to cloud database (replaces existing data)
@@ -9,7 +10,13 @@ export async function saveExcelData(
   options?: { createdBy?: string; updatedBy?: string }
 ): Promise<boolean> {
   try {
-    // First, clear existing data
+    // Save snapshot of current data before replacing
+    const existingData = await loadExcelData();
+    if (existingData && existingData.length > 0) {
+      await saveKPISnapshot(existingData, options?.createdBy);
+    }
+
+    // Clear existing data
     const { error: deleteError } = await supabase
       .from('kpi_records')
       .delete()
@@ -42,6 +49,9 @@ export async function saveExcelData(
         throw error;
       }
     }
+    
+    // Save snapshot of new data
+    await saveKPISnapshot(data, options?.createdBy);
     
     console.log("✅ Excel data saved to cloud successfully");
     return true;
