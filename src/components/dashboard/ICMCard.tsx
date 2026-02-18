@@ -98,7 +98,7 @@ export function ICMCard({
       </div>
       
       {/* Filtros */}
-      <div className="flex items-center gap-2 mb-2 flex-shrink-0 flex-wrap">
+      <div className="flex flex-col gap-1 mb-2 flex-shrink-0">
         <Select value={selectedAssessor} onValueChange={onAssessorChange} disabled={isLocked}>
           <SelectTrigger className={`w-[120px] bg-background text-responsive-xs h-7 py-0.5 ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}`}>
             <SelectValue placeholder="TODOS" />
