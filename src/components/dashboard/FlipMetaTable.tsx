@@ -101,9 +101,12 @@ export function FlipMetaTable({
       </div>
 
       <div className="mt-auto pt-responsive border-t border-white/20 flex items-center justify-between flex-shrink-0">
-        <span className="text-responsive-lg font-semibold text-white">
-          {weekToMonthPercentage !== undefined ? `${weekToMonthPercentage}%` : "-"}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-responsive-lg font-semibold text-white">
+            {weekToMonthPercentage !== undefined ? `${weekToMonthPercentage}%` : "-"}
+          </span>
+          <span className="text-responsive-xs text-white/60">Percentual planejado p/ semana</span>
+        </div>
         <p className="text-responsive-sm text-white/70 italic">
           {selectedAssessor && selectedAssessor !== "all" ? `Metas individuais de ${selectedAssessor.split(" ")[0]}` : "Valores consolidados do escritório"}
         </p>
