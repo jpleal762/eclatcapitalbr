@@ -52,6 +52,7 @@ import eclatLogoDark from "@/assets/eclat-xp-logo-dark.svg";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { ScaleSelector } from "@/components/ScaleSelector";
 import { useScale } from "@/contexts/ScaleContext";
@@ -659,12 +660,37 @@ const Index = () => {
                     </div>
                   )}
                 </div>
-                <div className="flex-1 flex flex-col items-center">
+                <div className="flex-1 flex items-center justify-center gap-3">
                   <img 
                     src={resolvedTheme === 'dark' ? eclatLogoDark : eclatLogo} 
                     alt="Éclat XP Logo" 
                     className="h-8 object-contain"
                   />
+                  {hasData && (
+                    <div className="flex items-center gap-2">
+                      <Select value={filters.assessor} onValueChange={(value) => setFilters({ ...filters, assessor: value })} disabled={isViewLocked}>
+                        <SelectTrigger className={`w-[100px] h-7 text-xs ${isViewLocked ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                          <SelectValue placeholder="Assessor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">TODOS</SelectItem>
+                          {assessors.map((a) => (
+                            <SelectItem key={a} value={a}>{a}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select value={filters.month} onValueChange={(value) => setFilters({ ...filters, month: value })}>
+                        <SelectTrigger className="w-[80px] h-7 text-xs">
+                          <SelectValue placeholder="Mês" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {months.map((month) => (
+                            <SelectItem key={month} value={month}>{month}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
                 <div className="w-48 flex justify-end items-center gap-2">
                   {/* Page Toggle Button */}

@@ -194,21 +194,8 @@ export function AnalysisPage({
           
           <div className="flex-1" />
           
-          {/* Assessor Filter */}
-          <div className="flex items-center gap-1">
-            <span className="text-scale-7 text-muted-foreground">Assessor:</span>
-            <Select value={selectedAssessor} onValueChange={onAssessorChange} disabled={isAssessorLocked}>
-              <SelectTrigger className={`w-[80px] h-scale-4 text-scale-6 ${isAssessorLocked ? 'opacity-70 cursor-not-allowed' : ''}`}>
-                <SelectValue placeholder="Todos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">TODOS</SelectItem>
-                {assessors.map((a) => (
-                  <SelectItem key={a} value={a}>{a}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+
+
 
           {/* Year Filter */}
           <div className="flex items-center gap-1">
