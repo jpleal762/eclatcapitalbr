@@ -814,7 +814,7 @@ const Index = () => {
                     {visibility.card3 && (
                       <ExpandableCard>
                         <GaugeChart
-                          label={dashboardData.gaugeKPIs[2]?.label || "CRM Diagnóstico"}
+                          label={dashboardData.gaugeKPIs[2]?.label || "Primeira Reunião | Diagnóstico"}
                           value={dashboardData.gaugeKPIs[2]?.value || 0}
                           target={dashboardData.gaugeKPIs[2]?.target || 0}
                           percentage={dashboardData.gaugeKPIs[2]?.percentage || 0}

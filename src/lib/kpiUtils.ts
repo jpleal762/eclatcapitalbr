@@ -59,7 +59,7 @@ export function getWeightForLabel(label: string | undefined): number | undefined
 export const KPI_CATEGORIES = [
   { category: "Captação net", label: "Captação NET", isCurrency: true },
   { category: "Receita", label: "Receita XP", isCurrency: true, isSpecial: true, targetCategories: ["PJ1 XP Mês", "PJ2 XP Mês"], additionalActualCategory: "Receita Empilhada" },
-  { category: "Primeira reuniao", label: "CRM Diagnóstico", isCurrency: false },
+{ category: "Primeira reuniao", label: "Primeira Reunião | Diagnóstico", isCurrency: false },
   { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
   { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
   { category: "PJ1 XP Mês", label: "Receita PJ1 XP", isCurrency: true, isSpecial: true, actualCategory: "PJ1 XP" },
@@ -1015,7 +1015,7 @@ export function processDashboardData(
     { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, actualCategory: "PJ2 XP", additionalActualCategory: "Receita Empilhada" },
     { category: "Diversificada ( ROA>1,5)", label: "Diversificação (ROA>1,5)", isCurrency: true },
     { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
-    { category: "Primeira reuniao", label: "CRM Diagnóstico", isCurrency: false },
+    { category: "Primeira reuniao", label: "Primeira Reunião | Diagnóstico", isCurrency: false },
     { category: "Habilitacao", label: "Habilitação", isCurrency: false },
     { category: "Ativacao", label: "Ativação", isCurrency: false },
   ];
@@ -1358,7 +1358,7 @@ export function calculateSprintData(
     { category: "Receita", label: "Receita", isCurrency: true, includeEmpilhada: true },
     { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true, includeEmpilhada: false },
     { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true, includeEmpilhada: false },
-    { category: "Primeira reuniao", label: "CRM Diagnóstico", isCurrency: false, includeEmpilhada: false },
+    { category: "Primeira reuniao", label: "Primeira Reunião | Diagnóstico", isCurrency: false, includeEmpilhada: false },
     { category: "Habilitacao", label: "Habilitação", isCurrency: false, includeEmpilhada: false },
     { category: "Ativacao", label: "Ativação", isCurrency: false, includeEmpilhada: false },
   ];
