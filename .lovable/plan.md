@@ -1,74 +1,38 @@
 
 
-## Historico de Uploads para Analise de Evolucao (7 dias)
+## Ajustes visuais em 4 pontos do Dashboard
 
-### Problema atual
-Cada upload de Excel **substitui** todos os dados anteriores na tabela `kpi_records`. Nao ha historico, impossibilitando comparacoes temporais.
+### 1. Coluna "Falta" no card Planejamento
+**Arquivo:** `src/components/dashboard/FlipMetaTable.tsx` (linhas 87-95)
 
-### Solucao
+Quando a meta for atingida, substituir o "check" atual por texto **"Atingido"** em verde. Quando faltar, manter o valor em vermelho como esta.
 
-Criar um sistema de snapshots completos que salva automaticamente uma copia dos dados a cada upload, permitindo comparar o estado atual com uploads anteriores.
+- Linha 90-91: trocar `<span className="text-green-400">✓</span>` por `<span className="text-green-400 text-responsive-xs font-semibold">Atingido</span>`
 
-### 1. Nova tabela no banco de dados
+### 2. Relogio do ritmo ideal mais discreto nas barras de progresso
+**Arquivo:** `src/components/dashboard/ProgressBar.tsx` (linhas 59-66)
 
-Criar tabela `kpi_snapshots` para armazenar historico:
+Reduzir o tamanho do icone de relogio e da bolinha, tornando-os mais sutis:
+- Reduzir bolinha de `w-2 h-2` para `w-1.5 h-1.5`
+- Reduzir icone Clock de `w-[5px] h-[5px]` para `w-[3px] h-[3px]`
+- Reduzir opacidade adicionando `opacity-60` ao container
+- Reduzir linha conectora de `h-bar-responsive` para `h-[3px]`
 
-| Coluna | Tipo | Descricao |
-|--------|------|-----------|
-| id | uuid | Chave primaria |
-| created_at | timestamptz | Momento do upload |
-| created_by | text | Quem fez o upload |
-| snapshot_data | jsonb | Dados completos (todos os KPI records) |
-| month | text | Mes de referencia do upload |
-| record_count | integer | Quantidade de registros |
+### 3. Remover barra azul do ICM semanal no grafico de assessores
+**Arquivo:** `src/components/dashboard/AssessorChart.tsx` (linhas 147-152 e 158-161)
 
-Politicas RLS: leitura e insercao publicas, delete publico (para limpeza). Retencao: manter apenas os ultimos 30 snapshots para nao acumular dados indefinidamente.
+- Remover completamente o bloco da barra azul (ICM Semanal)
+- Remover o `<span>` que mostra `semanaPercentage` em azul no lado direito
 
-### 2. Logica de salvamento automatico
+### 4. Aumentar 2x o texto "Head Bruno"
+**Arquivo:** `src/components/dashboard/GaugeChart.tsx` (linha 325)
 
-No `src/lib/storage.ts`, adicionar funcao `saveKPISnapshot()` que sera chamada automaticamente dentro de `saveExcelData()` **antes** de deletar os dados antigos. Assim, cada upload gera um snapshot do estado atual.
+- Trocar `text-responsive-3xs` por `text-responsive-sm` (aproximadamente 2x maior)
+- Manter estilo dourado, negrito e caixa alta
 
-### 3. Funcoes de consulta de evolucao
-
-Criar `src/lib/evolutionUtils.ts` com:
-
-- `getSnapshotFromDaysAgo(days: number)` - busca o snapshot mais proximo de N dias atras
-- `calculateKPIEvolution(currentData, previousSnapshot, month)` - calcula a diferenca de "Realizado" por KPI entre dois pontos no tempo
-- Retorna por assessor e por categoria: quanto foi realizado no periodo
-
-### 4. Componente de visualizacao
-
-Criar um card ou secao na pagina de Analise (ou Dashboard) mostrando:
-
-- **Evolucao 7 dias** por KPI: valor realizado agora vs. 7 dias atras
-- Delta absoluto e percentual
-- Indicador visual (seta verde para cima, vermelha para baixo)
-- Possibilidade de ver por assessor individual
-
-### Detalhes tecnicos
-
-```text
-Fluxo do upload:
-  Usuario sobe XLSX
-    -> saveExcelData() e chamado
-      -> ANTES de deletar, salva snapshot do estado atual
-      -> Deleta dados antigos
-      -> Insere dados novos
-      -> Salva snapshot dos dados novos tambem
-    -> Dashboard atualiza
-
-Fluxo de consulta:
-  Pagina de Analise carrega
-    -> getSnapshotFromDaysAgo(7) busca snapshot ~7 dias atras
-    -> calculateKPIEvolution() compara com dados atuais
-    -> Exibe deltas por KPI
-```
-
-### Arquivos envolvidos
-
-- **Novo:** Migration SQL para tabela `kpi_snapshots`
-- **Novo:** `src/lib/evolutionUtils.ts` (funcoes de calculo de evolucao)
-- **Editado:** `src/lib/storage.ts` (adicionar salvamento de snapshot no upload)
-- **Editado:** `src/pages/Index.tsx` (carregar dados de evolucao)
-- **Editado:** Pagina de analise ou dashboard (exibir card de evolucao 7 dias)
+### Resumo dos arquivos editados
+- `src/components/dashboard/FlipMetaTable.tsx` - texto "Atingido" na coluna Falta
+- `src/components/dashboard/ProgressBar.tsx` - relogio mais discreto
+- `src/components/dashboard/AssessorChart.tsx` - remover barra e % azul semanal
+- `src/components/dashboard/GaugeChart.tsx` - HEAD BRUNO 2x maior
 
