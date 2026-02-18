@@ -783,7 +783,7 @@ const Index = () => {
                     {visibility.card1 && (
                       <div className="h-full overflow-hidden">
                         <ExpandableCard>
-                        <FlipICMCard
+                        <ICMCard
                             icmGeral={dashboardData.icmGeral}
                             ritmoIdeal={dashboardData.ritmoIdeal}
                             diasUteisRestantes={dashboardData.diasUteisRestantes}
@@ -794,7 +794,6 @@ const Index = () => {
                             onAssessorChange={(value) => setFilters({ ...filters, assessor: value })}
                             onMonthChange={(value) => setFilters({ ...filters, month: value })}
                             dashboardData={dashboardData}
-                            isFlipped={isGlobalFlipped}
                             isLocked={isViewLocked}
                             historicalData={assessorHistoricalICM}
                           />
