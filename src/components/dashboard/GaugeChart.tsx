@@ -24,6 +24,7 @@ interface GaugeChartProps {
   ritmoIdeal?: number;
   assessorRemainingData?: AssessorRemainingItem[];
   showAssessorList?: boolean;
+  assessorListLabel?: string;
   // Additional value for segmented bar visualization (e.g., Receita Empilhada)
   additionalValue?: number;
   // Peso do KPI no cálculo do ICM (exibido ao lado do título)
@@ -52,6 +53,8 @@ const TOTAL_ICM_WEIGHT = 9.5;
 const LABEL_ICON_MAP: Record<string, React.ReactNode> = {
   "Primeiras Reuniões": <CalendarCheck className="icon-responsive flex-shrink-0" />,
   "Primeira reuniao": <CalendarCheck className="icon-responsive flex-shrink-0" />,
+  "CRM Diagnóstico": <CalendarCheck className="icon-responsive flex-shrink-0" />,
+  "CRM Diagnostico": <CalendarCheck className="icon-responsive flex-shrink-0" />,
   "Captação NET": <TrendingUp className="icon-responsive flex-shrink-0" />,
   "Captação net": <TrendingUp className="icon-responsive flex-shrink-0" />,
   "Receita": <DollarSign className="icon-responsive flex-shrink-0" />,
@@ -128,7 +131,8 @@ export function GaugeChart({
   weight,
   compact = false,
   headName,
-  onEditProduction
+  onEditProduction,
+  assessorListLabel
 }: GaugeChartProps) {
   const {
     theme
@@ -328,12 +332,25 @@ export function GaugeChart({
         {/* Lista de Falta por Assessor - always reserve space when showAssessorList is true */}
         {showAssessorList && <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
             <p className="text-responsive-3xs text-muted-foreground mb-1 flex-shrink-0 font-semibold truncate whitespace-nowrap">
-              Falta p/ Assessor
+              {assessorListLabel || "Falta p/ Assessor"}
             </p>
             <div className="overflow-y-auto flex-1 min-h-0">
               <div className="space-y-0.5">
                 {(() => {
                   const items = assessorRemainingData || [];
+                  // If custom label (e.g. Agendadas), show simple value list
+                  if (assessorListLabel) {
+                    return items.map((item, index) => (
+                      <div key={index} className="flex items-center justify-between text-responsive-3xs gap-1">
+                        <span className="font-medium truncate max-w-[40px]" title={item.name}>
+                          {item.name}
+                        </span>
+                        <span className="font-medium flex-shrink-0 text-[9px] text-secondary-foreground">
+                          {item.remaining}
+                        </span>
+                      </div>
+                    ));
+                  }
                   const nonAchieved = items
                     .map((a, i) => ({ ...a, originalIdx: i }))
                     .filter(a => !a.achieved)

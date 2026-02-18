@@ -813,30 +813,23 @@ const Index = () => {
                     )}
                     {visibility.card3 && (
                       <ExpandableCard>
-                        <div className="flex flex-row gap-2 h-full">
-                          <div className="flex-1 min-w-0">
-                            <GaugeChart
-                              label={dashboardData.gaugeKPIs[2]?.label || "CRM Diagnóstico"}
-                              value={dashboardData.gaugeKPIs[2]?.value || 0}
-                              target={dashboardData.gaugeKPIs[2]?.target || 0}
-                              percentage={dashboardData.gaugeKPIs[2]?.percentage || 0}
-                              isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
-                              warning={dashboardData.gaugeKPIs[2]?.warning}
-                              size="lg"
-                              showRemaining={true}
-                              ritmoIdeal={dashboardData.ritmoIdeal}
-                              weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label || "")}
-                              compact={false}
-                              onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[2])}
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <AgendadasCard
-                              agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
-                              assessorData={assessorAgendadas}
-                            />
-                          </div>
-                        </div>
+                        <GaugeChart
+                          label={dashboardData.gaugeKPIs[2]?.label || "CRM Diagnóstico"}
+                          value={dashboardData.gaugeKPIs[2]?.value || 0}
+                          target={dashboardData.gaugeKPIs[2]?.target || 0}
+                          percentage={dashboardData.gaugeKPIs[2]?.percentage || 0}
+                          isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
+                          warning={dashboardData.gaugeKPIs[2]?.warning}
+                          size="lg"
+                          showRemaining={true}
+                          ritmoIdeal={dashboardData.ritmoIdeal}
+                          weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label || "")}
+                          compact={false}
+                          onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[2])}
+                          showAssessorList={true}
+                          assessorListLabel="Reuniões Agendadas"
+                          assessorRemainingData={assessorAgendadas.map(a => ({ name: a.name, remaining: a.value, achieved: false }))}
+                        />
                       </ExpandableCard>
                     )}
                   </div>
