@@ -1,5 +1,6 @@
 import { SprintKPIData, SprintEvolution, SPRINT_PRODUCTS } from "@/types/kpi";
 import { SprintKPIBar } from "./SprintKPIBar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 
@@ -82,8 +83,39 @@ export function SprintPage({
           ))}
         </div>
         
+        {/* Filtros existentes */}
+        <div className="flex items-center gap-1">
+          <Select
+            value={selectedAssessor}
+            onValueChange={onAssessorChange}
+            disabled={isLocked}
+          >
+            <SelectTrigger className="w-[100px] lg:w-[140px] h-scale-3 text-scale-6 lg:text-scale-7">
+              <SelectValue placeholder="Assessor" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos Assessores</SelectItem>
+              {assessors.map((assessor) => (
+                <SelectItem key={assessor} value={assessor}>
+                  {assessor}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-
+          <Select value={selectedMonth} onValueChange={onMonthChange}>
+            <SelectTrigger className="w-[70px] lg:w-[90px] h-scale-3 text-scale-6 lg:text-scale-7">
+              <SelectValue placeholder="Mês" />
+            </SelectTrigger>
+            <SelectContent>
+              {months.map((month) => (
+                <SelectItem key={month} value={month}>
+                  {month}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* KPI Bars - Vertical List */}
