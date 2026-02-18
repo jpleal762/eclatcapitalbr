@@ -322,7 +322,7 @@ export function GaugeChart({
             </div>
           </div>
 
-        {isHighlight && <p className="text-responsive-3xs text-eclat-gold mt-1 italic flex-shrink-0">Head Bruno</p>}
+        {isHighlight && <p className="text-responsive-sm text-eclat-gold mt-1 italic flex-shrink-0 font-bold uppercase">Head Bruno</p>}
         </div>
 
         {/* Lista de Falta por Assessor - always reserve space when showAssessorList is true */}

@@ -57,13 +57,13 @@ export function ProgressBar({ label, percentage, color = "primary", variant = "d
           <>
             {/* Marcador visual com ícone de relógio */}
             <div 
-              className="absolute top-0 flex flex-col items-center transition-all duration-500 ease-out"
+              className="absolute top-0 flex flex-col items-center transition-all duration-500 ease-out opacity-60"
               style={{ left: `${Math.min(ritmoIdeal, 100)}%`, transform: 'translateX(-50%)' }}
             >
-              <div className={`flex items-center justify-center w-2 h-2 rounded-full shadow-md ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
-                <Clock className="w-[5px] h-[5px] text-white" />
+              <div className={`flex items-center justify-center w-1.5 h-1.5 rounded-full shadow-md ${clockStyle.bgColor} ${clockStyle.animate ? 'animate-pulse-clock' : ''}`}>
+                <Clock className="w-[3px] h-[3px] text-white" />
               </div>
-              <div className={`w-[1px] h-bar-responsive -mt-[1px] ${clockStyle.bgColor}`} />
+              <div className={`w-[1px] h-[3px] -mt-[1px] ${clockStyle.bgColor}`} />
             </div>
             
             {/* Label sempre visível */}
