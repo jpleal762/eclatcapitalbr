@@ -88,7 +88,7 @@ export function FlipMetaTable({
                     {item.realizedValue === undefined ? (
                       <span className="text-white/40">-</span>
                     ) : goalMet ? (
-                      <span className="text-green-400">✓</span>
+                      <span className="text-green-400 text-responsive-xs font-semibold">Atingido</span>
                     ) : (
                       <span className="text-red-400">{formatNumber(remaining, item.isCurrency)}</span>
                     )}
