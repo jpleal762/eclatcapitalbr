@@ -262,7 +262,7 @@ const YEARLY_KPI_CATEGORIES = [
   // Graph 2: Receita - Modified for yearly (Actual = Receita + Receita Acumulada)
   { category: "Receita", label: "Receita", isCurrency: true, isReceitaYearly: true },
   // Graph 3: Primeiras Reuniões - Same as monthly
-  { category: "Primeira reuniao", label: "Primeiras Reuniões", isCurrency: false },
+  { category: "Primeira reuniao", label: "CRM Diagnóstico", isCurrency: false },
   // Graph 4: Diversificação - Same as monthly
   { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
   // Graph 5: Receita Parceiros - Same as monthly

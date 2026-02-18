@@ -813,41 +813,28 @@ const Index = () => {
                     )}
                     {visibility.card3 && (
                       <ExpandableCard>
-                        <div 
-                          className="relative h-full cursor-pointer perspective-1000"
-                          onClick={() => {}}
-                        >
-                          <div 
-                            className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
-                              isGlobalFlipped ? 'rotate-y-180' : ''
-                            }`}
-                          >
-                            {/* Frente - Gauge Primeiras Reuniões */}
-                            <div className="absolute inset-0 backface-hidden overflow-hidden flex items-start justify-center">
-                              <div className="relative h-full w-full">
-                                <GaugeChart
-                                  label={dashboardData.gaugeKPIs[2]?.label || "Primeiras Reuniões"}
-                                  value={dashboardData.gaugeKPIs[2]?.value || 0}
-                                  target={dashboardData.gaugeKPIs[2]?.target || 0}
-                                  percentage={dashboardData.gaugeKPIs[2]?.percentage || 0}
-                                  isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
-                                  warning={dashboardData.gaugeKPIs[2]?.warning}
-                                  size="lg"
-                                  showRemaining={true}
-                                  ritmoIdeal={dashboardData.ritmoIdeal}
-                                  weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label || "")}
-                                  compact={false}
-                                  onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[2])}
-                                />
-                              </div>
-                            </div>
-                            {/* Verso - AgendadasCard */}
-                            <div className="absolute inset-0 backface-hidden rotate-y-180 overflow-hidden">
-                              <AgendadasCard
-                                agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
-                                assessorData={assessorAgendadas}
-                              />
-                            </div>
+                        <div className="flex flex-row gap-2 h-full">
+                          <div className="flex-1 min-w-0">
+                            <GaugeChart
+                              label={dashboardData.gaugeKPIs[2]?.label || "CRM Diagnóstico"}
+                              value={dashboardData.gaugeKPIs[2]?.value || 0}
+                              target={dashboardData.gaugeKPIs[2]?.target || 0}
+                              percentage={dashboardData.gaugeKPIs[2]?.percentage || 0}
+                              isCurrency={dashboardData.gaugeKPIs[2]?.isCurrency}
+                              warning={dashboardData.gaugeKPIs[2]?.warning}
+                              size="lg"
+                              showRemaining={true}
+                              ritmoIdeal={dashboardData.ritmoIdeal}
+                              weight={getWeightForLabel(dashboardData.gaugeKPIs[2]?.label || "")}
+                              compact={false}
+                              onEditProduction={() => handleEditProductionForKPI(GAUGE_CATEGORY_MAP[2])}
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <AgendadasCard
+                              agendadasValue={dashboardData.gaugeKPIs[2]?.secondaryValue || 0}
+                              assessorData={assessorAgendadas}
+                            />
                           </div>
                         </div>
                       </ExpandableCard>
