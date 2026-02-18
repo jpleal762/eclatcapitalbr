@@ -1,38 +1,68 @@
 
+## 3 Ajustes no Dashboard
 
-## Ajustes visuais em 4 pontos do Dashboard
+### 1. Renomear "Primeiras Reunioes" para "CRM Diagnostico"
+**Arquivo:** `src/lib/kpiUtils.ts`
+- Alterar o label `"Primeiras Reunioes"` para `"CRM Diagnostico"` nas definicoes de KPI (linhas 62, 1018, 1361)
 
-### 1. Coluna "Falta" no card Planejamento
-**Arquivo:** `src/components/dashboard/FlipMetaTable.tsx` (linhas 87-95)
+**Arquivo:** `src/lib/yearlyKpiUtils.ts`
+- Alterar o label na linha 265
 
-Quando a meta for atingida, substituir o "check" atual por texto **"Atingido"** em verde. Quando faltar, manter o valor em vermelho como esta.
+**Arquivo:** `src/pages/Index.tsx`
+- Atualizar o fallback label na linha 829 de `"Primeiras Reunioes"` para `"CRM Diagnostico"`
 
-- Linha 90-91: trocar `<span className="text-green-400">✓</span>` por `<span className="text-green-400 text-responsive-xs font-semibold">Atingido</span>`
+### 2. Remover o flip do Card 3 e mostrar Gauge + Agendadas lado a lado
+**Arquivo:** `src/pages/Index.tsx` (linhas 814-854)
+- Remover toda a logica de flip (perspective, rotate-y-180, backface-hidden)
+- Substituir por um layout horizontal com duas colunas:
+  - Coluna esquerda: GaugeChart "CRM Diagnostico" (flex-1)
+  - Coluna direita: AgendadasCard com lista de reunioes agendadas por assessor (flex-1)
+- Ambos visiveis simultaneamente, sem flip
 
-### 2. Relogio do ritmo ideal mais discreto nas barras de progresso
-**Arquivo:** `src/components/dashboard/ProgressBar.tsx` (linhas 59-66)
+### 3. Texto descritivo no percentual do card Planejamento
+**Arquivo:** `src/components/dashboard/FlipMetaTable.tsx` (linhas 103-110)
+- Adicionar o texto "Percentual planejado p/ semana" ao lado do valor percentual no rodape do card
+- Alterar de apenas `{weekToMonthPercentage}%` para incluir o label descritivo
 
-Reduzir o tamanho do icone de relogio e da bolinha, tornando-os mais sutis:
-- Reduzir bolinha de `w-2 h-2` para `w-1.5 h-1.5`
-- Reduzir icone Clock de `w-[5px] h-[5px]` para `w-[3px] h-[3px]`
-- Reduzir opacidade adicionando `opacity-60` ao container
-- Reduzir linha conectora de `h-bar-responsive` para `h-[3px]`
+### Detalhes tecnicos
 
-### 3. Remover barra azul do ICM semanal no grafico de assessores
-**Arquivo:** `src/components/dashboard/AssessorChart.tsx` (linhas 147-152 e 158-161)
+**Index.tsx - Card 3 (linhas ~814-854):**
+Substituir o bloco do flip por:
+```tsx
+<ExpandableCard>
+  <div className="flex flex-row gap-2 h-full">
+    <div className="flex-1 min-w-0">
+      <GaugeChart
+        label="CRM Diagnostico"
+        ...props existentes...
+      />
+    </div>
+    <div className="flex-1 min-w-0">
+      <AgendadasCard
+        agendadasValue={...}
+        assessorData={assessorAgendadas}
+      />
+    </div>
+  </div>
+</ExpandableCard>
+```
 
-- Remover completamente o bloco da barra azul (ICM Semanal)
-- Remover o `<span>` que mostra `semanaPercentage` em azul no lado direito
+**FlipMetaTable.tsx - Rodape (linhas 103-110):**
+Adicionar label descritivo junto ao percentual:
+```tsx
+<div className="flex items-center gap-2">
+  <span className="text-responsive-lg font-semibold text-white">
+    {weekToMonthPercentage !== undefined ? `${weekToMonthPercentage}%` : "-"}
+  </span>
+  <span className="text-responsive-xs text-white/60">Percentual planejado p/ semana</span>
+</div>
+```
 
-### 4. Aumentar 2x o texto "Head Bruno"
-**Arquivo:** `src/components/dashboard/GaugeChart.tsx` (linha 325)
+**kpiUtils.ts** e **yearlyKpiUtils.ts:**
+Trocar todas ocorrencias de `label: "Primeiras Reunioes"` por `label: "CRM Diagnostico"`.
 
-- Trocar `text-responsive-3xs` por `text-responsive-sm` (aproximadamente 2x maior)
-- Manter estilo dourado, negrito e caixa alta
-
-### Resumo dos arquivos editados
-- `src/components/dashboard/FlipMetaTable.tsx` - texto "Atingido" na coluna Falta
-- `src/components/dashboard/ProgressBar.tsx` - relogio mais discreto
-- `src/components/dashboard/AssessorChart.tsx` - remover barra e % azul semanal
-- `src/components/dashboard/GaugeChart.tsx` - HEAD BRUNO 2x maior
-
+### Arquivos editados
+- `src/lib/kpiUtils.ts` - renomear label
+- `src/lib/yearlyKpiUtils.ts` - renomear label
+- `src/pages/Index.tsx` - remover flip, layout lado a lado
+- `src/components/dashboard/FlipMetaTable.tsx` - texto no percentual
