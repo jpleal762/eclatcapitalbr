@@ -84,6 +84,15 @@ export function EvolutionCard({ evolutionData, snapshotDate, daysAgo }: Evolutio
                 }`}>
                   {isPositive ? "+" : ""}{formatValue(item.delta, item.isCurrency)}
                 </span>
+                {item.worstAssessors?.length > 0 && (
+                  <div className="flex gap-1 flex-wrap">
+                    {item.worstAssessors.map(a => (
+                      <span key={a.name} className="text-scale-4 text-red-500/70">
+                        {a.name} {a.delta >= 0 ? "+" : ""}{formatValue(a.delta, item.isCurrency)}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           );
