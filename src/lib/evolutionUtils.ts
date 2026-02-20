@@ -64,6 +64,8 @@ export async function getSnapshotFromDaysAgo(days: number): Promise<SnapshotReco
   try {
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() - days);
+    // Usar final do dia para incluir qualquer snapshot criado naquele dia
+    targetDate.setHours(23, 59, 59, 999);
 
     const { data, error } = await (supabase as any)
       .from('kpi_snapshots')
@@ -73,7 +75,18 @@ export async function getSnapshotFromDaysAgo(days: number): Promise<SnapshotReco
       .limit(1)
       .maybeSingle();
 
-    if (error || !data) return null;
+    if (error || !data) {
+      // Fallback: buscar o snapshot mais antigo disponível
+      const { data: oldest } = await (supabase as any)
+        .from('kpi_snapshots')
+        .select('*')
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (oldest) return oldest as unknown as SnapshotRecord;
+      return null;
+    }
 
     return data as unknown as SnapshotRecord;
   } catch {
