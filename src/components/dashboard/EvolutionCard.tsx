@@ -79,20 +79,22 @@ export function EvolutionCard({ evolutionData, snapshotDate, daysAgo }: Evolutio
               )}
               <div className="min-w-0 flex-1">
                 <span className="text-scale-5 text-muted-foreground block truncate">{item.label}</span>
-                <span className={`text-scale-6 font-bold block ${
-                  isZero ? "text-muted-foreground" : isPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-                }`}>
-                  {isPositive ? "+" : ""}{formatValue(item.delta, item.isCurrency)}
-                </span>
-                {item.worstAssessors?.length > 0 && (
-                  <div className="flex gap-1 flex-wrap">
-                    {item.worstAssessors.map(a => (
-                      <span key={a.name} className="text-scale-4 text-red-500/70">
-                        {a.name} {a.delta >= 0 ? "+" : ""}{formatValue(a.delta, item.isCurrency)}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <div className="flex items-start gap-1.5">
+                  <span className={`text-scale-6 font-bold ${
+                    isZero ? "text-muted-foreground" : isPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                  }`}>
+                    {isPositive ? "+" : ""}{formatValue(item.delta, item.isCurrency)}
+                  </span>
+                  {item.worstAssessors?.length > 0 && (
+                    <div className="flex flex-col">
+                      {item.worstAssessors.map(a => (
+                        <span key={a.name} className="text-scale-6 font-bold text-red-500/70">
+                          {a.name.split(" ")[0]} {a.delta >= 0 ? "+" : ""}{formatValue(a.delta, item.isCurrency)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           );
