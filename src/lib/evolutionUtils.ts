@@ -10,6 +10,7 @@ export interface KPIEvolutionItem {
   delta: number;
   deltaPercentage: number;
   isCurrency: boolean;
+  worstAssessors: { name: string; delta: number }[];
 }
 
 export interface SnapshotRecord {
@@ -104,12 +105,30 @@ export function calculateKPIEvolution(
 ): KPIEvolutionItem[] {
   const results: KPIEvolutionItem[] = [];
 
+  // Extract unique assessors for worst-assessor calculation
+  const allAssessors = assessor === "all"
+    ? [...new Set(currentData.map(r => r.Assessor).filter(Boolean))]
+    : [];
+
   for (const kpiConfig of KPI_CATEGORIES) {
     const currentValue = sumRealizedForCategory(currentData, kpiConfig.category, assessor);
     const previousValue = sumRealizedForCategory(previousSnapshot, kpiConfig.category, assessor);
 
     const delta = currentValue - previousValue;
     const deltaPercentage = previousValue > 0 ? ((delta / previousValue) * 100) : (delta > 0 ? 100 : 0);
+
+    // Calculate worst 2 assessors when viewing "all"
+    let worstAssessors: { name: string; delta: number }[] = [];
+    if (assessor === "all" && allAssessors.length > 0) {
+      worstAssessors = allAssessors
+        .map(name => ({
+          name,
+          delta: sumRealizedForCategory(currentData, kpiConfig.category, name) -
+                 sumRealizedForCategory(previousSnapshot, kpiConfig.category, name),
+        }))
+        .sort((a, b) => a.delta - b.delta)
+        .slice(0, 2);
+    }
 
     results.push({
       label: kpiConfig.label,
@@ -119,6 +138,7 @@ export function calculateKPIEvolution(
       delta,
       deltaPercentage,
       isCurrency: kpiConfig.isCurrency,
+      worstAssessors,
     });
   }
 
