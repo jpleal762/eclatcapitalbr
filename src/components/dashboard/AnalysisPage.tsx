@@ -63,8 +63,9 @@ export function AnalysisPage({
   const [viewMode, setViewMode] = useState<ViewMode>("default");
   const [evolutionData, setEvolutionData] = useState<KPIEvolutionItem[]>([]);
   const [snapshotDate, setSnapshotDate] = useState<string | null>(null);
+  const [daysAgo, setDaysAgo] = useState(7);
 
-  // Load evolution data from 7-day snapshot
+  // Load evolution data from snapshot
   useEffect(() => {
     const loadEvolution = async () => {
       const snapshot = await getSnapshotFromDaysAgo(7);
@@ -72,9 +73,13 @@ export function AnalysisPage({
         const evolution = calculateKPIEvolution(rawData, snapshot.snapshot_data, selectedAssessor);
         setEvolutionData(evolution);
         setSnapshotDate(snapshot.created_at);
+        // Calcular dias reais desde o snapshot
+        const diffMs = Date.now() - new Date(snapshot.created_at).getTime();
+        setDaysAgo(Math.max(1, Math.floor(diffMs / (1000 * 60 * 60 * 24))));
       } else {
         setEvolutionData([]);
         setSnapshotDate(null);
+        setDaysAgo(7);
       }
     };
     loadEvolution();
@@ -266,7 +271,7 @@ export function AnalysisPage({
       </Card>
 
       {/* Evolution Card */}
-      <EvolutionCard evolutionData={evolutionData} snapshotDate={snapshotDate} daysAgo={7} />
+      <EvolutionCard evolutionData={evolutionData} snapshotDate={snapshotDate} daysAgo={daysAgo} />
 
       {/* KPI Bars - Responsive layout without scroll on desktop/TV */}
       {hasData ? (
