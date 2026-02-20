@@ -1,68 +1,62 @@
 
-## 3 Ajustes no Dashboard
 
-### 1. Renomear "Primeiras Reunioes" para "CRM Diagnostico"
-**Arquivo:** `src/lib/kpiUtils.ts`
-- Alterar o label `"Primeiras Reunioes"` para `"CRM Diagnostico"` nas definicoes de KPI (linhas 62, 1018, 1361)
+## Correção da Evolução na Tela Trimestral
 
-**Arquivo:** `src/lib/yearlyKpiUtils.ts`
-- Alterar o label na linha 265
+### Problema Identificado
+A função `getSnapshotFromDaysAgo(7)` compara timestamps com hora exata. Se voce acessa o dashboard antes do horario em que o snapshot foi criado 7 dias atras, a query nao encontra nada e a evolucao fica vazia.
 
-**Arquivo:** `src/pages/Index.tsx`
-- Atualizar o fallback label na linha 829 de `"Primeiras Reunioes"` para `"CRM Diagnostico"`
+Alem disso, nao existe snapshot do dia 20/fev (hoje), o que sugere que o upload de hoje nao gerou um snapshot corretamente.
 
-### 2. Remover o flip do Card 3 e mostrar Gauge + Agendadas lado a lado
-**Arquivo:** `src/pages/Index.tsx` (linhas 814-854)
-- Remover toda a logica de flip (perspective, rotate-y-180, backface-hidden)
-- Substituir por um layout horizontal com duas colunas:
-  - Coluna esquerda: GaugeChart "CRM Diagnostico" (flex-1)
-  - Coluna direita: AgendadasCard com lista de reunioes agendadas por assessor (flex-1)
-- Ambos visiveis simultaneamente, sem flip
+### Solucao
 
-### 3. Texto descritivo no percentual do card Planejamento
-**Arquivo:** `src/components/dashboard/FlipMetaTable.tsx` (linhas 103-110)
-- Adicionar o texto "Percentual planejado p/ semana" ao lado do valor percentual no rodape do card
-- Alterar de apenas `{weekToMonthPercentage}%` para incluir o label descritivo
+**Arquivo:** `src/lib/evolutionUtils.ts`
 
-### Detalhes tecnicos
+1. **Corrigir a busca de snapshots por data** - Mudar `getSnapshotFromDaysAgo` para usar o **final do dia** (23:59:59) ao inves da hora atual, garantindo que encontre qualquer snapshot criado naquele dia:
 
-**Index.tsx - Card 3 (linhas ~814-854):**
-Substituir o bloco do flip por:
-```tsx
-<ExpandableCard>
-  <div className="flex flex-row gap-2 h-full">
-    <div className="flex-1 min-w-0">
-      <GaugeChart
-        label="CRM Diagnostico"
-        ...props existentes...
-      />
-    </div>
-    <div className="flex-1 min-w-0">
-      <AgendadasCard
-        agendadasValue={...}
-        assessorData={assessorAgendadas}
-      />
-    </div>
-  </div>
-</ExpandableCard>
+```typescript
+export async function getSnapshotFromDaysAgo(days: number): Promise<SnapshotRecord | null> {
+  const targetDate = new Date();
+  targetDate.setDate(targetDate.getDate() - days);
+  // Usar final do dia para incluir qualquer snapshot do dia alvo
+  targetDate.setHours(23, 59, 59, 999);
+
+  const { data, error } = await (supabase as any)
+    .from('kpi_snapshots')
+    .select('*')
+    .lte('created_at', targetDate.toISOString())
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return data as unknown as SnapshotRecord;
+}
 ```
 
-**FlipMetaTable.tsx - Rodape (linhas 103-110):**
-Adicionar label descritivo junto ao percentual:
-```tsx
-<div className="flex items-center gap-2">
-  <span className="text-responsive-lg font-semibold text-white">
-    {weekToMonthPercentage !== undefined ? `${weekToMonthPercentage}%` : "-"}
-  </span>
-  <span className="text-responsive-xs text-white/60">Percentual planejado p/ semana</span>
-</div>
+2. **Adicionar fallback** - Se nao encontrar snapshot de 7 dias, tentar buscar o snapshot mais antigo disponivel (qualquer um), para sempre mostrar alguma evolucao:
+
+```typescript
+// Se nao encontrou com 7 dias, buscar o snapshot mais antigo
+if (!data) {
+  const { data: oldest } = await (supabase as any)
+    .from('kpi_snapshots')
+    .select('*')
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  
+  if (oldest) return oldest as unknown as SnapshotRecord;
+}
 ```
 
-**kpiUtils.ts** e **yearlyKpiUtils.ts:**
-Trocar todas ocorrencias de `label: "Primeiras Reunioes"` por `label: "CRM Diagnostico"`.
+3. **Atualizar o EvolutionCard** para mostrar ha quantos dias o snapshot e, caso use fallback (ao inves de fixo "7 dias").
 
-### Arquivos editados
-- `src/lib/kpiUtils.ts` - renomear label
-- `src/lib/yearlyKpiUtils.ts` - renomear label
-- `src/pages/Index.tsx` - remover flip, layout lado a lado
-- `src/components/dashboard/FlipMetaTable.tsx` - texto no percentual
+**Arquivo:** `src/components/dashboard/AnalysisPage.tsx`
+
+- Calcular dinamicamente quantos dias atras o snapshot foi criado
+- Passar esse valor para o `EvolutionCard` ao inves de `daysAgo={7}` fixo
+
+### Resumo dos arquivos editados
+- `src/lib/evolutionUtils.ts` - corrigir busca por data e adicionar fallback
+- `src/components/dashboard/AnalysisPage.tsx` - calculo dinamico de dias
+
