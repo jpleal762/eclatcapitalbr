@@ -8,35 +8,19 @@ interface SprintMascotProps {
 
 // Runner (< 50%) - Urgência
 function RunnerMascot({ className }: {className?: string;}) {
-  return;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  return (
+    <svg viewBox="0 0 32 32" className={cn("text-red-500", className)}>
+      {/* Corpo */}
+      <circle cx="16" cy="8" r="4" fill="currentColor" opacity="0.9" />
+      <line x1="16" y1="12" x2="16" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      {/* Pernas correndo */}
+      <line x1="16" y1="22" x2="10" y2="29" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <line x1="16" y1="22" x2="22" y2="29" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      {/* Braços */}
+      <line x1="16" y1="15" x2="10" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <line x1="16" y1="15" x2="22" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
 }
 
 // Cyclist (50-79%) - Progresso
