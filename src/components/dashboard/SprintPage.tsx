@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { SprintKPIData, SprintEvolution, SPRINT_PRODUCTS, SprintChallenge } from "@/types/kpi";
-import { SprintKPIBar } from "./SprintKPIBar";
 import { SprintChallengeModal } from "./SprintChallengeModal";
 import { SprintChallengeCard } from "./SprintChallengeCard";
+import { SprintChallengeSummary } from "./SprintChallengeSummary";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
@@ -103,16 +103,19 @@ export function SprintPage({
       {/* Desafios */}
       <div className="flex-1 min-h-0 overflow-auto">
         {challenges.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-            {challenges.map(c => (
-              <SprintChallengeCard
-                key={c.id}
-                challenge={c}
-                sprintData={sprintData}
-                onDelete={fetchChallenges}
-              />
-            ))}
-          </div>
+          <>
+            <SprintChallengeSummary challenges={challenges} sprintData={sprintData} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+              {challenges.map(c => (
+                <SprintChallengeCard
+                  key={c.id}
+                  challenge={c}
+                  sprintData={sprintData}
+                  onDelete={fetchChallenges}
+                />
+              ))}
+            </div>
+          </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground text-scale-7 h-32">
             Nenhum desafio ativo. Clique em "+ Desafio" para criar.
