@@ -78,93 +78,32 @@ export function SprintPage({
 
   return (
     <div className="h-full flex flex-col animate-fade-in">
-      {/* Filtros e checkboxes no topo */}
-      <div className="flex items-center justify-between gap-1 mb-1 flex-shrink-0 flex-wrap">
-        {/* Checkboxes de produtos - linha compacta */}
-        <div className="flex items-center gap-1 lg:gap-1.5 flex-wrap">
-          <span className="text-scale-5 text-muted-foreground">
-            ({selectedProducts.size}/3)
-          </span>
-          {SPRINT_PRODUCTS.map((product) => (
-            <label 
-              key={product.category} 
-              className="flex items-center gap-1 lg:gap-1.5 cursor-pointer text-scale-5 lg:text-scale-6"
-            >
-              <Checkbox
-                checked={selectedProducts.has(product.category)}
-                onCheckedChange={() => handleProductToggle(product.category)}
-                className="size-scale-1.5 lg:size-scale-2"
-              />
-              <span className="text-muted-foreground hover:text-foreground transition-colors">
-                {product.label}
-              </span>
-            </label>
-          ))}
-        </div>
-        
-        {/* Filtros existentes */}
-        <div className="flex items-center gap-1">
-          <SprintChallengeModal
-            assessors={assessors}
-            selectedMonth={selectedMonth}
-            onChallengeCreated={fetchChallenges}
-          />
+      {/* Filtros no topo */}
+      <div className="flex items-center justify-end gap-1 mb-2 flex-shrink-0">
+        <SprintChallengeModal
+          assessors={assessors}
+          selectedMonth={selectedMonth}
+          onChallengeCreated={fetchChallenges}
+        />
 
-          <Select
-            value={selectedAssessor}
-            onValueChange={onAssessorChange}
-            disabled={isLocked}
-          >
-            <SelectTrigger className="w-[100px] lg:w-[140px] h-scale-3 text-scale-6 lg:text-scale-7">
-              <SelectValue placeholder="Assessor" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos Assessores</SelectItem>
-              {assessors.map((assessor) => (
-                <SelectItem key={assessor} value={assessor}>
-                  {assessor}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedMonth} onValueChange={onMonthChange}>
-            <SelectTrigger className="w-[70px] lg:w-[90px] h-scale-3 text-scale-6 lg:text-scale-7">
-              <SelectValue placeholder="Mês" />
-            </SelectTrigger>
-            <SelectContent>
-              {months.map((month) => (
-                <SelectItem key={month} value={month}>
-                  {month}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <Select value={selectedMonth} onValueChange={onMonthChange}>
+          <SelectTrigger className="w-[70px] lg:w-[90px] h-scale-3 text-scale-6 lg:text-scale-7">
+            <SelectValue placeholder="Mês" />
+          </SelectTrigger>
+          <SelectContent>
+            {months.map((month) => (
+              <SelectItem key={month} value={month}>
+                {month}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* KPI Bars - Vertical List */}
-      <div className="flex-1 flex flex-col gap-0.5 lg:gap-[3px] min-h-0 overflow-hidden">
-        {sortedData.length > 0 ? (
-          sortedData.map((kpi) => (
-            <SprintKPIBar 
-              key={kpi.category} 
-              data={kpi} 
-              evolution={evolutionMap?.get(kpi.category)}
-            />
-          ))
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-muted-foreground text-scale-6">
-            Selecione ao menos um produto
-          </div>
-        )}
-      </div>
-
-      {/* Desafios Ativos */}
-      {challenges.length > 0 && (
-        <div className="flex-shrink-0 mt-1">
-          <span className="text-scale-5 text-muted-foreground font-medium">Desafios</span>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 mt-0.5">
+      {/* Desafios */}
+      <div className="flex-1 min-h-0 overflow-auto">
+        {challenges.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             {challenges.map(c => (
               <SprintChallengeCard
                 key={c.id}
@@ -174,8 +113,12 @@ export function SprintPage({
               />
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-muted-foreground text-scale-7 h-32">
+            Nenhum desafio ativo. Clique em "+ Desafio" para criar.
+          </div>
+        )}
+      </div>
     </div>
   );
 }
