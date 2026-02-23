@@ -84,6 +84,19 @@ export interface YearlyDashboardData {
   gaugeKPIs: GaugeKPI[];
 }
 
+// ============= SPRINT CHALLENGE TYPES =============
+export interface SprintChallenge {
+  id: string;
+  created_at: string;
+  category: string;
+  assessor_name: string;
+  target_value: number;
+  deadline: string;
+  month: string;
+  created_by: string | null;
+  is_active: boolean;
+}
+
 // ============= SPRINT PAGE TYPES =============
 export interface AssessorWeeklyRemaining {
   name: string;           // Primeiro nome do assessor

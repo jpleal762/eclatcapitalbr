@@ -134,6 +134,42 @@ export type Database = {
         }
         Relationships: []
       }
+      sprint_challenges: {
+        Row: {
+          assessor_name: string
+          category: string
+          created_at: string
+          created_by: string | null
+          deadline: string
+          id: string
+          is_active: boolean
+          month: string
+          target_value: number
+        }
+        Insert: {
+          assessor_name: string
+          category: string
+          created_at?: string
+          created_by?: string | null
+          deadline: string
+          id?: string
+          is_active?: boolean
+          month: string
+          target_value: number
+        }
+        Update: {
+          assessor_name?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          deadline?: string
+          id?: string
+          is_active?: boolean
+          month?: string
+          target_value?: number
+        }
+        Relationships: []
+      }
       sprint_snapshots: {
         Row: {
           created_at: string | null
