@@ -146,6 +146,7 @@ const AVATAR_MAP: Record<string, () => JSX.Element> = {
   romulo: RomuloAvatar,
   rômulo: RomuloAvatar,
   ona: OnaAvatar,
+  onacilda: OnaAvatar,
 };
 
 export function AssessorAvatar({ assessorName, className }: AssessorAvatarProps) {
