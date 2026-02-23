@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { SprintKPIData, SprintEvolution, SPRINT_PRODUCTS, SprintChallenge } from "@/types/kpi";
 import { SprintChallengeModal } from "./SprintChallengeModal";
 import { SprintAssessorCard } from "./SprintAssessorCard";
 import { SprintChallengeSummary } from "./SprintChallengeSummary";
-import { ProductionEditModal } from "./ProductionEditModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,11 +19,6 @@ interface SprintPageProps {
   evolutionMap?: Map<string, SprintEvolution>;
   selectedProducts: Set<string>;
   onProductToggle: (category: string) => void;
-  role?: string | null;
-  assessorName?: string | null;
-  openMonth?: string | null;
-  tokenId?: string | null;
-  onDataUpdated?: () => void;
 }
 
 export function SprintPage({
@@ -39,14 +33,8 @@ export function SprintPage({
   evolutionMap,
   selectedProducts,
   onProductToggle,
-  role = null,
-  assessorName = null,
-  openMonth = null,
-  tokenId = null,
-  onDataUpdated,
 }: SprintPageProps) {
   const [challenges, setChallenges] = useState<SprintChallenge[]>([]);
-  const [editCategory, setEditCategory] = useState<string | null>(null);
 
   const fetchChallenges = useCallback(async () => {
     const { data } = await supabase
@@ -60,14 +48,6 @@ export function SprintPage({
   useEffect(() => {
     fetchChallenges();
   }, [fetchChallenges]);
-
-  const handleKPIClick = (category: string) => {
-    setEditCategory(category);
-  };
-
-  const handleProductionUpdated = () => {
-    onDataUpdated?.();
-  };
 
   return (
     <div className="h-full flex flex-col animate-fade-in">
@@ -97,7 +77,7 @@ export function SprintPage({
       <div className="flex-1 min-h-0 overflow-auto">
         {challenges.length > 0 ? (
           <>
-            <SprintChallengeSummary challenges={challenges} sprintData={sprintData} />
+            <SprintChallengeSummary challenges={challenges} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
               {Object.entries(
                 challenges.reduce<Record<string, SprintChallenge[]>>((acc, c) => {
@@ -109,9 +89,8 @@ export function SprintPage({
                   key={name}
                   assessorName={name}
                   challenges={group}
-                  sprintData={sprintData}
                   onDelete={fetchChallenges}
-                  onKPIClick={handleKPIClick}
+                  onUpdated={fetchChallenges}
                 />
               ))}
             </div>
@@ -122,18 +101,6 @@ export function SprintPage({
           </div>
         )}
       </div>
-
-      {/* Production Edit Modal */}
-      <ProductionEditModal
-        isOpen={!!editCategory}
-        onClose={() => setEditCategory(null)}
-        role={role}
-        assessorName={assessorName}
-        openMonth={openMonth}
-        tokenId={tokenId}
-        filterCategory={editCategory}
-        onDataUpdated={handleProductionUpdated}
-      />
     </div>
   );
 }

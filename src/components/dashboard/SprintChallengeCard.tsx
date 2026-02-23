@@ -12,8 +12,6 @@ interface SprintChallengeCardProps {
   onDelete: () => void;
 }
 
-// Keep single-challenge card for backward compat but not used directly anymore
-export { SprintAssessorCard } from "./SprintAssessorCard";
 
 function getCountdown(deadline: string): { label: string; urgent: boolean; expired: boolean } {
   const now = new Date().getTime();
