@@ -120,14 +120,17 @@ export function SprintPage({
       {/* Relógio destaque */}
       {challenges.length > 0 && (
         <div className={cn(
-          "rounded-lg border p-3 mb-3 text-center transition-all",
+          "rounded-lg border p-4 mb-3 text-center transition-all",
           countdown.expired && "border-muted bg-muted/20",
           countdown.urgent && !countdown.expired && "border-destructive bg-destructive/5",
           !countdown.urgent && !countdown.expired && "border-primary/30 bg-primary/5"
         )}>
-          <div className="text-scale-5 text-muted-foreground mb-0.5">⏱ Tempo restante</div>
           <div className={cn(
-            "text-scale-10 lg:text-scale-11 font-mono font-bold tracking-wider",
+            "text-base lg:text-lg font-semibold mb-1",
+            countdown.expired ? "text-muted-foreground" : countdown.urgent ? "text-destructive/80" : "text-muted-foreground"
+          )}>⏱ Tempo restante</div>
+          <div className={cn(
+            "text-5xl lg:text-7xl font-mono font-black tracking-wider leading-none",
             countdown.expired ? "text-muted-foreground" : countdown.urgent ? "text-destructive" : "text-foreground"
           )}>
             {countdown.label}
