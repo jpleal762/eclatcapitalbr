@@ -7,35 +7,75 @@ interface SprintChallengeSummaryProps {
   challenges: SprintChallenge[];
 }
 
-function formatValue(value: number): string {
-  if (Math.abs(value) >= 1_000_000) return `R$${(value / 1_000_000).toFixed(1)}M`;
-  if (Math.abs(value) >= 1_000) return `R$${(value / 1_000).toFixed(0)}K`;
-  return `R$${value.toFixed(0)}`;
+function formatValue(value: number, isCurrency: boolean): string {
+  if (isCurrency) {
+    if (Math.abs(value) >= 1_000_000) return `R$${(value / 1_000_000).toFixed(1)}M`;
+    if (Math.abs(value) >= 1_000) return `R$${(value / 1_000).toFixed(0)}K`;
+    return `R$${value.toFixed(0)}`;
+  }
+  return value.toFixed(0);
+}
+
+interface KPISummaryRow {
+  category: string;
+  label: string;
+  isCurrency: boolean;
+  realized: number;
+  target: number;
+  percentage: number;
+  isCompleted: boolean;
+}
+
+function isPastHalfTime(challenge: SprintChallenge): boolean {
+  const created = new Date(challenge.created_at).getTime();
+  const deadline = new Date(challenge.deadline).getTime();
+  const now = Date.now();
+  const totalDuration = deadline - created;
+  if (totalDuration <= 0) return true;
+  return (now - created) > totalDuration / 2;
 }
 
 export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryProps) {
   if (challenges.length === 0) return null;
 
-  let totalTarget = 0;
-  let totalRealized = 0;
-  let completedKPIs = 0;
-
+  // Group by category and sum across all assessors
+  const categoryMap = new Map<string, { realized: number; target: number; challenges: SprintChallenge[] }>();
   challenges.forEach(c => {
-    totalTarget += c.target_value;
-    const realized = c.realized_value ?? 0;
-    totalRealized += realized;
-    if (realized >= c.target_value) completedKPIs++;
+    const existing = categoryMap.get(c.category) || { realized: 0, target: 0, challenges: [] };
+    existing.realized += c.realized_value ?? 0;
+    existing.target += c.target_value;
+    existing.challenges.push(c);
+    categoryMap.set(c.category, existing);
   });
 
+  const rows: KPISummaryRow[] = Array.from(categoryMap.entries()).map(([category, data]) => {
+    const product = SPRINT_PRODUCTS.find(p => p.category === category);
+    const percentage = data.target > 0 ? Math.min((data.realized / data.target) * 100, 100) : 0;
+    return {
+      category,
+      label: product?.label ?? category,
+      isCurrency: product?.isCurrency ?? false,
+      realized: data.realized,
+      target: data.target,
+      percentage,
+      isCompleted: percentage >= 100,
+    };
+  });
+
+  const totalTarget = rows.reduce((s, r) => s + r.target, 0);
+  const totalRealized = rows.reduce((s, r) => s + r.realized, 0);
   const globalPercentage = totalTarget > 0 ? Math.min((totalRealized / totalTarget) * 100, 100) : 0;
   const isCompleted = globalPercentage >= 100;
+  const completedCount = rows.filter(r => r.isCompleted).length;
 
   const nearestDeadline = challenges
     .map(c => c.deadline)
     .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
   const expired = new Date(nearestDeadline).getTime() <= Date.now();
 
-  const barColor = isCompleted
+  const globalBarColor = expired
+    ? "bg-muted"
+    : isCompleted
     ? "bg-green-500"
     : globalPercentage >= 50
     ? "bg-yellow-500"
@@ -48,29 +88,69 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
     )}>
       <ConfettiCelebration trigger={isCompleted && !expired} />
 
-      <div className="flex items-center gap-3">
+      {/* Header with mascot */}
+      <div className="flex items-center gap-3 mb-2">
         <SprintMascot
           progressPercent={globalPercentage}
           isCompleted={isCompleted && !expired}
           className="w-10 h-10 lg:w-12 lg:h-12 flex-shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2 mb-1">
+          <div className="flex items-center justify-between gap-2">
             <span className="text-scale-7 lg:text-scale-8 font-bold">Progresso Geral</span>
           </div>
-          <div className="w-full h-3 lg:h-4 bg-secondary rounded-full overflow-hidden">
-            <div className={cn("h-full rounded-full transition-all duration-700", barColor)}
+          <div className="w-full h-3 lg:h-4 bg-secondary rounded-full overflow-hidden mt-1">
+            <div className={cn("h-full rounded-full transition-all duration-700", globalBarColor)}
               style={{ width: `${globalPercentage}%` }} />
           </div>
-          <div className="flex items-center justify-between mt-1">
-            <span className="text-scale-6 text-muted-foreground">
-              {formatValue(totalRealized)} / {formatValue(totalTarget)} ({globalPercentage.toFixed(0)}%)
+          <div className="flex items-center justify-between mt-0.5">
+            <span className="text-scale-5 text-muted-foreground">
+              {globalPercentage.toFixed(0)}% geral
             </span>
-            <span className="text-scale-6">
-              {completedKPIs} de {challenges.length} KPIs concluídos
+            <span className="text-scale-5 text-muted-foreground">
+              {completedCount}/{rows.length} KPIs
             </span>
           </div>
         </div>
+      </div>
+
+      {/* Per-KPI rows — same layout as individual cards */}
+      <div className="space-y-1.5 mt-2">
+        {rows.map(r => {
+          const catChallenges = categoryMap.get(r.category)?.challenges || [];
+          const pastHalf = catChallenges.some(c => isPastHalfTime(c));
+          const barColor = expired
+            ? "bg-muted"
+            : r.isCompleted
+            ? "bg-green-500"
+            : pastHalf && r.percentage < 50
+            ? "bg-red-500"
+            : r.percentage >= 50
+            ? "bg-yellow-500"
+            : "bg-red-500";
+
+          return (
+            <div key={r.category} className="flex items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-scale-5 lg:text-scale-6 font-medium truncate">
+                    {r.label}
+                  </span>
+                  <span className="text-scale-5 text-muted-foreground">
+                    {formatValue(r.realized, r.isCurrency)} / {formatValue(r.target, r.isCurrency)}
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+                  <div className={cn("h-full rounded-full transition-all duration-500", barColor)}
+                    style={{ width: `${r.percentage}%` }} />
+                </div>
+              </div>
+              <span className="text-scale-5 font-semibold w-8 text-right">
+                {r.percentage.toFixed(0)}%
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
