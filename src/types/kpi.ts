@@ -154,7 +154,7 @@ export interface SprintProductConfig {
 // Lista de produtos disponíveis para Sprint
 export const SPRINT_PRODUCTS: SprintProductConfig[] = [
   { category: "Captação net", label: "Captação NET", isCurrency: true },
-  { category: "Receita", label: "Receita", isCurrency: true },
+  { category: "Receita", label: "Receita PJ1", isCurrency: true },
   { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
   { category: "Parceiros Tri", label: "Parceiros", isCurrency: true },
   { category: "Primeira reuniao", label: "Reuniões", isCurrency: false },
