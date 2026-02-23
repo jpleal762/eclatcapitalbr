@@ -150,7 +150,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
               {assessorName}
             </span>
           </div>
-          <div className="w-full h-2 bg-secondary rounded-full mt-1 overflow-hidden">
+          <div className="w-full h-4 bg-secondary rounded-full mt-1 overflow-hidden">
             <div className={cn("h-full rounded-full transition-all duration-500", globalBarColor)}
               style={{ width: `${globalPercentage}%` }} />
           </div>
@@ -208,7 +208,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-0.5 text-scale-5">
+                    <div className="flex items-center gap-0.5 text-scale-6 lg:text-scale-7">
                       <button
                         onClick={() => startEditing(r.challenge, "realized")}
                         className="text-muted-foreground hover:text-foreground hover:underline transition-colors"
@@ -233,7 +233,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
                     style={{ width: `${r.percentage}%` }} />
                 </div>
               </div>
-              <span className="text-scale-5 font-semibold w-8 text-right">
+              <span className="text-scale-6 lg:text-scale-7 font-semibold w-10 text-right">
                 {r.percentage.toFixed(0)}%
               </span>
               <button
