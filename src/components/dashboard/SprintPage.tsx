@@ -3,6 +3,7 @@ import { SprintKPIData, SprintEvolution, SPRINT_PRODUCTS, SprintChallenge } from
 import { SprintChallengeModal } from "./SprintChallengeModal";
 import { SprintAssessorCard } from "./SprintAssessorCard";
 import { SprintChallengeSummary } from "./SprintChallengeSummary";
+import { ProductionEditModal } from "./ProductionEditModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +20,11 @@ interface SprintPageProps {
   evolutionMap?: Map<string, SprintEvolution>;
   selectedProducts: Set<string>;
   onProductToggle: (category: string) => void;
+  role?: string | null;
+  assessorName?: string | null;
+  openMonth?: string | null;
+  tokenId?: string | null;
+  onDataUpdated?: () => void;
 }
 
 export function SprintPage({
@@ -33,8 +39,14 @@ export function SprintPage({
   evolutionMap,
   selectedProducts,
   onProductToggle,
+  role = null,
+  assessorName = null,
+  openMonth = null,
+  tokenId = null,
+  onDataUpdated,
 }: SprintPageProps) {
   const [challenges, setChallenges] = useState<SprintChallenge[]>([]);
+  const [editCategory, setEditCategory] = useState<string | null>(null);
 
   const fetchChallenges = useCallback(async () => {
     const { data } = await supabase
@@ -49,30 +61,12 @@ export function SprintPage({
     fetchChallenges();
   }, [fetchChallenges]);
 
-  // Sort by remaining (highest first), completed at end
-  const sortedData = [...sprintData].sort((a, b) => {
-    if (a.isCompleted && !b.isCompleted) return 1;
-    if (!a.isCompleted && b.isCompleted) return -1;
-    return b.totalRemaining - a.totalRemaining;
-  });
+  const handleKPIClick = (category: string) => {
+    setEditCategory(category);
+  };
 
-  // Handle product toggle with max 3 limit
-  const handleProductToggle = (category: string) => {
-    if (selectedProducts.has(category)) {
-      // Can always uncheck
-      onProductToggle(category);
-    } else {
-      // Can only check if less than 3 selected
-      if (selectedProducts.size < 3) {
-        onProductToggle(category);
-      } else {
-        toast({
-          title: "Limite atingido",
-          description: "Máximo de 3 itens selecionados",
-          variant: "destructive",
-        });
-      }
-    }
+  const handleProductionUpdated = () => {
+    onDataUpdated?.();
   };
 
   return (
@@ -117,6 +111,7 @@ export function SprintPage({
                   challenges={group}
                   sprintData={sprintData}
                   onDelete={fetchChallenges}
+                  onKPIClick={handleKPIClick}
                 />
               ))}
             </div>
@@ -127,6 +122,18 @@ export function SprintPage({
           </div>
         )}
       </div>
+
+      {/* Production Edit Modal */}
+      <ProductionEditModal
+        isOpen={!!editCategory}
+        onClose={() => setEditCategory(null)}
+        role={role}
+        assessorName={assessorName}
+        openMonth={openMonth}
+        tokenId={tokenId}
+        filterCategory={editCategory}
+        onDataUpdated={handleProductionUpdated}
+      />
     </div>
   );
 }

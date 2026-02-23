@@ -11,6 +11,7 @@ interface SprintAssessorCardProps {
   challenges: SprintChallenge[];
   sprintData: SprintKPIData[];
   onDelete: () => void;
+  onKPIClick?: (category: string) => void;
 }
 
 function getCountdown(deadline: string): { label: string; urgent: boolean; expired: boolean } {
@@ -44,7 +45,7 @@ interface KPIRow {
   label: string;
 }
 
-export function SprintAssessorCard({ assessorName, challenges, sprintData, onDelete }: SprintAssessorCardProps) {
+export function SprintAssessorCard({ assessorName, challenges, sprintData, onDelete, onKPIClick }: SprintAssessorCardProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Build KPI rows
@@ -149,7 +150,14 @@ export function SprintAssessorCard({ assessorName, challenges, sprintData, onDel
             : "bg-red-500";
 
           return (
-            <div key={r.challenge.id} className="group flex items-center gap-2">
+            <div
+              key={r.challenge.id}
+              className={cn(
+                "group flex items-center gap-2",
+                onKPIClick && "cursor-pointer hover:bg-accent/50 rounded px-1 -mx-1 transition-colors"
+              )}
+              onClick={() => onKPIClick?.(r.challenge.category)}
+            >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1">
                   <span className="text-scale-5 lg:text-scale-6 font-medium truncate">
@@ -168,7 +176,7 @@ export function SprintAssessorCard({ assessorName, challenges, sprintData, onDel
                 {r.percentage.toFixed(0)}%
               </span>
               <button
-                onClick={() => handleDeleteKPI(r.challenge.id)}
+                onClick={(e) => { e.stopPropagation(); handleDeleteKPI(r.challenge.id); }}
                 disabled={deletingId === r.challenge.id}
                 className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-all"
               >
