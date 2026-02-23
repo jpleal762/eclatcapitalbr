@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { SprintKPIData, SprintEvolution, SPRINT_PRODUCTS, SprintChallenge } from "@/types/kpi";
 import { SprintChallengeModal } from "./SprintChallengeModal";
-import { SprintChallengeCard } from "./SprintChallengeCard";
+import { SprintAssessorCard } from "./SprintAssessorCard";
 import { SprintChallengeSummary } from "./SprintChallengeSummary";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -106,10 +105,16 @@ export function SprintPage({
           <>
             <SprintChallengeSummary challenges={challenges} sprintData={sprintData} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-              {challenges.map(c => (
-                <SprintChallengeCard
-                  key={c.id}
-                  challenge={c}
+              {Object.entries(
+                challenges.reduce<Record<string, SprintChallenge[]>>((acc, c) => {
+                  (acc[c.assessor_name] ??= []).push(c);
+                  return acc;
+                }, {})
+              ).map(([name, group]) => (
+                <SprintAssessorCard
+                  key={name}
+                  assessorName={name}
+                  challenges={group}
                   sprintData={sprintData}
                   onDelete={fetchChallenges}
                 />
