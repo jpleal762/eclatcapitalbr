@@ -1,5 +1,5 @@
 import { SprintChallenge, SPRINT_PRODUCTS } from "@/types/kpi";
-import { SprintMascot } from "./SprintMascot";
+import { AssessorAvatar } from "./AssessorAvatar";
 import { ConfettiCelebration } from "./ConfettiCelebration";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -130,9 +130,8 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
 
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
-        <SprintMascot
-          progressPercent={globalPercentage}
-          isCompleted={allCompleted && !countdown.expired}
+        <AssessorAvatar
+          assessorName={assessorName}
           className="w-8 h-8 lg:w-10 lg:h-10 flex-shrink-0"
         />
         <div className="flex-1 min-w-0">
