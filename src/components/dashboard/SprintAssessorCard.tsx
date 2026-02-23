@@ -49,6 +49,7 @@ interface KPIRow {
 export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdated }: SprintAssessorCardProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editField, setEditField] = useState<"realized" | "target">("realized");
   const [editValue, setEditValue] = useState("");
 
   const rows: KPIRow[] = challenges.map(c => {
@@ -84,22 +85,27 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
     onDelete();
   };
 
-  const startEditing = (challenge: SprintChallenge) => {
+  const startEditing = (challenge: SprintChallenge, field: "realized" | "target") => {
     setEditingId(challenge.id);
-    setEditValue(String(challenge.realized_value ?? 0));
+    setEditField(field);
+    setEditValue(String(field === "realized" ? (challenge.realized_value ?? 0) : challenge.target_value));
   };
 
   const saveEdit = async (id: string) => {
     const numValue = parseFloat(editValue) || 0;
+    const updateData = editField === "realized"
+      ? { realized_value: numValue }
+      : { target_value: numValue };
+
     const { error } = await supabase
       .from("sprint_challenges" as any)
-      .update({ realized_value: numValue } as any)
+      .update(updateData as any)
       .eq("id", id);
 
     if (error) {
       toast({ title: "Erro ao salvar", variant: "destructive" });
     } else {
-      toast({ title: "Produção atualizada! ✅" });
+      toast({ title: editField === "realized" ? "Produção atualizada! ✅" : "Meta atualizada! ✅" });
       onUpdated();
     }
     setEditingId(null);
@@ -182,7 +188,10 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
                         type="number"
                         value={editValue}
                         onChange={e => setEditValue(e.target.value)}
-                        onKeyDown={e => e.key === "Enter" && saveEdit(r.challenge.id)}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") saveEdit(r.challenge.id);
+                          if (e.key === "Escape") setEditingId(null);
+                        }}
                         className="h-6 w-24 text-xs text-right"
                         autoFocus
                       />
@@ -194,13 +203,24 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
                       </button>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => startEditing(r.challenge)}
-                      className="flex items-center gap-1 text-scale-5 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {formatValue(r.realized, r.isCurrency)} / {formatValue(r.target, r.isCurrency)}
-                      <Pencil className="size-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
+                    <div className="flex items-center gap-0.5 text-scale-5 text-muted-foreground">
+                      <button
+                        onClick={() => startEditing(r.challenge, "realized")}
+                        className="hover:text-foreground hover:underline transition-colors"
+                        title="Editar realizado"
+                      >
+                        {formatValue(r.realized, r.isCurrency)}
+                      </button>
+                      <span>/</span>
+                      <button
+                        onClick={() => startEditing(r.challenge, "target")}
+                        className="hover:text-foreground hover:underline transition-colors"
+                        title="Editar meta"
+                      >
+                        {formatValue(r.target, r.isCurrency)}
+                      </button>
+                      <Pencil className="size-2.5 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5" />
+                    </div>
                   )}
                 </div>
                 <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
