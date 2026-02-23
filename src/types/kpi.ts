@@ -91,6 +91,7 @@ export interface SprintChallenge {
   category: string;
   assessor_name: string;
   target_value: number;
+  realized_value: number;
   deadline: string;
   month: string;
   created_by: string | null;

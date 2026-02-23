@@ -1,17 +1,18 @@
-import { SprintChallenge, SprintKPIData, SPRINT_PRODUCTS } from "@/types/kpi";
+import { SprintChallenge, SPRINT_PRODUCTS } from "@/types/kpi";
 import { SprintMascot } from "./SprintMascot";
 import { ConfettiCelebration } from "./ConfettiCelebration";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { X } from "lucide-react";
+import { X, Pencil, Check } from "lucide-react";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
 
 interface SprintAssessorCardProps {
   assessorName: string;
   challenges: SprintChallenge[];
-  sprintData: SprintKPIData[];
   onDelete: () => void;
-  onKPIClick?: (category: string) => void;
+  onUpdated: () => void;
 }
 
 function getCountdown(deadline: string): { label: string; urgent: boolean; expired: boolean } {
@@ -45,14 +46,13 @@ interface KPIRow {
   label: string;
 }
 
-export function SprintAssessorCard({ assessorName, challenges, sprintData, onDelete, onKPIClick }: SprintAssessorCardProps) {
+export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdated }: SprintAssessorCardProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
 
-  // Build KPI rows
   const rows: KPIRow[] = challenges.map(c => {
-    const kpiData = sprintData.find(s => s.category === c.category);
-    const assessorData = kpiData?.assessorBreakdown.find(a => a.name === c.assessor_name);
-    const realized = assessorData?.contribution ?? 0;
+    const realized = c.realized_value ?? 0;
     const target = c.target_value;
     const percentage = target > 0 ? Math.min((realized / target) * 100, 100) : 0;
     const product = SPRINT_PRODUCTS.find(p => p.category === c.category);
@@ -67,14 +67,12 @@ export function SprintAssessorCard({ assessorName, challenges, sprintData, onDel
     };
   });
 
-  // Aggregate
   const totalTarget = rows.reduce((s, r) => s + r.target, 0);
   const totalRealized = rows.reduce((s, r) => s + r.realized, 0);
   const globalPercentage = totalTarget > 0 ? Math.min((totalRealized / totalTarget) * 100, 100) : 0;
   const allCompleted = rows.every(r => r.isCompleted);
   const completedCount = rows.filter(r => r.isCompleted).length;
 
-  // Nearest deadline
   const nearestDeadline = challenges
     .map(c => c.deadline)
     .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
@@ -84,6 +82,27 @@ export function SprintAssessorCard({ assessorName, challenges, sprintData, onDel
     setDeletingId(id);
     await supabase.from("sprint_challenges" as any).delete().eq("id", id);
     onDelete();
+  };
+
+  const startEditing = (challenge: SprintChallenge) => {
+    setEditingId(challenge.id);
+    setEditValue(String(challenge.realized_value ?? 0));
+  };
+
+  const saveEdit = async (id: string) => {
+    const numValue = parseFloat(editValue) || 0;
+    const { error } = await supabase
+      .from("sprint_challenges" as any)
+      .update({ realized_value: numValue } as any)
+      .eq("id", id);
+
+    if (error) {
+      toast({ title: "Erro ao salvar", variant: "destructive" });
+    } else {
+      toast({ title: "Produção atualizada! ✅" });
+      onUpdated();
+    }
+    setEditingId(null);
   };
 
   const globalBarColor = countdown.expired
@@ -103,7 +122,7 @@ export function SprintAssessorCard({ assessorName, challenges, sprintData, onDel
     )}>
       <ConfettiCelebration trigger={allCompleted && !countdown.expired} />
 
-      {/* Header: Assessor name + countdown */}
+      {/* Header */}
       <div className="flex items-center gap-2 mb-2">
         <SprintMascot
           progressPercent={globalPercentage}
@@ -122,7 +141,6 @@ export function SprintAssessorCard({ assessorName, challenges, sprintData, onDel
               ⏱ {countdown.label}
             </span>
           </div>
-          {/* Global progress bar */}
           <div className="w-full h-2 bg-secondary rounded-full mt-1 overflow-hidden">
             <div className={cn("h-full rounded-full transition-all duration-500", globalBarColor)}
               style={{ width: `${globalPercentage}%` }} />
@@ -138,7 +156,7 @@ export function SprintAssessorCard({ assessorName, challenges, sprintData, onDel
         </div>
       </div>
 
-      {/* Individual KPI rows */}
+      {/* KPI rows */}
       <div className="space-y-1.5 mt-2">
         {rows.map(r => {
           const barColor = countdown.expired
@@ -149,23 +167,41 @@ export function SprintAssessorCard({ assessorName, challenges, sprintData, onDel
             ? "bg-yellow-500"
             : "bg-red-500";
 
+          const isEditing = editingId === r.challenge.id;
+
           return (
-            <div
-              key={r.challenge.id}
-              className={cn(
-                "group flex items-center gap-2",
-                onKPIClick && "cursor-pointer hover:bg-accent/50 rounded px-1 -mx-1 transition-colors"
-              )}
-              onClick={() => onKPIClick?.(r.challenge.category)}
-            >
+            <div key={r.challenge.id} className="group flex items-center gap-2">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1">
                   <span className="text-scale-5 lg:text-scale-6 font-medium truncate">
                     {r.label}
                   </span>
-                  <span className="text-scale-5 text-muted-foreground whitespace-nowrap">
-                    {formatValue(r.realized, r.isCurrency)} / {formatValue(r.target, r.isCurrency)}
-                  </span>
+                  {isEditing ? (
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        value={editValue}
+                        onChange={e => setEditValue(e.target.value)}
+                        onKeyDown={e => e.key === "Enter" && saveEdit(r.challenge.id)}
+                        className="h-6 w-24 text-xs text-right"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => saveEdit(r.challenge.id)}
+                        className="text-green-500 hover:text-green-600 transition-colors"
+                      >
+                        <Check className="size-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => startEditing(r.challenge)}
+                      className="flex items-center gap-1 text-scale-5 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {formatValue(r.realized, r.isCurrency)} / {formatValue(r.target, r.isCurrency)}
+                      <Pencil className="size-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  )}
                 </div>
                 <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
                   <div className={cn("h-full rounded-full transition-all duration-500", barColor)}
@@ -176,7 +212,7 @@ export function SprintAssessorCard({ assessorName, challenges, sprintData, onDel
                 {r.percentage.toFixed(0)}%
               </span>
               <button
-                onClick={(e) => { e.stopPropagation(); handleDeleteKPI(r.challenge.id); }}
+                onClick={() => handleDeleteKPI(r.challenge.id)}
                 disabled={deletingId === r.challenge.id}
                 className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-all"
               >

@@ -773,15 +773,6 @@ const Index = () => {
                     return next;
                   });
                 }}
-                role={isTokenLocked ? tokenRole : 'admin'}
-                assessorName={tokenAssessorName}
-                openMonth={openMonth}
-                tokenId={tokenId}
-                onDataUpdated={async () => {
-                  const data = await loadExcelData();
-                  if (data) setRawData(data);
-                  setLastUpdateTime(new Date().toISOString());
-                }}
               />
             ) : (
               // MONTHLY VIEW

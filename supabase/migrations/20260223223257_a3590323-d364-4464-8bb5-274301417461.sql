@@ -1,0 +1,1 @@
+ALTER TABLE public.sprint_challenges ADD COLUMN realized_value numeric NOT NULL DEFAULT 0;

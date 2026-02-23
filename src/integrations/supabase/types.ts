@@ -144,6 +144,7 @@ export type Database = {
           id: string
           is_active: boolean
           month: string
+          realized_value: number
           target_value: number
         }
         Insert: {
@@ -155,6 +156,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           month: string
+          realized_value?: number
           target_value: number
         }
         Update: {
@@ -166,6 +168,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           month?: string
+          realized_value?: number
           target_value?: number
         }
         Relationships: []
