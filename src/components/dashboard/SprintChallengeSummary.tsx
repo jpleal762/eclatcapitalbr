@@ -136,8 +136,10 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
                   <span className="text-scale-5 lg:text-scale-6 font-medium truncate">
                     {r.label}
                   </span>
-                  <span className="text-scale-5 text-muted-foreground">
-                    {formatValue(r.realized, r.isCurrency)} / {formatValue(r.target, r.isCurrency)}
+                  <span className="text-scale-6 lg:text-scale-7">
+                    <span className="text-muted-foreground">{formatValue(r.realized, r.isCurrency)}</span>
+                    <span className="text-muted-foreground"> / </span>
+                    <span className="font-bold text-foreground">{formatValue(r.target, r.isCurrency)}</span>
                   </span>
                 </div>
                 <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
@@ -145,7 +147,7 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
                     style={{ width: `${r.percentage}%` }} />
                 </div>
               </div>
-              <span className="text-scale-5 font-semibold w-8 text-right">
+              <span className="text-scale-6 lg:text-scale-7 font-semibold w-10 text-right">
                 {r.percentage.toFixed(0)}%
               </span>
             </div>
