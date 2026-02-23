@@ -147,7 +147,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <span className="text-scale-7 lg:text-scale-8 font-bold truncate">
-              {assessorName.split(" ")[0]}
+              {assessorName}
             </span>
           </div>
           <div className="w-full h-2 bg-secondary rounded-full mt-1 overflow-hidden">
@@ -208,23 +208,23 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-0.5 text-scale-5 text-muted-foreground">
+                    <div className="flex items-center gap-0.5 text-scale-5">
                       <button
                         onClick={() => startEditing(r.challenge, "realized")}
-                        className="hover:text-foreground hover:underline transition-colors"
+                        className="text-muted-foreground hover:text-foreground hover:underline transition-colors"
                         title="Editar realizado"
                       >
                         {formatValue(r.realized, r.isCurrency)}
                       </button>
-                      <span>/</span>
+                      <span className="text-muted-foreground">/</span>
                       <button
                         onClick={() => startEditing(r.challenge, "target")}
-                        className="hover:text-foreground hover:underline transition-colors"
+                        className="font-bold text-foreground hover:underline transition-colors"
                         title="Editar meta"
                       >
                         {formatValue(r.target, r.isCurrency)}
                       </button>
-                      <Pencil className="size-2.5 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5" />
+                      <Pencil className="size-2.5 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 text-muted-foreground" />
                     </div>
                   )}
                 </div>
