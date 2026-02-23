@@ -1,38 +1,74 @@
 
-## Ajuste dos assessores no card de Evolucao
+## Desafios Sprint: Metas personalizadas por KPI/Assessor com prazo e gamificacao
 
-### Mudancas
+### O que sera criado
 
-**Arquivo: `src/components/dashboard/EvolutionCard.tsx`**
+Uma nova funcionalidade na tela de Sprint que permite criar "desafios" personalizados: o admin (ou socio para si mesmo) digita uma meta especifica por KPI, por assessor, com um prazo de entrega. O progresso e gamificado com countdown, status visual e celebracao ao atingir.
 
-1. **Primeiro nome apenas** - Extrair apenas o primeiro nome do assessor usando `a.name.split(" ")[0]` ao inves do nome completo.
+### Nova tabela no banco de dados
 
-2. **Layout: assessores ao lado do delta, um embaixo do outro, mesmo tamanho** - Mudar a area dos assessores de `flex gap-1 flex-wrap` (horizontal) para uma coluna vertical ao lado do valor do delta, com o mesmo tamanho de fonte (`text-scale-6 font-bold`):
+**Tabela: `sprint_challenges`**
 
-```tsx
-<div className="min-w-0 flex-1">
-  <span className="text-scale-5 text-muted-foreground block truncate">{item.label}</span>
-  <div className="flex items-start gap-1.5">
-    <span className={`text-scale-6 font-bold ... `}>
-      {isPositive ? "+" : ""}{formatValue(item.delta, item.isCurrency)}
-    </span>
-    {item.worstAssessors?.length > 0 && (
-      <div className="flex flex-col">
-        {item.worstAssessors.map(a => (
-          <span key={a.name} className="text-scale-6 font-bold text-red-500/70">
-            {a.name.split(" ")[0]} {a.delta >= 0 ? "+" : ""}{formatValue(a.delta, item.isCurrency)}
-          </span>
-        ))}
-      </div>
-    )}
-  </div>
-</div>
-```
+| Coluna | Tipo | Descricao |
+|--------|------|-----------|
+| id | uuid (PK) | Identificador unico |
+| created_at | timestamptz | Data de criacao |
+| category | text | Categoria do KPI (ex: "Captação net") |
+| assessor_name | text | Nome do assessor |
+| target_value | numeric | Meta digitada pelo usuario |
+| deadline | timestamptz | Prazo para entrega |
+| month | text | Mes de referencia (ex: "fev-26") |
+| created_by | text | Quem criou o desafio |
+| is_active | boolean | Se o desafio esta ativo |
 
-- O delta principal fica a esquerda
-- Os 2 piores assessores ficam a direita, empilhados verticalmente
-- Mesmo tamanho de fonte (`text-scale-6 font-bold`) que o numero principal
-- Cor diferenciada (`text-red-500/70`) para distinguir
+RLS: leitura e escrita publica (mesmo padrao das outras tabelas do projeto).
 
-### Arquivo editado
-- `src/components/dashboard/EvolutionCard.tsx`
+### Componentes novos
+
+**1. `SprintChallengeModal.tsx`** - Modal para criar/editar desafios
+- Selecionar assessor (dropdown com assessores disponiveis)
+- Selecionar KPI/categoria (dropdown com produtos do sprint)
+- Input numerico para a meta
+- DatePicker para o prazo de entrega
+- Botao salvar que grava na tabela `sprint_challenges`
+
+**2. `SprintChallengeCard.tsx`** - Card compacto mostrando o desafio ativo
+- Exibe: assessor, meta, realizado atual, % progresso
+- Countdown ate o prazo (ex: "2d 5h restantes")
+- Barra de progresso colorida (vermelho < 50%, amarelo >= 50%, verde >= 100%)
+- Mascote do sprint baseado no progresso
+- Efeito confetti ao atingir 100%
+- Icone de alerta quando prazo esta proximo (< 24h)
+
+### Integracao na SprintPage
+
+- Botao "+" ou "Criar Desafio" no topo da Sprint page (ao lado dos filtros)
+- Secao "Desafios Ativos" abaixo das barras de KPI, mostrando os desafios em andamento
+- O valor "realizado" e calculado automaticamente a partir dos dados existentes do kpi_records (mesmo calculo que ja existe no sprint)
+- Desafios expirados (prazo passou) ficam com visual cinza e label "Expirado"
+- Desafios concluidos ficam verdes com mascote Champion
+
+### Gamificacao
+
+- **Countdown visual**: dias e horas restantes em destaque
+- **Mascotes**: Runner (< 50%), Cyclist (50-79%), Rocket (80-99%), Champion (100%) - reutiliza o `SprintMascot` existente
+- **Confetti**: ao atingir a meta, dispara celebracao (reutiliza `ConfettiCelebration`)
+- **Cores de urgencia**: borda do card fica vermelha pulsante quando faltam menos de 24h
+- **Status badges**: "Em andamento", "Quase la!", "Concluido!", "Expirado"
+
+### Detalhes tecnicos
+
+**Arquivos novos:**
+- `src/components/dashboard/SprintChallengeModal.tsx` - modal de criacao
+- `src/components/dashboard/SprintChallengeCard.tsx` - card de exibicao
+
+**Arquivos editados:**
+- `src/components/dashboard/SprintPage.tsx` - adicionar botao de criar desafio e secao de desafios ativos
+- `src/types/kpi.ts` - tipo `SprintChallenge`
+
+**Migracao SQL:**
+- Criar tabela `sprint_challenges` com RLS
+
+**Calculo do realizado:**
+- Buscar do `kpi_records` o valor realizado do assessor para a categoria no mes, usando a mesma logica que `calculateSprintData` ja usa
+- Comparar com `target_value` do desafio para calcular progresso
