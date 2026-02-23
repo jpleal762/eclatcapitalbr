@@ -27,6 +27,16 @@ function getCountdown(deadline: string): { label: string; urgent: boolean; expir
   return { label: `${remainingHours}h`, urgent: true, expired: false };
 }
 
+function isPastHalfTime(challenge: SprintChallenge): boolean {
+  const created = new Date(challenge.created_at).getTime();
+  const deadline = new Date(challenge.deadline).getTime();
+  const now = Date.now();
+  const totalDuration = deadline - created;
+  if (totalDuration <= 0) return true;
+  const elapsed = now - created;
+  return elapsed > totalDuration / 2;
+}
+
 function formatValue(value: number, isCurrency: boolean): string {
   if (isCurrency) {
     if (Math.abs(value) >= 1_000_000) return `R$${(value / 1_000_000).toFixed(1)}M`;
@@ -139,12 +149,6 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
             <span className="text-scale-7 lg:text-scale-8 font-bold truncate">
               {assessorName.split(" ")[0]}
             </span>
-            <span className={cn(
-              "text-scale-5 lg:text-scale-6 font-bold whitespace-nowrap",
-              countdown.expired ? "text-muted-foreground" : countdown.urgent ? "text-red-500" : "text-muted-foreground"
-            )}>
-              ⏱ {countdown.label}
-            </span>
           </div>
           <div className="w-full h-2 bg-secondary rounded-full mt-1 overflow-hidden">
             <div className={cn("h-full rounded-full transition-all duration-500", globalBarColor)}
@@ -164,14 +168,16 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
       {/* KPI rows */}
       <div className="space-y-1.5 mt-2">
         {rows.map(r => {
+          const pastHalf = isPastHalfTime(r.challenge);
           const barColor = countdown.expired
             ? "bg-muted"
             : r.isCompleted
             ? "bg-green-500"
+            : pastHalf && r.percentage < 50
+            ? "bg-red-500"
             : r.percentage >= 50
             ? "bg-yellow-500"
             : "bg-red-500";
-
           const isEditing = editingId === r.challenge.id;
 
           return (
