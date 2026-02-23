@@ -1,8 +1,12 @@
-import { SprintKPIData, SprintEvolution, SPRINT_PRODUCTS } from "@/types/kpi";
+import { useState, useEffect, useCallback } from "react";
+import { SprintKPIData, SprintEvolution, SPRINT_PRODUCTS, SprintChallenge } from "@/types/kpi";
 import { SprintKPIBar } from "./SprintKPIBar";
+import { SprintChallengeModal } from "./SprintChallengeModal";
+import { SprintChallengeCard } from "./SprintChallengeCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SprintPageProps {
   sprintData: SprintKPIData[];
@@ -31,6 +35,21 @@ export function SprintPage({
   selectedProducts,
   onProductToggle,
 }: SprintPageProps) {
+  const [challenges, setChallenges] = useState<SprintChallenge[]>([]);
+
+  const fetchChallenges = useCallback(async () => {
+    const { data } = await supabase
+      .from("sprint_challenges" as any)
+      .select("*")
+      .eq("month", selectedMonth)
+      .eq("is_active", true) as any;
+    setChallenges((data as SprintChallenge[]) || []);
+  }, [selectedMonth]);
+
+  useEffect(() => {
+    fetchChallenges();
+  }, [fetchChallenges]);
+
   // Sort by remaining (highest first), completed at end
   const sortedData = [...sprintData].sort((a, b) => {
     if (a.isCompleted && !b.isCompleted) return 1;
@@ -85,6 +104,12 @@ export function SprintPage({
         
         {/* Filtros existentes */}
         <div className="flex items-center gap-1">
+          <SprintChallengeModal
+            assessors={assessors}
+            selectedMonth={selectedMonth}
+            onChallengeCreated={fetchChallenges}
+          />
+
           <Select
             value={selectedAssessor}
             onValueChange={onAssessorChange}
@@ -134,6 +159,23 @@ export function SprintPage({
           </div>
         )}
       </div>
+
+      {/* Desafios Ativos */}
+      {challenges.length > 0 && (
+        <div className="flex-shrink-0 mt-1">
+          <span className="text-scale-5 text-muted-foreground font-medium">Desafios</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 mt-0.5">
+            {challenges.map(c => (
+              <SprintChallengeCard
+                key={c.id}
+                challenge={c}
+                sprintData={sprintData}
+                onDelete={fetchChallenges}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
