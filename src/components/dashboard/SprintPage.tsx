@@ -4,6 +4,11 @@ import { SprintChallengeModal } from "./SprintChallengeModal";
 import { SprintAssessorCard } from "./SprintAssessorCard";
 import { SprintChallengeSummary } from "./SprintChallengeSummary";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Pencil } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -53,6 +58,78 @@ function useLiveCountdown(deadline: string | null) {
   }
 
   return { label, urgent: totalSeconds < 86400, expired: false };
+}
+
+function DeadlineEditor({ challenges, onUpdated }: { challenges: SprintChallenge[]; onUpdated: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [dateStr, setDateStr] = useState("");
+  const [timeStr, setTimeStr] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleOpen = (isOpen: boolean) => {
+    if (isOpen && challenges.length > 0) {
+      const nearest = challenges
+        .map(c => c.deadline)
+        .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
+      const d = new Date(nearest);
+      setDateStr(d.toISOString().slice(0, 10));
+      setTimeStr(d.toISOString().slice(11, 16));
+    }
+    setOpen(isOpen);
+  };
+
+  const handleSave = async () => {
+    if (!dateStr || !timeStr) return;
+    setSaving(true);
+    try {
+      const newDeadline = new Date(`${dateStr}T${timeStr}:00`).toISOString();
+      const ids = challenges.map(c => c.id);
+      const { error } = await supabase
+        .from("sprint_challenges" as any)
+        .update({ deadline: newDeadline } as any)
+        .in("id", ids);
+      if (error) throw error;
+      toast({ title: "Prazo atualizado para todos os desafios ⏱" });
+      setOpen(false);
+      onUpdated();
+    } catch {
+      toast({ title: "Erro ao atualizar prazo", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-2 right-2 h-7 w-7 opacity-60 hover:opacity-100"
+        >
+          <Pencil className="size-3.5" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[340px]">
+        <DialogHeader>
+          <DialogTitle>Ajustar Prazo Geral ⏱</DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col gap-4 pt-2">
+          <div className="space-y-1.5">
+            <Label>Data</Label>
+            <Input type="date" value={dateStr} onChange={e => setDateStr(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Hora</Label>
+            <Input type="time" value={timeStr} onChange={e => setTimeStr(e.target.value)} />
+          </div>
+          <Button onClick={handleSave} disabled={saving || !dateStr || !timeStr}>
+            {saving ? "Salvando..." : "Atualizar Prazo"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 export function SprintPage({
@@ -120,7 +197,7 @@ export function SprintPage({
       {/* Relógio destaque */}
       {challenges.length > 0 && (
         <div className={cn(
-          "rounded-lg border p-4 mb-3 text-center transition-all",
+          "rounded-lg border p-4 mb-3 text-center transition-all relative",
           countdown.expired && "border-muted bg-muted/20",
           countdown.urgent && !countdown.expired && "border-destructive bg-destructive/5",
           !countdown.urgent && !countdown.expired && "border-primary/30 bg-primary/5"
@@ -135,6 +212,11 @@ export function SprintPage({
           )}>
             {countdown.label}
           </div>
+          {/* Botão editar prazo */}
+          <DeadlineEditor
+            challenges={challenges}
+            onUpdated={fetchChallenges}
+          />
         </div>
       )}
 
