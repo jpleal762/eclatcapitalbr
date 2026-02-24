@@ -3,7 +3,6 @@ import { TrendingUp, Minus } from "lucide-react";
 import { SprintKPIData, SprintEvolution } from "@/types/kpi";
 import { cn } from "@/lib/utils";
 import { ConfettiCelebration } from "./ConfettiCelebration";
-import { SprintMascot } from "./SprintMascot";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface SprintKPIBarProps {
@@ -63,10 +62,9 @@ export function SprintKPIBar({ data, evolution }: SprintKPIBarProps) {
       {/* Header: Mascot + Label + Percentage */}
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <SprintMascot 
-            progressPercent={progressPercentage} 
-            isCompleted={isCompleted} 
-          />
+          <div className="w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <span className="text-primary-foreground font-black text-[55%] leading-none">É</span>
+          </div>
           <span className="text-scale-6 lg:text-scale-7 font-semibold text-foreground truncate">
             {label}
           </span>
