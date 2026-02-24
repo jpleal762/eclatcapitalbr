@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { SprintKPIData, SprintEvolution, SPRINT_PRODUCTS, SprintChallenge } from "@/types/kpi";
 import { SprintChallengeModal } from "./SprintChallengeModal";
 import { SprintAssessorCard } from "./SprintAssessorCard";
@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Pencil } from "lucide-react";
+import { Pencil, RefreshCw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,7 @@ interface SprintPageProps {
   evolutionMap?: Map<string, SprintEvolution>;
   selectedProducts: Set<string>;
   onProductToggle: (category: string) => void;
+  onRefresh?: () => Promise<void>;
 }
 
 function useLiveCountdown(deadline: string | null) {
@@ -144,8 +145,11 @@ export function SprintPage({
   evolutionMap,
   selectedProducts,
   onProductToggle,
+  onRefresh,
 }: SprintPageProps) {
   const [challenges, setChallenges] = useState<SprintChallenge[]>([]);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchChallenges = useCallback(async () => {
     const { data } = await supabase
@@ -159,6 +163,20 @@ export function SprintPage({
   useEffect(() => {
     fetchChallenges();
   }, [fetchChallenges]);
+
+  // Auto-refresh every 5 minutes
+  useEffect(() => {
+    if (autoRefresh && onRefresh) {
+      intervalRef.current = setInterval(async () => {
+        await onRefresh();
+        await fetchChallenges();
+        toast({ title: "Dados atualizados automaticamente 🔄", duration: 2000 });
+      }, 5 * 60 * 1000);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [autoRefresh, onRefresh, fetchChallenges]);
 
   const nearestDeadline = challenges.length > 0
     ? challenges
@@ -174,6 +192,20 @@ export function SprintPage({
       <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0">
         <h2 className="text-2xl lg:text-4xl font-black tracking-tight">🏆 Sprint Combinado</h2>
         <div className="flex items-center gap-1">
+          <Button
+            variant={autoRefresh ? "default" : "outline"}
+            size="sm"
+            className={cn("h-scale-3 text-scale-6 gap-1", autoRefresh && "animate-pulse")}
+            onClick={() => {
+              setAutoRefresh(prev => !prev);
+              if (!autoRefresh) {
+                toast({ title: "Auto-refresh ativado (5 min) 🔄", duration: 2000 });
+              }
+            }}
+            title={autoRefresh ? "Desativar atualização automática" : "Ativar atualização a cada 5 min"}
+          >
+            <RefreshCw className={cn("size-3", autoRefresh && "animate-spin")} />
+          </Button>
           <SprintChallengeModal
             assessors={assessors}
             selectedMonth={selectedMonth}

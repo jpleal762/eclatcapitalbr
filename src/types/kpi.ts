@@ -156,9 +156,12 @@ export const SPRINT_PRODUCTS: SprintProductConfig[] = [
   { category: "Captação net", label: "Captação NET", isCurrency: true },
   { category: "Receita", label: "Receita PJ1", isCurrency: true },
   { category: "Diversificada ( ROA>1,5)", label: "Diversificação", isCurrency: true },
-  { category: "Parceiros Tri", label: "Parceiros", isCurrency: true },
+  { category: "Parceiros Tri", label: "Receita Parceiros", isCurrency: true },
   { category: "Primeira reuniao", label: "Reuniões", isCurrency: false },
   { category: "Habilitacao", label: "Habilitação", isCurrency: false },
   { category: "Ativacao", label: "Ativação", isCurrency: false },
+  { category: "Agendadas", label: "Reuniões Agendadas", isCurrency: false },
+  { category: "Diagnostico", label: "Diagnóstico Realizado", isCurrency: false },
+  { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true },
 ];
 

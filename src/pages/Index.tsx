@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { FileUpload } from "@/components/dashboard/FileUpload";
@@ -315,29 +315,33 @@ const Index = () => {
 
   // Handlers de seleção de visão removidos - acesso direto ao dashboard
 
+  // Reusable data refresh function (silent, no loading state change)
+  const refreshData = useCallback(async () => {
+    try {
+      const [storedData, timestamp, month] = await Promise.all([
+        loadExcelData(),
+        getLastUpdateTimestamp(),
+        getOpenMonth(),
+      ]);
+      if (storedData && storedData.length > 0) {
+        setRawData(storedData);
+      }
+      setLastUpdateTime(timestamp);
+      setOpenMonth(month);
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    }
+  }, []);
+
   // Load data from storage and open month on mount
   useEffect(() => {
     const loadStoredData = async () => {
       setIsLoading(true);
-      try {
-        const [storedData, timestamp, month] = await Promise.all([
-          loadExcelData(),
-          getLastUpdateTimestamp(),
-          getOpenMonth(),
-        ]);
-        if (storedData && storedData.length > 0) {
-          setRawData(storedData);
-        }
-        setLastUpdateTime(timestamp);
-        setOpenMonth(month);
-      } catch (error) {
-        console.error("Error loading stored data:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      await refreshData();
+      setIsLoading(false);
     };
     loadStoredData();
-  }, []);
+  }, [refreshData]);
 
   // Handle data loaded from file upload
   const handleDataLoaded = async (data: KPIRecord[]) => {
@@ -773,6 +777,7 @@ const Index = () => {
                     return next;
                   });
                 }}
+                onRefresh={refreshData}
               />
             ) : (
               // MONTHLY VIEW
