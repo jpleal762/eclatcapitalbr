@@ -1361,6 +1361,9 @@ export function calculateSprintData(
     { category: "Primeira reuniao", label: "Primeira Reunião | Diagnóstico", isCurrency: false, includeEmpilhada: false },
     { category: "Habilitacao", label: "Habilitação", isCurrency: false, includeEmpilhada: false },
     { category: "Ativacao", label: "Ativação", isCurrency: false, includeEmpilhada: false },
+    { category: "Agendadas", label: "Reuniões Agendadas", isCurrency: false, includeEmpilhada: false, isAgendadas: true },
+    { category: "Diagnostico", label: "Diagnóstico Realizado", isCurrency: false, includeEmpilhada: false, isDiagnostico: true },
+    { category: "PJ2 XP Mês", label: "Receita PJ2 XP", isCurrency: true, includeEmpilhada: true, isPJ2: true, actualCategory: "PJ2 XP" },
   ];
   
   return categories.map(item => {
@@ -1369,18 +1372,50 @@ export function calculateSprintData(
       ? data 
       : filterByAssessor(data, selectedAssessor);
     
-    // Calcular totais
-    const catData = filterByCategory(filteredData, item.category);
-    const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
-    const realizedData = catData.filter(d => isRealizedStatus(d.status));
-    
-    const totalTarget = getMonthValue(weeklyPlanned, selectedMonth);
-    let totalRealized = getMonthValue(realizedData, selectedMonth);
-    
-    if (item.includeEmpilhada) {
+    let totalTarget: number;
+    let totalRealized: number;
+
+    if ((item as any).isAgendadas) {
+      // Agendadas: uses "Primeira reuniao" category with "Agendada" status
+      const catData = filterByCategory(filteredData, "Primeira reuniao");
+      const agendadaData = catData.filter(d => isAgendadaStatus(d.status));
+      totalRealized = getMonthValue(agendadaData, selectedMonth);
+      // No explicit target for agendadas; use 0 so progress shows raw count
+      totalTarget = 0;
+    } else if ((item as any).isDiagnostico) {
+      // Diagnóstico: uses "Primeira reuniao" realized data (reuniões realizadas = diagnósticos)
+      const catData = filterByCategory(filteredData, "Primeira reuniao");
+      const realizedData = catData.filter(d => isRealizedStatus(d.status));
+      totalRealized = getMonthValue(realizedData, selectedMonth);
+      const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
+      totalTarget = getMonthValue(weeklyPlanned, selectedMonth);
+    } else if ((item as any).isPJ2) {
+      // PJ2 XP: Target from "PJ2 XP Mês", Actual from "PJ2 XP" + Receita Empilhada
+      const targetData = filterByCategory(filteredData, "PJ2 XP Mês");
+      const weeklyPlanned = targetData.filter(d => isPlannedWeekStatus(d.status));
+      totalTarget = getMonthValue(weeklyPlanned, selectedMonth);
+
+      const actualData = filterByCategory(filteredData, "PJ2 XP");
+      const realizedData = actualData.filter(d => isRealizedStatus(d.status));
+      totalRealized = getMonthValue(realizedData, selectedMonth);
+
       const empilhadaData = filterByCategory(filteredData, "Receita Empilhada");
       const empilhadaRealized = empilhadaData.filter(d => isRealizedStatus(d.status));
       totalRealized += getMonthValue(empilhadaRealized, selectedMonth);
+    } else {
+      // Standard KPI
+      const catData = filterByCategory(filteredData, item.category);
+      const weeklyPlanned = catData.filter(d => isPlannedWeekStatus(d.status));
+      const realizedData = catData.filter(d => isRealizedStatus(d.status));
+      
+      totalTarget = getMonthValue(weeklyPlanned, selectedMonth);
+      totalRealized = getMonthValue(realizedData, selectedMonth);
+      
+      if (item.includeEmpilhada) {
+        const empilhadaData = filterByCategory(filteredData, "Receita Empilhada");
+        const empilhadaRealized = empilhadaData.filter(d => isRealizedStatus(d.status));
+        totalRealized += getMonthValue(empilhadaRealized, selectedMonth);
+      }
     }
     
     const totalRemaining = Math.max(totalTarget - totalRealized, 0);
