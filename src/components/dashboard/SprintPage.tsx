@@ -194,54 +194,57 @@ export function SprintPage({
         </div>
       </div>
 
-      {/* Relógio destaque */}
+      {/* Relógio + Progresso lado a lado */}
       {challenges.length > 0 && (
-        <div className={cn(
-          "rounded-lg border p-4 mb-3 text-center transition-all relative",
-          countdown.expired && "border-muted bg-muted/20",
-          countdown.urgent && !countdown.expired && "border-destructive bg-destructive/5",
-          !countdown.urgent && !countdown.expired && "border-primary/30 bg-primary/5"
-        )}>
+        <div className="flex items-stretch gap-2 mb-3">
+          {/* Tempo restante — compacto à esquerda */}
           <div className={cn(
-            "text-base lg:text-lg font-semibold mb-1",
-            countdown.expired ? "text-muted-foreground" : countdown.urgent ? "text-destructive/80" : "text-muted-foreground"
-          )}>⏱ Tempo restante</div>
-          <div className={cn(
-            "text-5xl lg:text-7xl font-mono font-black tracking-wider leading-none",
-            countdown.expired ? "text-muted-foreground" : countdown.urgent ? "text-destructive" : "text-foreground"
+            "rounded-lg border p-3 transition-all relative flex flex-col items-center justify-center min-w-[140px] lg:min-w-[200px]",
+            countdown.expired && "border-muted bg-muted/20",
+            countdown.urgent && !countdown.expired && "border-destructive bg-destructive/5",
+            !countdown.urgent && !countdown.expired && "border-primary/30 bg-primary/5"
           )}>
-            {countdown.label}
+            <div className={cn(
+              "text-scale-5 lg:text-scale-6 font-semibold mb-0.5",
+              countdown.expired ? "text-muted-foreground" : countdown.urgent ? "text-destructive/80" : "text-muted-foreground"
+            )}>⏱ Tempo restante</div>
+            <div className={cn(
+              "text-2xl lg:text-4xl font-mono font-black tracking-wider leading-none",
+              countdown.expired ? "text-muted-foreground" : countdown.urgent ? "text-destructive" : "text-foreground"
+            )}>
+              {countdown.label}
+            </div>
+            <DeadlineEditor
+              challenges={challenges}
+              onUpdated={fetchChallenges}
+            />
           </div>
-          {/* Botão editar prazo */}
-          <DeadlineEditor
-            challenges={challenges}
-            onUpdated={fetchChallenges}
-          />
+          {/* Progresso Geral — ocupa o restante */}
+          <div className="flex-1 min-w-0">
+            <SprintChallengeSummary challenges={challenges} />
+          </div>
         </div>
       )}
 
       {/* Desafios */}
       <div className="flex-1 min-h-0 overflow-auto">
         {challenges.length > 0 ? (
-          <>
-            <SprintChallengeSummary challenges={challenges} />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-              {Object.entries(
-                challenges.reduce<Record<string, SprintChallenge[]>>((acc, c) => {
-                  (acc[c.assessor_name] ??= []).push(c);
-                  return acc;
-                }, {})
-              ).map(([name, group]) => (
-                <SprintAssessorCard
-                  key={name}
-                  assessorName={name}
-                  challenges={group}
-                  onDelete={fetchChallenges}
-                  onUpdated={fetchChallenges}
-                />
-              ))}
-            </div>
-          </>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+            {Object.entries(
+              challenges.reduce<Record<string, SprintChallenge[]>>((acc, c) => {
+                (acc[c.assessor_name] ??= []).push(c);
+                return acc;
+              }, {})
+            ).map(([name, group]) => (
+              <SprintAssessorCard
+                key={name}
+                assessorName={name}
+                challenges={group}
+                onDelete={fetchChallenges}
+                onUpdated={fetchChallenges}
+              />
+            ))}
+          </div>
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground text-scale-7 h-32">
             Nenhum desafio ativo. Clique em "+ Desafio" para criar.

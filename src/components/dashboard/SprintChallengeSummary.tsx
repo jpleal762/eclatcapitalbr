@@ -83,7 +83,7 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
 
   return (
     <div className={cn(
-      "rounded-lg border p-3 lg:p-4 transition-all mb-3",
+      "rounded-lg border p-3 lg:p-4 transition-all h-full",
       isCompleted && "border-green-500/50 bg-green-500/5"
     )}>
       <ConfettiCelebration trigger={isCompleted && !expired} />
