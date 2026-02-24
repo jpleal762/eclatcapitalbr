@@ -172,7 +172,7 @@ export function SprintPage({
     <div className="h-full flex flex-col animate-fade-in">
       {/* Header com título e relógio */}
       <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0">
-        <h2 className="text-scale-8 lg:text-scale-9 font-bold">Sprint Combinado</h2>
+        <h2 className="text-2xl lg:text-4xl font-black tracking-tight">🏆 Sprint Combinado</h2>
         <div className="flex items-center gap-1">
           <SprintChallengeModal
             assessors={assessors}
