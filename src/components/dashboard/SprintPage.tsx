@@ -205,11 +205,11 @@ export function SprintPage({
             !countdown.urgent && !countdown.expired && "border-primary/30 bg-primary/5"
           )}>
             <div className={cn(
-              "text-scale-5 lg:text-scale-6 font-semibold mb-0.5",
+              "text-scale-6 lg:text-scale-7 font-bold mb-0.5",
               countdown.expired ? "text-muted-foreground" : countdown.urgent ? "text-destructive/80" : "text-muted-foreground"
             )}>⏱ Tempo restante</div>
             <div className={cn(
-              "text-2xl lg:text-4xl font-mono font-black tracking-wider leading-none",
+              "text-3xl lg:text-5xl font-mono font-black tracking-wider leading-none",
               countdown.expired ? "text-muted-foreground" : countdown.urgent ? "text-destructive" : "text-foreground"
             )}>
               {countdown.label}

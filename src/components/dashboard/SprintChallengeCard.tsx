@@ -1,5 +1,4 @@
 import { SprintChallenge, SprintKPIData, SPRINT_PRODUCTS } from "@/types/kpi";
-import { SprintMascot } from "./SprintMascot";
 import { ConfettiCelebration } from "./ConfettiCelebration";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,8 +72,9 @@ export function SprintChallengeCard({ challenge, sprintData, onDelete }: SprintC
         <X className="size-3" />
       </button>
       <div className="flex items-center gap-2">
-        <SprintMascot progressPercent={percentage} isCompleted={isCompleted && !countdown.expired}
-          className="w-6 h-6 lg:w-8 lg:h-8 flex-shrink-0" />
+        <div className="w-6 h-6 lg:w-8 lg:h-8 flex-shrink-0 rounded-full bg-primary flex items-center justify-center">
+          <span className="text-primary-foreground font-black text-[55%] leading-none">É</span>
+        </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-1">
             <span className="text-scale-6 font-semibold truncate">

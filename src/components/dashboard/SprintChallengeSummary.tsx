@@ -1,5 +1,4 @@
 import { SprintChallenge, SPRINT_PRODUCTS } from "@/types/kpi";
-import { SprintMascot } from "./SprintMascot";
 import { ConfettiCelebration } from "./ConfettiCelebration";
 import { cn } from "@/lib/utils";
 
@@ -92,17 +91,17 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
       <div className="flex items-center gap-3 mb-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-scale-7 lg:text-scale-8 font-bold">Progresso Geral</span>
+            <span className="text-scale-8 lg:text-scale-9 font-bold">Progresso Geral</span>
           </div>
           <div className="w-full h-3 lg:h-4 bg-secondary rounded-full overflow-hidden mt-1">
             <div className={cn("h-full rounded-full transition-all duration-700", globalBarColor)}
               style={{ width: `${globalPercentage}%` }} />
           </div>
           <div className="flex items-center justify-between mt-0.5">
-            <span className="text-scale-5 text-muted-foreground">
+            <span className="text-scale-6 text-muted-foreground">
               {globalPercentage.toFixed(0)}% geral
             </span>
-            <span className="text-scale-5 text-muted-foreground">
+            <span className="text-scale-6 text-muted-foreground">
               {completedCount}/{rows.length} KPIs
             </span>
           </div>
@@ -128,10 +127,10 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
             <div key={r.category} className="flex items-center gap-2">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1">
-                  <span className="text-scale-5 lg:text-scale-6 font-medium truncate">
+                  <span className="text-scale-6 lg:text-scale-7 font-medium truncate">
                     {r.label}
                   </span>
-                  <span className="text-scale-6 lg:text-scale-7">
+                  <span className="text-scale-7 lg:text-scale-8">
                     <span className="text-muted-foreground">{formatValue(r.realized, r.isCurrency)}</span>
                     <span className="text-muted-foreground"> / </span>
                     <span className="font-bold text-foreground">{formatValue(r.target, r.isCurrency)}</span>
@@ -142,7 +141,7 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
                     style={{ width: `${r.percentage}%` }} />
                 </div>
               </div>
-              <span className="text-scale-6 lg:text-scale-7 font-semibold w-10 text-right">
+              <span className="text-scale-7 lg:text-scale-8 font-semibold w-10 text-right">
                 {r.percentage.toFixed(0)}%
               </span>
             </div>
