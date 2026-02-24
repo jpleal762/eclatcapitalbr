@@ -90,11 +90,6 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
 
       {/* Header with mascot */}
       <div className="flex items-center gap-3 mb-2">
-        <SprintMascot
-          progressPercent={globalPercentage}
-          isCompleted={isCompleted && !expired}
-          className="w-10 h-10 lg:w-12 lg:h-12 flex-shrink-0"
-        />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <span className="text-scale-7 lg:text-scale-8 font-bold">Progresso Geral</span>
