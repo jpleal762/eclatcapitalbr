@@ -78,9 +78,9 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
     };
   });
 
-  const totalTarget = rows.reduce((s, r) => s + r.target, 0);
-  const totalRealized = rows.reduce((s, r) => s + r.realized, 0);
-  const globalPercentage = totalTarget > 0 ? Math.min((totalRealized / totalTarget) * 100, 100) : 0;
+  const globalPercentage = rows.length > 0
+    ? Math.min(rows.reduce((s, r) => s + r.percentage, 0) / rows.length, 100)
+    : 0;
   const allCompleted = rows.every(r => r.isCompleted);
   const completedCount = rows.filter(r => r.isCompleted).length;
 
