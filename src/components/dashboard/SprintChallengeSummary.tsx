@@ -25,14 +25,6 @@ interface KPISummaryRow {
   isCompleted: boolean;
 }
 
-function isPastHalfTime(challenge: SprintChallenge): boolean {
-  const created = new Date(challenge.created_at).getTime();
-  const deadline = new Date(challenge.deadline).getTime();
-  const now = Date.now();
-  const totalDuration = deadline - created;
-  if (totalDuration <= 0) return true;
-  return (now - created) > totalDuration / 2;
-}
 
 export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryProps) {
   if (challenges.length === 0) return null;
@@ -108,42 +100,31 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
         </div>
       </div>
 
-      {/* Per-KPI rows — same layout as individual cards */}
-      <div className="space-y-1.5 mt-2">
+      {/* Per-KPI rows — sem barra, só produção / meta e % */}
+      <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
         {rows.map(r => {
-          const catChallenges = categoryMap.get(r.category)?.challenges || [];
-          const pastHalf = catChallenges.some(c => isPastHalfTime(c));
-          const barColor = expired
-            ? "bg-muted"
+          const pctColor = expired
+            ? "text-muted-foreground"
             : r.isCompleted
-            ? "bg-green-500"
-            : pastHalf && r.percentage < 50
-            ? "bg-red-500"
+            ? "text-green-500"
             : r.percentage >= 50
-            ? "bg-yellow-500"
-            : "bg-red-500";
+            ? "text-yellow-500"
+            : "text-red-500";
 
           return (
-            <div key={r.category} className="flex items-center gap-2">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-scale-6 lg:text-scale-7 font-medium truncate">
-                    {r.label}
-                  </span>
-                  <span className="text-scale-7 lg:text-scale-8">
-                    <span className="text-muted-foreground">{formatValue(r.realized, r.isCurrency)}</span>
-                    <span className="text-muted-foreground"> / </span>
-                    <span className="font-bold text-foreground">{formatValue(r.target, r.isCurrency)}</span>
-                  </span>
-                </div>
-                <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
-                  <div className={cn("h-full rounded-full transition-all duration-500", barColor)}
-                    style={{ width: `${r.percentage}%` }} />
-                </div>
-              </div>
-              <span className="text-scale-7 lg:text-scale-8 font-semibold w-10 text-right">
-                {r.percentage.toFixed(0)}%
+            <div key={r.category} className="flex items-center justify-between gap-1 min-w-0">
+              <span className="text-scale-6 lg:text-scale-7 font-medium truncate text-muted-foreground">
+                {r.label}
               </span>
+              <div className="flex items-center gap-1 shrink-0">
+                <span className="text-scale-6 lg:text-scale-7 text-foreground">
+                  {formatValue(r.realized, r.isCurrency)}
+                  <span className="text-muted-foreground">/{formatValue(r.target, r.isCurrency)}</span>
+                </span>
+                <span className={cn("text-scale-6 lg:text-scale-7 font-bold", pctColor)}>
+                  {r.percentage.toFixed(0)}%
+                </span>
+              </div>
             </div>
           );
         })}
