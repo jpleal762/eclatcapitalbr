@@ -165,84 +165,82 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
         </div>
       </div>
 
-      {/* KPI rows */}
-      <div className="space-y-1.5 mt-2">
+      {/* KPI rows — sem barra, produção / meta bem visível */}
+      <div className="mt-3 grid grid-cols-2 gap-x-2 gap-y-2">
         {rows.map(r => {
           const pastHalf = isPastHalfTime(r.challenge);
-          const barColor = countdown.expired
-            ? "bg-muted"
+          const pctColor = countdown.expired
+            ? "text-muted-foreground"
             : r.isCompleted
-            ? "bg-green-500"
+            ? "text-green-500"
             : pastHalf && r.percentage < 50
-            ? "bg-red-500"
+            ? "text-red-500"
             : r.percentage >= 50
-            ? "bg-yellow-500"
-            : "bg-red-500";
+            ? "text-yellow-500"
+            : "text-red-500";
           const isEditing = editingId === r.challenge.id;
 
           return (
-            <div key={r.challenge.id} className="group flex items-center gap-2">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-scale-5 lg:text-scale-6 font-medium truncate">
-                    {r.label}
-                  </span>
-                  {isEditing ? (
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        value={editValue}
-                        onChange={e => setEditValue(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === "Enter") saveEdit(r.challenge.id);
-                          if (e.key === "Escape") setEditingId(null);
-                        }}
-                        className="h-6 w-24 text-xs text-right"
-                        autoFocus
-                      />
-                      <button
-                        onClick={() => saveEdit(r.challenge.id)}
-                        className="text-green-500 hover:text-green-600 transition-colors"
-                      >
-                        <Check className="size-3.5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-0.5 text-scale-6 lg:text-scale-7">
-                      <button
-                        onClick={() => startEditing(r.challenge, "realized")}
-                        className="text-muted-foreground hover:text-foreground hover:underline transition-colors"
-                        title="Editar realizado"
-                      >
-                        {formatValue(r.realized, r.isCurrency)}
-                      </button>
-                      <span className="text-muted-foreground">/</span>
-                      <button
-                        onClick={() => startEditing(r.challenge, "target")}
-                        className="font-bold text-foreground hover:underline transition-colors"
-                        title="Editar meta"
-                      >
-                        {formatValue(r.target, r.isCurrency)}
-                      </button>
-                      <Pencil className="size-2.5 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-                <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
-                  <div className={cn("h-full rounded-full transition-all duration-500", barColor)}
-                    style={{ width: `${r.percentage}%` }} />
-                </div>
+            <div key={r.challenge.id} className="group flex flex-col gap-0.5 min-w-0">
+              {/* Label + delete */}
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-scale-6 lg:text-scale-7 font-medium truncate text-muted-foreground">
+                  {r.label}
+                </span>
+                <button
+                  onClick={() => handleDeleteKPI(r.challenge.id)}
+                  disabled={deletingId === r.challenge.id}
+                  className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-all flex-shrink-0"
+                >
+                  <X className="size-2.5" />
+                </button>
               </div>
-              <span className="text-scale-6 lg:text-scale-7 font-semibold w-10 text-right">
-                {r.percentage.toFixed(0)}%
-              </span>
-              <button
-                onClick={() => handleDeleteKPI(r.challenge.id)}
-                disabled={deletingId === r.challenge.id}
-                className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-all"
-              >
-                <X className="size-3" />
-              </button>
+              {/* Produção / Meta + % */}
+              <div className="flex items-baseline justify-between gap-1">
+                {isEditing ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      value={editValue}
+                      onChange={e => setEditValue(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") saveEdit(r.challenge.id);
+                        if (e.key === "Escape") setEditingId(null);
+                      }}
+                      className="h-6 w-20 text-xs text-right"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => saveEdit(r.challenge.id)}
+                      className="text-green-500 hover:text-green-600 transition-colors"
+                    >
+                      <Check className="size-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-baseline gap-0.5">
+                    <button
+                      onClick={() => startEditing(r.challenge, "realized")}
+                      className="text-scale-8 lg:text-scale-9 font-bold text-foreground hover:underline transition-colors leading-none"
+                      title="Editar realizado"
+                    >
+                      {formatValue(r.realized, r.isCurrency)}
+                    </button>
+                    <span className="text-scale-6 text-muted-foreground">/</span>
+                    <button
+                      onClick={() => startEditing(r.challenge, "target")}
+                      className="text-scale-6 lg:text-scale-7 text-muted-foreground hover:underline transition-colors"
+                      title="Editar meta"
+                    >
+                      {formatValue(r.target, r.isCurrency)}
+                    </button>
+                    <Pencil className="size-2.5 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 text-muted-foreground" />
+                  </div>
+                )}
+                <span className={cn("text-scale-7 lg:text-scale-8 font-black leading-none flex-shrink-0", pctColor)}>
+                  {r.percentage.toFixed(0)}%
+                </span>
+              </div>
             </div>
           );
         })}
