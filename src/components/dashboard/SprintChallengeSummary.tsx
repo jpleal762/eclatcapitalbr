@@ -113,17 +113,17 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
 
           return (
             <div key={r.category} className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-scale-6 lg:text-scale-7 font-medium truncate text-muted-foreground">
+              <span className="text-scale-9 lg:text-scale-10 font-medium truncate text-muted-foreground">
                 {r.label}
               </span>
               <div className="flex items-baseline justify-between gap-1">
                 <div className="flex items-baseline gap-0.5">
-                  <span className="text-scale-8 lg:text-scale-9 font-bold text-foreground leading-none">
+                  <span className="text-scale-11 lg:text-scale-12 font-bold text-foreground leading-none">
                     {formatValue(r.realized, r.isCurrency)}
                   </span>
-                  <span className="text-scale-6 text-muted-foreground">/{formatValue(r.target, r.isCurrency)}</span>
+                  <span className="text-scale-9 text-muted-foreground">/{formatValue(r.target, r.isCurrency)}</span>
                 </div>
-                <span className={cn("text-scale-7 lg:text-scale-8 font-black leading-none flex-shrink-0", pctColor)}>
+                <span className={cn("text-scale-10 lg:text-scale-11 font-black leading-none flex-shrink-0", pctColor)}>
                   {r.percentage.toFixed(0)}%
                 </span>
               </div>
