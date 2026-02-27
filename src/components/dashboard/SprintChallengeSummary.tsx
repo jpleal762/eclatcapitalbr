@@ -23,6 +23,7 @@ interface KPISummaryRow {
   target: number;
   percentage: number;
   isCompleted: boolean;
+  laggingAssessors: string[]; // 2 assessors with lowest % for this KPI
 }
 
 
@@ -42,6 +43,17 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
   const rows: KPISummaryRow[] = Array.from(categoryMap.entries()).map(([category, data]) => {
     const product = SPRINT_PRODUCTS.find(p => p.category === category);
     const percentage = data.target > 0 ? Math.min((data.realized / data.target) * 100, 100) : 0;
+
+    // Find 2 assessors with lowest % for this KPI (excluding completed ones)
+    const assessorPcts = data.challenges
+      .map(c => ({
+        name: c.assessor_name.split(" ")[0], // first name only
+        pct: c.target_value > 0 ? Math.min(((c.realized_value ?? 0) / c.target_value) * 100, 100) : 0,
+      }))
+      .filter(a => a.pct < 100)
+      .sort((a, b) => a.pct - b.pct)
+      .slice(0, 2);
+
     return {
       category,
       label: product?.label ?? category,
@@ -50,6 +62,7 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
       target: data.target,
       percentage,
       isCompleted: percentage >= 100,
+      laggingAssessors: assessorPcts.map(a => a.name),
     };
   });
 
@@ -113,9 +126,20 @@ export function SprintChallengeSummary({ challenges }: SprintChallengeSummaryPro
 
           return (
             <div key={r.category} className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-scale-9 lg:text-scale-10 font-medium truncate text-muted-foreground">
-                {r.label}
-              </span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-scale-9 lg:text-scale-10 font-medium truncate text-muted-foreground flex-shrink-0">
+                  {r.label}
+                </span>
+                {r.laggingAssessors.length > 0 && (
+                  <div className="flex items-center gap-1 overflow-hidden">
+                    {r.laggingAssessors.map(name => (
+                      <span key={name} className="text-scale-7 lg:text-scale-8 font-semibold text-red-500 truncate">
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div className="flex items-baseline justify-between gap-1">
                 <div className="flex items-baseline gap-0.5">
                   <span className="text-scale-11 lg:text-scale-12 font-bold text-foreground leading-none">
