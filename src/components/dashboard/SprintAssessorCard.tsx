@@ -133,7 +133,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
     <div className={cn(
       "rounded-lg border p-3 lg:p-4 transition-all",
       countdown.expired && "opacity-60 border-muted",
-      countdown.urgent && !allCompleted && !countdown.expired && "border-red-500 animate-pulse",
+      !countdown.expired && !allCompleted && globalPercentage < 50 && "border-red-500 animate-pulse",
       allCompleted && !countdown.expired && "border-green-500/50 bg-green-500/5"
     )}>
       <ConfettiCelebration trigger={allCompleted && !countdown.expired} />
