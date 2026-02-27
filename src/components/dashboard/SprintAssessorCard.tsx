@@ -146,7 +146,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
         />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-scale-7 lg:text-scale-8 font-bold truncate">
+          <span className="text-scale-10 lg:text-scale-11 font-bold truncate">
               {assessorName}
             </span>
           </div>
@@ -184,7 +184,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
             <div key={r.challenge.id} className="group flex flex-col gap-0.5 min-w-0">
               {/* Label + delete */}
               <div className="flex items-center justify-between gap-1">
-                <span className="text-scale-6 lg:text-scale-7 font-medium truncate text-muted-foreground">
+              <span className="text-scale-9 lg:text-scale-10 font-medium truncate text-muted-foreground">
                   {r.label}
                 </span>
                 <button
@@ -221,7 +221,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
                   <div className="flex items-baseline gap-0.5">
                     <button
                       onClick={() => startEditing(r.challenge, "realized")}
-                      className="text-scale-8 lg:text-scale-9 font-bold text-foreground hover:underline transition-colors leading-none"
+                      className="text-scale-11 lg:text-scale-12 font-bold text-foreground hover:underline transition-colors leading-none"
                       title="Editar realizado"
                     >
                       {formatValue(r.realized, r.isCurrency)}
@@ -229,7 +229,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
                     <span className="text-scale-6 text-muted-foreground">/</span>
                     <button
                       onClick={() => startEditing(r.challenge, "target")}
-                      className="text-scale-6 lg:text-scale-7 text-muted-foreground hover:underline transition-colors"
+                      className="text-scale-9 lg:text-scale-10 text-muted-foreground hover:underline transition-colors"
                       title="Editar meta"
                     >
                       {formatValue(r.target, r.isCurrency)}
@@ -237,7 +237,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
                     <Pencil className="size-2.5 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 text-muted-foreground" />
                   </div>
                 )}
-                <span className={cn("text-scale-7 lg:text-scale-8 font-black leading-none flex-shrink-0", pctColor)}>
+                <span className={cn("text-scale-10 lg:text-scale-11 font-black leading-none flex-shrink-0", pctColor)}>
                   {r.percentage.toFixed(0)}%
                 </span>
               </div>
