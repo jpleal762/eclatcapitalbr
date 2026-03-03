@@ -100,18 +100,6 @@ export function QuarterlyKPIBar({
             </span>}
         </div>
         <div className="flex items-center gap-1">
-          {/* Top 2 Assessor Gaps - Above bar */}
-          {topAssessorGaps && topAssessorGaps.length > 0 && (
-            <span className="text-red-500 animate-pulse text-scale-4 lg:text-scale-5 whitespace-nowrap font-bold">
-              <span className="opacity-80">Maiores Gaps:</span>{" "}
-              {topAssessorGaps.map((g, i) => (
-                <span key={g.name}>
-                  {i > 0 && " · "}
-                  <span className="font-bold">{g.name}</span>: -{formatAssessorGap(g.gap, isCurrency)}
-                </span>
-              ))}
-            </span>
-          )}
           <span className={`font-bold text-scale-6 lg:text-scale-7 ${textColor}`}>
             {percentage}%
           </span>
@@ -182,9 +170,21 @@ export function QuarterlyKPIBar({
           {atingiuRitmo ? (
             <span className="text-green-500 font-medium">✓ OK</span>
           ) : faltaParaRitmo > 0 ? (
-            <span className={`font-medium whitespace-nowrap ${textColor.includes("red") ? "text-red-500" : "text-blue-500"}`}>
-              {textColor.includes("red") && "! "}Falta p/ Ritmo: {formatValue(faltaParaRitmo, isCurrency)}
-            </span>
+            <div className="flex flex-col items-end gap-[1px]">
+              <span className={`font-medium whitespace-nowrap ${textColor.includes("red") ? "text-red-500" : "text-blue-500"}`}>
+                {textColor.includes("red") && "! "}Falta p/ Ritmo: {formatValue(faltaParaRitmo, isCurrency)}
+              </span>
+              {topAssessorGaps && topAssessorGaps.length > 0 && (
+                <span className="text-muted-foreground text-scale-4 lg:text-scale-5 whitespace-nowrap">
+                  {topAssessorGaps.map((g, i) => (
+                    <span key={g.name}>
+                      {i > 0 && " · "}
+                      {g.name}: -{formatAssessorGap(g.gap, isCurrency)}
+                    </span>
+                  ))}
+                </span>
+              )}
+            </div>
           ) : null}
           
         </div>
