@@ -215,7 +215,7 @@ export function GaugeChart({
   return <Card className={`p-responsive shadow-card h-full flex flex-col overflow-hidden ${isHighlight ? "bg-chart-dark text-foreground" : "bg-card"}`}>
       <div className={`flex ${showAssessorList ? 'flex-row gap-3' : 'flex-col'} flex-1 min-h-0 overflow-hidden`}>
         {/* Gauge Container */}
-        <div className={`flex flex-col items-center justify-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1 overflow-hidden`}>
+        <div className={`flex flex-col items-center justify-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1 overflow-hidden min-w-0`}>
           {/* Header with title and alert */}
           <div className="flex items-center justify-between w-full mb-responsive flex-shrink-0">
             <div className="flex flex-col flex-1 min-w-0">
@@ -245,11 +245,8 @@ export function GaugeChart({
           </div>
 
           {/* Dynamic SVG gauge */}
-          <div className="relative flex-shrink-0 my-auto" style={{
-            width: dynamicWidth,
-            height: dynamicHeight
-          }}>
-          <svg width={dynamicWidth} height={dynamicHeight} viewBox={`0 0 ${dynamicWidth} ${dynamicHeight}`} overflow="visible">
+          <div className="relative w-full flex-shrink-0 my-auto" style={{ aspectRatio: `${dynamicWidth} / ${dynamicHeight}`, maxWidth: dynamicWidth }}>
+          <svg width="100%" height="100%" viewBox={`0 0 ${dynamicWidth} ${dynamicHeight}`} overflow="visible" preserveAspectRatio="xMidYMid meet">
             {/* Definições de gradientes SVG */}
             <defs>
               <linearGradient id="eclat-arc-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
