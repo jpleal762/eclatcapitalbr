@@ -87,7 +87,7 @@ export function QuarterlyKPIBar({
   const valorEsperadoRitmo = target * (ritmoIdeal / 100);
   const faltaParaRitmo = Math.max(0, valorEsperadoRitmo - value);
   const atingiuRitmo = percentage >= ritmoIdeal;
-  return <div className="bg-card rounded-lg p-[3px] lg:p-1 h-full flex flex-col border border-border shadow-sm overflow-hidden">
+  return <div className="bg-card rounded-lg p-[3px] lg:p-1 h-full flex flex-col border border-border shadow-sm">
       {/* Label and percentage - compact */}
       <div className="flex justify-between items-center mb-[1px]">
         <div className="flex items-center gap-0.5">
