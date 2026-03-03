@@ -287,7 +287,7 @@ export function AnalysisPage({
               <div className="flex-1 h-px bg-border" />
             </div>
             {kpisByCategory.prospeccao.map((kpi) => (
-              <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
+              <div key={kpi.label} className="shrink-0">
                 <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} weeklyGap={kpi.weeklyGap} />
               </div>
             ))}
@@ -301,7 +301,7 @@ export function AnalysisPage({
               <div className="flex-1 h-px bg-border" />
             </div>
             {kpisByCategory.investimentos.map((kpi) => (
-              <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
+              <div key={kpi.label} className="shrink-0">
                 <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} weeklyGap={kpi.weeklyGap} />
               </div>
             ))}
@@ -315,7 +315,7 @@ export function AnalysisPage({
               <div className="flex-1 h-px bg-border" />
             </div>
             {kpisByCategory.receita.map((kpi) => (
-              <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
+              <div key={kpi.label} className="shrink-0">
                 <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} weeklyGap={kpi.weeklyGap} />
               </div>
             ))}
@@ -323,8 +323,8 @@ export function AnalysisPage({
         ) : (
           // Default/sorted view - stacked bars
           <div className="flex-1 min-h-0 flex flex-col gap-[1px] lg:gap-0.5 overflow-y-auto">
-            {sortedKPIs.map((kpi) => (
-              <div key={kpi.label} className="lg:flex-1 lg:min-h-0 shrink-0 lg:shrink">
+             {sortedKPIs.map((kpi) => (
+              <div key={kpi.label} className="shrink-0">
                 <QuarterlyKPIBar {...kpi} ritmoIdeal={ritmoIdeal} headName={KPI_HEADS[kpi.label]} isTopGap={top2Gaps.has(kpi.label)} monthlyGaps={kpi.monthlyGaps} topAssessorGaps={kpi.topAssessorGaps} weeklyGap={kpi.weeklyGap} />
               </div>
             ))}
