@@ -1,38 +1,20 @@
 
+## Changes needed across 3 areas:
 
-## Avatares Cartoon por Assessor no Sprint
+### 1. `QuarterlyKPIBar.tsx` — "Maiores Gaps" alignment
+Currently the assessor gap names are in a `<span>` floated to the right side of the label row. They should be positioned below the bar (aligned with "Falta p/ Ritmo" which is also below the bar on the right). Move `topAssessorGaps` display from the top label row to the bottom values row, right-aligned alongside "Falta p/ Ritmo".
 
-### Objetivo
-Substituir os mascotes de progresso (Runner, Cyclist, Rocket, Champion) nos cards de assessor por desenhos cartoon personalizados para cada pessoa da equipe.
+### 2. `EvolutionCard.tsx` — Less prominent worst assessors
+The `worstAssessors` names in red currently use `text-scale-6 font-bold text-red-500/70`. Reduce to `text-scale-5 font-normal text-red-400/60` to make them clearly secondary/subtle.
 
-### Personagens
-- **Jose** - Menino branco, cabelo preto
-- **Marcela** - Menina morena/jambo, cabelo preto
-- **Hingrid** - Mulher loira
-- **Romulo** - Homem, cabelo preto
-- **Ona** - Mulher, cabelo preto
+### 3. `AnalysisPage.tsx` — First screen layout: allow scroll, prevent clipping
+Currently the KPI bars container uses `overflow-hidden lg:overflow-hidden` which clips content. Change to `overflow-y-auto` with a scrollbar on desktop too, so nothing gets cut. The `overflow-hidden` on lg was there to prevent scroll, but it causes content to be cut when there are many KPIs. We'll keep the `flex-1 min-h-0` flex layout but allow vertical scroll with a visible scrollbar via `overflow-y-auto`.
 
-### Mudancas
+Specifically in `AnalysisPage.tsx`:
+- Both KPI container divs (default/sorted view and by-category view): change `overflow-hidden lg:overflow-hidden` → `overflow-y-auto` so a scrollbar appears when needed
+- This ensures all KPI bars are reachable without content being cut off
 
-**Novo componente: `src/components/dashboard/AssessorAvatar.tsx`**
-- SVGs inline desenhados a mao com estilo cartoon simplificado (rosto redondo, olhos, sorriso, cabelo estilizado)
-- Cada personagem com cores de pele e cabelo correspondentes
-- Componente recebe `assessorName` e renderiza o avatar correto (match pelo primeiro nome, case-insensitive)
-- Fallback generico para nomes nao mapeados (silhueta neutra com inicial)
-- Tamanho responsivo via props de className
-
-**Editar: `src/components/dashboard/SprintAssessorCard.tsx`**
-- Substituir `<SprintMascot>` por `<AssessorAvatar>` no header do card
-- Passar `assessorName` ao inves de `progressPercent`/`isCompleted`
-- Manter o SprintMascot no `SprintChallengeSummary` (card geral continua com mascote de progresso)
-
-### Detalhes tecnicos
-
-Cada avatar sera um SVG com viewBox padrao, usando formas simples:
-- Circulo para rosto com cor de pele adequada
-- Paths para cabelo com cor e estilo especifico
-- Olhos (circulos escuros) e sorriso (path curvo)
-- Sem dependencias externas, tudo inline SVG
-
-O mapeamento de nomes usa o primeiro nome do assessor (split por espaco), entao "Jose Silva" vai casar com o avatar "jose".
-
+### Files to edit:
+1. `src/components/dashboard/QuarterlyKPIBar.tsx` — move gaps to bottom row
+2. `src/components/dashboard/EvolutionCard.tsx` — reduce worst assessors visual weight
+3. `src/components/dashboard/AnalysisPage.tsx` — allow overflow-y-auto on KPI containers
