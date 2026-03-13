@@ -87,21 +87,28 @@ export function AssessorChart({
     const statusIcon = getKPIStatusIcon(assessor.geralPercentage, ritmoIdeal);
     const isRedAlert = statusIcon === "RED_ALERT";
     const isOrangeAlert = statusIcon === "ORANGE_ALERT";
+    const isOnRhythm = assessor.geralPercentage >= ritmoIdeal; // GREEN_CHECK or TROPHY
     
     const bgClass = isRedAlert
       ? 'bg-red-500/10 border border-red-500/30'
       : isOrangeAlert
       ? 'bg-orange-500/8 border border-orange-500/20'
+      : isOnRhythm
+      ? 'bg-green-500/8 border border-green-500/40'
       : index < 3 ? 'bg-muted/50 border border-transparent' : 'bg-background border border-transparent';
     
     const nameClass = isRedAlert
       ? 'text-red-600 dark:text-red-400'
       : isOrangeAlert
       ? 'text-orange-600 dark:text-orange-400'
+      : isOnRhythm
+      ? 'text-green-600 dark:text-green-400'
       : 'text-foreground';
     
     const percentClass = isRedAlert
       ? 'text-red-600'
+      : isOnRhythm
+      ? 'text-green-600 dark:text-green-400'
       : 'text-eclat-gold';
     
     return (
