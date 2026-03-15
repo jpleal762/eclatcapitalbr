@@ -79,6 +79,18 @@ export default {
           graphite: "hsl(var(--chart-graphite))",
           "graphite-light": "hsl(var(--chart-graphite-light))",
         },
+        // ─── TV Mode design tokens ───
+        tv: {
+          bg: "hsl(var(--tv-bg))",
+          card: "hsl(var(--tv-card))",
+          border: "hsl(var(--tv-border))",
+          text: "hsl(var(--tv-text))",
+          muted: "hsl(var(--tv-muted))",
+          gold: "hsl(var(--tv-gold))",
+          green: "hsl(var(--tv-green))",
+          yellow: "hsl(var(--tv-yellow))",
+          red: "hsl(var(--tv-red))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -154,6 +166,14 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-2px)" },
         },
+        "pulse-slow": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
+        },
+        "pulse-clock": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.6", transform: "scale(1.2)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -173,6 +193,8 @@ export default {
         "twinkle": "twinkle 1.5s ease-in-out infinite",
         "twinkle-delayed": "twinkle-delayed 1.5s ease-in-out infinite 0.75s",
         "trophy-bounce": "trophy-bounce 1s ease-in-out infinite",
+        "pulse-slow": "pulse-slow 3s ease-in-out infinite",
+        "pulse-clock": "pulse-clock 1.5s ease-in-out infinite",
       },
     },
   },

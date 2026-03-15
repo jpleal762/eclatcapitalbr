@@ -44,7 +44,7 @@ import {
 } from "@/lib/sprintStorage";
 import { SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Settings } from "lucide-react";
+import { Menu, Settings, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
@@ -695,6 +695,26 @@ const Index = () => {
                         </TooltipTrigger>
                         <TooltipContent>
                           Configurações
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                  {/* TV Button - opens /tv in new tab, only when not token locked */}
+                  {hasData && !isTokenLocked && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => window.open('/tv', '_blank')}
+                            className="h-8 w-8"
+                          >
+                            <Monitor className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Modo TV
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>

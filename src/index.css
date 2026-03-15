@@ -66,6 +66,17 @@
     --sidebar-accent-foreground: 0 0% 20%;
     --sidebar-border: 0 0% 90%;
     --sidebar-ring: 45 100% 51%;
+
+    /* ─── TV Mode tokens (always dark regardless of theme) ─── */
+    --tv-bg: 0 0% 5%;
+    --tv-card: 0 0% 9%;
+    --tv-border: 0 0% 16%;
+    --tv-text: 0 0% 96%;
+    --tv-muted: 0 0% 45%;
+    --tv-gold: 45 100% 50%;
+    --tv-green: 142 70% 45%;
+    --tv-yellow: 38 92% 50%;
+    --tv-red: 0 84% 60%;
   }
 
   .dark {
