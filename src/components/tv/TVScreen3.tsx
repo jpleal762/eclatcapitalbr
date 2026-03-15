@@ -64,30 +64,30 @@ export function TVScreen3({ processedData, assessorPerformance, gaugeKPIs, ritmo
   const sortedAssessors = [...assessorPerformance].sort((a, b) => b.geralPercentage - a.geralPercentage);
 
   return (
-    <div className="flex flex-col h-full p-5 gap-4 overflow-hidden">
+    <div className="flex flex-col h-full p-6 gap-5 overflow-hidden">
       <div className="flex items-center justify-between flex-shrink-0">
-        <h2 className="text-xl font-black text-tv-text tracking-tight">Performance por Assessor</h2>
-        <div className="flex items-center gap-4 text-xs text-tv-muted">
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-tv-green inline-block" /> No ritmo
+        <h2 className="text-2xl font-black text-tv-text tracking-tight">Performance por Assessor</h2>
+        <div className="flex items-center gap-5 text-sm text-tv-muted">
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full bg-tv-green inline-block" /> No ritmo
           </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-tv-yellow inline-block" /> Atenção
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full bg-tv-yellow inline-block" /> Atenção
           </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-tv-red inline-block" /> Crítico
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full bg-tv-red inline-block" /> Crítico
           </span>
         </div>
       </div>
 
       {/* Headers */}
-      <div className="grid grid-cols-[180px_80px_repeat(5,1fr)_120px] gap-3 items-center px-4 flex-shrink-0">
-        <span className="text-xs font-bold text-tv-muted uppercase tracking-wider">Assessor</span>
-        <span className="text-xs font-bold text-tv-muted uppercase tracking-wider text-center">ICM</span>
+      <div className="grid grid-cols-[200px_90px_repeat(5,1fr)_130px] gap-3 items-center px-5 flex-shrink-0">
+        <span className="text-sm font-bold text-tv-muted uppercase tracking-wider">Assessor</span>
+        <span className="text-sm font-bold text-tv-muted uppercase tracking-wider text-center">ICM</span>
         {KPI_COLS.map(c => (
-          <span key={c.label} className="text-xs font-bold text-tv-muted uppercase tracking-wider text-center">{c.label}</span>
+          <span key={c.label} className="text-sm font-bold text-tv-muted uppercase tracking-wider text-center">{c.label}</span>
         ))}
-        <span className="text-xs font-bold text-tv-muted uppercase tracking-wider text-center">Gap Principal</span>
+        <span className="text-sm font-bold text-tv-muted uppercase tracking-wider text-center">Gap Principal</span>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-2 min-h-0 pr-2">
@@ -99,20 +99,20 @@ export function TVScreen3({ processedData, assessorPerformance, gaugeKPIs, ritmo
           return (
             <div
               key={a.fullName}
-              className={`grid grid-cols-[180px_80px_repeat(5,1fr)_120px] gap-3 items-center px-4 py-3 rounded-xl border transition-all ${
+              className={`grid grid-cols-[200px_90px_repeat(5,1fr)_130px] gap-3 items-center px-5 py-4 rounded-2xl border transition-all ${
                 isLeader ? "bg-tv-gold/8 border-tv-gold/30" : colors.bg
               }`}
             >
               {/* Name */}
               <div className="flex items-center gap-2">
-                {isLeader && <span className="text-tv-gold text-sm">🏆</span>}
-                <span className={`text-sm font-semibold truncate ${isLeader ? "text-tv-gold" : "text-tv-text"}`}>
+                {isLeader && <span className="text-tv-gold text-base">🏆</span>}
+                <span className={`text-base font-semibold truncate ${isLeader ? "text-tv-gold" : "text-tv-text"}`}>
                   {a.name}
                 </span>
               </div>
 
               {/* ICM */}
-              <span className={`text-base font-black tabular-nums text-center ${colors.text}`}>
+              <span className={`text-lg font-black tabular-nums text-center ${colors.text}`}>
                 {a.geralPercentage}%
               </span>
 
@@ -125,11 +125,11 @@ export function TVScreen3({ processedData, assessorPerformance, gaugeKPIs, ritmo
                 const kpiColors = getStatusColor(pct, ritmoIdeal);
                 return (
                   <div key={kpi.label} className="flex flex-col items-center">
-                    <span className={`text-sm font-bold tabular-nums ${target > 0 ? kpiColors.text : "text-tv-muted"}`}>
+                    <span className={`text-base font-bold tabular-nums ${target > 0 ? kpiColors.text : "text-tv-muted"}`}>
                       {formatNumber(val, kpi.isCurrency)}
                     </span>
                     {target > 0 && (
-                      <span className="text-[9px] text-tv-muted tabular-nums">/{formatNumber(target, kpi.isCurrency)}</span>
+                      <span className="text-xs text-tv-muted tabular-nums">/{formatNumber(target, kpi.isCurrency)}</span>
                     )}
                   </div>
                 );
@@ -138,11 +138,11 @@ export function TVScreen3({ processedData, assessorPerformance, gaugeKPIs, ritmo
               {/* Principal gap */}
               <div className="text-center">
                 {principalGap ? (
-                  <span className="text-xs font-semibold text-tv-red bg-tv-red/10 border border-tv-red/20 px-2 py-0.5 rounded-full">
+                  <span className="text-sm font-semibold text-tv-red bg-tv-red/10 border border-tv-red/20 px-2 py-1 rounded-full">
                     {principalGap}
                   </span>
                 ) : (
-                  <span className="text-xs text-tv-green">✓</span>
+                  <span className="text-base text-tv-green">✓</span>
                 )}
               </div>
             </div>

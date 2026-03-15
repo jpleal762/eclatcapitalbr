@@ -49,15 +49,15 @@ export function TVScreen4({ assessorPerformance, gaugeKPIs, processedData, ritmo
   const topConversao = conversionData[0];
 
   return (
-    <div className="flex flex-col h-full p-5 gap-4 overflow-hidden">
-      <h2 className="text-xl font-black text-tv-text tracking-tight flex-shrink-0 text-center">
+    <div className="flex flex-col h-full p-6 gap-5 overflow-hidden">
+      <h2 className="text-2xl font-black text-tv-text tracking-tight flex-shrink-0 text-center">
         ⭐ Reconhecimento do Time
       </h2>
 
-      <div className="flex-1 grid grid-cols-3 grid-rows-2 gap-4 min-h-0 overflow-hidden">
+      <div className="flex-1 grid grid-cols-3 grid-rows-2 gap-5 min-h-0 overflow-hidden">
         {/* LEADER */}
         <RecognitionCard
-          icon={<Trophy className="w-8 h-8" />}
+          icon={<Trophy className="w-10 h-10" />}
           color="gold"
           title="Líder do Mês"
           name={leader?.name || "—"}
@@ -68,7 +68,7 @@ export function TVScreen4({ assessorPerformance, gaugeKPIs, processedData, ritmo
 
         {/* TOP CAPTAÇÃO */}
         <RecognitionCard
-          icon={<TrendingUp className="w-8 h-8" />}
+          icon={<TrendingUp className="w-10 h-10" />}
           color="green"
           title="Top Captação"
           name={topCaptacao?.assessor?.name || "—"}
@@ -78,7 +78,7 @@ export function TVScreen4({ assessorPerformance, gaugeKPIs, processedData, ritmo
 
         {/* TOP EXECUÇÃO */}
         <RecognitionCard
-          icon={<Zap className="w-8 h-8" />}
+          icon={<Zap className="w-10 h-10" />}
           color="blue"
           title="Top Execução"
           name={topExecucao?.assessor?.name || "—"}
@@ -88,7 +88,7 @@ export function TVScreen4({ assessorPerformance, gaugeKPIs, processedData, ritmo
 
         {/* MAIOR EVOLUÇÃO */}
         <RecognitionCard
-          icon={<Star className="w-8 h-8" />}
+          icon={<Star className="w-10 h-10" />}
           color="yellow"
           title="Maior Evolução"
           name={topEvolution?.name || "—"}
@@ -98,7 +98,7 @@ export function TVScreen4({ assessorPerformance, gaugeKPIs, processedData, ritmo
 
         {/* MELHOR CONVERSÃO */}
         <RecognitionCard
-          icon={<Target className="w-8 h-8" />}
+          icon={<Target className="w-10 h-10" />}
           color="purple"
           title="Melhor Conversão"
           name={topConversao?.assessor?.name || "—"}
@@ -107,34 +107,34 @@ export function TVScreen4({ assessorPerformance, gaugeKPIs, processedData, ritmo
         />
 
         {/* ZONA CRÍTICA */}
-        <div className={`flex flex-col gap-3 p-4 rounded-2xl border transition-all ${
+        <div className={`flex flex-col gap-4 p-5 rounded-2xl border transition-all ${
           critical.length === 0
             ? "bg-tv-green/10 border-tv-green/30"
             : "bg-tv-red/10 border-tv-red/30"
         }`}>
           <div className="flex items-center gap-3">
-            <AlertTriangle className={`w-8 h-8 ${critical.length === 0 ? "text-tv-green" : "text-tv-red"}`} />
-            <span className="text-sm font-bold text-tv-muted uppercase tracking-widest">Zona Crítica</span>
+            <AlertTriangle className={`w-10 h-10 ${critical.length === 0 ? "text-tv-green" : "text-tv-red"}`} />
+            <span className="text-base font-bold text-tv-muted uppercase tracking-widest">Zona Crítica</span>
           </div>
           {critical.length === 0 ? (
             <div className="flex-1 flex items-center justify-center">
-              <span className="text-tv-green font-bold text-base">Todos no ritmo! 🎉</span>
+              <span className="text-tv-green font-bold text-xl">Todos no ritmo! 🎉</span>
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto space-y-2">
               {critical.map(a => (
-                <div key={a.fullName} className="flex justify-between items-center bg-tv-red/10 rounded-lg px-3 py-1.5">
-                  <span className="text-sm font-semibold text-tv-text">{a.name}</span>
+                <div key={a.fullName} className="flex justify-between items-center bg-tv-red/10 rounded-xl px-4 py-2">
+                  <span className="text-base font-semibold text-tv-text">{a.name}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-black text-tv-red">{a.geralPercentage}%</span>
-                    <span className="text-xs text-tv-muted">ICM</span>
+                    <span className="text-lg font-black text-tv-red">{a.geralPercentage}%</span>
+                    <span className="text-sm text-tv-muted">ICM</span>
                   </div>
                 </div>
               ))}
             </div>
           )}
           {critical.length > 0 && (
-            <p className="text-xs text-tv-muted text-center">
+            <p className="text-sm text-tv-muted text-center">
               Abaixo de {Math.round(ritmoIdeal * 0.35)}% (35% do ritmo)
             </p>
           )}
@@ -157,7 +157,7 @@ function RecognitionCard({
 }) {
   const colorMap = {
     gold: {
-      border: animated ? "border-tv-gold/60 shadow-[0_0_20px_rgba(255,191,0,0.2)]" : "border-tv-gold/40",
+      border: animated ? "border-tv-gold/60 shadow-[0_0_24px_rgba(255,191,0,0.2)]" : "border-tv-gold/40",
       bg: "bg-tv-gold/8",
       icon: "text-tv-gold",
       name: "text-tv-gold",
@@ -171,15 +171,15 @@ function RecognitionCard({
   const c = colorMap[color];
 
   return (
-    <div className={`flex flex-col gap-2 p-4 rounded-2xl border ${c.border} ${c.bg} ${animated ? "animate-pulse-slow" : ""} transition-all`}>
+    <div className={`flex flex-col gap-3 p-5 rounded-2xl border ${c.border} ${c.bg} ${animated ? "animate-pulse-slow" : ""} transition-all`}>
       <div className="flex items-center gap-3">
         <span className={c.icon}>{icon}</span>
-        <span className="text-xs font-bold text-tv-muted uppercase tracking-widest">{title}</span>
+        <span className="text-sm font-bold text-tv-muted uppercase tracking-widest">{title}</span>
       </div>
-      <div className="flex-1 flex flex-col justify-center gap-1">
-        <span className={`text-2xl font-black leading-tight truncate ${c.name}`}>{name}</span>
-        <span className={`text-lg font-bold tabular-nums ${c.metric}`}>{metric}</span>
-        <span className="text-xs text-tv-muted">{sub}</span>
+      <div className="flex-1 flex flex-col justify-center gap-1.5">
+        <span className={`text-3xl font-black leading-tight truncate ${c.name}`}>{name}</span>
+        <span className={`text-xl font-bold tabular-nums ${c.metric}`}>{metric}</span>
+        <span className="text-sm text-tv-muted">{sub}</span>
       </div>
     </div>
   );

@@ -21,28 +21,28 @@ export function TVScreen2({ gaugeKPIs, ritmoIdeal }: TVScreen2Props) {
     .sort((a, b) => a.percentage - b.percentage);
 
   return (
-    <div className="flex flex-col h-full p-5 gap-4 overflow-hidden">
+    <div className="flex flex-col h-full p-6 gap-5 overflow-hidden">
       <div className="flex items-center justify-between flex-shrink-0">
-        <h2 className="text-xl font-black text-tv-text tracking-tight">Performance dos KPIs</h2>
-        <div className="flex items-center gap-2 text-xs text-tv-muted">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-0.5 bg-white/40" /> <span>Ritmo Ideal ({ritmoIdeal}%)</span>
+        <h2 className="text-2xl font-black text-tv-text tracking-tight">Performance dos KPIs</h2>
+        <div className="flex items-center gap-3 text-sm text-tv-muted">
+          <div className="flex items-center gap-1.5">
+            <div className="w-4 h-0.5 bg-white/40" /> <span>Ritmo Ideal ({ritmoIdeal}%)</span>
           </div>
           <span>· Ordem: pior primeiro</span>
         </div>
       </div>
 
       {/* Column headers */}
-      <div className="grid grid-cols-[200px_1fr_80px_130px_130px_130px] gap-4 items-center px-4 flex-shrink-0">
-        <span className="text-xs font-bold text-tv-muted uppercase tracking-wider">KPI</span>
-        <span className="text-xs font-bold text-tv-muted uppercase tracking-wider">Progresso</span>
-        <span className="text-xs font-bold text-tv-muted uppercase tracking-wider text-right">%</span>
-        <span className="text-xs font-bold text-tv-muted uppercase tracking-wider text-right">Realizado</span>
-        <span className="text-xs font-bold text-tv-muted uppercase tracking-wider text-right">Meta</span>
-        <span className="text-xs font-bold text-tv-muted uppercase tracking-wider text-right">Gap</span>
+      <div className="grid grid-cols-[220px_1fr_90px_150px_150px_150px] gap-4 items-center px-5 flex-shrink-0">
+        <span className="text-sm font-bold text-tv-muted uppercase tracking-wider">KPI</span>
+        <span className="text-sm font-bold text-tv-muted uppercase tracking-wider">Progresso</span>
+        <span className="text-sm font-bold text-tv-muted uppercase tracking-wider text-right">%</span>
+        <span className="text-sm font-bold text-tv-muted uppercase tracking-wider text-right">Realizado</span>
+        <span className="text-sm font-bold text-tv-muted uppercase tracking-wider text-right">Meta</span>
+        <span className="text-sm font-bold text-tv-muted uppercase tracking-wider text-right">Gap</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-2 min-h-0 pr-2">
+      <div className="flex-1 overflow-y-auto space-y-2.5 min-h-0 pr-2">
         {sorted.map((kpi, idx) => {
           const colors = getStatusColor(kpi.percentage, ritmoIdeal);
           const gap = Math.max(kpi.target - kpi.value, 0);
@@ -52,20 +52,20 @@ export function TVScreen2({ gaugeKPIs, ritmoIdeal }: TVScreen2Props) {
           return (
             <div
               key={kpi.label}
-              className={`grid grid-cols-[200px_1fr_80px_130px_130px_130px] gap-4 items-center px-4 py-3 rounded-xl bg-tv-card border border-tv-border transition-all ${
+              className={`grid grid-cols-[220px_1fr_90px_150px_150px_150px] gap-4 items-center px-5 py-4 rounded-2xl bg-tv-card border border-tv-border transition-all ${
                 idx === 0 ? "border-tv-red/40 shadow-sm" : ""
               }`}
             >
               {/* KPI Name */}
-              <div className="flex items-center gap-2">
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 border ${colors.badge}`}>
+              <div className="flex items-center gap-3">
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 border ${colors.badge}`}>
                   {idx + 1}
                 </span>
-                <span className="text-sm font-semibold text-tv-text truncate">{kpi.label}</span>
+                <span className="text-base font-semibold text-tv-text truncate">{kpi.label}</span>
               </div>
 
               {/* Progress Bar */}
-              <div className="relative h-4 bg-tv-border rounded-full overflow-visible">
+              <div className="relative h-5 bg-tv-border rounded-full overflow-visible">
                 <div
                   className={`h-full rounded-full transition-all duration-700 ${colors.bar}`}
                   style={{ width: `${clampedPct}%` }}
@@ -78,22 +78,22 @@ export function TVScreen2({ gaugeKPIs, ritmoIdeal }: TVScreen2Props) {
               </div>
 
               {/* Percentage */}
-              <span className={`text-base font-black tabular-nums text-right ${colors.text}`}>
+              <span className={`text-lg font-black tabular-nums text-right ${colors.text}`}>
                 {kpi.percentage}%
               </span>
 
               {/* Realized */}
-              <span className="text-sm font-semibold text-tv-text text-right tabular-nums">
+              <span className="text-base font-semibold text-tv-text text-right tabular-nums">
                 {formatNumber(kpi.value, kpi.isCurrency)}
               </span>
 
               {/* Target */}
-              <span className="text-sm text-tv-muted text-right tabular-nums">
+              <span className="text-base text-tv-muted text-right tabular-nums">
                 {formatNumber(kpi.target, kpi.isCurrency)}
               </span>
 
               {/* Gap */}
-              <span className={`text-sm font-bold text-right tabular-nums ${gap > 0 ? colors.text : "text-tv-green"}`}>
+              <span className={`text-base font-bold text-right tabular-nums ${gap > 0 ? colors.text : "text-tv-green"}`}>
                 {gap > 0 ? `-${formatNumber(gap, kpi.isCurrency)}` : "✓"}
               </span>
             </div>
