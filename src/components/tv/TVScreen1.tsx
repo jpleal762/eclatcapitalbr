@@ -34,16 +34,13 @@ function getMonthStatus(icm: number, ritmo: number) {
   return { label: "Abaixo do Esperado", color: "text-tv-red bg-tv-red/15 border-tv-red/30" };
 }
 
-function TVHBar({ pct, ritmo, isCurrency, value, target }: {
-  pct: number; ritmo: number; isCurrency: boolean; value: number; target: number;
-}) {
+function TVHBar({ pct, ritmo }: { pct: number; ritmo: number }) {
   const { bar } = getStatusColor(pct, ritmo);
   const clampedPct = Math.min(pct, 100);
   const ritmoClamp = Math.min(ritmo, 100);
   return (
-    <div className="relative h-3 bg-tv-border rounded-full overflow-visible">
+    <div className="relative h-4 bg-tv-border rounded-full overflow-visible">
       <div className={`h-full rounded-full transition-all duration-700 ${bar}`} style={{ width: `${clampedPct}%` }} />
-      {/* Ritmo marker */}
       <div
         className="absolute top-0 bottom-0 w-0.5 bg-white/60 rounded"
         style={{ left: `${ritmoClamp}%` }}
@@ -88,9 +85,9 @@ export function TVScreen1({ data, mensagemDia, kpiPrioridade }: TVScreen1Props) 
   const displayMsg = mensagemDia || autoMsg;
 
   return (
-    <div className="flex flex-col h-full p-4 gap-3 overflow-hidden">
+    <div className="flex flex-col h-full p-5 gap-4 overflow-hidden">
       {/* ─── STATUS STRIP ─── */}
-      <div className="grid grid-cols-4 gap-3 flex-shrink-0">
+      <div className="grid grid-cols-4 gap-4 flex-shrink-0">
         <StatusChip label="Realizado" value={`${icmGeral}%`} sub="ICM Geral" highlight="text-tv-gold" />
         <StatusChip label="Ritmo Ideal" value={`${ritmoIdeal}%`} sub="% dias úteis" highlight="text-tv-muted" />
         <StatusChip
@@ -99,17 +96,17 @@ export function TVScreen1({ data, mensagemDia, kpiPrioridade }: TVScreen1Props) 
           sub={`de ${totalDiasUteis} no mês`}
           highlight="text-tv-text"
         />
-        <div className={`flex flex-col items-center justify-center rounded-lg border px-3 py-2 ${status.color}`}>
-          <span className="text-xs font-medium opacity-70">Status</span>
-          <span className="text-lg font-bold leading-tight text-center">{status.label}</span>
+        <div className={`flex flex-col items-center justify-center rounded-xl border px-4 py-3 ${status.color}`}>
+          <span className="text-sm font-medium opacity-70">Status</span>
+          <span className="text-2xl font-bold leading-tight text-center">{status.label}</span>
         </div>
       </div>
 
       {/* ─── MAIN BODY ─── */}
-      <div className="flex gap-3 flex-1 min-h-0 overflow-hidden">
+      <div className="flex gap-4 flex-1 min-h-0 overflow-hidden">
         {/* ─── RANKING ─── */}
-        <div className="w-[220px] flex-shrink-0 bg-tv-card border border-tv-border rounded-xl p-3 flex flex-col gap-2 overflow-hidden">
-          <h3 className="text-xs font-bold text-tv-muted uppercase tracking-widest flex-shrink-0">Ranking Assessores</h3>
+        <div className="w-[260px] flex-shrink-0 bg-tv-card border border-tv-border rounded-2xl p-4 flex flex-col gap-3 overflow-hidden">
+          <h3 className="text-sm font-bold text-tv-muted uppercase tracking-widest flex-shrink-0">Ranking Assessores</h3>
           <div className="flex-1 overflow-y-auto space-y-2 min-h-0 pr-1">
             {assessorPerformance.map((a, idx) => {
               const colors = getStatusColor(a.geralPercentage, ritmoIdeal);
@@ -117,18 +114,18 @@ export function TVScreen1({ data, mensagemDia, kpiPrioridade }: TVScreen1Props) 
               return (
                 <div
                   key={a.fullName}
-                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all ${
                     isLeader ? "bg-tv-gold/10 border border-tv-gold/30" : colors.bg + " border border-transparent"
                   }`}
                 >
-                  <span className={`text-xs font-bold w-5 flex-shrink-0 ${isLeader ? "text-tv-gold" : "text-tv-muted"}`}>
+                  <span className={`text-sm font-bold w-6 flex-shrink-0 ${isLeader ? "text-tv-gold" : "text-tv-muted"}`}>
                     {idx + 1}
                   </span>
-                  {isLeader && <Trophy className="w-3 h-3 text-tv-gold flex-shrink-0" />}
-                  <span className={`text-sm font-semibold flex-1 truncate ${isLeader ? "text-tv-gold" : "text-tv-text"}`}>
+                  {isLeader && <Trophy className="w-4 h-4 text-tv-gold flex-shrink-0" />}
+                  <span className={`text-base font-semibold flex-1 truncate ${isLeader ? "text-tv-gold" : "text-tv-text"}`}>
                     {a.name.split(" ")[0]}
                   </span>
-                  <span className={`text-sm font-bold flex-shrink-0 ${colors.text}`}>
+                  <span className={`text-base font-bold flex-shrink-0 ${colors.text}`}>
                     {a.geralPercentage}%
                   </span>
                 </div>
@@ -138,31 +135,31 @@ export function TVScreen1({ data, mensagemDia, kpiPrioridade }: TVScreen1Props) 
         </div>
 
         {/* ─── FUNIL ─── */}
-        <div className="flex-1 bg-tv-card border border-tv-border rounded-xl p-3 flex flex-col gap-1 overflow-hidden min-w-0">
-          <h3 className="text-xs font-bold text-tv-muted uppercase tracking-widest flex-shrink-0 mb-1">Funil Comercial</h3>
-          <div className="flex-1 overflow-y-auto space-y-3 min-h-0 pr-1">
+        <div className="flex-1 bg-tv-card border border-tv-border rounded-2xl p-4 flex flex-col gap-2 overflow-hidden min-w-0">
+          <h3 className="text-sm font-bold text-tv-muted uppercase tracking-widest flex-shrink-0 mb-1">Funil Comercial</h3>
+          <div className="flex-1 overflow-y-auto space-y-4 min-h-0 pr-1">
             {funilKPIs.map(kpi => {
               const colors = getStatusColor(kpi.percentage, ritmoIdeal);
               const gap = Math.max(kpi.target - kpi.value, 0);
               return (
                 <div key={kpi.label}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-tv-text truncate flex-1 mr-2">{kpi.label}</span>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-base font-medium text-tv-text truncate flex-1 mr-2">{kpi.label}</span>
                     <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className="text-xs text-tv-muted">{formatNumber(kpi.value, kpi.isCurrency)}</span>
-                      <span className="text-xs text-tv-muted">/</span>
-                      <span className="text-xs text-tv-muted">{formatNumber(kpi.target, kpi.isCurrency)}</span>
-                      <span className={`text-sm font-bold w-12 text-right ${colors.text}`}>
+                      <span className="text-sm text-tv-muted">{formatNumber(kpi.value, kpi.isCurrency)}</span>
+                      <span className="text-sm text-tv-muted">/</span>
+                      <span className="text-sm text-tv-muted">{formatNumber(kpi.target, kpi.isCurrency)}</span>
+                      <span className={`text-base font-bold w-14 text-right ${colors.text}`}>
                         {kpi.percentage}%
                       </span>
                       {gap > 0 && (
-                        <span className="text-xs text-tv-muted w-20 text-right">
+                        <span className="text-sm text-tv-muted w-24 text-right">
                           -{formatNumber(gap, kpi.isCurrency)}
                         </span>
                       )}
                     </div>
                   </div>
-                  <TVHBar pct={kpi.percentage} ritmo={ritmoIdeal} isCurrency={kpi.isCurrency} value={kpi.value} target={kpi.target} />
+                  <TVHBar pct={kpi.percentage} ritmo={ritmoIdeal} />
                 </div>
               );
             })}
@@ -170,35 +167,35 @@ export function TVScreen1({ data, mensagemDia, kpiPrioridade }: TVScreen1Props) 
         </div>
 
         {/* ─── GARGALO ─── */}
-        <div className="w-[220px] flex-shrink-0 bg-tv-card border border-tv-border rounded-xl p-3 flex flex-col gap-2 overflow-hidden">
-          <h3 className="text-xs font-bold text-tv-muted uppercase tracking-widest flex-shrink-0">Gargalo do Mês</h3>
+        <div className="w-[260px] flex-shrink-0 bg-tv-card border border-tv-border rounded-2xl p-4 flex flex-col gap-3 overflow-hidden">
+          <h3 className="text-sm font-bold text-tv-muted uppercase tracking-widest flex-shrink-0">Gargalo do Mês</h3>
           {gargalo ? (
             <GargaloCard kpi={gargalo} ritmoIdeal={ritmoIdeal} assessors={assessorPerformance} />
           ) : (
             <div className="flex-1 flex items-center justify-center text-tv-green">
-              <CheckCircle className="w-8 h-8" />
+              <CheckCircle className="w-10 h-10" />
             </div>
           )}
         </div>
       </div>
 
       {/* ─── FOOTER STRIP ─── */}
-      <div className="flex-shrink-0 bg-tv-card border border-tv-border rounded-xl px-4 py-2 flex gap-6 items-center overflow-hidden">
+      <div className="flex-shrink-0 bg-tv-card border border-tv-border rounded-2xl px-5 py-3 flex gap-6 items-center overflow-hidden">
         <div className="flex items-center gap-2 flex-shrink-0">
-          <Target className="w-4 h-4 text-tv-gold flex-shrink-0" />
-          <span className="text-xs font-bold text-tv-gold uppercase tracking-wider">Meta do Dia</span>
+          <Target className="w-5 h-5 text-tv-gold flex-shrink-0" />
+          <span className="text-sm font-bold text-tv-gold uppercase tracking-wider">Meta do Dia</span>
         </div>
-        <div className="flex gap-4 flex-1 overflow-hidden">
+        <div className="flex gap-5 flex-1 overflow-hidden">
           {metaDia.map(m => (
             <div key={m.label} className="flex flex-col items-center min-w-0">
-              <span className="text-[10px] text-tv-muted truncate max-w-[90px]">{m.label}</span>
-              <span className="text-sm font-bold text-tv-text">{formatNumber(Math.ceil(m.daily), m.isCurrency)}</span>
+              <span className="text-xs text-tv-muted truncate max-w-[100px]">{m.label}</span>
+              <span className="text-base font-bold text-tv-text">{formatNumber(Math.ceil(m.daily), m.isCurrency)}</span>
             </div>
           ))}
         </div>
-        <div className="flex items-center gap-2 flex-1 min-w-0 border-l border-tv-border pl-4">
-          <Zap className="w-4 h-4 text-tv-gold flex-shrink-0" />
-          <span className="text-sm italic text-tv-text truncate">"{displayMsg}"</span>
+        <div className="flex items-center gap-2 flex-1 min-w-0 border-l border-tv-border pl-5">
+          <Zap className="w-5 h-5 text-tv-gold flex-shrink-0" />
+          <span className="text-base italic text-tv-text truncate">"{displayMsg}"</span>
         </div>
       </div>
     </div>
@@ -209,10 +206,10 @@ function StatusChip({ label, value, sub, highlight }: {
   label: string; value: string; sub: string; highlight: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center bg-tv-card border border-tv-border rounded-lg px-3 py-2 gap-0.5">
-      <span className="text-xs text-tv-muted font-medium">{label}</span>
-      <span className={`text-2xl font-black tabular-nums ${highlight}`}>{value}</span>
-      <span className="text-[10px] text-tv-muted">{sub}</span>
+    <div className="flex flex-col items-center justify-center bg-tv-card border border-tv-border rounded-xl px-4 py-3 gap-1">
+      <span className="text-sm text-tv-muted font-medium">{label}</span>
+      <span className={`text-3xl font-black tabular-nums ${highlight}`}>{value}</span>
+      <span className="text-xs text-tv-muted">{sub}</span>
     </div>
   );
 }
@@ -226,38 +223,38 @@ function GargaloCard({ kpi, ritmoIdeal, assessors }: {
   const clampedPct = Math.min(kpi.percentage, 100);
 
   return (
-    <div className="flex flex-col gap-2 flex-1 overflow-hidden">
+    <div className="flex flex-col gap-3 flex-1 overflow-hidden">
       <div className="flex items-center gap-2">
-        <AlertTriangle className="w-4 h-4 text-tv-red flex-shrink-0" />
-        <span className="text-base font-bold text-tv-text">{kpi.label}</span>
+        <AlertTriangle className="w-5 h-5 text-tv-red flex-shrink-0" />
+        <span className="text-lg font-bold text-tv-text">{kpi.label}</span>
       </div>
-      <div className="space-y-1">
-        <div className="flex justify-between text-xs">
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
           <span className="text-tv-muted">Realizado</span>
           <span className="font-semibold text-tv-text">{formatNumber(kpi.value, kpi.isCurrency)}</span>
         </div>
-        <div className="flex justify-between text-xs">
+        <div className="flex justify-between text-sm">
           <span className="text-tv-muted">Meta</span>
           <span className="font-semibold text-tv-text">{formatNumber(kpi.target, kpi.isCurrency)}</span>
         </div>
-        <div className="flex justify-between text-xs">
+        <div className="flex justify-between text-sm">
           <span className="text-tv-muted">Falta</span>
           <span className={`font-bold ${colors.text}`}>{formatNumber(gap, kpi.isCurrency)}</span>
         </div>
-        <div className="flex justify-between text-xs">
+        <div className="flex justify-between text-sm">
           <span className="text-tv-muted">Atingimento</span>
           <span className={`font-bold ${colors.text}`}>{kpi.percentage}%</span>
         </div>
       </div>
-      <div className="relative h-2 bg-tv-border rounded-full mt-1">
+      <div className="relative h-3 bg-tv-border rounded-full mt-1">
         <div className={`h-full rounded-full ${colors.bar}`} style={{ width: `${clampedPct}%` }} />
         <div className="absolute top-0 bottom-0 w-0.5 bg-white/60 rounded" style={{ left: `${ritmoClamp}%` }} />
       </div>
       <div className="mt-1">
-        <span className="text-[10px] text-tv-muted font-semibold uppercase tracking-wider">Mais atrasados</span>
-        <div className="space-y-1 mt-1">
+        <span className="text-xs text-tv-muted font-semibold uppercase tracking-wider">Mais atrasados</span>
+        <div className="space-y-1.5 mt-1">
           {assessors.slice(Math.max(assessors.length - 3, 0)).reverse().map(a => (
-            <div key={a.fullName} className="flex justify-between text-xs">
+            <div key={a.fullName} className="flex justify-between text-sm">
               <span className="text-tv-text truncate">{a.name.split(" ")[0]}</span>
               <span className="text-tv-red font-semibold">{a.geralPercentage}%</span>
             </div>

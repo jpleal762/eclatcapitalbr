@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { TVLayout } from "@/components/tv/TVLayout";
+import { useTVScale } from "@/hooks/useTVScale";
 import { TVScreen1 } from "@/components/tv/TVScreen1";
 import { TVScreen2 } from "@/components/tv/TVScreen2";
 import { TVScreen3 } from "@/components/tv/TVScreen3";
@@ -21,6 +22,8 @@ const getCurrentMonthValue = () => {
 };
 
 export default function TVDashboard() {
+  const { scale, isFullscreen, toggleFullscreen } = useTVScale();
+
   const [rawData, setRawData] = useState<KPIRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
@@ -210,22 +213,36 @@ export default function TVDashboard() {
 
   return (
     <>
-      <TVLayout
-        currentScreen={currentScreen}
-        totalScreens={4}
-        screenDurations={screenDurations}
-        timeLeft={timeLeft}
-        isRotating={isRotating}
-        onToggleRotation={() => setIsRotating(r => !r)}
-        onOpenConfig={() => setIsConfigOpen(true)}
-        onNavigate={handleNavigate}
-        lastUpdate={lastUpdate}
-        selectedMonth={selectedMonth}
-      >
-        <div className="h-full w-full overflow-hidden">
-          {screens[currentScreen]}
+      {/* ─── SCALE WRAPPER ─── */}
+      <div className="fixed inset-0 overflow-hidden bg-tv-bg">
+        <div
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            width: `${100 / scale}%`,
+            height: `${100 / scale}%`,
+          }}
+        >
+          <TVLayout
+            currentScreen={currentScreen}
+            totalScreens={4}
+            screenDurations={screenDurations}
+            timeLeft={timeLeft}
+            isRotating={isRotating}
+            onToggleRotation={() => setIsRotating(r => !r)}
+            onOpenConfig={() => setIsConfigOpen(true)}
+            onNavigate={handleNavigate}
+            lastUpdate={lastUpdate}
+            selectedMonth={selectedMonth}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={toggleFullscreen}
+          >
+            <div className="h-full w-full overflow-hidden">
+              {screens[currentScreen]}
+            </div>
+          </TVLayout>
         </div>
-      </TVLayout>
+      </div>
 
       <TVConfig
         isOpen={isConfigOpen}
