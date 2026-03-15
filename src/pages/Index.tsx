@@ -44,7 +44,7 @@ import {
 } from "@/lib/sprintStorage";
 import { SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Menu, Settings } from "lucide-react";
+import { Menu, Settings, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import eclatLogo from "@/assets/eclat-xp-logo.png";
