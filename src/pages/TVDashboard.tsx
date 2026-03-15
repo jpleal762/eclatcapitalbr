@@ -22,6 +22,8 @@ const getCurrentMonthValue = () => {
 };
 
 export default function TVDashboard() {
+  const { scale, isFullscreen, toggleFullscreen } = useTVScale();
+
   const [rawData, setRawData] = useState<KPIRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
