@@ -213,22 +213,36 @@ export default function TVDashboard() {
 
   return (
     <>
-      <TVLayout
-        currentScreen={currentScreen}
-        totalScreens={4}
-        screenDurations={screenDurations}
-        timeLeft={timeLeft}
-        isRotating={isRotating}
-        onToggleRotation={() => setIsRotating(r => !r)}
-        onOpenConfig={() => setIsConfigOpen(true)}
-        onNavigate={handleNavigate}
-        lastUpdate={lastUpdate}
-        selectedMonth={selectedMonth}
-      >
-        <div className="h-full w-full overflow-hidden">
-          {screens[currentScreen]}
+      {/* ─── SCALE WRAPPER ─── */}
+      <div className="fixed inset-0 overflow-hidden bg-tv-bg">
+        <div
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            width: `${100 / scale}%`,
+            height: `${100 / scale}%`,
+          }}
+        >
+          <TVLayout
+            currentScreen={currentScreen}
+            totalScreens={4}
+            screenDurations={screenDurations}
+            timeLeft={timeLeft}
+            isRotating={isRotating}
+            onToggleRotation={() => setIsRotating(r => !r)}
+            onOpenConfig={() => setIsConfigOpen(true)}
+            onNavigate={handleNavigate}
+            lastUpdate={lastUpdate}
+            selectedMonth={selectedMonth}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={toggleFullscreen}
+          >
+            <div className="h-full w-full overflow-hidden">
+              {screens[currentScreen]}
+            </div>
+          </TVLayout>
         </div>
-      </TVLayout>
+      </div>
 
       <TVConfig
         isOpen={isConfigOpen}
