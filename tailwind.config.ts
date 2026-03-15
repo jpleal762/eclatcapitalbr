@@ -79,6 +79,18 @@ export default {
           graphite: "hsl(var(--chart-graphite))",
           "graphite-light": "hsl(var(--chart-graphite-light))",
         },
+        // ─── TV Mode design tokens ───
+        tv: {
+          bg: "hsl(var(--tv-bg))",
+          card: "hsl(var(--tv-card))",
+          border: "hsl(var(--tv-border))",
+          text: "hsl(var(--tv-text))",
+          muted: "hsl(var(--tv-muted))",
+          gold: "hsl(var(--tv-gold))",
+          green: "hsl(var(--tv-green))",
+          yellow: "hsl(var(--tv-yellow))",
+          red: "hsl(var(--tv-red))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
