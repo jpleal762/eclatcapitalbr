@@ -193,6 +193,8 @@ export default {
         "twinkle": "twinkle 1.5s ease-in-out infinite",
         "twinkle-delayed": "twinkle-delayed 1.5s ease-in-out infinite 0.75s",
         "trophy-bounce": "trophy-bounce 1s ease-in-out infinite",
+        "pulse-slow": "pulse-slow 3s ease-in-out infinite",
+        "pulse-clock": "pulse-clock 1.5s ease-in-out infinite",
       },
     },
   },
