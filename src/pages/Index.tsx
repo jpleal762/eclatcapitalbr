@@ -699,6 +699,26 @@ const Index = () => {
                       </Tooltip>
                     </TooltipProvider>
                   )}
+                  {/* TV Button - opens /tv in new tab, only when not token locked */}
+                  {hasData && !isTokenLocked && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => window.open('/tv', '_blank')}
+                            className="h-8 w-8"
+                          >
+                            <Monitor className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Modo TV
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                   <ScaleSelector />
                   {/* File Upload - only visible when not in token mode */}
                   {hasData && !isTokenLocked && (
