@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { TVLayout } from "@/components/tv/TVLayout";
+import { useTVScale } from "@/hooks/useTVScale";
 import { TVScreen1 } from "@/components/tv/TVScreen1";
 import { TVScreen2 } from "@/components/tv/TVScreen2";
 import { TVScreen3 } from "@/components/tv/TVScreen3";

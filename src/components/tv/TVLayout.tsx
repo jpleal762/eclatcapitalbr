@@ -1,5 +1,5 @@
 import React from "react";
-import { Settings, Monitor, Pause, Play } from "lucide-react";
+import { Settings, Monitor, Pause, Play, Maximize2, Minimize2 } from "lucide-react";
 import eclatLogoDark from "@/assets/eclat-xp-logo-dark.svg";
 
 interface TVLayoutProps {
