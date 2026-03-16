@@ -16,6 +16,8 @@ interface TVLayoutProps {
   selectedMonth: string;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
+  isKiosk?: boolean;
+  onKioskExit?: () => void;
 }
 
 const SCREEN_LABELS = ["Comando do Dia", "Performance KPIs", "Por Assessor", "Reconhecimento"];
@@ -34,6 +36,8 @@ export function TVLayout({
   selectedMonth,
   isFullscreen,
   onToggleFullscreen,
+  isKiosk = false,
+  onKioskExit,
 }: TVLayoutProps) {
   const progressPct = screenDurations[currentScreen] > 0
     ? ((screenDurations[currentScreen] - timeLeft) / screenDurations[currentScreen]) * 100
@@ -50,7 +54,11 @@ export function TVLayout({
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-tv-bg text-tv-text font-sans select-none">
       {/* ─── TOP HEADER ─── */}
-      <header className="flex items-center gap-4 px-8 py-3 bg-tv-card border-b border-tv-border flex-shrink-0">
+      <header
+        className={`flex items-center gap-4 px-8 bg-tv-card border-b border-tv-border flex-shrink-0 transition-all duration-700 ease-in-out ${
+          isKiosk ? "opacity-0 pointer-events-none max-h-0 py-0 overflow-hidden" : "opacity-100 max-h-24 py-3"
+        }`}
+      >
         {/* Logo */}
         <img src={eclatLogoDark} alt="Éclat XP" className="h-9 flex-shrink-0" />
 
@@ -109,7 +117,7 @@ export function TVLayout({
       </header>
 
       {/* ─── PROGRESS BAR ─── */}
-      <div className="h-1 bg-tv-border flex-shrink-0">
+      <div className={`bg-tv-border flex-shrink-0 transition-all duration-700 ${isKiosk ? "h-0" : "h-1"}`}>
         <div
           className="h-full bg-tv-gold transition-all duration-1000"
           style={{ width: `${progressPct}%` }}
@@ -117,12 +125,26 @@ export function TVLayout({
       </div>
 
       {/* ─── CONTENT ─── */}
-      <main className="flex-1 overflow-hidden min-h-0">
+      <main className="flex-1 overflow-hidden min-h-0 relative">
         {children}
+
+        {/* Kiosk exit hint — barely visible, bottom center */}
+        {isKiosk && (
+          <button
+            onClick={onKioskExit}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 px-5 py-2 rounded-full bg-tv-card/60 border border-tv-border/40 text-tv-muted/30 text-xs tracking-widest uppercase transition-opacity duration-300 hover:opacity-60"
+          >
+            toque para sair do modo imersivo
+          </button>
+        )}
       </main>
 
       {/* ─── BOTTOM DOTS ─── */}
-      <footer className="flex items-center justify-center gap-3 py-2 bg-tv-card border-t border-tv-border flex-shrink-0">
+      <footer
+        className={`flex items-center justify-center gap-3 bg-tv-card border-t border-tv-border flex-shrink-0 transition-all duration-700 ease-in-out ${
+          isKiosk ? "opacity-0 pointer-events-none max-h-0 py-0 overflow-hidden" : "opacity-100 max-h-16 py-2"
+        }`}
+      >
         {Array.from({ length: totalScreens }).map((_, idx) => (
           <button
             key={idx}

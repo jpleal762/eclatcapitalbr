@@ -1,52 +1,20 @@
 
-## Two Features: Weekly Variation in Ranking + Kiosk Mode
+## Changes needed across 3 areas:
 
-### Feature 1: Weekly Variation in Screen 1 Ranking
+### 1. `QuarterlyKPIBar.tsx` — "Maiores Gaps" alignment
+Currently the assessor gap names are in a `<span>` floated to the right side of the label row. They should be positioned below the bar (aligned with "Falta p/ Ritmo" which is also below the bar on the right). Move `topAssessorGaps` display from the top label row to the bottom values row, right-aligned alongside "Falta p/ Ritmo".
 
-**What we have:** `AssessorPerformance` already contains `semanaPercentage` (ICM semanal calculated from `calculateICMSemanal`). The current ranking card shows only `geralPercentage`.
+### 2. `EvolutionCard.tsx` — Less prominent worst assessors
+The `worstAssessors` names in red currently use `text-scale-6 font-bold text-red-500/70`. Reduce to `text-scale-5 font-normal text-red-400/60` to make them clearly secondary/subtle.
 
-**What to add:**
-1. **Weekly delta badge** — `semanaPercentage - geralPercentage` shows the differential between weekly pace and overall pace. Display as `+2pp` / `-1pp` in a small colored badge (green up / red down / gray neutral).
-2. **Ranking arrow** — Compare current ranking position (by `geralPercentage`) vs ranking-by-`semanaPercentage` order to infer if the assessor is trending up or down. Arrow: `ArrowUp` (green) if their weekly rank is higher than their overall rank, `ArrowDown` (red) if lower, nothing if same.
+### 3. `AnalysisPage.tsx` — First screen layout: allow scroll, prevent clipping
+Currently the KPI bars container uses `overflow-hidden lg:overflow-hidden` which clips content. Change to `overflow-y-auto` with a scrollbar on desktop too, so nothing gets cut. The `overflow-hidden` on lg was there to prevent scroll, but it causes content to be cut when there are many KPIs. We'll keep the `flex-1 min-h-0` flex layout but allow vertical scroll with a visible scrollbar via `overflow-y-auto`.
 
-**Logic:**
-```
-// Weekly delta
-const weeklyDelta = a.semanaPercentage - a.geralPercentage;
+Specifically in `AnalysisPage.tsx`:
+- Both KPI container divs (default/sorted view and by-category view): change `overflow-hidden lg:overflow-hidden` → `overflow-y-auto` so a scrollbar appears when needed
+- This ensures all KPI bars are reachable without content being cut off
 
-// Ranking trend: compare overall rank idx vs weekly rank
-const weeklyRank = [...assessorPerformance]
-  .sort((x, y) => y.semanaPercentage - x.semanaPercentage)
-  .findIndex(x => x.fullName === a.fullName);
-const trendUp = weeklyRank < idx;   // lower index = better rank
-const trendDown = weeklyRank > idx;
-```
-
-**UI changes in `TVScreen1.tsx`** — ranking row gains two new inline elements:
-- Small arrow icon (`ArrowUp`/`ArrowDown`) to the left of the name
-- `+Xpp` / `-Xpp` badge to the right of the `%` value
-
----
-
-### Feature 2: Kiosk Mode (30s inactivity → immersive)
-
-**Logic:** In `TVDashboard.tsx`, track mouse movement + keyboard activity. After 30 seconds of no interaction, set `isKiosk = true`. Any activity resets it back.
-
-**What happens in kiosk mode:**
-- `TVLayout` receives `isKiosk` prop
-- Header and footer get `opacity-0 pointer-events-none h-0 overflow-hidden` transition (CSS transition for smooth hide)
-- The `<main>` content area expands to full height (`h-screen` instead of `flex-1`)
-- A subtle "touch to exit kiosk" pill appears at the bottom edge, barely visible (opacity 10%), that resets inactivity on click
-
-**Implementation:**
-- `TVDashboard.tsx`: add `isKiosk` state + `useEffect` with `resetTimer` callback on `mousemove`, `keydown`, `touchstart` events
-- `TVLayout.tsx`: accept `isKiosk?: boolean` prop, apply conditional classes on header/footer, animate with `transition-all duration-700`
-
-**No new files needed** — only changes to `TVDashboard.tsx` and `TVLayout.tsx` (and `TVScreen1.tsx` for ranking).
-
----
-
-### Files to change:
-1. `src/components/tv/TVScreen1.tsx` — add weekly delta badge + ranking trend arrow to each row
-2. `src/pages/TVDashboard.tsx` — add 30s inactivity detection → `isKiosk` state, pass to TVLayout
-3. `src/components/tv/TVLayout.tsx` — accept `isKiosk` prop, hide header/footer with smooth transition when active, show subtle exit hint
+### Files to edit:
+1. `src/components/dashboard/QuarterlyKPIBar.tsx` — move gaps to bottom row
+2. `src/components/dashboard/EvolutionCard.tsx` — reduce worst assessors visual weight
+3. `src/components/dashboard/AnalysisPage.tsx` — allow overflow-y-auto on KPI containers

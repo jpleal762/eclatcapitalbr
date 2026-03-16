@@ -21,6 +21,8 @@ const getCurrentMonthValue = () => {
   return `${months[now.getMonth()]}-${now.getFullYear().toString().slice(-2)}`;
 };
 
+const KIOSK_TIMEOUT = 30_000; // 30 seconds
+
 export default function TVDashboard() {
   const { scale, isFullscreen, toggleFullscreen } = useTVScale();
 
@@ -39,6 +41,10 @@ export default function TVDashboard() {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [mensagemDia, setMensagemDia] = useState("");
   const [kpiPrioridade, setKpiPrioridade] = useState("");
+
+  // Kiosk mode
+  const [isKiosk, setIsKiosk] = useState(false);
+  const kioskTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -63,6 +69,23 @@ export default function TVDashboard() {
     const interval = setInterval(loadData, DATA_REFRESH_INTERVAL);
     return () => clearInterval(interval);
   }, [loadData]);
+
+  // ─── Kiosk mode: 30s inactivity → immersive ──────────────────
+  const resetKioskTimer = useCallback(() => {
+    setIsKiosk(false);
+    if (kioskTimerRef.current) clearTimeout(kioskTimerRef.current);
+    kioskTimerRef.current = setTimeout(() => setIsKiosk(true), KIOSK_TIMEOUT);
+  }, []);
+
+  useEffect(() => {
+    const events = ["mousemove", "mousedown", "keydown", "touchstart", "wheel"] as const;
+    events.forEach(e => window.addEventListener(e, resetKioskTimer, { passive: true }));
+    resetKioskTimer(); // Start the initial timer
+    return () => {
+      events.forEach(e => window.removeEventListener(e, resetKioskTimer));
+      if (kioskTimerRef.current) clearTimeout(kioskTimerRef.current);
+    };
+  }, [resetKioskTimer]);
 
   // ─── Load TV config from Supabase ────────────────────────────
   useEffect(() => {
@@ -236,6 +259,8 @@ export default function TVDashboard() {
             selectedMonth={selectedMonth}
             isFullscreen={isFullscreen}
             onToggleFullscreen={toggleFullscreen}
+            isKiosk={isKiosk}
+            onKioskExit={resetKioskTimer}
           >
             <div className="h-full w-full overflow-hidden">
               {screens[currentScreen]}
