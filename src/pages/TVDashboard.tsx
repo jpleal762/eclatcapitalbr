@@ -21,6 +21,8 @@ const getCurrentMonthValue = () => {
   return `${months[now.getMonth()]}-${now.getFullYear().toString().slice(-2)}`;
 };
 
+const KIOSK_TIMEOUT = 30_000; // 30 seconds
+
 export default function TVDashboard() {
   const { scale, isFullscreen, toggleFullscreen } = useTVScale();
 
@@ -39,6 +41,10 @@ export default function TVDashboard() {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [mensagemDia, setMensagemDia] = useState("");
   const [kpiPrioridade, setKpiPrioridade] = useState("");
+
+  // Kiosk mode
+  const [isKiosk, setIsKiosk] = useState(false);
+  const kioskTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
