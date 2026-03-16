@@ -259,6 +259,8 @@ export default function TVDashboard() {
             selectedMonth={selectedMonth}
             isFullscreen={isFullscreen}
             onToggleFullscreen={toggleFullscreen}
+            isKiosk={isKiosk}
+            onKioskExit={resetKioskTimer}
           >
             <div className="h-full w-full overflow-hidden">
               {screens[currentScreen]}
