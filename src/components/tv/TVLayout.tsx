@@ -16,6 +16,8 @@ interface TVLayoutProps {
   selectedMonth: string;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
+  isKiosk?: boolean;
+  onKioskExit?: () => void;
 }
 
 const SCREEN_LABELS = ["Comando do Dia", "Performance KPIs", "Por Assessor", "Reconhecimento"];

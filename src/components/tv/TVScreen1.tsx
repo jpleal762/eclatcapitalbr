@@ -1,7 +1,7 @@
 import React from "react";
 import { DashboardData, AssessorPerformance, GaugeKPI } from "@/types/kpi";
 import { formatNumber } from "@/lib/kpiUtils";
-import { Trophy, TrendingDown, TrendingUp, AlertTriangle, CheckCircle, Target, Zap } from "lucide-react";
+import { Trophy, AlertTriangle, CheckCircle, Target, Zap, ArrowUp, ArrowDown } from "lucide-react";
 
 interface TVScreen1Props {
   data: DashboardData;
