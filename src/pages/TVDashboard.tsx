@@ -70,6 +70,23 @@ export default function TVDashboard() {
     return () => clearInterval(interval);
   }, [loadData]);
 
+  // ─── Kiosk mode: 30s inactivity → immersive ──────────────────
+  const resetKioskTimer = useCallback(() => {
+    setIsKiosk(false);
+    if (kioskTimerRef.current) clearTimeout(kioskTimerRef.current);
+    kioskTimerRef.current = setTimeout(() => setIsKiosk(true), KIOSK_TIMEOUT);
+  }, []);
+
+  useEffect(() => {
+    const events = ["mousemove", "mousedown", "keydown", "touchstart", "wheel"] as const;
+    events.forEach(e => window.addEventListener(e, resetKioskTimer, { passive: true }));
+    resetKioskTimer(); // Start the initial timer
+    return () => {
+      events.forEach(e => window.removeEventListener(e, resetKioskTimer));
+      if (kioskTimerRef.current) clearTimeout(kioskTimerRef.current);
+    };
+  }, [resetKioskTimer]);
+
   // ─── Load TV config from Supabase ────────────────────────────
   useEffect(() => {
     const loadConfig = async () => {
