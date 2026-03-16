@@ -111,6 +111,19 @@ export function TVScreen1({ data, mensagemDia, kpiPrioridade }: TVScreen1Props) 
             {assessorPerformance.map((a, idx) => {
               const colors = getStatusColor(a.geralPercentage, ritmoIdeal);
               const isLeader = idx === 0;
+
+              // Weekly delta: semana vs geral
+              const weeklyDelta = Math.round((a.semanaPercentage ?? a.geralPercentage) - a.geralPercentage);
+              const deltaPositive = weeklyDelta > 0;
+              const deltaNeutral = weeklyDelta === 0;
+
+              // Ranking trend: compare geral rank vs semana rank
+              const weeklyRank = [...assessorPerformance]
+                .sort((x, y) => (y.semanaPercentage ?? y.geralPercentage) - (x.semanaPercentage ?? x.geralPercentage))
+                .findIndex(x => x.fullName === a.fullName);
+              const trendUp = weeklyRank < idx;
+              const trendDown = weeklyRank > idx;
+
               return (
                 <div
                   key={a.fullName}
@@ -121,13 +134,30 @@ export function TVScreen1({ data, mensagemDia, kpiPrioridade }: TVScreen1Props) 
                   <span className={`text-sm font-bold w-6 flex-shrink-0 ${isLeader ? "text-tv-gold" : "text-tv-muted"}`}>
                     {idx + 1}
                   </span>
-                  {isLeader && <Trophy className="w-4 h-4 text-tv-gold flex-shrink-0" />}
+                  {/* Trend arrow */}
+                  {trendUp && <ArrowUp className="w-3.5 h-3.5 text-tv-green flex-shrink-0" />}
+                  {trendDown && <ArrowDown className="w-3.5 h-3.5 text-tv-red flex-shrink-0" />}
+                  {!trendUp && !trendDown && !isLeader && <span className="w-3.5 flex-shrink-0" />}
+                  {isLeader && !trendUp && !trendDown && <Trophy className="w-4 h-4 text-tv-gold flex-shrink-0" />}
+                  {isLeader && trendUp && <Trophy className="w-4 h-4 text-tv-gold flex-shrink-0" />}
+                  {isLeader && trendDown && <Trophy className="w-4 h-4 text-tv-gold flex-shrink-0" />}
+
                   <span className={`text-base font-semibold flex-1 truncate ${isLeader ? "text-tv-gold" : "text-tv-text"}`}>
                     {a.name.split(" ")[0]}
                   </span>
                   <span className={`text-base font-bold flex-shrink-0 ${colors.text}`}>
                     {a.geralPercentage}%
                   </span>
+                  {/* Weekly delta badge */}
+                  {!deltaNeutral && (
+                    <span className={`text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0 ${
+                      deltaPositive
+                        ? "bg-tv-green/15 text-tv-green"
+                        : "bg-tv-red/15 text-tv-red"
+                    }`}>
+                      {deltaPositive ? "+" : ""}{weeklyDelta}pp
+                    </span>
+                  )}
                 </div>
               );
             })}
