@@ -6,6 +6,59 @@ import { KPIRecord } from "@/types/kpi";
 import { parseXLSXFile } from "@/lib/kpiUtils";
 import { validateUploadPermissions, validateMonthRestriction } from "@/lib/permissions";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { z } from "zod";
+
+// ============= UPLOAD VALIDATION SCHEMA =============
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const ALLOWED_STATUSES = ["Realizado", "Planejado Mês", "Planejado Semana", "Planejado Geral"] as const;
+const MONTH_KEY_REGEX = /^[a-zA-Z]{3}[-/]\d{2}$/; // e.g. "jan-26" or "Jan/25"
+
+const KPIRecordSchema = z.object({
+  Assessor: z.string().min(1, "Assessor não pode ser vazio").max(150),
+  Categorias: z.string().min(1, "Categorias não pode ser vazio").max(250),
+  Status: z.enum(ALLOWED_STATUSES, {
+    errorMap: () => ({ message: `Status inválido. Permitidos: ${ALLOWED_STATUSES.join(", ")}` }),
+  }),
+}).catchall(
+  // All extra keys must be valid month keys with numeric values
+  z.union([
+    z.number().min(-1e9).max(1e9),
+    z.string().transform((v) => {
+      const n = parseFloat(v);
+      if (isNaN(n)) throw new Error("Valor numérico inválido");
+      return n;
+    }),
+    z.null(),
+    z.undefined(),
+  ])
+);
+
+const KPIRecordsArraySchema = z.array(KPIRecordSchema).min(1).max(50000);
+
+function validateKPIRecords(records: unknown[]): { valid: boolean; error?: string } {
+  // Check for prototype pollution keys
+  const dangerousKeys = ["__proto__", "constructor", "prototype"];
+  for (const record of records) {
+    if (record && typeof record === "object") {
+      for (const key of dangerousKeys) {
+        if (key in (record as object)) {
+          return { valid: false, error: "Arquivo contém dados inválidos ou maliciosos." };
+        }
+      }
+    }
+  }
+
+  const result = KPIRecordsArraySchema.safeParse(records);
+  if (!result.success) {
+    const firstIssue = result.error.issues[0];
+    const path = firstIssue.path.join(".");
+    return {
+      valid: false,
+      error: `Dado inválido${path ? ` (${path})` : ""}: ${firstIssue.message}`,
+    };
+  }
+  return { valid: true };
+}
 
 interface FileUploadProps {
   onDataLoaded: (data: KPIRecord[]) => void;
@@ -28,6 +81,12 @@ export function FileUpload({ onDataLoaded, compact = false, lastUpdate, role, as
       setSuccess(false);
       setFileName(file.name);
 
+      // File size limit
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        setError("Arquivo muito grande. Tamanho máximo: 10MB.");
+        return;
+      }
+
       const isXLSX = file.name.endsWith(".xlsx") || file.name.endsWith(".xls");
       const isJSON = file.name.endsWith(".json");
 
@@ -47,12 +106,25 @@ export function FileUpload({ onDataLoaded, compact = false, lastUpdate, role, as
             records = parseXLSXFile(buffer);
           } else {
             const content = e.target?.result as string;
-            const data = JSON.parse(content);
+            let data: unknown;
+            try {
+              data = JSON.parse(content);
+            } catch {
+              setError("Arquivo JSON inválido. Verifique o formato.");
+              return;
+            }
             records = Array.isArray(data) ? data : [data];
           }
 
           if (records.length === 0) {
             setError("O arquivo está vazio.");
+            return;
+          }
+
+          // Schema & content validation
+          const schemaCheck = validateKPIRecords(records);
+          if (!schemaCheck.valid) {
+            setError(schemaCheck.error || "Dados inválidos no arquivo.");
             return;
           }
 
@@ -83,7 +155,6 @@ export function FileUpload({ onDataLoaded, compact = false, lastUpdate, role, as
           setSuccess(true);
           onDataLoaded(records);
         } catch (err) {
-          console.error(err);
           setError("Erro ao processar o arquivo. Verifique o formato.");
         }
       };
