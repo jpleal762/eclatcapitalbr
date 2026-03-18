@@ -128,6 +128,7 @@ export function TokenAccessConfig({
   }, [isOpen]);
 
   const loadTokens = async () => {
+    const supabase = getAuthedClient();
     setIsLoading(true);
     try {
       const { data, error } = await supabase

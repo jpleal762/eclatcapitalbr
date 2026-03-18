@@ -82,6 +82,7 @@ function DeadlineEditor({ challenges, onUpdated }: { challenges: SprintChallenge
   const handleSave = async () => {
     if (!dateStr || !timeStr) return;
     setSaving(true);
+    const supabase = getAuthedClient();
     try {
       const newDeadline = new Date(`${dateStr}T${timeStr}:00`).toISOString();
       const ids = challenges.map(c => c.id);

@@ -3,6 +3,7 @@ import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { toast } from "sonner";
 
 export async function exportDatabaseToXLSX() {
+  const supabase = getAuthedClient();
   try {
     const { data, error } = await supabase
       .from("kpi_records")

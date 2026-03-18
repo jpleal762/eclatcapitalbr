@@ -89,6 +89,7 @@ export default function TVDashboard() {
 
   // ─── Load TV config from Supabase ────────────────────────────
   useEffect(() => {
+    const supabase = getAuthedClient();
     const loadConfig = async () => {
       try {
         const { data } = await supabase

@@ -103,6 +103,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
   };
 
   const saveEdit = async (id: string) => {
+    const supabase = getAuthedClient();
     const numValue = parseFloat(editValue) || 0;
     const updateData = editField === "realized"
       ? { realized_value: numValue }

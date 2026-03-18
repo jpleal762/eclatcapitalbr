@@ -90,6 +90,7 @@ export function ProductionEditModal({
 
   const loadRecords = async () => {
     if (!monthKey) return;
+    const supabase = getAuthedClient();
     setIsLoading(true);
     try {
       let query = supabase

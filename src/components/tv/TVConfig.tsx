@@ -38,6 +38,7 @@ export function TVConfig({
 
   const handleSave = async () => {
     setSaving(true);
+    const supabase = getAuthedClient();
     setMensagemDia(localMsg);
     setKpiPrioridade(localKpi);
     setScreenDurations(localDurations);
