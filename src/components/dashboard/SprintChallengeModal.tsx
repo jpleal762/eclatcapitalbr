@@ -11,7 +11,7 @@ import { CalendarIcon, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { SPRINT_PRODUCTS } from "@/types/kpi";
 import { toast } from "@/hooks/use-toast";
 

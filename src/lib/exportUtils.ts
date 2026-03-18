@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { toast } from "sonner";
 
 export async function exportDatabaseToXLSX() {

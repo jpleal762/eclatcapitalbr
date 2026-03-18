@@ -2,7 +2,7 @@ import { SprintChallenge, SPRINT_PRODUCTS } from "@/types/kpi";
 import { AssessorAvatar } from "./AssessorAvatar";
 import { ConfettiCelebration } from "./ConfettiCelebration";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { X, Pencil, Check } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";

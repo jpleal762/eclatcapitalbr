@@ -10,7 +10,7 @@ import { loadExcelData, getLastUpdateTimestamp } from "@/lib/storage";
 import { processKPIData, processDashboardData, getAvailableMonths } from "@/lib/kpiUtils";
 import { KPIRecord, DashboardData } from "@/types/kpi";
 import { Loader2, WifiOff } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 
 const DEFAULT_DURATIONS = [20, 12, 12, 8];
 const DATA_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes

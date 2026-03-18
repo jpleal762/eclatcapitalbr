@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X, Save, RotateCcw } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { GaugeKPI } from "@/types/kpi";
 
 interface TVConfigProps {

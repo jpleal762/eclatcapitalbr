@@ -1,7 +1,7 @@
 import { SprintChallenge, SprintKPIData, SPRINT_PRODUCTS } from "@/types/kpi";
 import { ConfettiCelebration } from "./ConfettiCelebration";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { X } from "lucide-react";
 import { useState } from "react";
 
