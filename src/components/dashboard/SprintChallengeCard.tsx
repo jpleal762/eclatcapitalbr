@@ -55,6 +55,7 @@ export function SprintChallengeCard({ challenge, sprintData, onDelete }: SprintC
 
   const handleDelete = async () => {
     setDeleting(true);
+    const supabase = getAuthedClient();
     await supabase.from("sprint_challenges" as any).delete().eq("id", challenge.id);
     onDelete();
   };

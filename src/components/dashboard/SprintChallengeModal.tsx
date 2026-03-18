@@ -78,6 +78,7 @@ export function SprintChallengeModal({ assessors, selectedMonth, onChallengeCrea
         is_active: true,
       }));
 
+      const supabase = getAuthedClient();
       const { error } = await supabase.from("sprint_challenges" as any).insert(rows as any);
       if (error) throw error;
 

@@ -91,6 +91,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
 
   const handleDeleteKPI = async (id: string) => {
     setDeletingId(id);
+    const supabase = getAuthedClient();
     await supabase.from("sprint_challenges" as any).delete().eq("id", id);
     onDelete();
   };
