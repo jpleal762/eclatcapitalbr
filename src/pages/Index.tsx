@@ -63,6 +63,7 @@ import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { TokenAccessConfig } from "@/components/dashboard/TokenAccessConfig";
 import { ProductionEditModal } from "@/components/dashboard/ProductionEditModal";
 import { exportDatabaseToXLSX } from "@/lib/exportUtils";
+import { useWeeklyActions } from "@/components/dashboard/EclatWeeklyActions";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 const SPRINT_PRODUCTS_STORAGE_KEY = "sprint-selected-products";
@@ -144,6 +145,9 @@ const Index = () => {
   // Sprint evolution state
   const [evolutionMap, setEvolutionMap] = useState<Map<string, SprintEvolution> | undefined>(undefined);
   const [evolution48h, setEvolution48h] = useState<SprintEvolution48h | null>(null);
+
+  // Weekly actions (Ações Éclat da Semana)
+  const { actions: weeklyActions, save: saveWeeklyActions } = useWeeklyActions();
   
   
   // Estado para controle da visão
@@ -620,7 +624,9 @@ const Index = () => {
         {!isFullscreen && (
           <DashboardSidebar 
             visibility={visibility} 
-            onVisibilityChange={handleVisibilityChange} 
+            onVisibilityChange={handleVisibilityChange}
+            weeklyActions={weeklyActions}
+            onSaveWeeklyActions={saveWeeklyActions}
           />
         )}
         
@@ -807,6 +813,7 @@ const Index = () => {
                             dashboardData={dashboardData}
                             isLocked={isViewLocked}
                             historicalData={assessorHistoricalICM}
+                            weeklyActions={weeklyActions}
                           />
                         </ExpandableCard>
                       </div>

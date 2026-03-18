@@ -1,12 +1,14 @@
 import React from "react";
 import { DashboardData, AssessorPerformance, GaugeKPI } from "@/types/kpi";
 import { formatNumber } from "@/lib/kpiUtils";
-import { Trophy, AlertTriangle, CheckCircle, Target, Zap, ArrowUp, ArrowDown } from "lucide-react";
+import { Trophy, AlertTriangle, CheckCircle, Target, Zap, ArrowUp, ArrowDown, Flame } from "lucide-react";
+import { WeeklyAction } from "@/components/dashboard/EclatWeeklyActions";
 
 interface TVScreen1Props {
   data: DashboardData;
   mensagemDia: string;
   kpiPrioridade: string;
+  weeklyActions?: WeeklyAction[];
 }
 
 // Funil ordered for TV display (most top of funnel first)
@@ -49,7 +51,7 @@ function TVHBar({ pct, ritmo }: { pct: number; ritmo: number }) {
   );
 }
 
-export function TVScreen1({ data, mensagemDia, kpiPrioridade }: TVScreen1Props) {
+export function TVScreen1({ data, mensagemDia, kpiPrioridade, weeklyActions = [] }: TVScreen1Props) {
   const { icmGeral, ritmoIdeal, diasUteisRestantes, totalDiasUteis, gaugeKPIs, assessorPerformance, metaSemanal } = data;
   const status = getMonthStatus(icmGeral, ritmoIdeal);
 
@@ -101,6 +103,26 @@ export function TVScreen1({ data, mensagemDia, kpiPrioridade }: TVScreen1Props) 
           <span className="text-2xl font-bold leading-tight text-center">{status.label}</span>
         </div>
       </div>
+
+      {/* ─── AÇÕES ÉCLAT DA SEMANA ─── */}
+      {weeklyActions.length > 0 && (
+        <div className="flex-shrink-0 bg-tv-card border border-tv-gold/30 rounded-2xl px-5 py-3 flex items-center gap-6 overflow-hidden">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Flame className="w-5 h-5 text-tv-gold flex-shrink-0" />
+            <span className="text-sm font-bold text-tv-gold uppercase tracking-widest whitespace-nowrap">Ações Éclat da Semana</span>
+          </div>
+          <div className="flex gap-6 flex-1 overflow-hidden">
+            {weeklyActions.map((a, i) => (
+              <div key={a.id} className="flex items-center gap-2 min-w-0">
+                <span className="w-5 h-5 flex-shrink-0 rounded-full bg-tv-gold/20 text-tv-gold text-[10px] font-bold flex items-center justify-center">
+                  {i + 1}
+                </span>
+                <span className="text-sm font-semibold text-tv-text truncate">{a.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ─── MAIN BODY ─── */}
       <div className="flex gap-4 flex-1 min-h-0 overflow-hidden">

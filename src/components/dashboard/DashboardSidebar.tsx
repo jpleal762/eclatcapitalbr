@@ -1,4 +1,5 @@
 import { LayoutDashboard, BarChart3, Settings, CheckSquare, Square } from "lucide-react";
+import { WeeklyActionsEditor, WeeklyAction } from "./EclatWeeklyActions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,6 +45,8 @@ export const defaultVisibility: DashboardVisibility = {
 interface DashboardSidebarProps {
   visibility: DashboardVisibility;
   onVisibilityChange: (key: keyof DashboardVisibility, value: boolean) => void;
+  weeklyActions: WeeklyAction[];
+  onSaveWeeklyActions: (next: WeeklyAction[]) => Promise<void>;
 }
 
 const CARD_ITEMS: { key: keyof DashboardVisibility; label: string }[] = [
@@ -63,7 +66,7 @@ const GRAPH_ITEMS: { key: keyof DashboardVisibility; label: string }[] = [
   { key: "graph8", label: "Gráfico 8 - Diversificação" },
 ];
 
-export function DashboardSidebar({ visibility, onVisibilityChange }: DashboardSidebarProps) {
+export function DashboardSidebar({ visibility, onVisibilityChange, weeklyActions, onSaveWeeklyActions }: DashboardSidebarProps) {
   const allSelected = Object.values(visibility).every(Boolean);
   const noneSelected = Object.values(visibility).every((v) => !v);
 
@@ -162,6 +165,11 @@ export function DashboardSidebar({ visibility, onVisibilityChange }: DashboardSi
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Weekly Actions Editor */}
+        <div className="p-3">
+          <WeeklyActionsEditor actions={weeklyActions} onSave={onSaveWeeklyActions} />
+        </div>
       </SidebarContent>
     </Sidebar>
   );

@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTheme } from "next-themes";
 import { ReportButton } from "./ReportButton";
 import { DashboardData } from "@/types/kpi";
+import { EclatWeeklyActions, WeeklyAction } from "./EclatWeeklyActions";
 
 interface HistoricalICMData {
   month: string;
@@ -26,6 +27,7 @@ interface ICMCardProps {
   isLocked?: boolean;
   historicalData?: HistoricalICMData[];
   dashboardData?: DashboardData;
+  weeklyActions?: WeeklyAction[];
 }
 export function ICMCard({
   icmGeral,
@@ -40,6 +42,7 @@ export function ICMCard({
   isLocked = false,
   historicalData,
   dashboardData,
+  weeklyActions = [],
 }: ICMCardProps) {
   const { theme } = useTheme();
 
@@ -207,5 +210,9 @@ export function ICMCard({
             <span className="text-responsive-xs font-medium text-orange-700">Abaixo do esperado</span>
           </>}
       </div>
+
+      {/* Ações Éclat da Semana */}
+      <EclatWeeklyActions actions={weeklyActions} />
     </Card>;
+
 }

@@ -11,6 +11,7 @@ import { processKPIData, processDashboardData, getAvailableMonths } from "@/lib/
 import { KPIRecord, DashboardData } from "@/types/kpi";
 import { Loader2, WifiOff } from "lucide-react";
 import { getAuthedClient } from "@/integrations/supabase/authedClient";
+import { useWeeklyActions, WeeklyAction } from "@/components/dashboard/EclatWeeklyActions";
 
 const DEFAULT_DURATIONS = [20, 12, 12, 8];
 const DATA_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
@@ -41,6 +42,9 @@ export default function TVDashboard() {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [mensagemDia, setMensagemDia] = useState("");
   const [kpiPrioridade, setKpiPrioridade] = useState("");
+
+  // Weekly actions
+  const { actions: weeklyActions } = useWeeklyActions();
 
   // Kiosk mode
   const [isKiosk, setIsKiosk] = useState(false);
@@ -211,6 +215,7 @@ export default function TVDashboard() {
       data={dashboardData}
       mensagemDia={mensagemDia}
       kpiPrioridade={kpiPrioridade}
+      weeklyActions={weeklyActions}
     />,
     <TVScreen2
       key="s2"
