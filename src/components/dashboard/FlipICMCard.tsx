@@ -7,6 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getTokenHeaders } from "@/integrations/supabase/authedClient";
+
 
 interface HistoricalICMData {
   month: string;
