@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { KPIRecord } from "@/types/kpi";
 import { saveKPISnapshot } from "@/lib/evolutionUtils";
 
@@ -10,6 +10,7 @@ export async function saveExcelData(
   options?: { createdBy?: string; updatedBy?: string }
 ): Promise<boolean> {
   try {
+    const supabase = getAuthedClient();
     // Save snapshot of current data before replacing
     const existingData = await loadExcelData();
     if (existingData && existingData.length > 0) {
@@ -66,6 +67,7 @@ export async function saveExcelData(
  */
 export async function loadExcelData(): Promise<KPIRecord[] | null> {
   try {
+    const supabase = getAuthedClient();
     const { data, error } = await supabase
       .from('kpi_records')
       .select('*')
@@ -98,6 +100,7 @@ export async function loadExcelData(): Promise<KPIRecord[] | null> {
  */
 export async function clearExcelData(): Promise<boolean> {
   try {
+    const supabase = getAuthedClient();
     const { error } = await supabase
       .from('kpi_records')
       .delete()
@@ -118,6 +121,7 @@ export async function clearExcelData(): Promise<boolean> {
  */
 export async function hasStoredData(): Promise<boolean> {
   try {
+    const supabase = getAuthedClient();
     const { count, error } = await supabase
       .from('kpi_records')
       .select('*', { count: 'exact', head: true });
@@ -135,6 +139,7 @@ export async function hasStoredData(): Promise<boolean> {
  */
 export async function getLastUpdateTimestamp(): Promise<string | null> {
   try {
+    const supabase = getAuthedClient();
     const { data, error } = await supabase
       .from('kpi_records')
       .select('updated_at')

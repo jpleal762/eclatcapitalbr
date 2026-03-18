@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pencil, RefreshCw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { cn } from "@/lib/utils";
 
 interface SprintPageProps {
@@ -82,6 +82,7 @@ function DeadlineEditor({ challenges, onUpdated }: { challenges: SprintChallenge
   const handleSave = async () => {
     if (!dateStr || !timeStr) return;
     setSaving(true);
+    const supabase = getAuthedClient();
     try {
       const newDeadline = new Date(`${dateStr}T${timeStr}:00`).toISOString();
       const ids = challenges.map(c => c.id);
@@ -152,6 +153,7 @@ export function SprintPage({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchChallenges = useCallback(async () => {
+    const supabase = getAuthedClient();
     const { data } = await supabase
       .from("sprint_challenges" as any)
       .select("*")

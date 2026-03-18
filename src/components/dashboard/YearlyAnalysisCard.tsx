@@ -4,8 +4,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, CheckCircle2, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getTokenHeaders } from "@/integrations/supabase/authedClient";
 import { YearlyDashboardData } from "@/types/kpi";
 import { useToast } from "@/hooks/use-toast";
+
 
 interface YearlyAnalysisCardProps {
   yearlyData: YearlyDashboardData;
@@ -89,6 +91,7 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
             selectedAssessor,
           },
         },
+        headers: getTokenHeaders(),
       });
 
       if (fnError) {

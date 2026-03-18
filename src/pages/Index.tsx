@@ -171,15 +171,13 @@ const Index = () => {
       setTokenError(null);
       
       try {
-        const { data, error } = await supabase
-          .from("assessor_tokens")
-          .select("id, assessor_name, is_active, allowed_screens, role, last_production_update_at")
-          .eq("token", tokenToValidate)
-          .maybeSingle();
+        // Validate via edge function (server-side) — never query assessor_tokens directly
+        const { data, error } = await supabase.functions.invoke("validate-token", {
+          body: { token: tokenToValidate },
+        });
 
-        if (error) {
+        if (error || !data) {
           console.error("Erro ao validar token:", error);
-          // Se era token salvo e falhou, limpa do localStorage
           if (!urlToken && storedToken) {
             localStorage.removeItem(ECLAT_PWA_TOKEN_KEY);
           }
@@ -187,21 +185,11 @@ const Index = () => {
           return;
         }
 
-        if (!data) {
-          // Token inválido - se era salvo, remove do localStorage
+        if (!data.valid) {
           if (!urlToken && storedToken) {
             localStorage.removeItem(ECLAT_PWA_TOKEN_KEY);
           }
           setTokenError("Token inválido. Verifique o link de acesso.");
-          return;
-        }
-
-        if (!data.is_active) {
-          // Token desativado - se era salvo, remove do localStorage
-          if (!urlToken && storedToken) {
-            localStorage.removeItem(ECLAT_PWA_TOKEN_KEY);
-          }
-          setTokenError("Este link de acesso foi desativado.");
           return;
         }
 
@@ -215,22 +203,20 @@ const Index = () => {
         setTokenValidated(true);
         
         // Store role and token info
-        setTokenRole((data as any).role || 'socio');
+        setTokenRole(data.role || 'socio');
         setTokenAssessorName(data.assessor_name);
         setTokenId(data.id);
-        setLastProductionUpdate((data as any).last_production_update_at || null);
+        setLastProductionUpdate(data.last_production_update_at || null);
         
         // Configura telas permitidas
         const rawScreens = (data.allowed_screens as string[]) || ['dashboard', 'analysis', 'sprint'];
         const screens = rawScreens.filter((s): s is PageType => ['dashboard', 'analysis', 'sprint'].includes(s));
         setAllowedScreens(screens);
-        // Se a página atual não é permitida, muda para a primeira permitida
         if (!screens.includes(currentPage)) {
           setCurrentPage(screens[0] || 'dashboard');
         }
       } catch (err) {
         console.error("Erro inesperado:", err);
-        // Se era token salvo e falhou, limpa do localStorage
         if (!urlToken && storedToken) {
           localStorage.removeItem(ECLAT_PWA_TOKEN_KEY);
         }

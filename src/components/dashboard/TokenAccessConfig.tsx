@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import {
   Dialog,
   DialogContent,
@@ -128,6 +128,7 @@ export function TokenAccessConfig({
   }, [isOpen]);
 
   const loadTokens = async () => {
+    const supabase = getAuthedClient();
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -196,6 +197,7 @@ export function TokenAccessConfig({
       }));
 
       for (const update of updates) {
+        const supabase = getAuthedClient();
         const { error } = await supabase
           .from("assessor_tokens")
           .update({ allowed_screens: update.allowed_screens })

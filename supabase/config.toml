@@ -1,7 +1,11 @@
 project_id = "nkhlipjsrkboufoizblr"
 
+[functions.validate-token]
+verify_jwt = false
+
 [functions.analyze-yearly-kpis]
 verify_jwt = false
 
 [functions.analyze-monthly-kpis]
 verify_jwt = false
+

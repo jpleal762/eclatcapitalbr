@@ -2,7 +2,7 @@ import { SprintChallenge, SPRINT_PRODUCTS } from "@/types/kpi";
 import { AssessorAvatar } from "./AssessorAvatar";
 import { ConfettiCelebration } from "./ConfettiCelebration";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { X, Pencil, Check } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -91,6 +91,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
 
   const handleDeleteKPI = async (id: string) => {
     setDeletingId(id);
+    const supabase = getAuthedClient();
     await supabase.from("sprint_challenges" as any).delete().eq("id", id);
     onDelete();
   };
@@ -102,6 +103,7 @@ export function SprintAssessorCard({ assessorName, challenges, onDelete, onUpdat
   };
 
   const saveEdit = async (id: string) => {
+    const supabase = getAuthedClient();
     const numValue = parseFloat(editValue) || 0;
     const updateData = editField === "realized"
       ? { realized_value: numValue }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import {
   Dialog,
   DialogContent,
@@ -90,6 +90,7 @@ export function ProductionEditModal({
 
   const loadRecords = async () => {
     if (!monthKey) return;
+    const supabase = getAuthedClient();
     setIsLoading(true);
     try {
       let query = supabase
@@ -175,6 +176,7 @@ export function ProductionEditModal({
       const auditName = assessorName || "Escritório";
 
       for (const row of changedRows) {
+        const supabase = getAuthedClient();
         const updatedMonthlyData = { ...row.monthlyData, [row.monthKey]: row.newValue };
         const { error } = await supabase
           .from("kpi_records")

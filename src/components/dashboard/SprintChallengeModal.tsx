@@ -11,7 +11,7 @@ import { CalendarIcon, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { SPRINT_PRODUCTS } from "@/types/kpi";
 import { toast } from "@/hooks/use-toast";
 
@@ -78,6 +78,7 @@ export function SprintChallengeModal({ assessors, selectedMonth, onChallengeCrea
         is_active: true,
       }));
 
+      const supabase = getAuthedClient();
       const { error } = await supabase.from("sprint_challenges" as any).insert(rows as any);
       if (error) throw error;
 

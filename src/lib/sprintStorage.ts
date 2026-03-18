@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { SprintKPIData, SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -29,6 +29,7 @@ export async function saveSprintSnapshot(
   sprintData: SprintKPIData[]
 ): Promise<boolean> {
   try {
+    const supabase = getAuthedClient();
     const snapshotData: SprintSnapshotData = {
       timestamp: new Date().toISOString(),
       kpis: sprintData.map(kpi => ({
@@ -71,6 +72,7 @@ export async function getLatestSnapshot(
   minHoursAgo: number = 24
 ): Promise<SprintSnapshot | null> {
   try {
+    const supabase = getAuthedClient();
     const cutoffDate = new Date();
     cutoffDate.setHours(cutoffDate.getHours() - minHoursAgo);
 
@@ -94,7 +96,7 @@ export async function getLatestSnapshot(
       id: data.id,
       month: data.month,
       snapshot_data: data.snapshot_data as unknown as SprintSnapshotData,
-      created_at: data.created_at,
+      created_at: data.created_at ?? new Date().toISOString(),
     };
   } catch (err) {
     console.error("Unexpected error fetching snapshot:", err);
@@ -168,6 +170,7 @@ export function calculateEvolution48h(
  */
 async function cleanOldSnapshots(month: string, keepCount: number = 10): Promise<void> {
   try {
+    const supabase = getAuthedClient();
     // Get all snapshots for this month ordered by date
     const { data: snapshots, error: fetchError } = await supabase
       .from("sprint_snapshots")
