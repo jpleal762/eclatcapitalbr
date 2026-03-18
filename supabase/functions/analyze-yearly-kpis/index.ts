@@ -35,6 +35,34 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Validate assessor token server-side
+  const assessorToken = req.headers.get("x-assessor-token");
+  if (!assessorToken) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const supabaseAdmin = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+  );
+
+  const { data: tokenData } = await supabaseAdmin
+    .from("assessor_tokens")
+    .select("id")
+    .eq("token", assessorToken)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (!tokenData) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const { yearlyData } = await req.json() as { yearlyData: YearlyData };
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
