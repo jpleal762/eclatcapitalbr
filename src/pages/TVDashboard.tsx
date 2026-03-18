@@ -43,6 +43,9 @@ export default function TVDashboard() {
   const [mensagemDia, setMensagemDia] = useState("");
   const [kpiPrioridade, setKpiPrioridade] = useState("");
 
+  // Weekly actions
+  const { actions: weeklyActions } = useWeeklyActions();
+
   // Kiosk mode
   const [isKiosk, setIsKiosk] = useState(false);
   const kioskTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
