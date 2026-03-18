@@ -145,6 +145,9 @@ const Index = () => {
   // Sprint evolution state
   const [evolutionMap, setEvolutionMap] = useState<Map<string, SprintEvolution> | undefined>(undefined);
   const [evolution48h, setEvolution48h] = useState<SprintEvolution48h | null>(null);
+
+  // Weekly actions (Ações Éclat da Semana)
+  const { actions: weeklyActions, save: saveWeeklyActions } = useWeeklyActions();
   
   
   // Estado para controle da visão
