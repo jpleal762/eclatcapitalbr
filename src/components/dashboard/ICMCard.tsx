@@ -210,5 +210,9 @@ export function ICMCard({
             <span className="text-responsive-xs font-medium text-orange-700">Abaixo do esperado</span>
           </>}
       </div>
+
+      {/* Ações Éclat da Semana */}
+      <EclatWeeklyActions actions={weeklyActions} />
     </Card>;
+
 }
