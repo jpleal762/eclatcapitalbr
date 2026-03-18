@@ -66,7 +66,7 @@ const GRAPH_ITEMS: { key: keyof DashboardVisibility; label: string }[] = [
   { key: "graph8", label: "Gráfico 8 - Diversificação" },
 ];
 
-export function DashboardSidebar({ visibility, onVisibilityChange }: DashboardSidebarProps) {
+export function DashboardSidebar({ visibility, onVisibilityChange, weeklyActions, onSaveWeeklyActions }: DashboardSidebarProps) {
   const allSelected = Object.values(visibility).every(Boolean);
   const noneSelected = Object.values(visibility).every((v) => !v);
 
