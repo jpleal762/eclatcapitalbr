@@ -45,6 +45,8 @@ export const defaultVisibility: DashboardVisibility = {
 interface DashboardSidebarProps {
   visibility: DashboardVisibility;
   onVisibilityChange: (key: keyof DashboardVisibility, value: boolean) => void;
+  weeklyActions: WeeklyAction[];
+  onSaveWeeklyActions: (next: WeeklyAction[]) => Promise<void>;
 }
 
 const CARD_ITEMS: { key: keyof DashboardVisibility; label: string }[] = [
