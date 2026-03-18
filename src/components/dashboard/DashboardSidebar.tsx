@@ -165,6 +165,11 @@ export function DashboardSidebar({ visibility, onVisibilityChange, weeklyActions
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Weekly Actions Editor */}
+        <div className="p-3">
+          <WeeklyActionsEditor actions={weeklyActions} onSave={onSaveWeeklyActions} />
+        </div>
       </SidebarContent>
     </Sidebar>
   );
