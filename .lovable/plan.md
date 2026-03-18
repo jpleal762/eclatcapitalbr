@@ -1,33 +1,52 @@
 
-## Root Cause
+## Diagnóstico
 
-The last security migration (`ff44f63a`) removed the empty-token bypass from all `kpi_records` RLS policies. Now every INSERT/UPDATE/DELETE requires `current_token_role()` to return either `'admin'` or `'socio'`. When the admin opens the dashboard without a `?token=` URL (no token in localStorage), `current_token_role()` returns `NULL` — neither condition passes — so all writes are blocked by RLS. Reads are also blocked, which is why the dashboard shows the upload screen again even after data was already saved.
+O problema está claro comparando as duas migrações:
 
-## What Needs to Change
+1. **Migration `a201259d` (anterior)** — criou políticas com bypass para acesso sem token (`COALESCE(...) = ''`). Funcionava para o admin sem token.
 
-A new database migration that updates **all four CRUD policies** on `kpi_records` to restore the tokenless bypass:
+2. **Migration `ff44f63a` (última executada)** — removeu esse bypass em `kpi_records`, exigindo `current_token_role() = 'admin'` ou `'socio'`. Quando o admin acessa o site sem `?token=` na URL, `current_token_role()` retorna `NULL` → todas as operações falham → dashboard vazio.
+
+**Estado atual dos policies (confirmado pelo schema):**
+- `kpi_records`: bloqueia acesso sem token ❌
+- `kpi_snapshots`, `sprint_snapshots`, `sprint_challenges`: ainda exigem `is_valid_assessor_token(...)` com token vazio → também bloqueiam acesso sem token ❌
+
+## O Que Fazer
+
+Nova migration que restaura o bypass de acesso sem token em todas as tabelas afetadas. A lógica correta é:
 
 ```
-Allow IF:
-  header is empty (direct/office access, no token)    ← restored admin path
-  OR token role = 'admin'                             ← token admin path
-  OR (token role = 'socio' AND assessor matches)     ← assessor path
+Permitir SE:
+  header x-assessor-token está vazio/ausente  ← acesso admin/escritório
+  OU token é válido (admin ou sócio)          ← acesso via token
 ```
 
-The same fix needs to be applied to `kpi_snapshots`, `sprint_snapshots`, `sprint_challenges`, and the `app_settings` write policies so that all cloud persistence works for the admin.
+Além disso, para `kpi_records` especificamente, manter o isolamento de dados do sócio:
+```
+Sem token → acesso total
+Token admin → acesso total
+Token sócio → apenas registros onde assessor = nome do sócio
+Token inválido → bloqueado
+```
+
+## Mudança Técnica
+
+**1 nova migration SQL** que:
+- Dropa as 4 políticas atuais de `kpi_records` e recria com o bypass + isolamento de sócio
+- Dropa e recria políticas de `kpi_snapshots` (SELECT, INSERT, DELETE)
+- Dropa e recria políticas de `sprint_snapshots` (SELECT, INSERT, DELETE)
+- Dropa e recria políticas de `sprint_challenges` (SELECT, INSERT, UPDATE, DELETE)
+- Dropa e recria políticas de write de `app_settings` (INSERT, UPDATE)
+
+Nenhuma mudança de código frontend necessária.
 
 ```text
-Who can access?
-  No token header → full access (office/admin browser)
-  Valid admin token → full access
-  Valid sócio token → own records only
-  Invalid/expired token → blocked
+Antes (quebrado):
+  admin sem token → current_token_role() = NULL → bloqueado
+
+Depois (correto):
+  admin sem token → COALESCE(header, '') = '' → permitido
+  token admin     → current_token_role() = 'admin' → permitido
+  token sócio     → permitido só nos próprios registros
+  token inválido  → bloqueado
 ```
-
-This is identical to the approach that was working before the last security scan override.
-
-## Technical Details
-
-- One new SQL migration dropping and recreating the 4 `kpi_records` policies plus the policies on the 3 supporting tables
-- No frontend changes needed — the code already passes the token via `getAuthedClient()` when one exists
-- The security property is preserved: any request that **has** an `x-assessor-token` header must have a valid one — only absent tokens (office access) get the bypass
