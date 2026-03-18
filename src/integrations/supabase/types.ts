@@ -199,6 +199,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_token_assessor_name: { Args: never; Returns: string }
+      current_token_role: { Args: never; Returns: string }
       is_valid_assessor_token: { Args: { t: string }; Returns: boolean }
     }
     Enums: {
