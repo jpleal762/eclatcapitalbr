@@ -42,6 +42,7 @@ export function ICMCard({
   isLocked = false,
   historicalData,
   dashboardData,
+  weeklyActions = [],
 }: ICMCardProps) {
   const { theme } = useTheme();
 
