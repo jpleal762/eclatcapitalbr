@@ -624,7 +624,9 @@ const Index = () => {
         {!isFullscreen && (
           <DashboardSidebar 
             visibility={visibility} 
-            onVisibilityChange={handleVisibilityChange} 
+            onVisibilityChange={handleVisibilityChange}
+            weeklyActions={weeklyActions}
+            onSaveWeeklyActions={saveWeeklyActions}
           />
         )}
         
