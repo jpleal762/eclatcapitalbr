@@ -1,12 +1,14 @@
 import React from "react";
 import { DashboardData, AssessorPerformance, GaugeKPI } from "@/types/kpi";
 import { formatNumber } from "@/lib/kpiUtils";
-import { Trophy, AlertTriangle, CheckCircle, Target, Zap, ArrowUp, ArrowDown } from "lucide-react";
+import { Trophy, AlertTriangle, CheckCircle, Target, Zap, ArrowUp, ArrowDown, Flame } from "lucide-react";
+import { WeeklyAction } from "@/components/dashboard/EclatWeeklyActions";
 
 interface TVScreen1Props {
   data: DashboardData;
   mensagemDia: string;
   kpiPrioridade: string;
+  weeklyActions?: WeeklyAction[];
 }
 
 // Funil ordered for TV display (most top of funnel first)
