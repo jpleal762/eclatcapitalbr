@@ -215,6 +215,7 @@ export default function TVDashboard() {
       data={dashboardData}
       mensagemDia={mensagemDia}
       kpiPrioridade={kpiPrioridade}
+      weeklyActions={weeklyActions}
     />,
     <TVScreen2
       key="s2"
