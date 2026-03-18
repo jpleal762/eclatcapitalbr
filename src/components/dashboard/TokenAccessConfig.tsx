@@ -197,6 +197,7 @@ export function TokenAccessConfig({
       }));
 
       for (const update of updates) {
+        const supabase = getAuthedClient();
         const { error } = await supabase
           .from("assessor_tokens")
           .update({ allowed_screens: update.allowed_screens })

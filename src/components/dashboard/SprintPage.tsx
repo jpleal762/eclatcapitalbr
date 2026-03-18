@@ -153,6 +153,7 @@ export function SprintPage({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchChallenges = useCallback(async () => {
+    const supabase = getAuthedClient();
     const { data } = await supabase
       .from("sprint_challenges" as any)
       .select("*")

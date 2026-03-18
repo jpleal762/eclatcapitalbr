@@ -176,6 +176,7 @@ export function ProductionEditModal({
       const auditName = assessorName || "Escritório";
 
       for (const row of changedRows) {
+        const supabase = getAuthedClient();
         const updatedMonthlyData = { ...row.monthlyData, [row.monthKey]: row.newValue };
         const { error } = await supabase
           .from("kpi_records")
