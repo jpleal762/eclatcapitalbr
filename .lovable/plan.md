@@ -1,20 +1,33 @@
 
-## Changes needed across 3 areas:
+## Root Cause
 
-### 1. `QuarterlyKPIBar.tsx` — "Maiores Gaps" alignment
-Currently the assessor gap names are in a `<span>` floated to the right side of the label row. They should be positioned below the bar (aligned with "Falta p/ Ritmo" which is also below the bar on the right). Move `topAssessorGaps` display from the top label row to the bottom values row, right-aligned alongside "Falta p/ Ritmo".
+The last security migration (`ff44f63a`) removed the empty-token bypass from all `kpi_records` RLS policies. Now every INSERT/UPDATE/DELETE requires `current_token_role()` to return either `'admin'` or `'socio'`. When the admin opens the dashboard without a `?token=` URL (no token in localStorage), `current_token_role()` returns `NULL` — neither condition passes — so all writes are blocked by RLS. Reads are also blocked, which is why the dashboard shows the upload screen again even after data was already saved.
 
-### 2. `EvolutionCard.tsx` — Less prominent worst assessors
-The `worstAssessors` names in red currently use `text-scale-6 font-bold text-red-500/70`. Reduce to `text-scale-5 font-normal text-red-400/60` to make them clearly secondary/subtle.
+## What Needs to Change
 
-### 3. `AnalysisPage.tsx` — First screen layout: allow scroll, prevent clipping
-Currently the KPI bars container uses `overflow-hidden lg:overflow-hidden` which clips content. Change to `overflow-y-auto` with a scrollbar on desktop too, so nothing gets cut. The `overflow-hidden` on lg was there to prevent scroll, but it causes content to be cut when there are many KPIs. We'll keep the `flex-1 min-h-0` flex layout but allow vertical scroll with a visible scrollbar via `overflow-y-auto`.
+A new database migration that updates **all four CRUD policies** on `kpi_records` to restore the tokenless bypass:
 
-Specifically in `AnalysisPage.tsx`:
-- Both KPI container divs (default/sorted view and by-category view): change `overflow-hidden lg:overflow-hidden` → `overflow-y-auto` so a scrollbar appears when needed
-- This ensures all KPI bars are reachable without content being cut off
+```
+Allow IF:
+  header is empty (direct/office access, no token)    ← restored admin path
+  OR token role = 'admin'                             ← token admin path
+  OR (token role = 'socio' AND assessor matches)     ← assessor path
+```
 
-### Files to edit:
-1. `src/components/dashboard/QuarterlyKPIBar.tsx` — move gaps to bottom row
-2. `src/components/dashboard/EvolutionCard.tsx` — reduce worst assessors visual weight
-3. `src/components/dashboard/AnalysisPage.tsx` — allow overflow-y-auto on KPI containers
+The same fix needs to be applied to `kpi_snapshots`, `sprint_snapshots`, `sprint_challenges`, and the `app_settings` write policies so that all cloud persistence works for the admin.
+
+```text
+Who can access?
+  No token header → full access (office/admin browser)
+  Valid admin token → full access
+  Valid sócio token → own records only
+  Invalid/expired token → blocked
+```
+
+This is identical to the approach that was working before the last security scan override.
+
+## Technical Details
+
+- One new SQL migration dropping and recreating the 4 `kpi_records` policies plus the policies on the 3 supporting tables
+- No frontend changes needed — the code already passes the token via `getAuthedClient()` when one exists
+- The security property is preserved: any request that **has** an `x-assessor-token` header must have a valid one — only absent tokens (office access) get the bypass
