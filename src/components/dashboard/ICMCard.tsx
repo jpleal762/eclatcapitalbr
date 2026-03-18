@@ -27,6 +27,7 @@ interface ICMCardProps {
   isLocked?: boolean;
   historicalData?: HistoricalICMData[];
   dashboardData?: DashboardData;
+  weeklyActions?: WeeklyAction[];
 }
 export function ICMCard({
   icmGeral,
