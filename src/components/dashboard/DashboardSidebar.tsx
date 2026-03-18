@@ -1,4 +1,5 @@
 import { LayoutDashboard, BarChart3, Settings, CheckSquare, Square } from "lucide-react";
+import { WeeklyActionsEditor, WeeklyAction } from "./EclatWeeklyActions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {

@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTheme } from "next-themes";
 import { ReportButton } from "./ReportButton";
 import { DashboardData } from "@/types/kpi";
+import { EclatWeeklyActions, WeeklyAction } from "./EclatWeeklyActions";
 
 interface HistoricalICMData {
   month: string;
