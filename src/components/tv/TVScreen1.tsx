@@ -51,7 +51,7 @@ function TVHBar({ pct, ritmo }: { pct: number; ritmo: number }) {
   );
 }
 
-export function TVScreen1({ data, mensagemDia, kpiPrioridade }: TVScreen1Props) {
+export function TVScreen1({ data, mensagemDia, kpiPrioridade, weeklyActions = [] }: TVScreen1Props) {
   const { icmGeral, ritmoIdeal, diasUteisRestantes, totalDiasUteis, gaugeKPIs, assessorPerformance, metaSemanal } = data;
   const status = getMonthStatus(icmGeral, ritmoIdeal);
 
