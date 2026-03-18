@@ -813,6 +813,7 @@ const Index = () => {
                             dashboardData={dashboardData}
                             isLocked={isViewLocked}
                             historicalData={assessorHistoricalICM}
+                            weeklyActions={weeklyActions}
                           />
                         </ExpandableCard>
                       </div>
