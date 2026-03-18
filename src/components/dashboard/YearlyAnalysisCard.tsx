@@ -91,6 +91,7 @@ export function YearlyAnalysisCard({ yearlyData, selectedYear, selectedAssessor 
             selectedAssessor,
           },
         },
+        headers: getTokenHeaders(),
       });
 
       if (fnError) {

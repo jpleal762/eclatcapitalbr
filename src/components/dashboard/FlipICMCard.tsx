@@ -120,7 +120,8 @@ export function FlipICMCard({
             selectedMonth,
             selectedAssessor,
           }
-        }
+        },
+        headers: getTokenHeaders(),
       });
 
       if (fnError) {
