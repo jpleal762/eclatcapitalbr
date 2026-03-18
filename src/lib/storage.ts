@@ -12,7 +12,6 @@ export async function saveExcelData(
   try {
     const supabase = getAuthedClient();
     // Save snapshot of current data before replacing
-
     const existingData = await loadExcelData();
     if (existingData && existingData.length > 0) {
       await saveKPISnapshot(existingData, options?.createdBy);
@@ -68,6 +67,7 @@ export async function saveExcelData(
  */
 export async function loadExcelData(): Promise<KPIRecord[] | null> {
   try {
+    const supabase = getAuthedClient();
     const { data, error } = await supabase
       .from('kpi_records')
       .select('*')
@@ -100,6 +100,7 @@ export async function loadExcelData(): Promise<KPIRecord[] | null> {
  */
 export async function clearExcelData(): Promise<boolean> {
   try {
+    const supabase = getAuthedClient();
     const { error } = await supabase
       .from('kpi_records')
       .delete()
@@ -120,6 +121,7 @@ export async function clearExcelData(): Promise<boolean> {
  */
 export async function hasStoredData(): Promise<boolean> {
   try {
+    const supabase = getAuthedClient();
     const { count, error } = await supabase
       .from('kpi_records')
       .select('*', { count: 'exact', head: true });
@@ -137,6 +139,7 @@ export async function hasStoredData(): Promise<boolean> {
  */
 export async function getLastUpdateTimestamp(): Promise<string | null> {
   try {
+    const supabase = getAuthedClient();
     const { data, error } = await supabase
       .from('kpi_records')
       .select('updated_at')

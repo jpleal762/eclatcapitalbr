@@ -2,7 +2,6 @@ import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { KPIRecord } from "@/types/kpi";
 import { KPI_CATEGORIES } from "@/lib/kpiUtils";
 
-
 export interface KPIEvolutionItem {
   label: string;
   category: string;
@@ -30,6 +29,7 @@ export async function saveKPISnapshot(
   createdBy?: string
 ): Promise<boolean> {
   try {
+    const supabase = getAuthedClient();
     // Determine the reference month from the data (most recent month with data)
     const month = detectCurrentMonth(data);
 
@@ -64,6 +64,7 @@ export async function saveKPISnapshot(
  */
 export async function getSnapshotFromDaysAgo(days: number): Promise<SnapshotRecord | null> {
   try {
+    const supabase = getAuthedClient();
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() - days);
     // Usar final do dia para incluir qualquer snapshot criado naquele dia
@@ -187,6 +188,7 @@ function detectCurrentMonth(data: KPIRecord[]): string {
  */
 async function cleanupOldSnapshots(keepCount: number): Promise<void> {
   try {
+    const supabase = getAuthedClient();
     const { data } = await (supabase as any)
       .from('kpi_snapshots')
       .select('id, created_at')

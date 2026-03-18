@@ -1,7 +1,6 @@
 import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { KPIRecord } from "@/types/kpi";
 
-
 /**
  * Check if the user role is admin
  */
@@ -26,6 +25,7 @@ export function canEditAssessor(
  */
 export async function getOpenMonth(): Promise<string | null> {
   try {
+    const supabase = getAuthedClient();
     const { data, error } = await supabase
       .from("app_settings")
       .select("value")
@@ -47,6 +47,7 @@ export async function setOpenMonth(
   updatedBy?: string
 ): Promise<boolean> {
   try {
+    const supabase = getAuthedClient();
     const { error } = await supabase
       .from("app_settings")
       .update({ value: month, updated_by: updatedBy || null, updated_at: new Date().toISOString() })
@@ -91,11 +92,6 @@ export function validateMonthRestriction(
   records: KPIRecord[],
   openMonth: string
 ): { valid: boolean; error?: string } {
-  // The open month format is like "fev-26"
-  // Records have monthly data as keys like "fev-26", "jan-26", etc.
-  // We check that the records contain data for the open month
-  // Since records come from XLSX with all months, we just verify the open month exists
-  // The actual restriction is: only allow upload when there IS an open month
   if (!openMonth) {
     return {
       valid: false,
@@ -113,6 +109,7 @@ export async function updateLastProductionUpdate(
   tokenId: string
 ): Promise<boolean> {
   try {
+    const supabase = getAuthedClient();
     const { error } = await supabase
       .from("assessor_tokens")
       .update({ last_production_update_at: new Date().toISOString() })
