@@ -63,6 +63,7 @@ import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { TokenAccessConfig } from "@/components/dashboard/TokenAccessConfig";
 import { ProductionEditModal } from "@/components/dashboard/ProductionEditModal";
 import { exportDatabaseToXLSX } from "@/lib/exportUtils";
+import { useWeeklyActions } from "@/components/dashboard/EclatWeeklyActions";
 
 const VISIBILITY_STORAGE_KEY = "dashboard-visibility";
 const SPRINT_PRODUCTS_STORAGE_KEY = "sprint-selected-products";
