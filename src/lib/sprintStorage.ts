@@ -1,6 +1,7 @@
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { SprintKPIData, SprintEvolution, SprintEvolution48h } from "@/types/kpi";
 import type { Json } from "@/integrations/supabase/types";
+
 
 interface SprintSnapshotData {
   timestamp: string;

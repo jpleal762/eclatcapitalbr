@@ -1,5 +1,6 @@
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { KPIRecord } from "@/types/kpi";
+
 
 /**
  * Check if the user role is admin

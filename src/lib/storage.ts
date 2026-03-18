@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { KPIRecord } from "@/types/kpi";
 import { saveKPISnapshot } from "@/lib/evolutionUtils";
 
@@ -10,7 +10,9 @@ export async function saveExcelData(
   options?: { createdBy?: string; updatedBy?: string }
 ): Promise<boolean> {
   try {
+    const supabase = getAuthedClient();
     // Save snapshot of current data before replacing
+
     const existingData = await loadExcelData();
     if (existingData && existingData.length > 0) {
       await saveKPISnapshot(existingData, options?.createdBy);

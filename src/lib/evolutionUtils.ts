@@ -1,6 +1,7 @@
-import { supabase } from "@/integrations/supabase/client";
+import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { KPIRecord } from "@/types/kpi";
 import { KPI_CATEGORIES } from "@/lib/kpiUtils";
+
 
 export interface KPIEvolutionItem {
   label: string;
