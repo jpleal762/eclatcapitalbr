@@ -18,7 +18,10 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ["favicon.ico", "robots.txt", "icons/*"],
       manifest: false, // Desativado - manifest é gerado dinamicamente em index.html para preservar token
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"]
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
+        globPatterns: ["**/*.{js,css,ico,png,svg,woff,woff2}"]
       }
     })
   ].filter(Boolean),
