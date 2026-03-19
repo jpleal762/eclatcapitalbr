@@ -97,13 +97,13 @@ export function FileUpload({ onDataLoaded, compact = false, lastUpdate, role, as
 
       const reader = new FileReader();
       
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           let records: KPIRecord[];
 
           if (isXLSX) {
             const buffer = e.target?.result as ArrayBuffer;
-            records = parseXLSXFile(buffer);
+            records = await parseXLSXFile(buffer);
           } else {
             const content = e.target?.result as string;
             let data: unknown;
