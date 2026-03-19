@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { toast } from "sonner";
 
@@ -34,26 +34,50 @@ export async function exportDatabaseToXLSX() {
       return monthOrder.indexOf(mA) - monthOrder.indexOf(mB);
     });
 
-    // Build rows
-    const rows = data.map((row) => {
-      const md = row.monthly_data as Record<string, unknown>;
-      const obj: Record<string, unknown> = {
-        Assessor: row.assessor,
-        Categorias: row.categorias,
-        Status: row.status,
-      };
-      for (const key of monthKeys) {
-        obj[key] = md[key] ?? 0;
-      }
-      return obj;
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Base de Dados");
+
+    // Header row
+    const headers = ["Assessor", "Categorias", "Status", ...monthKeys];
+    worksheet.addRow(headers);
+
+    // Style header
+    const headerRow = worksheet.getRow(1);
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9E1F2" } };
     });
 
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Base de Dados");
+    // Data rows
+    for (const row of data) {
+      const md = row.monthly_data as Record<string, unknown>;
+      const rowData = [
+        row.assessor,
+        row.categorias,
+        row.status,
+        ...monthKeys.map((k) => (md[k] !== undefined && md[k] !== null ? md[k] : 0)),
+      ];
+      worksheet.addRow(rowData);
+    }
 
+    // Auto-fit columns
+    worksheet.columns.forEach((col) => {
+      col.width = 18;
+    });
+
+    // Generate and download file
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
     const today = new Date().toISOString().split("T")[0];
-    XLSX.writeFile(wb, `base_dados_${today}.xlsx`);
+    a.href = url;
+    a.download = `base_dados_${today}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+
     toast.success("Arquivo exportado com sucesso!");
   } catch (err) {
     console.error("Erro ao exportar:", err);

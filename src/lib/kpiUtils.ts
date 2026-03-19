@@ -1,5 +1,5 @@
 import { KPIRecord, ProcessedKPI, DashboardData, GaugeKPI, AssessorPerformance, MetaSemanal, KPIStatusIcon } from "@/types/kpi";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 
 // ============= EXCLUSION LIST (EDITABLE) =============
 export const EXCLUDED_CATEGORIES = [
@@ -68,12 +68,39 @@ export const KPI_CATEGORIES = [
   { category: "Ativacao", label: "Ativação", isCurrency: false },
 ];
 
-export function parseXLSXFile(buffer: ArrayBuffer): KPIRecord[] {
-  const workbook = XLSX.read(buffer, { type: "array" });
-  const sheetName = workbook.SheetNames[0];
-  const worksheet = workbook.Sheets[sheetName];
-  const data = XLSX.utils.sheet_to_json<KPIRecord>(worksheet);
-  return data;
+export async function parseXLSXFile(buffer: ArrayBuffer): Promise<KPIRecord[]> {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buffer);
+  const worksheet = workbook.worksheets[0];
+
+  const headers: string[] = [];
+  const records: KPIRecord[] = [];
+
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) {
+      row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        headers[colNumber] = String(cell.value ?? "");
+      });
+      return;
+    }
+    const record: Record<string, unknown> = {};
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      const header = headers[colNumber];
+      if (!header) return;
+      const val = cell.value;
+      if (val === null || val === undefined) {
+        record[header] = null;
+      } else if (typeof val === "object" && "result" in (val as object)) {
+        // formula cell — use result
+        record[header] = (val as { result: unknown }).result;
+      } else {
+        record[header] = val;
+      }
+    });
+    records.push(record as KPIRecord);
+  });
+
+  return records;
 }
 
 export function filterAuxiliaryRows(data: KPIRecord[]): KPIRecord[] {
