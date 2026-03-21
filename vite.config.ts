@@ -15,8 +15,6 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      // CRÍTICO: nunca cachear o próprio arquivo sw.js via HTTP cache
-      // Sem isso, o browser serve o sw antigo e nunca detecta atualizações
       injectRegister: "auto",
       includeAssets: ["favicon.ico", "robots.txt", "icons/*"],
       manifest: false, // Desativado - manifest é gerado dinamicamente em index.html para preservar token
@@ -24,27 +22,53 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        // Nunca cacheia HTML — sempre vai à rede para checar versão nova
+
+        // CRÍTICO: nunca cachear HTML — sempre vai à rede
         navigateFallback: null,
+        navigateFallbackDenylist: [/.*/], // bloqueia qualquer fallback de navegação do cache
+
+        // Não pré-cachear HTML — apenas assets estáticos imutáveis
         globPatterns: ["**/*.{js,css,ico,png,svg,woff,woff2}"],
+        globIgnores: ["**/*.html", "**/index.html"],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4 MiB
-        // Estratégia network-first para JS/CSS — garante versão mais recente
+
         runtimeCaching: [
+          // NAVEGAÇÃO (HTML): sempre busca da rede — NUNCA do cache
+          {
+            urlPattern: ({ request }) => request.mode === "navigate",
+            handler: "NetworkOnly",
+            options: {
+              cacheName: "html-cache",
+            },
+          },
+          // JS/CSS: network-first com fallback de 3s — garante versão mais recente
           {
             urlPattern: /\.(?:js|css)$/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "assets-cache",
               expiration: {
-                maxEntries: 50,
+                maxEntries: 60,
                 maxAgeSeconds: 60 * 60 * 24, // 1 dia
               },
               networkTimeoutSeconds: 3,
             },
           },
+          // Imagens/fontes: cache-first (raramente mudam)
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|woff|woff2|ico)$/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "static-cache",
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 dias
+              },
+            },
+          },
         ],
-      }
-    })
+      },
+    }),
   ].filter(Boolean),
   resolve: {
     alias: {
