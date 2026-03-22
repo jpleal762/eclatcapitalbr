@@ -1,5 +1,6 @@
 import React from "react";
-import { Settings, Pause, Play, Maximize2, Minimize2 } from "lucide-react";
+import { Settings, Pause, Play, Maximize2, Minimize2, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import eclatLogoDark from "@/assets/eclat-xp-logo-dark.svg";
 
 interface TVLayoutProps {
@@ -20,7 +21,7 @@ interface TVLayoutProps {
   onKioskExit?: () => void;
 }
 
-const SCREEN_LABELS = ["Comando do Dia", "Performance KPIs", "Por Assessor", "Reconhecimento"];
+const SCREEN_LABELS = ["Comando do Dia", "Performance KPIs", "Por Assessor", "Reconhecimento", "Plan. Semanal", "Plan. Trimestral"];
 
 export function TVLayout({
   children,
