@@ -60,11 +60,14 @@ export function TVLayout({
           isKiosk ? "opacity-0 pointer-events-none max-h-0 py-0 overflow-hidden" : "opacity-100 max-h-24 py-3"
         }`}
       >
+        {/* Back button */}
+        <BackButton />
+
         {/* Logo */}
         <img src={eclatLogoDark} alt="Éclat XP" className="h-9 flex-shrink-0" />
 
         {/* Screen tabs */}
-        <div className="flex gap-2 flex-1">
+        <div className="flex gap-1.5 flex-1 flex-wrap">
           {SCREEN_LABELS.map((label, idx) => (
             <button
               key={idx}
