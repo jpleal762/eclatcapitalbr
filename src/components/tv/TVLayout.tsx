@@ -180,3 +180,17 @@ function TVClock() {
     </span>
   );
 }
+
+function BackButton() {
+  const navigate = useNavigate();
+  return (
+    <button
+      onClick={() => navigate("/")}
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-tv-border/60 hover:bg-tv-border text-tv-muted hover:text-tv-text transition-all flex-shrink-0 text-sm font-medium"
+      title="Voltar ao Dashboard"
+    >
+      <ArrowLeft className="w-4 h-4" />
+      <span className="hidden lg:inline">Dashboard</span>
+    </button>
+  );
+}
