@@ -213,7 +213,7 @@ export function GaugeChart({
   // Marker color - dark gray in light mode, light gray in dark mode
   const markerColor = theme === "dark" ? "#D1D5DB" : "#4B5563";
   const isOnRhythm = alertType === "GREEN";
-  return <Card className={`p-responsive shadow-card h-full flex flex-col overflow-hidden ${isHighlight ? "bg-chart-dark text-foreground" : isOnRhythm ? "bg-green-500/5 border border-green-500/30" : "bg-card"}`}>
+  return <Card className={`p-responsive shadow-card h-full flex flex-col overflow-hidden ${isHighlight ? "bg-chart-dark text-foreground" : isOnRhythm ? "bg-green-500/5 border border-green-500/30" : alertType === "RED" ? "bg-red-500/8 border border-red-500/30" : alertType === "ORANGE" ? "bg-orange-500/5 border border-orange-500/20" : "bg-card"}`}>
       <div className={`flex ${showAssessorList ? 'flex-row gap-3' : 'flex-col'} flex-1 min-h-0 overflow-hidden`}>
         {/* Gauge Container */}
         <div className={`flex flex-col items-center justify-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1 overflow-hidden min-w-0`}>
