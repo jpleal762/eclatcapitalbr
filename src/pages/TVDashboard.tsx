@@ -169,8 +169,8 @@ export default function TVDashboard() {
   // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") setCurrentScreen(s => (s + 1) % 4);
-      if (e.key === "ArrowLeft") setCurrentScreen(s => (s - 1 + 4) % 4);
+      if (e.key === "ArrowRight") setCurrentScreen(s => (s + 1) % 6);
+      if (e.key === "ArrowLeft") setCurrentScreen(s => (s - 1 + 6) % 6);
       if (e.key === " ") setIsRotating(r => !r);
       if (e.key === "Escape") setIsConfigOpen(false);
     };
