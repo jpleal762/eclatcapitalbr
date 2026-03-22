@@ -268,7 +268,7 @@ export default function TVDashboard() {
         >
           <TVLayout
             currentScreen={currentScreen}
-            totalScreens={4}
+            totalScreens={6}
             screenDurations={screenDurations}
             timeLeft={timeLeft}
             isRotating={isRotating}
