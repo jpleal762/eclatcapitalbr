@@ -5,6 +5,8 @@ import { TVScreen1 } from "@/components/tv/TVScreen1";
 import { TVScreen2 } from "@/components/tv/TVScreen2";
 import { TVScreen3 } from "@/components/tv/TVScreen3";
 import { TVScreen4 } from "@/components/tv/TVScreen4";
+import { TVScreen5 } from "@/components/tv/TVScreen5";
+import { TVScreen6 } from "@/components/tv/TVScreen6";
 import { TVConfig } from "@/components/tv/TVConfig";
 import { loadExcelData, getLastUpdateTimestamp } from "@/lib/storage";
 import { processKPIData, processDashboardData, getAvailableMonths } from "@/lib/kpiUtils";
