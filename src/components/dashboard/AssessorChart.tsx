@@ -90,17 +90,17 @@ export function AssessorChart({
     const isOnRhythm = assessor.geralPercentage >= ritmoIdeal; // GREEN_CHECK or TROPHY
     
     const bgClass = isRedAlert
-      ? 'bg-red-500/10 border border-red-500/30'
+      ? 'bg-red-500/15 border border-red-500/40'
       : isOrangeAlert
-      ? 'bg-orange-500/8 border border-orange-500/20'
+      ? 'bg-orange-500/10 border border-orange-500/30'
       : isOnRhythm
       ? 'bg-green-500/8 border border-green-500/40'
       : index < 3 ? 'bg-muted/50 border border-transparent' : 'bg-background border border-transparent';
     
     const nameClass = isRedAlert
-      ? 'text-red-600 dark:text-red-400'
+      ? 'text-red-600 dark:text-red-400 font-bold'
       : isOrangeAlert
-      ? 'text-orange-600 dark:text-orange-400'
+      ? 'text-orange-600 dark:text-orange-400 font-semibold'
       : isOnRhythm
       ? 'text-green-600 dark:text-green-400'
       : 'text-foreground';

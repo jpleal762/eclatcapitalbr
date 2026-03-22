@@ -5,6 +5,8 @@ import { TVScreen1 } from "@/components/tv/TVScreen1";
 import { TVScreen2 } from "@/components/tv/TVScreen2";
 import { TVScreen3 } from "@/components/tv/TVScreen3";
 import { TVScreen4 } from "@/components/tv/TVScreen4";
+import { TVScreen5 } from "@/components/tv/TVScreen5";
+import { TVScreen6 } from "@/components/tv/TVScreen6";
 import { TVConfig } from "@/components/tv/TVConfig";
 import { loadExcelData, getLastUpdateTimestamp } from "@/lib/storage";
 import { processKPIData, processDashboardData, getAvailableMonths } from "@/lib/kpiUtils";
@@ -13,7 +15,7 @@ import { Loader2, WifiOff } from "lucide-react";
 import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { useWeeklyActions, WeeklyAction } from "@/components/dashboard/EclatWeeklyActions";
 
-const DEFAULT_DURATIONS = [20, 12, 12, 8];
+const DEFAULT_DURATIONS = [20, 12, 12, 8, 15, 15];
 const DATA_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 const getCurrentMonthValue = () => {
@@ -151,7 +153,7 @@ export default function TVDashboard() {
       setTimeLeft(prev => {
         if (prev <= 1) {
           setCurrentScreen(s => {
-            const next = (s + 1) % 4;
+            const next = (s + 1) % 6;
             setTimeLeft(screenDurations[next]);
             return next;
           });
@@ -167,8 +169,8 @@ export default function TVDashboard() {
   // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") setCurrentScreen(s => (s + 1) % 4);
-      if (e.key === "ArrowLeft") setCurrentScreen(s => (s - 1 + 4) % 4);
+      if (e.key === "ArrowRight") setCurrentScreen(s => (s + 1) % 6);
+      if (e.key === "ArrowLeft") setCurrentScreen(s => (s - 1 + 6) % 6);
       if (e.key === " ") setIsRotating(r => !r);
       if (e.key === "Escape") setIsConfigOpen(false);
     };
@@ -238,6 +240,18 @@ export default function TVDashboard() {
       ritmoIdeal={dashboardData.ritmoIdeal}
       selectedMonth={selectedMonth}
     />,
+    <TVScreen5
+      key="s5"
+      metaSemanal={dashboardData.metaSemanal}
+      ritmoIdeal={dashboardData.ritmoIdeal}
+      selectedMonth={selectedMonth}
+      totalDiasUteis={dashboardData.totalDiasUteis}
+      diasUteisDecorridos={dashboardData.diasUteisDecorridos}
+    />,
+    <TVScreen6
+      key="s6"
+      processedData={processedData}
+    />,
   ];
 
   return (
@@ -254,7 +268,7 @@ export default function TVDashboard() {
         >
           <TVLayout
             currentScreen={currentScreen}
-            totalScreens={4}
+            totalScreens={6}
             screenDurations={screenDurations}
             timeLeft={timeLeft}
             isRotating={isRotating}

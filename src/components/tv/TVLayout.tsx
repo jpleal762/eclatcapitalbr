@@ -1,5 +1,6 @@
 import React from "react";
-import { Settings, Pause, Play, Maximize2, Minimize2 } from "lucide-react";
+import { Settings, Pause, Play, Maximize2, Minimize2, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import eclatLogoDark from "@/assets/eclat-xp-logo-dark.svg";
 
 interface TVLayoutProps {
@@ -20,7 +21,7 @@ interface TVLayoutProps {
   onKioskExit?: () => void;
 }
 
-const SCREEN_LABELS = ["Comando do Dia", "Performance KPIs", "Por Assessor", "Reconhecimento"];
+const SCREEN_LABELS = ["Comando do Dia", "Performance KPIs", "Por Assessor", "Reconhecimento", "Plan. Semanal", "Plan. Trimestral"];
 
 export function TVLayout({
   children,
@@ -59,11 +60,14 @@ export function TVLayout({
           isKiosk ? "opacity-0 pointer-events-none max-h-0 py-0 overflow-hidden" : "opacity-100 max-h-24 py-3"
         }`}
       >
+        {/* Back button */}
+        <BackButton />
+
         {/* Logo */}
         <img src={eclatLogoDark} alt="Éclat XP" className="h-9 flex-shrink-0" />
 
         {/* Screen tabs */}
-        <div className="flex gap-2 flex-1">
+        <div className="flex gap-1.5 flex-1 flex-wrap">
           {SCREEN_LABELS.map((label, idx) => (
             <button
               key={idx}
@@ -174,5 +178,19 @@ function TVClock() {
     <span className="text-base font-bold text-tv-gold tabular-nums">
       {time.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
     </span>
+  );
+}
+
+function BackButton() {
+  const navigate = useNavigate();
+  return (
+    <button
+      onClick={() => navigate("/")}
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-tv-border/60 hover:bg-tv-border text-tv-muted hover:text-tv-text transition-all flex-shrink-0 text-sm font-medium"
+      title="Voltar ao Dashboard"
+    >
+      <ArrowLeft className="w-4 h-4" />
+      <span className="hidden lg:inline">Dashboard</span>
+    </button>
   );
 }
