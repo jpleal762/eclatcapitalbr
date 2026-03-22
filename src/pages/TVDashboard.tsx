@@ -15,7 +15,7 @@ import { Loader2, WifiOff } from "lucide-react";
 import { getAuthedClient } from "@/integrations/supabase/authedClient";
 import { useWeeklyActions, WeeklyAction } from "@/components/dashboard/EclatWeeklyActions";
 
-const DEFAULT_DURATIONS = [20, 12, 12, 8];
+const DEFAULT_DURATIONS = [20, 12, 12, 8, 15, 15];
 const DATA_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 const getCurrentMonthValue = () => {
