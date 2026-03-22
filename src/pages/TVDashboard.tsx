@@ -240,6 +240,18 @@ export default function TVDashboard() {
       ritmoIdeal={dashboardData.ritmoIdeal}
       selectedMonth={selectedMonth}
     />,
+    <TVScreen5
+      key="s5"
+      metaSemanal={dashboardData.metaSemanal}
+      ritmoIdeal={dashboardData.ritmoIdeal}
+      selectedMonth={selectedMonth}
+      totalDiasUteis={dashboardData.totalDiasUteis}
+      diasUteisDecorridos={dashboardData.diasUteisDecorridos}
+    />,
+    <TVScreen6
+      key="s6"
+      processedData={processedData}
+    />,
   ];
 
   return (
