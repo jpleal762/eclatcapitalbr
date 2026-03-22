@@ -153,7 +153,7 @@ export default function TVDashboard() {
       setTimeLeft(prev => {
         if (prev <= 1) {
           setCurrentScreen(s => {
-            const next = (s + 1) % 4;
+            const next = (s + 1) % 6;
             setTimeLeft(screenDurations[next]);
             return next;
           });
