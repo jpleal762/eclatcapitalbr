@@ -1,7 +1,7 @@
 import React from "react";
 import { DashboardData, AssessorPerformance, GaugeKPI } from "@/types/kpi";
 import { formatNumber } from "@/lib/kpiUtils";
-import { Trophy, AlertTriangle, CheckCircle, Target, Zap, ArrowUp, ArrowDown, Flame } from "lucide-react";
+import { Trophy, AlertTriangle, CheckCircle, Zap, ArrowUp, ArrowDown, Flame } from "lucide-react";
 import { WeeklyAction } from "@/components/dashboard/EclatWeeklyActions";
 
 interface TVScreen1Props {
@@ -52,7 +52,7 @@ function TVHBar({ pct, ritmo }: { pct: number; ritmo: number }) {
 }
 
 export function TVScreen1({ data, mensagemDia, kpiPrioridade, weeklyActions = [] }: TVScreen1Props) {
-  const { icmGeral, ritmoIdeal, diasUteisRestantes, totalDiasUteis, gaugeKPIs, assessorPerformance, metaSemanal } = data;
+  const { icmGeral, ritmoIdeal, diasUteisRestantes, totalDiasUteis, gaugeKPIs, assessorPerformance } = data;
   const status = getMonthStatus(icmGeral, ritmoIdeal);
 
   // Sort funnel KPIs
@@ -68,17 +68,6 @@ export function TVScreen1({ data, mensagemDia, kpiPrioridade, weeklyActions = []
       const ratioB = ritmoIdeal > 0 ? b.percentage / ritmoIdeal : b.percentage;
       return ratioA - ratioB;
     })[0];
-
-  // Meta do dia: proportional (monthly target / total business days)
-  const metaDia = metaSemanal
-    .filter(m => m.monthlyTarget && m.monthlyTarget > 0)
-    .map(m => ({
-      label: m.label,
-      daily: m.monthlyTarget! / (totalDiasUteis || 1),
-      isCurrency: m.isCurrency,
-    }))
-    .filter(m => m.daily > 0)
-    .slice(0, 5);
 
   const autoMsg = gargalo
     ? `Foco de hoje: ${gargalo.label.toLowerCase()} — faltam ${formatNumber(Math.max(gargalo.target - gargalo.value, 0), gargalo.isCurrency)}`
@@ -104,23 +93,30 @@ export function TVScreen1({ data, mensagemDia, kpiPrioridade, weeklyActions = []
         </div>
       </div>
 
-      {/* ─── AÇÕES ÉCLAT DA SEMANA ─── */}
-      {weeklyActions.length > 0 && (
-        <div className="flex-shrink-0 bg-tv-card border border-tv-gold/30 rounded-2xl px-5 py-3 flex items-center gap-6 overflow-hidden">
-          <div className="flex items-center gap-2 flex-shrink-0">
+      {/* ─── AÇÕES ÉCLAT DA SEMANA (destaque) ─── */}
+      {weeklyActions.length > 0 ? (
+        <div className="flex-shrink-0 rounded-2xl border border-tv-gold/40 overflow-hidden"
+          style={{ background: "linear-gradient(135deg, hsl(45 100% 50% / 0.12) 0%, hsl(45 100% 50% / 0.05) 100%)" }}
+        >
+          <div className="flex items-center gap-3 px-5 pt-4 pb-2 border-b border-tv-gold/20">
             <Flame className="w-5 h-5 text-tv-gold flex-shrink-0" />
-            <span className="text-sm font-bold text-tv-gold uppercase tracking-widest whitespace-nowrap">Ações Éclat da Semana</span>
+            <span className="text-sm font-black text-tv-gold uppercase tracking-widest">Ações Éclat da Semana</span>
           </div>
-          <div className="flex gap-6 flex-1 overflow-hidden">
+          <div className="grid grid-cols-3 gap-4 px-5 py-3">
             {weeklyActions.map((a, i) => (
-              <div key={a.id} className="flex items-center gap-2 min-w-0">
-                <span className="w-5 h-5 flex-shrink-0 rounded-full bg-tv-gold/20 text-tv-gold text-[10px] font-bold flex items-center justify-center">
+              <div key={a.id} className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-tv-gold/25 text-tv-gold text-sm font-black flex items-center justify-center mt-0.5 border border-tv-gold/40">
                   {i + 1}
                 </span>
-                <span className="text-sm font-semibold text-tv-text truncate">{a.text}</span>
+                <span className="text-base font-semibold text-tv-text leading-snug">{a.text}</span>
               </div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="flex-shrink-0 rounded-2xl border border-tv-border bg-tv-card px-5 py-3 flex items-center gap-3 opacity-50">
+          <Flame className="w-5 h-5 text-tv-gold flex-shrink-0" />
+          <span className="text-sm text-tv-muted italic">Ações Éclat da Semana não configuradas — acesse Configurações</span>
         </div>
       )}
 
@@ -231,24 +227,10 @@ export function TVScreen1({ data, mensagemDia, kpiPrioridade, weeklyActions = []
         </div>
       </div>
 
-      {/* ─── FOOTER STRIP ─── */}
-      <div className="flex-shrink-0 bg-tv-card border border-tv-border rounded-2xl px-5 py-3 flex gap-6 items-center overflow-hidden">
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Target className="w-5 h-5 text-tv-gold flex-shrink-0" />
-          <span className="text-sm font-bold text-tv-gold uppercase tracking-wider">Meta do Dia</span>
-        </div>
-        <div className="flex gap-5 flex-1 overflow-hidden">
-          {metaDia.map(m => (
-            <div key={m.label} className="flex flex-col items-center min-w-0">
-              <span className="text-xs text-tv-muted truncate max-w-[100px]">{m.label}</span>
-              <span className="text-base font-bold text-tv-text">{formatNumber(Math.ceil(m.daily), m.isCurrency)}</span>
-            </div>
-          ))}
-        </div>
-        <div className="flex items-center gap-2 flex-1 min-w-0 border-l border-tv-border pl-5">
-          <Zap className="w-5 h-5 text-tv-gold flex-shrink-0" />
-          <span className="text-base italic text-tv-text truncate">"{displayMsg}"</span>
-        </div>
+      {/* ─── FOOTER: mensagem do dia apenas ─── */}
+      <div className="flex-shrink-0 bg-tv-card border border-tv-border rounded-2xl px-5 py-3 flex items-center gap-3 overflow-hidden">
+        <Zap className="w-5 h-5 text-tv-gold flex-shrink-0" />
+        <span className="text-base italic text-tv-text truncate">"{displayMsg}"</span>
       </div>
     </div>
   );
@@ -273,6 +255,11 @@ function GargaloCard({ kpi, ritmoIdeal, assessors }: {
   const colors = getStatusColor(kpi.percentage, ritmoIdeal);
   const ritmoClamp = Math.min(ritmoIdeal, 100);
   const clampedPct = Math.min(kpi.percentage, 100);
+
+  // Bottom 3 assessors sorted by lowest % (most behind)
+  const bottomAssessors = [...assessors]
+    .sort((a, b) => a.geralPercentage - b.geralPercentage)
+    .slice(0, 3);
 
   return (
     <div className="flex flex-col gap-3 flex-1 overflow-hidden">
@@ -303,14 +290,25 @@ function GargaloCard({ kpi, ritmoIdeal, assessors }: {
         <div className="absolute top-0 bottom-0 w-0.5 bg-white/60 rounded" style={{ left: `${ritmoClamp}%` }} />
       </div>
       <div className="mt-1">
-        <span className="text-xs text-tv-muted font-semibold uppercase tracking-wider">Mais atrasados</span>
+        <span className="text-xs text-tv-muted font-semibold uppercase tracking-wider">Mais atrasados no ICM</span>
         <div className="space-y-1.5 mt-1">
-          {assessors.slice(Math.max(assessors.length - 3, 0)).reverse().map(a => (
-            <div key={a.fullName} className="flex justify-between text-sm">
-              <span className="text-tv-text truncate">{a.name.split(" ")[0]}</span>
-              <span className="text-tv-red font-semibold">{a.geralPercentage}%</span>
-            </div>
-          ))}
+          {bottomAssessors.map(a => {
+            const gap = ritmoIdeal - a.geralPercentage;
+            const isBelow = gap > 0;
+            return (
+              <div key={a.fullName} className="flex justify-between items-center text-sm">
+                <span className="text-tv-text truncate">{a.name.split(" ")[0]}</span>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="text-tv-muted text-xs">{a.geralPercentage}%</span>
+                  {isBelow && (
+                    <span className="text-tv-red font-bold text-xs bg-tv-red/10 px-1.5 py-0.5 rounded">
+                      -{gap}pp
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
