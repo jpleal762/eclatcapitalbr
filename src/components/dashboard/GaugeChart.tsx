@@ -220,10 +220,10 @@ export function GaugeChart({
           {/* Header with title and alert */}
           <div className="flex items-center justify-between w-full mb-responsive flex-shrink-0">
             <div className="flex flex-col flex-1 min-w-0">
-              <h4 className={`font-semibold text-responsive-xs ${isHighlight ? "text-card" : "text-foreground"} truncate whitespace-nowrap flex items-center gap-1`}>
-                {label}
+              <h4 className={`font-semibold text-responsive-xs ${isHighlight ? "text-card" : "text-foreground"} flex items-center gap-1 min-w-0`}>
+                <span className="truncate min-w-0">{label}</span>
                 {LABEL_ICON_MAP[label]}
-                {weight !== undefined && <span className="ml-1 text-muted-foreground font-normal">
+                {weight !== undefined && <span className="flex-shrink-0 ml-1 text-muted-foreground font-normal whitespace-nowrap">
                     x{weight}
                   </span>}
               </h4>
@@ -240,14 +240,14 @@ export function GaugeChart({
         <div className="flex flex-col items-center justify-center flex-1 min-h-0">
           {/* Percentage label - acima do gauge - 3x larger */}
           <div className="flex justify-center flex-shrink-0 -mb-2">
-            <span className={`text-[clamp(9px,1.25vw,14px)] font-bold whitespace-nowrap text-outline ${isHighlight ? "text-card" : "text-foreground"}`}>
+            <span className={`text-responsive-xl font-bold whitespace-nowrap text-outline ${isHighlight ? "text-card" : "text-foreground"}`}>
               {percentage}%
             </span>
           </div>
 
           {/* Dynamic SVG gauge */}
-          <div className="relative w-full flex-shrink-0 my-auto" style={{ aspectRatio: `${dynamicWidth} / ${dynamicHeight}`, maxWidth: dynamicWidth }}>
-          <svg width="100%" height="100%" viewBox={`0 0 ${dynamicWidth} ${dynamicHeight}`} overflow="visible" preserveAspectRatio="xMidYMid meet">
+          <div className="relative w-full flex-shrink-0 mx-auto" style={{ aspectRatio: `${dynamicWidth} / ${dynamicHeight + dynamicStrokeWidth / 2}`, maxWidth: `calc(${dynamicWidth}px * var(--scale-factor))` }}>
+          <svg width="100%" height="100%" viewBox={`0 0 ${dynamicWidth} ${dynamicHeight + dynamicStrokeWidth / 2}`} overflow="visible" preserveAspectRatio="xMidYMid meet">
             {/* Definições de gradientes SVG */}
             <defs>
               <linearGradient id="eclat-arc-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -287,7 +287,7 @@ export function GaugeChart({
           </svg>
 
           {/* Center content */}
-          <div className={`absolute inset-0 flex flex-col items-center justify-end pb-1 ${onEditProduction ? '' : 'pointer-events-none'}`}>
+          <div className={`absolute inset-0 flex flex-col items-center justify-end ${onEditProduction ? '' : 'pointer-events-none'}`} style={{ paddingBottom: `calc(${(dynamicStrokeWidth / 2 / dynamicWidth * 100).toFixed(2)}% + 4px)` }}>
             <span
               className={`text-responsive-lg font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"} ${onEditProduction ? "cursor-pointer hover:text-eclat-gold transition-colors pointer-events-auto" : ""}`}
               onClick={onEditProduction ? (e) => { e.stopPropagation(); onEditProduction(); } : undefined}

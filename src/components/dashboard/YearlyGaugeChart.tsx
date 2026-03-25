@@ -75,11 +75,11 @@ export function YearlyGaugeChart({
           </span>
         </div>
 
-        <div className="relative" style={{ width: dynamicWidth, height: dynamicHeight }}>
+        <div className="relative mx-auto" style={{ width: `calc(${dynamicWidth}px * var(--scale-factor))`, height: `calc(${dynamicHeight + dynamicStrokeWidth / 2}px * var(--scale-factor))` }}>
           <svg
-            width={dynamicWidth}
-            height={dynamicHeight}
-            viewBox={`0 0 ${dynamicWidth} ${dynamicHeight + 10}`}
+            width="100%"
+            height="100%"
+            viewBox={`0 0 ${dynamicWidth} ${dynamicHeight + dynamicStrokeWidth / 2}`}
           >
             {/* Background arc */}
             <path
@@ -105,7 +105,7 @@ export function YearlyGaugeChart({
           </svg>
 
           {/* Center content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
+          <div className="absolute inset-0 flex flex-col items-center justify-end" style={{ paddingBottom: `calc(${(dynamicStrokeWidth / 2 / dynamicWidth * 100).toFixed(2)}% + 4px)` }}>
             <span className="text-responsive-base font-bold text-foreground">
               {formatNumber(value, isCurrency)}
             </span>
