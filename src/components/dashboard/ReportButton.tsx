@@ -39,7 +39,7 @@ export function ReportButton({
       size="sm"
       onClick={handleGenerateReport}
       disabled={disabled}
-      className="h-6 text-responsive-xs gap-1 px-2 bg-primary/10 hover:bg-primary/20 border-primary/30"
+      className="h-6 text-responsive-xs gap-1 px-2 bg-muted hover:bg-primary hover:text-primary-foreground border-border transition-colors"
     >
       <FileText className="w-3 h-3" />
       <span className="hidden sm:inline">Relatório</span>

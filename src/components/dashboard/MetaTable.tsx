@@ -16,7 +16,7 @@ export function MetaTable({
   return <Card className="p-responsive shadow-card h-full flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-responsive flex-shrink-0">
         <h3 className="text-responsive-sm font-semibold text-foreground">Meta Semanal Acumulada</h3>
-        {selectedAssessor && selectedAssessor !== "all" && <span className="text-responsive-xs px-2 py-responsive-sm rounded-full bg-primary/10 text-primary font-medium">
+        {selectedAssessor && selectedAssessor !== "all" && <span className="text-responsive-xs px-2 py-responsive-sm rounded-full bg-primary text-primary-foreground font-medium">
             {selectedAssessor.split(" ").slice(0, 2).join(" ")}
           </span>}
       </div>
@@ -31,7 +31,7 @@ export function MetaTable({
             </tr>
           </thead>
           <tbody>
-            {data.map((item, index) => <tr key={index} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+            {data.map((item, index) => <tr key={index} className="border-b border-border hover:bg-muted transition-colors">
                 <td className="py-responsive-sm text-responsive-xs text-foreground">{item.label}</td>
                 <td className="py-responsive-sm text-responsive-xs text-right font-medium text-secondary-foreground">
                   {typeof item.value === 'number' ? item.isCurrency ? formatNumber(item.value, true) : formatNumber(item.value) : item.value}

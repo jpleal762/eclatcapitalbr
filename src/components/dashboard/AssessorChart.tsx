@@ -83,12 +83,12 @@ export function AssessorChart({
     const gapPP = Math.max(ritmoIdeal - assessor.geralPercentage, 0);
     
     const bgClass = isRedAlert
-      ? 'bg-red-500/15 border border-red-500/40'
+      ? 'border-l-[3px] border-l-red-500 bg-card'
       : isOrangeAlert
-      ? 'bg-orange-500/10 border border-orange-500/30'
+      ? 'border-l-[3px] border-l-orange-500 bg-card'
       : isOnRhythm
-      ? 'bg-green-500/8 border border-green-500/40'
-      : index < 3 ? 'bg-muted/50 border border-transparent' : 'bg-background border border-transparent';
+      ? 'border-l-[3px] border-l-green-500 bg-card'
+      : 'border-l-[3px] border-l-transparent bg-card';
     
     const nameClass = isRedAlert
       ? 'text-red-600 dark:text-red-400 font-bold'
@@ -115,7 +115,7 @@ export function AssessorChart({
             )}
           </div>
           {/* Barra ICM Geral com marcador de Ritmo Ideal */}
-          <div className="relative w-full h-[9px] bg-muted rounded-full overflow-visible mt-[1px]">
+          <div className="relative w-full h-bar-responsive bg-muted rounded-full overflow-visible mt-[1px]">
             <div className="h-full rounded-l-full transition-all duration-500 bg-eclat-gradient-horizontal" style={{
               width: `${Math.min(assessor.geralPercentage, 100)}%`
             }} />
@@ -149,7 +149,7 @@ export function AssessorChart({
           </span>
           {/* Gap abaixo do ritmo */}
           {!isOnRhythm && gapPP > 0 && (
-            <span className={`text-[9px] font-semibold leading-none mt-0.5 ${
+            <span className={`text-responsive-4xs font-semibold leading-none mt-0.5 ${
               isRedAlert ? 'text-red-500' : isOrangeAlert ? 'text-orange-500' : 'text-muted-foreground'
             }`}>
               -{gapPP}pp

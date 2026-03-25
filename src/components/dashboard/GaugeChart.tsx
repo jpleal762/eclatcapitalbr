@@ -31,6 +31,10 @@ interface GaugeChartProps {
   weight?: number;
   // Modo compacto - reduz escala do gauge para caber em espaços restritos
   compact?: boolean;
+  // Modo mini - ~50% do tamanho de sm compact, para cards da linha inferior
+  mini?: boolean;
+  // Modo slim - reduz ~15% o SVG e textos, para cards lg que precisam de ajuste fino
+  slim?: boolean;
   // Nome do head responsável pelo KPI (exibido abaixo do título em caixa alta)
   headName?: string;
   // Callback para editar produção deste KPI
@@ -129,6 +133,8 @@ export function GaugeChart({
   additionalValue,
   weight,
   compact = false,
+  mini = false,
+  slim = false,
   headName,
   onEditProduction,
   assessorListLabel
@@ -146,8 +152,9 @@ export function GaugeChart({
   const remainingPercentage = target > 0 ? (target - value) / target * 100 : 0;
   const remainingImpact = weight && remainingValue > 0 && target > 0 ? (weight / TOTAL_ICM_WEIGHT * remainingPercentage).toFixed(1) : null;
 
-  // Fixed dimensions based on size and compact mode - 3x increase
+  // Fixed dimensions based on size, compact and mini mode
   const dimensions = {
+    mini: { width: 72, height: 41, stroke: 6 },
     sm: {
       width: compact ? 135 : 168,
       height: compact ? 78 : 96,
@@ -164,11 +171,17 @@ export function GaugeChart({
       stroke: compact ? 18 : 21
     }
   };
+  const baseDims = mini ? dimensions.mini : dimensions[size];
+  const slimFactor = slim ? 0.85 : 1.0;
   const {
     width: dynamicWidth,
     height: dynamicHeight,
     stroke: dynamicStrokeWidth
-  } = dimensions[size];
+  } = {
+    width: Math.round(baseDims.width * slimFactor),
+    height: Math.round(baseDims.height * slimFactor),
+    stroke: Math.round(baseDims.stroke * slimFactor)
+  };
 
   // Calcular alerta e diferença para o ritmo ideal
   const ritmoIdealValue = ritmoIdeal !== undefined && target > 0 ? Math.round(ritmoIdeal / 100 * target * 100) / 100 : undefined;
@@ -213,14 +226,14 @@ export function GaugeChart({
   // Marker color - dark gray in light mode, light gray in dark mode
   const markerColor = theme === "dark" ? "#D1D5DB" : "#4B5563";
   const isOnRhythm = alertType === "GREEN";
-  return <Card className={`p-responsive shadow-card h-full flex flex-col overflow-hidden ${isHighlight ? "bg-chart-dark text-foreground" : isOnRhythm ? "bg-green-500/5 border border-green-500/30" : alertType === "RED" ? "bg-red-500/8 border border-red-500/30" : alertType === "ORANGE" ? "bg-orange-500/5 border border-orange-500/20" : "bg-card"}`}>
+  return <Card className={`${mini ? 'p-responsive-sm' : 'p-responsive'} shadow-card h-full flex flex-col overflow-hidden ${isHighlight ? "bg-chart-dark text-foreground" : isOnRhythm ? "bg-card border-l-[3px] border-l-green-500" : alertType === "RED" ? "bg-card border-l-[3px] border-l-red-500" : alertType === "ORANGE" ? "bg-card border-l-[3px] border-l-orange-500" : "bg-card"}`}>
       <div className={`flex ${showAssessorList ? 'flex-row gap-3' : 'flex-col'} flex-1 min-h-0 overflow-hidden`}>
         {/* Gauge Container */}
-        <div className={`flex flex-col items-center justify-center ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1 overflow-hidden min-w-0`}>
+        <div className={`flex flex-col items-center justify-start ${showAssessorList ? 'flex-1' : ''} min-h-0 flex-1 overflow-hidden min-w-0`}>
           {/* Header with title and alert */}
           <div className="flex items-center justify-between w-full mb-responsive flex-shrink-0">
             <div className="flex flex-col flex-1 min-w-0">
-              <h4 className={`font-semibold text-responsive-xs ${isHighlight ? "text-card" : "text-foreground"} flex items-center gap-1 min-w-0`}>
+              <h4 className={`font-semibold ${mini ? 'text-responsive-4xs' : slim ? 'text-responsive-4xs' : 'text-responsive-xs'} ${isHighlight ? "text-card" : "text-foreground"} flex items-center gap-1 min-w-0`}>
                 <span className="truncate min-w-0">{label}</span>
                 {LABEL_ICON_MAP[label]}
                 {weight !== undefined && <span className="flex-shrink-0 ml-1 text-muted-foreground font-normal whitespace-nowrap">
@@ -239,8 +252,8 @@ export function GaugeChart({
         {/* Centered gauge wrapper */}
         <div className="flex flex-col items-center justify-center flex-1 min-h-0">
           {/* Percentage label - acima do gauge - 3x larger */}
-          <div className="flex justify-center flex-shrink-0 -mb-2">
-            <span className={`text-responsive-xl font-bold whitespace-nowrap text-outline ${isHighlight ? "text-card" : "text-foreground"}`}>
+          <div className="flex justify-center flex-shrink-0 mb-0">
+            <span className={`${mini ? 'text-responsive-sm' : slim ? 'text-responsive-lg' : 'text-responsive-xl'} font-bold whitespace-nowrap text-outline ${isHighlight ? "text-card" : "text-foreground"}`}>
               {percentage}%
             </span>
           </div>
@@ -289,7 +302,7 @@ export function GaugeChart({
           {/* Center content */}
           <div className={`absolute inset-0 flex flex-col items-center justify-end ${onEditProduction ? '' : 'pointer-events-none'}`} style={{ paddingBottom: `calc(${(dynamicStrokeWidth / 2 / dynamicWidth * 100).toFixed(2)}% + 4px)` }}>
             <span
-              className={`text-responsive-lg font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"} ${onEditProduction ? "cursor-pointer hover:text-eclat-gold transition-colors pointer-events-auto" : ""}`}
+              className={`${mini ? 'text-responsive-xs' : slim ? 'text-responsive-base' : 'text-responsive-lg'} font-bold whitespace-nowrap ${isHighlight ? "text-card" : "text-foreground"} ${onEditProduction ? "cursor-pointer hover:text-eclat-gold transition-colors pointer-events-auto" : ""}`}
               onClick={onEditProduction ? (e) => { e.stopPropagation(); onEditProduction(); } : undefined}
             >
               {formatNumber(value, isCurrency)}
@@ -302,7 +315,7 @@ export function GaugeChart({
           </div>
 
           {/* Min/Max labels */}
-          <div className={`flex justify-between w-full text-responsive-3xs flex-shrink-0 whitespace-nowrap ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
+          <div className={`flex justify-between w-full ${mini ? 'text-responsive-4xs' : 'text-responsive-3xs'} flex-shrink-0 whitespace-nowrap ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
             <span>{isCurrency ? "0 Mi" : "0"}</span>
             <span className="truncate">{formatNumber(target, isCurrency)}</span>
           </div>
@@ -310,7 +323,7 @@ export function GaugeChart({
 
         {/* Secondary bar - always reserve space */}
         <div className={`w-full mt-responsive space-y-1 flex-shrink-0 ${secondaryPercentage === undefined ? 'hidden' : ''}`}>
-            <div className={`flex justify-between text-responsive-3xs whitespace-nowrap ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
+            <div className={`flex justify-between ${mini ? 'text-responsive-4xs' : 'text-responsive-3xs'} whitespace-nowrap ${isHighlight ? "text-card/70" : "text-muted-foreground"}`}>
               <span className="truncate">{secondaryLabel || "Agendadas"}</span>
               <span className="font-medium">{secondaryPercentage ?? 0}%</span>
             </div>
@@ -327,11 +340,11 @@ export function GaugeChart({
         </div>
 
         {/* Lista de Falta por Assessor - always reserve space when showAssessorList is true */}
-        {showAssessorList && <div className="w-[90px] max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
+        {showAssessorList && <div className={`${mini ? 'w-[60px]' : 'w-[100px]'} max-h-full overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2`}>
             <p className="text-responsive-3xs text-muted-foreground mb-1 flex-shrink-0 font-semibold truncate whitespace-nowrap">
               {assessorListLabel || "Falta p/ Assessor"}
             </p>
-            <div className="overflow-y-auto flex-1 min-h-0">
+            <div className="overflow-hidden">
               <div className="space-y-0.5">
                 {(() => {
                   const items = assessorRemainingData || [];
@@ -342,25 +355,18 @@ export function GaugeChart({
                         <span className="font-medium truncate max-w-[40px]" title={item.name}>
                           {item.name}
                         </span>
-                        <span className="font-medium flex-shrink-0 text-[9px] text-secondary-foreground">
+                        <span className="font-medium flex-shrink-0 text-responsive-4xs text-secondary-foreground">
                           {item.remaining}
                         </span>
                       </div>
                     ));
                   }
-                  const nonAchieved = items
-                    .map((a, i) => ({ ...a, originalIdx: i }))
-                    .filter(a => !a.achieved)
-                    .sort((a, b) => b.remaining - a.remaining);
-                  const top2Set = new Set(nonAchieved.slice(0, 2).map(a => a.originalIdx));
-                  
                   return items.map((item, index) => {
-                    const isTop2 = top2Set.has(index);
-                    return <div key={index} className={`flex items-center justify-between text-responsive-3xs gap-1 ${isTop2 ? "bg-red-500/40 rounded px-0.5" : ""}`}>
-                      <span className={`font-medium truncate max-w-[40px] ${isTop2 ? "font-black" : ""}`} title={item.name}>
+                    return <div key={index} className="flex items-center justify-between text-responsive-3xs gap-1">
+                      <span className="font-medium truncate max-w-[40px]" title={item.name}>
                         {item.name}
                       </span>
-                      {item.achieved ? <CheckCircle2 className="h-3 w-3 text-green-500 flex-shrink-0" /> : <span className={`font-medium flex-shrink-0 text-[9px] ${isTop2 ? "font-black text-red-300 animate-pulse" : "text-secondary-foreground"}`}>
+                      {item.achieved ? <CheckCircle2 className="h-3 w-3 text-green-500 flex-shrink-0" /> : <span className="font-medium flex-shrink-0 text-responsive-4xs text-secondary-foreground">
                           {formatNumber(item.remaining, isCurrency)}
                         </span>}
                     </div>;

@@ -34,6 +34,8 @@ interface FlipGaugeChartProps {
   isFlipped?: boolean;
   // Modo compacto - reduz escala do gauge
   compact?: boolean;
+  // Modo mini - ~50% do tamanho sm compact
+  mini?: boolean;
   // Callback para editar produção deste KPI
   onEditProduction?: () => void;
 }
@@ -56,6 +58,7 @@ export function FlipGaugeChart({
   backData,
   isFlipped: controlledFlipped,
   compact = false,
+  mini = false,
   onEditProduction,
 }: FlipGaugeChartProps) {
   // Manual flip offset for user-initiated flips
@@ -99,6 +102,7 @@ export function FlipGaugeChart({
               additionalValue={additionalValue}
               weight={weight}
               compact={compact}
+              mini={mini}
               onEditProduction={onEditProduction}
             />
             {/* Indicador de flip */}
@@ -112,7 +116,7 @@ export function FlipGaugeChart({
         <div className="absolute inset-0 backface-hidden rotate-y-180 overflow-hidden">
           <Card className="h-full p-1 flex flex-col shadow-card">
             <div className="flex items-center justify-between mb-0.5">
-              <h4 className="font-semibold text-responsive-2xs text-foreground">
+              <h4 className={`font-semibold ${mini ? 'text-responsive-4xs' : 'text-responsive-2xs'} text-foreground`}>
                 {backTitle}
               </h4>
               <div className="p-[1px] rounded-full bg-muted/50">
@@ -127,7 +131,7 @@ export function FlipGaugeChart({
                   backData.map((item, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between text-responsive-2xs py-0"
+                      className={`flex items-center justify-between ${mini ? 'text-responsive-4xs' : 'text-responsive-2xs'} py-0`}
                     >
                       <span className="font-medium text-foreground truncate max-w-[55%]">
                         {item.name}
