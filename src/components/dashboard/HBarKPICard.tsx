@@ -223,32 +223,30 @@ export function HBarKPICard({
 
         {/* Assessor list (right side, when showAssessorList) */}
         {showAssessorList && (
-          <div className="w-[100px] overflow-hidden flex flex-col flex-shrink-0 border-l border-border pl-2">
+          <div className="w-[100px] flex flex-col flex-shrink-0 border-l border-border pl-2 h-full min-h-0">
             <p className="text-responsive-4xs text-muted-foreground mb-0.5 font-semibold truncate whitespace-nowrap flex-shrink-0">
               {assessorListLabel || "Falta p/ Assessor"}
             </p>
-            <div className="overflow-hidden">
-              <div className="space-y-0.5">
-                {(assessorRemainingData || []).map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between text-responsive-4xs gap-1"
-                  >
-                    <span className="font-medium truncate max-w-[50px]" title={item.name}>
-                      {item.name}
+            <div className="flex-1 flex flex-col justify-between min-h-0">
+              {(assessorRemainingData || []).map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between text-responsive-4xs gap-1"
+                >
+                  <span className="font-medium truncate max-w-[50px]" title={item.name}>
+                    {item.name}
+                  </span>
+                  {item.achieved ? (
+                    <CheckCircle2 className="h-2.5 w-2.5 text-green-500 flex-shrink-0" />
+                  ) : (
+                    <span className="font-medium flex-shrink-0 text-responsive-4xs text-secondary-foreground">
+                      {assessorListLabel
+                        ? String(item.remaining)
+                        : formatNumber(item.remaining, isCurrency)}
                     </span>
-                    {item.achieved ? (
-                      <CheckCircle2 className="h-2.5 w-2.5 text-green-500 flex-shrink-0" />
-                    ) : (
-                      <span className="font-medium flex-shrink-0 text-responsive-4xs text-secondary-foreground">
-                        {assessorListLabel
-                          ? String(item.remaining)
-                          : formatNumber(item.remaining, isCurrency)}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}
